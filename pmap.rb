@@ -30,6 +30,7 @@ class ArrayCommand
         def translate(source, funcName)
             ast = self.parser.parse(source)
             @functions = {funcName => ast}
+            @symbolTable = SymbolTable.new
             result = ""
             
             while not @functions.empty? do
@@ -43,8 +44,7 @@ class ArrayCommand
         
         def translateBlock(node)
             if node.type != :begin
-                puts "Error: BEGIN block expected"
-                exit
+                raise "ERROR: BEGIN block expected"
             end
             
             content = node.children.map do |s| translateAst(s) end.join(";\n") + "\n"
@@ -52,17 +52,122 @@ class ArrayCommand
             return "{\n#{indented}\n}\n"
         end
         
+        BINARY_ARITHMETIC_OPERATORS = [:+, :-, :*, :/]
+        BINARY_COMPARISON_OPERATORS = [:==, :>, :<, :>=, :<=, :!=]
+        BINARY_LOGICAL_OPERATORS = [:|, :"||", :&, :"&&", :^]
+        
+        class TranslationResult
+            def initialize(translation, type)
+                @translation = translation
+                @type = type
+            end
+            
+            def translation
+                return @translation
+            end
+            
+            def type
+                return @type
+            end
+            
+            def to_str
+                return translation
+            end
+            
+            def to_s
+                return to_str
+            end
+            
+            def +(other)
+                return to_str + other.to_str
+            end
+        end
+        
         def translateAst(node)
             return case node.type
                 when :int
-                    "#{node.children[0].to_s}"
+                    TranslationResult.new(node.children[0].to_s, SymbolTable::PrimitiveType::INT)
+                when :float
+                    TranslationResult.new(node.children[0].to_s, SymbolTable::PrimitiveType::FLOAT)
                 when :lvar
-                    node.children[0].to_s
+                    TranslationResult.new(node.children[0].to_s, @symbolTable[node.children[0].to_sym])
                 when :lvasgn
-                    node.children[0].to_s + " = " + translateAst(node.children[1])
+                    value = translateAst(node.children[1])
+                    
+                    if (@symbolTable.has_key?(node.children[0].to_sym))
+                        @symbolTable.assert(node.children[0].to_sym, value.type)
+                        TranslationResult.new(node.children[0].to_s + " = " + value, value.type)
+                    else
+                        @symbolTable.insert(node.children[0].to_sym, value.type)
+                        TranslationResult.new(value.type.cTypeName + " " + node.children[0].to_s + " = " + value, value.type)
+                    end
                 when :send
-                    receiver = node.children[0] == nil ? "" : translateAst(node.children[0]) + "."
-                    receiver + node.children[1].to_s + "(" + node.children[2..-1].map { |c| translateAst(c) }.join(", ") + ")"
+                    receiver = node.children[0] == nil ? TranslationResult.new("", SymbolTable::PrimitiveType::VOID) : translateAst(node.children[0])
+                    
+                    if BINARY_ARITHMETIC_OPERATORS.include?(node.children[1])
+                        operand = translateAst(node.children[2])
+                        value = "(" + receiver + " " + node.children[1].to_s + " " + operand + ")"
+                        
+                        if receiver.type.isPrimitive and operand.type.isPrimitive
+                            # implicit type conversions allowed
+                            
+                            if [receiver.type, operand.type].include?(SymbolTable::PrimitiveType::BOOL)
+                                raise "ERROR: operator #{node.children[1].to_s} not applicable to BOOL"
+                            elsif [receiver.type,  operand.type].include?(SymbolTable::PrimitiveType::VOID)
+                                raise "ERROR: operator #{node.children[1].to_s} not applicable to VOID"
+                            end
+                            
+                            if receiver.type == SymbolTable::PrimitiveType::DOUBLE or operand.type == SymbolTable::PrimitiveType::DOUBLE
+                                type = SymbolTable::PrimitiveType::DOUBLE
+                            elsif receiver.type == SymbolTable::PrimitiveType::FLOAT or operand.type == SymbolTable::PrimitiveType::FLOAT
+                                type = SymbolTable::PrimitiveType::FLOAT
+                            elsif receiver.type == SymbolTable::PrimitiveType::INT or operand.type == SymbolTable::PrimitiveType::INT
+                                type = SymbolTable::PrimitiveType::INT
+                            end
+                            
+                            TranslationResult.new(value.to_str, type)
+                        else
+                            raise "ERROR: type inference not implemented for non-primitive types"
+                        end
+                    elsif BINARY_COMPARISON_OPERATORS.include?(node.children[1])
+                        operand = translateAst(node.children[2])
+                        value = "(" + receiver + " " + node.children[1].to_s + " " + operand + ")"
+                        
+                        if receiver.type.isPrimitive and operand.type.isPrimitive
+                            # implicit type conversions allowed
+                            
+                            if [receiver.type,  operand.type].include?(SymbolTable::PrimitiveType::BOOL)
+                                if [receiver.type,  operand.type].uniq.size == 2
+                                    if node.children[1] == :== then
+                                        # comparing objects of differnt types for identity
+                                        value = "false"
+                                    elsif node.children[1] == :!=
+                                        value = "true"
+                                    else
+                                        raise "ERROR: operator #{node.children[1].to_s} not applicable to BOOL and other type"
+                                    end
+                                else
+                                    if not [:==, :!=].include?(node.children[1])
+                                        raise "ERROR: operator #{node.children[1].to_s} not applicable to BOOL"
+                                    end
+                                end
+                            elsif [receiver.type,  operand.type].include?(SymbolTable::PrimitiveType::VOID)
+                                raise "ERROR: operator #{node.children[1].to_s} not applicable to VOID"
+                            end
+                            
+                            TranslationResult.new(value.to_str, SymbolTable::PrimitiveType::BOOL)
+                        else
+                            raise "ERROR: type inference not implemented for non-primitive types"
+                        end
+                    else
+                        if node.children[0] != nil
+                            receiver += "."
+                        end
+                        
+                        value = receiver + node.children[1].to_s + "(" + node.children[2..-1].map { |c| translateAst(c) }.join(", ") + ")"
+                        # TODO: type inference for objects
+                        TranslationResult.new(value, SymbolTable::PrimitiveType::INT)
+                    end
                 when :begin
                     if node.children.size == 1
                         translateAst(node.children[0])
@@ -72,12 +177,18 @@ class ArrayCommand
                         funcId + "()"
                     end
                 when :if
-                    result = "if (#{translateAst(node.children[0])})\n" + translateBlock(node.children[1])
+                    condition = translateAst(node.children[0])
+                    
+                    if (condition.type != SymbolTable::PrimitiveType::BOOL)
+                        raise "ERROR: only BOOL allowed in condition but saw #{condition.type}"
+                    end
+                    
+                    result = "if (#{condition.to_str})\n" + translateBlock(node.children[1])
                     
                     if node.children.size > 2
-                        result + "else\n" + translateBlock(node.children[2])
+                        TranslationResult.new(result + "else\n" + translateBlock(node.children[2]), SymbolTable::PrimitiveType::VOID)
                     else
-                        result
+                        TranslationResult.new(result, SymbolTable::PrimitiveType::VOID)
                     end
                 when :args
                     ""
@@ -98,6 +209,51 @@ class ArrayCommand
         
         def parser
             return Parser::CurrentRuby
+        end
+        
+        class SymbolTable < Hash
+            class PrimitiveType
+                def initialize(type, cType)
+                    @type = type
+                    @cType = cType
+                end
+                
+                def cTypeName
+                    return @cType
+                end
+                
+                def isPrimitive
+                    return true
+                end
+                
+                INT = self.new(:int, "int")
+                FLOAT = self.new(:float, "float")
+                DOUBLE = self.new(:double, "double")
+                BOOL = self.new(:bool, "bool")
+                VOID = self.new(:void, "void")
+            end
+            
+            def assert(symbol, type)
+                if type != self[symbol]
+                    raise "ERROR: #{symbol} has type #{self[symbol]}, but requires #{type}"
+                end
+            end
+            
+            def insert(symbol, type)
+                if self.has_key?(symbol)
+                    raise "ERROR: #{symbol} already defined"
+                end
+                
+                self[symbol] = type
+            end
+            
+            def [](symbol)
+                if self.has_key?(symbol)
+                    return self.fetch(symbol)
+                else
+                    raise "ERROR: #{symbol} expected but not found in symbol table"
+                end
+            end
         end
     end
 end
@@ -191,13 +347,15 @@ end
 
 a = [1,2,3].pmap do |x| 
     x + 2
-    y = x + 2 * 5
+    y = x + 2 * 5.0
+    y = x * 2 + 5.0
+    y = y + 2
     foo(begin
         puts 123
         4
     end)
     
-    if x then
+    if (y==y) == (y==y) then
         puts 123
     else
         puts x
