@@ -27,10 +27,18 @@ class ArrayCommand
     end
     
     class Translator
-        def translate(source, funcName)
-            ast = self.parser.parse(source)
-            @functions = {funcName => ast}
+        VAR_DECL_SYMBOL = :DECL_ONLY
+        
+        def translate(source, funcName, externs={})
             @symbolTable = SymbolTable.new
+            @symbolTable.merge!(externs)
+            
+            modifiedSource = externs.keys.reduce("") do |acc, n|
+                acc + n.to_s + " = :" + VAR_DECL_SYMBOL.to_s + "\n"
+            end + source
+            
+            ast = self.parser.parse(modifiedSource)
+            @functions = {funcName => ast}
             result = ""
             
             while not @functions.empty? do
@@ -92,14 +100,21 @@ class ArrayCommand
                 when :lvar
                     TranslationResult.new(node.children[0].to_s, @symbolTable[node.children[0].to_sym])
                 when :lvasgn
-                    value = translateAst(node.children[1])
-                    
-                    if (@symbolTable.has_key?(node.children[0].to_sym))
-                        @symbolTable.assert(node.children[0].to_sym, value.type)
-                        TranslationResult.new(node.children[0].to_s + " = " + value, value.type)
+                    if (node.children[1].type == :sym && node.children[1].children[0] == Translator::VAR_DECL_SYMBOL)
+                        # TODO: find better way to do this
+                        # TODO: I think we do not need this because this is part of the method signature
+                        # This is only a variable declaration without an assignment
+                        TranslationResult.new(@symbolTable[node.children[0].to_sym].cTypeName + " " + node.children[0].to_s + ";", SymbolTable::PrimitiveType::VOID)
                     else
-                        @symbolTable.insert(node.children[0].to_sym, value.type)
-                        TranslationResult.new(value.type.cTypeName + " " + node.children[0].to_s + " = " + value, value.type)
+                        value = translateAst(node.children[1])
+                        
+                        if (@symbolTable.has_key?(node.children[0].to_sym))
+                            @symbolTable.assert(node.children[0].to_sym, value.type)
+                            TranslationResult.new(node.children[0].to_s + " = " + value, value.type)
+                        else
+                            @symbolTable.insert(node.children[0].to_sym, value.type)
+                            TranslationResult.new(value.type.cTypeName + " " + node.children[0].to_s + " = " + value, value.type)
+                        end
                     end
                 when :send
                     receiver = node.children[0] == nil ? TranslationResult.new("", SymbolTable::PrimitiveType::VOID) : translateAst(node.children[0])
@@ -138,7 +153,7 @@ class ArrayCommand
                             
                             if [receiver.type,  operand.type].include?(SymbolTable::PrimitiveType::BOOL)
                                 if [receiver.type,  operand.type].uniq.size == 2
-                                    if node.children[1] == :== then
+                                    if node.children[1] == :==
                                         # comparing objects of differnt types for identity
                                         value = "false"
                                     elsif node.children[1] == :!=
@@ -159,6 +174,28 @@ class ArrayCommand
                         else
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
+                    elsif BINARY_LOGICAL_OPERATORS.include?(node.children[1])
+                        operand = translateAst(node.children[2])
+                        operator = node.children[1]
+                        value = "(" + receiver + " " + operator.to_s + " " + operand + ")"
+                        int_float = [SymbolTable::PrimitiveType::INT, SymbolTable::PrimitiveType::FLOAT]
+                        type = nil
+                        
+                        if int_float.include?(receiver.type) and int_float.include?(operand.type)
+                            if operator == :"||"
+                                value = receiver
+                                type = receiver.type
+                            elsif operator == :"&&"
+                                value = operand
+                                type = operand.type
+                            end
+                        elsif receiver.type == SymbolTable::PrimitiveType::BOOL and operand.type == SymbolTable::PrimitiveType::BOOL
+                            type = SymbolTable::PrimitiveType::BOOL
+                        else
+                            raise "ERROR: type inference not implemented for non-primitive types"
+                        end
+                        
+                        TranslationResult.new(value.to_str, type)
                     else
                         if node.children[0] != nil
                             receiver += "."
@@ -193,6 +230,7 @@ class ArrayCommand
                 when :args
                     ""
                 else
+                    puts "MISSING: " + node.type.to_s
                     ""
             end
         end
@@ -273,7 +311,7 @@ class ArrayMapCommand < ArrayCommand
         ast = self.parser.parse(@block.to_source(strip_enclosure: true))
         #ast = Ripper.sexp(@block.to_source(strip_enclosure: true))
         pp ast
-        puts ArrayCommand::Translator.new.translate(@block.to_source(strip_enclosure: true), "main")
+        puts ArrayCommand::Translator.new.translate(@block.to_source(strip_enclosure: true), "main", {@block.parameters[0][1] => ArrayCommand::Translator::SymbolTable::PrimitiveType::INT})
         #pp ast.children[0]
         # use @block.binding to get local variables in context
     end
@@ -350,12 +388,16 @@ a = [1,2,3].pmap do |x|
     y = x + 2 * 5.0
     y = x * 2 + 5.0
     y = y + 2
+    array.map do |ppp|
+    
+    end
+    
     foo(begin
         puts 123
         4
     end)
     
-    if (y==y) == (y==y) then
+    if (y==y) == (y==y)
         puts 123
     else
         puts x
