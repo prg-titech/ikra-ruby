@@ -19,6 +19,25 @@ class ArrayCommand
         return ArraySelectCommand.new(self, &block)
     end
     
+    def parser
+        return Parser::CurrentRuby
+    end
+    
+    def parse_block(block)
+        parser = Parser::CurrentRuby.default_parser
+        block.binding.local_variables.each do |var|
+            parser.static_env.declare(var)
+        end
+        block.parameters.map do |param|
+            parser.static_env.declare(param[1])
+        end
+        
+        parser_source = Parser::Source::Buffer.new('(string)', 1)
+        parser_source.source = block.to_source(strip_enclosure: true)
+        
+        return parser.parse(parser_source)
+    end
+    
     protected
     
     def result
@@ -29,38 +48,41 @@ class ArrayCommand
     class Translator
         VAR_DECL_SYMBOL = :DECL_ONLY
         
-        def translate(source, funcName, externs={})
-            @symbolTable = SymbolTable.new
-            @symbolTable.merge!(externs)
+        def translate(ast, func_name, command, externs = {}, skip_signature_externals = [])
+        
+            @symbol_table = SymbolTable.new
+            @symbol_table.merge!(externs)
+            @all_variables = []
             
-            modifiedSource = externs.keys.reduce("") do |acc, n|
-                acc + n.to_s + " = :" + VAR_DECL_SYMBOL.to_s + "\n"
-            end + source
-            
-            ast = self.parser.parse(modifiedSource)
-            @functions = {funcName => ast}
+            @functions = {func_name => ast}
             result = ""
             
             while not @functions.empty? do
                 pair = @functions.first
                 @functions.delete(pair[0])
-                result += "function #{pair[0]}()\n" + translateBlock(pair[1])
+                block_translated = translate_block(pair[1])
+                externs_decl = externs.to_a
+                    .select do |var| @all_variables.include?(var[0]) end
+                    .reject do |var| skip_signature_externals.include?(var[0]) end
+                    .map do |pair| pair[1].c_type_name + " " + pair[0].to_s end
+                    .join(", ")
+                result += "__global__ void #{pair[0]}(#{externs_decl})\n" + command.assign_input + block_translated
             end
             
             return result
         end
         
-        def translateBlock(node)
+        def translate_block(node)
             if node.type != :begin
                 raise "ERROR: BEGIN block expected"
             end
             
-            content = node.children.map do |s| translateAst(s) end.join(";\n") + "\n"
+            content = node.children.map do |s| translate_ast(s) end.join(";\n") + "\n"
             indented = content.split("\n").map do |line| "    " + line end.join("\n")
             return "{\n#{indented}\n}\n"
         end
         
-        BINARY_ARITHMETIC_OPERATORS = [:+, :-, :*, :/]
+        BINARY_ARITHMETIC_OPERATORS = [:+, :-, :*, :/, :%]
         BINARY_COMPARISON_OPERATORS = [:==, :>, :<, :>=, :<=, :!=]
         BINARY_LOGICAL_OPERATORS = [:|, :"||", :&, :"&&", :^]
         
@@ -91,39 +113,42 @@ class ArrayCommand
             end
         end
         
-        def translateAst(node)
+        def translate_ast(node)
             return case node.type
                 when :int
-                    TranslationResult.new(node.children[0].to_s, SymbolTable::PrimitiveType::INT)
+                    value = node.children[0].to_s
+                    TranslationResult.new(value, SymbolTable::PrimitiveType::INT)
                 when :float
-                    TranslationResult.new(node.children[0].to_s, SymbolTable::PrimitiveType::FLOAT)
+                    value = node.children[0].to_s
+                    TranslationResult.new(value, SymbolTable::PrimitiveType::FLOAT)
                 when :lvar
-                    TranslationResult.new(node.children[0].to_s, @symbolTable[node.children[0].to_sym])
+                    var_name = node.children[0].to_s
+                    @all_variables.push(var_name.to_sym)
+                    TranslationResult.new(var_name, @symbol_table[node.children[0].to_sym])
                 when :lvasgn
                     if (node.children[1].type == :sym && node.children[1].children[0] == Translator::VAR_DECL_SYMBOL)
                         # TODO: find better way to do this
-                        # TODO: I think we do not need this because this is part of the method signature
-                        # This is only a variable declaration without an assignment
-                        TranslationResult.new(@symbolTable[node.children[0].to_sym].cTypeName + " " + node.children[0].to_s + ";", SymbolTable::PrimitiveType::VOID)
+                        TranslationResult.new("", SymbolTable::PrimitiveType::VOID)
                     else
-                        value = translateAst(node.children[1])
+                        value = translate_ast(node.children[1])
+                        var_name = node.children[0].to_sym
                         
-                        if (@symbolTable.has_key?(node.children[0].to_sym))
-                            @symbolTable.assert(node.children[0].to_sym, value.type)
-                            TranslationResult.new(node.children[0].to_s + " = " + value, value.type)
+                        if (@symbol_table.has_key?(var_name))
+                            @symbol_table.assert(var_name, value.type)
+                            TranslationResult.new(var_name.to_s + " = " + value, value.type)
                         else
-                            @symbolTable.insert(node.children[0].to_sym, value.type)
-                            TranslationResult.new(value.type.cTypeName + " " + node.children[0].to_s + " = " + value, value.type)
+                            @symbol_table.insert(var_name, value.type)
+                            TranslationResult.new(value.type.c_type_name + " " + var_name.to_s + " = " + value, value.type)
                         end
                     end
                 when :send
-                    receiver = node.children[0] == nil ? TranslationResult.new("", SymbolTable::PrimitiveType::VOID) : translateAst(node.children[0])
+                    receiver = node.children[0] == nil ? TranslationResult.new("", SymbolTable::PrimitiveType::VOID) : translate_ast(node.children[0])
                     
                     if BINARY_ARITHMETIC_OPERATORS.include?(node.children[1])
-                        operand = translateAst(node.children[2])
+                        operand = translate_ast(node.children[2])
                         value = "(" + receiver + " " + node.children[1].to_s + " " + operand + ")"
                         
-                        if receiver.type.isPrimitive and operand.type.isPrimitive
+                        if receiver.type.is_primitive? and operand.type.is_primitive?
                             # implicit type conversions allowed
                             
                             if [receiver.type, operand.type].include?(SymbolTable::PrimitiveType::BOOL)
@@ -145,10 +170,10 @@ class ArrayCommand
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
                     elsif BINARY_COMPARISON_OPERATORS.include?(node.children[1])
-                        operand = translateAst(node.children[2])
+                        operand = translate_ast(node.children[2])
                         value = "(" + receiver + " " + node.children[1].to_s + " " + operand + ")"
                         
-                        if receiver.type.isPrimitive and operand.type.isPrimitive
+                        if receiver.type.is_primitive? and operand.type.is_primitive?
                             # implicit type conversions allowed
                             
                             if [receiver.type,  operand.type].include?(SymbolTable::PrimitiveType::BOOL)
@@ -175,7 +200,7 @@ class ArrayCommand
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
                     elsif BINARY_LOGICAL_OPERATORS.include?(node.children[1])
-                        operand = translateAst(node.children[2])
+                        operand = translate_ast(node.children[2])
                         operator = node.children[1]
                         value = "(" + receiver + " " + operator.to_s + " " + operand + ")"
                         int_float = [SymbolTable::PrimitiveType::INT, SymbolTable::PrimitiveType::FLOAT]
@@ -201,48 +226,63 @@ class ArrayCommand
                             receiver += "."
                         end
                         
-                        value = receiver + node.children[1].to_s + "(" + node.children[2..-1].map { |c| translateAst(c) }.join(", ") + ")"
+                        value = receiver + node.children[1].to_s + "(" + node.children[2..-1].map { |c| translate_ast(c) }.join(", ") + ")"
                         # TODO: type inference for objects
                         TranslationResult.new(value, SymbolTable::PrimitiveType::INT)
                     end
                 when :begin
                     if node.children.size == 1
-                        translateAst(node.children[0])
+                        translate_ast(node.children[0])
                     else
                         funcId = nextFuncId
                         @functions[funcId] = node
                         funcId + "()"
                     end
                 when :if
-                    condition = translateAst(node.children[0])
+                    condition = translate_ast(node.children[0])
                     
                     if (condition.type != SymbolTable::PrimitiveType::BOOL)
                         raise "ERROR: only BOOL allowed in condition but saw #{condition.type}"
                     end
                     
-                    result = "if (#{condition.to_str})\n" + translateBlock(node.children[1])
+                    result = "if (#{condition.to_str})\n" + translate_block(node.children[1])
                     
                     if node.children.size > 2
-                        TranslationResult.new(result + "else\n" + translateBlock(node.children[2]), SymbolTable::PrimitiveType::VOID)
+                        TranslationResult.new(result + "else\n" + translate_block(node.children[2]), SymbolTable::PrimitiveType::VOID)
                     else
                         TranslationResult.new(result, SymbolTable::PrimitiveType::VOID)
                     end
                 when :args
                     ""
+                when :for
+                    variable = translate_ast(node.children[0])
+                    
+                    if node.children[1].type == :begin && node.children[1].children[0].type == :irange
+                        # for loop interating over range
+                        range_expr = node.children[1].children[0]
+                        range_from = translate_ast(range_expr.children[0])
+                        range_to = translate_ast(range_expr.children[1])
+                        
+                        if variable.type != range_from.type || range_from.type != range_to.type
+                            raise "ERROR: type mismatch in iterator variable of loop"
+                        end
+                        
+                        result = "for (#{variable.to_s} = #{range_from}; "
+                    end
                 else
                     puts "MISSING: " + node.type.to_s
                     ""
             end
         end
         
-        def nextId
-            @nextId ||= 0
-            @nextId += 1
-            return @nextId
+        def next_id
+            @next_id ||= 0
+            @next_id += 1
+            return @next_id
         end
         
         def nextFuncId
-            return "func_" + nextId.to_s
+            return "func_" + next_id.to_s
         end
         
         def parser
@@ -250,17 +290,25 @@ class ArrayCommand
         end
         
         class SymbolTable < Hash
+            class RubyObject
+                RUBYOBJECT = self.new
+                
+                def c_type_name
+                    return "RubyObject"
+                end
+            end
+            
             class PrimitiveType
-                def initialize(type, cType)
+                def initialize(type, c_type)
                     @type = type
-                    @cType = cType
+                    @c_type = c_type
                 end
                 
-                def cTypeName
-                    return @cType
+                def c_type_name
+                    return @c_type
                 end
                 
-                def isPrimitive
+                def is_primitive?
                     return true
                 end
                 
@@ -296,6 +344,36 @@ class ArrayCommand
     end
 end
 
+class Object
+    def self.to_ikra_type
+        return ArrayCommand::Translator::SymbolTable::RubyObject::RUBYOBJECT
+    end
+end
+
+class TrueClass
+    def self.to_ikra_type
+        return ArrayCommand::Translator::SymbolTable::PrimitiveType::BOOL
+    end
+end
+
+class FalseClass
+    def self.to_ikra_type
+        return ArrayCommand::Translator::SymbolTable::PrimitiveType::BOOL
+    end
+end
+
+class Fixnum
+    def self.to_ikra_type
+        return ArrayCommand::Translator::SymbolTable::PrimitiveType::INT
+    end
+end
+
+class Float
+    def self.to_ikra_type
+        return ArrayCommand::Translator::SymbolTable::PrimitiveType::FLOAT
+    end
+end
+
 class ArrayMapCommand < ArrayCommand
     def initialize(target, &block)
         @target = target
@@ -318,10 +396,6 @@ class ArrayMapCommand < ArrayCommand
     
     def size
         return @target.size
-    end
-    
-    def parser
-        return Parser::CurrentRuby
     end
 end
 
@@ -359,9 +433,62 @@ class ArrayIdentityCommand < ArrayCommand
     end
 end
 
+class ArrayNewCommand < ArrayCommand
+    def initialize(size, &block)
+        @size = size
+        @block = block
+    end
+    
+    def source
+        ast = parse_block(@block)
+        externals = {}
+        @block.binding.local_variables.each do |var|
+            externals[var] = @block.binding.local_variable_get(var).class.to_ikra_type
+        end
+        
+        # No parameter for Array.new
+        externals[@block.parameters[0][1]] = ArrayCommand::Translator::SymbolTable::PrimitiveType::INT
+        
+        pp ast
+        puts ArrayCommand::Translator.new.translate(ast, "main_kernel", self, externals, [@block.parameters[0][1]])
+    end
+    
+    def size
+        return @size
+    end
+    
+    def full_source(result_type)
+    """
+void launch_kernel()
+{
+    #{result_type.c_type_name} * host_result;   // TODO: malloc
+    #{result_type.c_type_name} * device_result;
+    
+    cudaMalloc(&device_result, sizeof(#{result_type.c_type_name}) * #{size});
+    
+    dim1 dim_grid(#{size});
+    dim1 dim_block(1);
+    main_kernel<<<dim_grid, dim_block>>>(device_result);
+    
+    cudaThreadSynchronize();
+    cudaMemcpy(host_result, device_result, sizeof(#{result_type.c_type_name}) * #{size}, cudaMemcpyDeviceToHost);
+    cudaFree(device_result);
+}
+    """
+    end
+    
+    def assign_input
+        "int #{@block.parameters[0][1].to_s} = blockIdx.x;\n"
+    end
+end
+
 class Array
     def pmap(&block)
         return ArrayIdentityCommand.new(self).pmap(&block)
+    end
+    
+    def self.pnew(size, &block)
+        return ArrayNewCommand.new(size, &block)
     end
 end
 
@@ -383,26 +510,60 @@ end
 #    Array.new {|y| y + x} }
 #a.source
 
-a = [1,2,3].pmap do |x| 
-    x + 2
-    y = x + 2 * 5.0
-    y = x * 2 + 5.0
-    y = y + 2
-    array.map do |ppp|
+#a = [1,2,3].pmap do |x| 
+#    x + 2
+#    y = x + 2 * 5.0
+#    y = x * 2 + 5.0
+#    y = y + 2
+#    array.map do |ppp|
+#    
+#    end
+#    
+#    foo(begin
+#        puts 123
+#        4
+#    end)
+#    
+#    if (y==y) == (y==y)
+#        puts 123
+#    else
+#        puts x
+#    end
+#    9+0
+#    x.foo().bar()
+#end
+#a.source
+
+magnify = 1.0
+hx_res = 500
+hy_res = 500
+iter_max = 100
+mandel = Array.pnew(hx_res * hy_res) do |i|
+    hx = i % hx_res
+    hy = i / hx_res
     
+    cx = (hx.to_f / hx_res.to_f - 0.5) / magnify*3.0 - 0.7
+    cy = (hy.to_f / hy_res.to_f - 0.5) / magnify*3.0
+    
+    x = 0.0
+    y = 0.0
+    
+    for i in 0..iter_max
+        xx = x*x - y*y + cx
+        y = 2.0*x*y + cy
+        x = xx
+        
+        if x*x + y*y > 100
+            i = 101
+            break
+        end
     end
     
-    foo(begin
-        puts 123
-        4
-    end)
-    
-    if (y==y) == (y==y)
-        puts 123
+    if i == 101
+        1
     else
-        puts x
+        0
     end
-    9+0
-    x.foo().bar()
 end
-a.source
+
+mandel.source
