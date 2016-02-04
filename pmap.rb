@@ -130,7 +130,11 @@ class ArrayCommand
         end
         
         def maybe_write_back(value, should_write_back)
-            should_write_back ? "_result_[blockIdx.x] = " + value : value
+            if value.class == TranslationResult
+                TranslationResult.new(should_write_back ? "_result_[blockIdx.x] = " + value.to_s : value.to_s, value.type)
+            else
+                should_write_back ? "_result_[blockIdx.x] = " + value : value
+            end
         end
         
         def translate_ast(node, should_write_back = false)
@@ -182,7 +186,7 @@ class ArrayCommand
                     end
                 when :send
                     receiver = node.children[0] == nil ? TranslationResult.new("", SymbolTable::PrimitiveType::VOID) : translate_ast(node.children[0])
-                    
+
                     if BINARY_ARITHMETIC_OPERATORS.include?(node.children[1])
                         operand = translate_ast(node.children[2])
                         value = "(" + receiver + " " + node.children[1].to_s + " " + operand + ")"
@@ -260,6 +264,9 @@ class ArrayCommand
                         end
                         
                         TranslationResult.new(maybe_write_back(value.to_str, should_write_back), type)
+                    elsif receiver.type.ruby_type.singleton_methods.include?(("_ikra_c_" + node.children[1].to_s).to_sym)
+                        symbol = ("_ikra_c_" + node.children[1].to_s).to_sym
+                        maybe_write_back(receiver.type.ruby_type.send(symbol, receiver.to_s), should_write_back)
                     else
                         if node.children[0] != nil
                             receiver += "."
@@ -362,6 +369,10 @@ class ArrayCommand
                     return true
                 end
                 
+                def ruby_type
+                    return @ruby_type
+                end
+
                 INT = self.new(:int, "int", Fixnum)
                 FLOAT = self.new(:float, "float", Float)
                 DOUBLE = self.new(:double, "double", Float)
@@ -417,8 +428,8 @@ class Fixnum
         return ArrayCommand::Translator::SymbolTable::PrimitiveType::INT
     end
     
-    def self._ikra_c_tof(identifier)
-        "(float) (#{identifier})"
+    def self._ikra_c_to_f(receiver)
+        ArrayCommand::Translator::TranslationResult.new("(float) (#{receiver})", Float.to_ikra_type)
     end
 end
 
@@ -427,8 +438,8 @@ class Float
         return ArrayCommand::Translator::SymbolTable::PrimitiveType::FLOAT
     end
     
-    def self._ikra_c_tof(identifier)
-        "(#{identifier})"
+    def self._ikra_c_to_f(receiver)
+        ArrayCommand::Translator::TranslationResult.new("(#{receiver})", to_ikra_type)
     end
 end
 
@@ -622,3 +633,4 @@ mandel = Array.pnew(hx_res * hy_res) do |i|
 end
 
 mandel.source
+
