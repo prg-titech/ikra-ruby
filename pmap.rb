@@ -54,16 +54,13 @@ class ArrayCommand
             @all_variables = []
             @result_param = "_result_"
             
-            # Mark implicit return
-            annotate_return_last_statememt(ast.children.last)
-            
             @functions = {func_name => ast}
             result = ""
             
             while not @functions.empty? do
                 pair = @functions.first
                 @functions.delete(pair[0])
-                block_translated = translate_block(pair[1])
+                block_translated = translate_block(pair[1], true)
                 externs_decl = externs.to_a
                     .select do |var| @all_variables.include?(var[0]) end
                     .reject do |var| skip_signature_externals.include?(var[0]) end
@@ -85,49 +82,18 @@ class ArrayCommand
             return result
         end
         
-        def should_return!(node)
-            @should_return ||= []
-            @should_return.push(node)
-        end
-        
-        def should_return?(node)
-            @should_return ||= []
-            @should_return.include?(node)
-        end
-        
-        def annotate_return_last_statememt(node)
-            case node.type
-                when :int
-                    should_return!(node)
-                when :float
-                    should_return!(node)
-                when :lvar
-                    should_return!(node)
-                when :lvasgn
-                    should_return!(node)
-                when :send
-                    should_return!(node)
-                when :if
-                    annotate_return_last_statememt(node.children[1].children.last)
-                    
-                    if node.children.size > 2 && node.children[2] != nil
-                        annotate_return_last_statememt(node.children[2].children.last)
-                    end
-                when :begin
-                    if node.children.size == 1
-                        annotate_return_last_statememt(node.children[1])
-                    else
-                        raise "ERROR: unable to handle orphaned blocks"
-                    end
-            end
-        end
-        
-        def translate_block(node)
-            if node.type != :begin
-                raise "ERROR: BEGIN block expected"
+        def translate_block(node, should_write_back = false)
+            content = nil
+            if node.type == :begin
+                children = node.children
+                content = children[0...-1].map do |s| translate_ast(s, false) end.join(";\n") + ";\n"
+                content += translate_ast(children.last, should_write_back) + ";\n"
+            else node.type != :begin
+                # Only one statement
+                content = translate_ast(node, should_write_back) + "\n"
             end
             
-            content = node.children.map do |s| translate_ast(s) end.join(";\n") + ";\n"
+            
             indented = content.split("\n").map do |line| "    " + line end.join("\n")
             return "{\n#{indented}\n}\n"
         end
@@ -143,7 +109,7 @@ class ArrayCommand
             end
             
             def translation
-                return @should_return == true ? "_result_[blockIdx.x] = " + @translation : @translation
+                return @translation
             end
             
             def type
@@ -161,25 +127,25 @@ class ArrayCommand
             def +(other)
                 return to_str + other.to_str
             end
-            
-            def should_return!
-                @should_return = true
-            end
         end
         
-        def translate_ast(node)
+        def maybe_write_back(value, should_write_back)
+            should_write_back ? "_result_[blockIdx.x] = " + value : value
+        end
+        
+        def translate_ast(node, should_write_back = false)
             # if node.should_return: prepend with "return"
             return_value = case node.type
                 when :int
                     value = node.children[0].to_s
-                    TranslationResult.new(value, SymbolTable::PrimitiveType::INT)
+                    TranslationResult.new(maybe_write_back(value, should_write_back), SymbolTable::PrimitiveType::INT)
                 when :float
                     value = node.children[0].to_s
-                    TranslationResult.new(value, SymbolTable::PrimitiveType::FLOAT)
+                    TranslationResult.new(maybe_write_back(value, should_write_back), SymbolTable::PrimitiveType::FLOAT)
                 when :lvar
                     var_name = node.children[0].to_s
                     @all_variables.push(var_name.to_sym)
-                    TranslationResult.new(var_name, @symbol_table[node.children[0].to_sym])
+                    TranslationResult.new(maybe_write_back(var_name, should_write_back), @symbol_table[node.children[0].to_sym])
                 when :lvasgn
                     if (node.children.size > 1 && node.children[1].type == :sym && node.children[1].children[0] == Translator::VAR_DECL_SYMBOL)
                         # TODO: find better way to do this
@@ -194,13 +160,14 @@ class ArrayCommand
                                 # This is an assignment
                                 value = translate_ast(node.children[1])
                                 @symbol_table.assert(var_name, value.type)
-                                TranslationResult.new(var_name.to_s + " = " + value, value.type)
+                                TranslationResult.new(maybe_write_back(var_name.to_s + " = " + value, should_write_back), value.type)
                             else
                                 # TODO: check if this is correct
                                 # Treat as variable read
-                                TranslationResult.new(var_name, @symbol_table[var_name])
+                                TranslationResult.new(maybe_write_back(var_name, should_write_back), @symbol_table[var_name])
                             end
                         else
+                            # TODO: implement write back
                             if (node.children.size > 1)
                                 # This is an assignment
                                 value = translate_ast(node.children[1])
@@ -237,7 +204,7 @@ class ArrayCommand
                                 type = SymbolTable::PrimitiveType::INT
                             end
                             
-                            TranslationResult.new(value.to_str, type)
+                            TranslationResult.new(maybe_write_back(value.to_str, should_write_back), type)
                         else
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
@@ -267,7 +234,7 @@ class ArrayCommand
                                 raise "ERROR: operator #{node.children[1].to_s} not applicable to VOID"
                             end
                             
-                            TranslationResult.new(value.to_str, SymbolTable::PrimitiveType::BOOL)
+                            TranslationResult.new(maybe_write_back(value.to_str, should_write_back), SymbolTable::PrimitiveType::BOOL)
                         else
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
@@ -292,7 +259,7 @@ class ArrayCommand
                             raise "ERROR: type inference not implemented for non-primitive types"
                         end
                         
-                        TranslationResult.new(value.to_str, type)
+                        TranslationResult.new(maybe_write_back(value.to_str, should_write_back), type)
                     else
                         if node.children[0] != nil
                             receiver += "."
@@ -300,11 +267,11 @@ class ArrayCommand
                         
                         value = receiver + node.children[1].to_s + "(" + node.children[2..-1].map { |c| translate_ast(c) }.join(", ") + ")"
                         # TODO: type inference for objects
-                        TranslationResult.new(value, SymbolTable::PrimitiveType::INT)
+                        TranslationResult.new(maybe_write_back(value, should_write_back), SymbolTable::PrimitiveType::INT)
                     end
                 when :begin
                     if node.children.size == 1
-                        translate_ast(node.children[0])
+                        translate_ast(node.children[0], should_write_back)
                     else
                         funcId = nextFuncId
                         @functions[funcId] = node
@@ -317,16 +284,17 @@ class ArrayCommand
                         raise "ERROR: only BOOL allowed in condition but saw #{condition.type}"
                     end
                     
-                    result = "if (#{condition.to_str})\n" + translate_block(node.children[1])
+                    result = "if (#{condition.to_str})\n" + translate_block(node.children[1], should_write_back)
                     
                     if node.children.size > 2 && node.children[2] != nil
-                        TranslationResult.new(result + "else\n" + translate_block(node.children[2]), SymbolTable::PrimitiveType::VOID)
+                        TranslationResult.new(result + "else\n" + translate_block(node.children[2], should_write_back), SymbolTable::PrimitiveType::VOID)
                     else
                         TranslationResult.new(result, SymbolTable::PrimitiveType::VOID)
                     end
                 when :args
                     ""
                 when :for
+                    # TODO: implement write back
                     variable = translate_ast(node.children[0])
                     variable_name = node.children[0].children[0]
                     
@@ -340,7 +308,7 @@ class ArrayCommand
                             raise "ERROR: type mismatch in iterator variable of loop"
                         end
                         
-                        result = "for (#{variable.to_s} = #{range_from}; #{variable_name} <= #{range_to}; #{variable_name}++)\n" + translate_block(node.children[2])
+                        result = "for (#{variable.to_s} = #{range_from}; #{variable_name} <= #{range_to}; #{variable_name}++)\n" + translate_block(node.children[2], false)
                         
                         TranslationResult.new(result, SymbolTable::PrimitiveType::VOID)
                     else
@@ -351,15 +319,6 @@ class ArrayCommand
                 else
                     puts "MISSING: " + node.type.to_s
                     ""
-            end
-            
-            if should_return?(node)
-                return_value.should_return!
-                @return_type ||= return_value.type
-                
-                if @return_type != return_value.type
-                    raise "ERROR: mismatch in return value types"
-                end
             end
             
             return return_value
@@ -389,9 +348,10 @@ class ArrayCommand
             end
             
             class PrimitiveType
-                def initialize(type, c_type)
+                def initialize(type, c_type, ruby_type)
                     @type = type
                     @c_type = c_type
+                    @ruby_type = ruby_type
                 end
                 
                 def c_type_name
@@ -402,11 +362,11 @@ class ArrayCommand
                     return true
                 end
                 
-                INT = self.new(:int, "int")
-                FLOAT = self.new(:float, "float")
-                DOUBLE = self.new(:double, "double")
-                BOOL = self.new(:bool, "bool")
-                VOID = self.new(:void, "void")
+                INT = self.new(:int, "int", Fixnum)
+                FLOAT = self.new(:float, "float", Float)
+                DOUBLE = self.new(:double, "double", Float)
+                BOOL = self.new(:bool, "bool", TrueClass)
+                VOID = self.new(:void, "void", nil)
             end
             
             def assert(symbol, type)
@@ -456,11 +416,19 @@ class Fixnum
     def self.to_ikra_type
         return ArrayCommand::Translator::SymbolTable::PrimitiveType::INT
     end
+    
+    def self._ikra_c_tof(identifier)
+        "(float) (#{identifier})"
+    end
 end
 
 class Float
     def self.to_ikra_type
         return ArrayCommand::Translator::SymbolTable::PrimitiveType::FLOAT
+    end
+    
+    def self._ikra_c_tof(identifier)
+        "(#{identifier})"
     end
 end
 
@@ -582,9 +550,6 @@ class Array
     end
 end
 
-def bla
-
-end
 
 #x= 1000
 #p = Proc.new do
