@@ -4,6 +4,7 @@ require "pp"
 require "ripper"
 require "tempfile"
 require "ffi"
+require "chunky_png"
 
 # OPTIMIZATIONS
 # - retrieve max. number of registers, then ?
@@ -64,14 +65,17 @@ class ArrayCommand
             @symbol_table.merge!(externs)
             @all_variables = []
             @result_param = "_result_"
+            @thread_variable = block.parameters[0][1]
             
             ast = parse_block(block)
+            pp ast
+            
             @functions = {func_name => ast}
             result = ""
             
             while not @functions.empty? do
                 pair = @functions.first
-                @functions.delete(pair[0])
+                @functions.delete(pair[0]) 
                 block_translated = translate_block(pair[1], true)
                 selected_externs = externs.to_a
                     .select do |var| @all_variables.include?(var[0]) end
@@ -107,7 +111,7 @@ class ArrayCommand
                 content += translate_ast(children.last, should_write_back) + ";\n"
             else node.type != :begin
                 # Only one statement
-                content = translate_ast(node, should_write_back) + "\n"
+                content = translate_ast(node, should_write_back) + ";\n"
             end
             
             
@@ -159,7 +163,7 @@ class ArrayCommand
                     raise "ERROR: mismatch in return value types"
                 end
                 
-                TranslationResult.new(should_write_back ? "_result_[blockIdx.x] = " + value.to_s : value.to_s, value.type)
+                TranslationResult.new(should_write_back ? "_result_[#{@thread_variable}] = " + value.to_s : value.to_s, value.type)
             else
                 value
             end
@@ -208,7 +212,7 @@ class ArrayCommand
                             else
                                 # TODO: infer type
                                 @symbol_table.insert(var_name, SymbolTable::PrimitiveType::INT)
-                                TranslationResult.new(value.type.c_type_name + " " + var_name.to_s, SymbolTable::PrimitiveType::VOID)
+                                TranslationResult.new(SymbolTable::PrimitiveType::INT.c_type_name + " " + var_name.to_s, SymbolTable::PrimitiveType::INT)
                             end
                         end
                     end
@@ -330,8 +334,15 @@ class ArrayCommand
                     ""
                 when :for
                     # TODO: implement write back
-                    variable = translate_ast(node.children[0])
                     variable_name = node.children[0].children[0]
+                    result = ""
+                    
+                    if not @symbol_table.has_key?(variable_name.to_sym)
+                        # TODO: handle iterating over things other than ints
+                        result = "int " + variable_name.to_s + ";\n"
+                        @symbol_table.insert(variable_name.to_s, SymbolTable::PrimitiveType::INT)
+                    end
+                    variable = translate_ast(node.children[0])
                     
                     if node.children[1].type == :begin && node.children[1].children[0].type == :irange
                         # for loop interating over range
@@ -340,10 +351,10 @@ class ArrayCommand
                         range_to = translate_ast(range_expr.children[1])
                         
                         if variable.type != range_from.type || range_from.type != range_to.type
-                            raise "ERROR: type mismatch in iterator variable of loop"
+                            raise "ERROR: type mismatch in iterator variable of loop: #{variable.type}, #{range_from.type}, #{range_to.type}"
                         end
                         
-                        result = "for (#{variable.to_s} = #{range_from}; #{variable_name} <= #{range_to}; #{variable_name}++)\n" + translate_block(node.children[2], false)
+                        result += "for (#{variable_name} = #{range_from}; #{variable_name} <= #{range_to}; #{variable_name}++)\n" + translate_block(node.children[2], false)
                         
                         TranslationResult.new(result, SymbolTable::PrimitiveType::VOID)
                     else
@@ -468,6 +479,10 @@ class Fixnum
         ArrayCommand::Translator::TranslationResult.new("(float) (#{receiver})", Float.to_ikra_type)
     end
     
+    def self._ikra_c_to_i(receiver)
+        ArrayCommand::Translator::TranslationResult.new("(#{receiver})", to_ikra_type)
+    end
+    
     def self.ffi_type_symbol
         :int
     end
@@ -480,6 +495,10 @@ class Float
     
     def self._ikra_c_to_f(receiver)
         ArrayCommand::Translator::TranslationResult.new("(#{receiver})", to_ikra_type)
+    end
+    
+    def self._ikra_c_to_i(receiver)
+        ArrayCommand::Translator::TranslationResult.new("(int) (#{receiver})", Fixnum.to_ikra_type)
     end
     
     def self.ffi_type_symbol
@@ -560,8 +579,18 @@ class ArrayNewCommand < ArrayCommand
         return @size
     end
     
+    def do_print_time(description, &block)
+        start = Time.now
+        return_value  = yield
+        Debug.print_info("-- #{description} -- #{Time.now - start} seconds")
+        return_value
+    end
+    
     def compile_and_run
-        translation = source
+        translation = do_print_time("Compile to CUDA") do
+             source
+        end
+        
         block_source = translation.to_s
         result_type = translation.type
         externs_decl = translation.externs
@@ -570,49 +599,79 @@ class ArrayNewCommand < ArrayCommand
         passed_params = (translation.externs + [["device_result", ""]])
             .map do |pair| pair[0] end
             .join(", ")
-        content = block_source + """
-extern \"C\" __declspec(dllexport) int launch_kernel(#{externs_decl})
+        content = """#include <stdio.h>
+/** CUDA check macro */
+#define cucheck(call) \\
+	{\\
+	cudaError_t res = (call);\\
+	if(res != cudaSuccess) {\\
+	const char* err_str = cudaGetErrorString(res);\\
+	fprintf(stderr, \"%s (%d): %s in %s\", __FILE__, __LINE__, err_str, #call);\\
+	exit(-1);\\
+	}\\
+	}
+""" + block_source + """
+extern \"C\" __declspec(dllexport) #{result_type.c_type_name}* launch_kernel(#{externs_decl})
 {
     #{result_type.c_type_name} * host_result = (#{result_type.c_type_name}*) malloc(sizeof(#{result_type.c_type_name}) * #{size});
     #{result_type.c_type_name} * device_result;
     
-    cudaMalloc(&device_result, sizeof(#{result_type.c_type_name}) * #{size});
+    cucheck(cudaMalloc(&device_result, sizeof(#{result_type.c_type_name}) * #{size}));
     
-    dim3 dim_grid(#{size}, 1, 1);
-    dim3 dim_block(1, 1, 1);
+    dim3 dim_grid(#{size} / 250, 1, 1);
+    dim3 dim_block(250, 1, 1);
     main_kernel<<<dim_grid, dim_block>>>(#{passed_params});
     
-    cudaThreadSynchronize();
-    cudaMemcpy(host_result, device_result, sizeof(#{result_type.c_type_name}) * #{size}, cudaMemcpyDeviceToHost);
+    cucheck(cudaThreadSynchronize());
+    cucheck(cudaMemcpy(host_result, device_result, sizeof(#{result_type.c_type_name}) * #{size}, cudaMemcpyDeviceToHost));
     cudaFree(device_result);
     
-    return 1;
+    return host_result;
 }
         """
         
-        puts content
+        Debug.print_info("Generated CUDA code:\n" + content)
         
         file = Tempfile.new(["ikra_kernel", ".cu"])
         file.write(content)
         file.close
-        puts %x(nvcc -o #{file.path}.dll --shared #{file.path})
         
-        
-        ffi_wrapper = Module.new
-        ffi_wrapper.extend(FFI::Library)
-        ffi_wrapper.ffi_lib(file.path + ".dll")
-        
-        attached_params = translation.externs.map do |pair| pair[1].ruby_type.ffi_type_symbol end
-        ffi_wrapper.attach_function(:launch_kernel, attached_params, :int)
-        
-        binding_variables = translation.externs.map do |pair| 
-            @block.binding.local_variable_get(pair[0].to_sym) 
+        Debug.print_info("Compiling: nvcc -o #{file.path}.dll --shared #{file.path}")
+        compile_status = do_print_time("Compile CUDA") do
+            %x(nvcc -o #{file.path}.dll --shared #{file.path})
         end
-        ffi_wrapper.launch_kernel(*binding_variables)
+        Debug.print_info("Compiler status: #{compile_status}")
+        
+        do_print_time("Data transfer, kernel, FFI") do
+            Debug.print_info("Attaching shared library")
+            ffi_wrapper = Module.new
+            ffi_wrapper.extend(FFI::Library)
+            ffi_wrapper.ffi_lib(file.path + ".dll")
+            
+            attached_params = translation.externs.map do |pair| pair[1].ruby_type.ffi_type_symbol end
+            ffi_wrapper.attach_function(:launch_kernel, attached_params, :pointer)
+            
+            Debug.print_info("Local variable bindings: ")
+            binding_variables = translation.externs.map do |pair| 
+                @block.binding.local_variable_get(pair[0].to_sym) 
+            end
+            Debug.print_info("Local variable bindings: " + binding_variables.to_s)
+            
+            Debug.print_info("Launching kernel")
+            kernel_result = ffi_wrapper.launch_kernel(*binding_variables)
+            
+            kernel_result_array = Array.new(self.size)
+            for i in 0..self.size - 1
+                kernel_result_array[i] = kernel_result.read_int
+                kernel_result += 4
+            end
+            
+            kernel_result_array
+        end
     end
     
     def assign_input
-        "int #{@block.parameters[0][1].to_s} = blockIdx.x;\n"
+        "int #{@block.parameters[0][1].to_s} = threadIdx.x + blockIdx.x * blockDim.x;\n"
     end
 end
 
@@ -626,6 +685,11 @@ class Array
     end
 end
 
+class Debug
+    def self.print_info(string)
+        puts "[INFO] #{string}"
+    end
+end
 
 #x= 1000
 #p = Proc.new do
@@ -669,9 +733,9 @@ magnify = 1.0
 hx_res = 500
 hy_res = 500
 iter_max = 100
-mandel = Array.pnew(hx_res * hy_res) do |i|
-    hx = i % hx_res
-    hy = i / hx_res
+mandel = Array.pnew(hx_res * hy_res) do |j|
+    hx = j % hx_res
+    hy = j / hx_res
     
     cx = (hx.to_f / hx_res.to_f - 0.5) / magnify*3.0 - 0.7
     cy = (hy.to_f / hy_res.to_f - 0.5) / magnify*3.0
@@ -679,23 +743,32 @@ mandel = Array.pnew(hx_res * hy_res) do |i|
     x = 0.0
     y = 0.0
     
-    for i in 0..iter_max
+    for iter in 0..iter_max
         xx = x*x - y*y + cx
         y = 2.0*x*y + cy
         x = xx
         
         if x*x + y*y > 100
-            i = 101
+            iter = 999
             break
         end
     end
     
-    if i == 101
-        1
-    else
+    if iter == 999
         0
+    else
+        1
     end
 end
 
-puts mandel.compile_and_run
+# TODO: for loop has different semantics in C and Ruby (value of iterator variable at the end)
+
+result = mandel.compile_and_run
+
+png = ChunkyPNG::Image.new(hx_res, hy_res, ChunkyPNG::Color::TRANSPARENT)
+for i in 0..result.size - 1
+    png[i % hx_res, i / hx_res] = result[i] == 0 ? ChunkyPNG::Color('blue') : ChunkyPNG::Color('white')
+end
+
+png.save('result.png', :interlace => true)
 
