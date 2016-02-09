@@ -733,6 +733,7 @@ magnify = 1.0
 hx_res = 500
 hy_res = 500
 iter_max = 100
+
 mandel = Array.pnew(hx_res * hy_res) do |j|
     hx = j % hx_res
     hy = j / hx_res
