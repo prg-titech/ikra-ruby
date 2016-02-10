@@ -61,18 +61,41 @@ class Translator
     
     def translate_function(node)
         result = nil
+        mem_offsets = {}
+        lexical_size = 0
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node)
             result = variable_definitions + result.c_source
+            
+            mem_offset = 0
+            # lexical variables
+            @symbol_table.read_and_written_variables(-2).each do |var|
+                type = @symbol_table.get_type(var)
+                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (environment + #{mem_offset.to_s})"
+                result = assignment + ";\n" + result
+                
+                mem_offsets[var] = mem_offset
+                mem_offset += type.c_size
+                lexical_size += type.c_size
+            end
         end
         
-        result
+       # generate kernel launcher
+       launcher = """extern \"C\" __declspec(dllexport) int launch_kernel()
+{
+    void *host_parameters = (void *) malloc(#{lexical_size});
+    void *device_parameters;
+    cudaMalloc(&device_parameters, #{lexical_size});
+    
+}"""
+
+        "__global__ void kernel(void *environment)\n" + wrap_in_c_block(result)
     end
     
     def variable_definitions
-        result_string = @symbol_table.last.map do |name, type|
-            type.to_c_type + " " + name.to_s
+        result_string = @symbol_table.last.map do |name, var|
+            var.type.to_c_type + " " + name.to_s
         end.join(";\n")
         
         if result_string.size > 0
@@ -100,6 +123,7 @@ class Translator
     
     def translate_lvar(node)
         variable_name = node.children[0]
+        @symbol_table.read!(variable_name)
         TranslationResult.new(variable_name.to_s, @symbol_table.get_type(variable_name))
     end
     
@@ -108,6 +132,7 @@ class Translator
         value = translate_ast(node.children[1])
         
         @symbol_table.ensure_defined(variable_name, value.type)
+        @symbol_table.written!(variable_name)
         TranslationResult.new("#{variable_name} = #{value.c_source}", value.type)
     end
     
@@ -262,7 +287,7 @@ class Translator
     end
     
     def wrap_in_c_block(str)
-        "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "}\n"
+        "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "\n}\n"
     end
     
     def translate_begin(node)
@@ -282,7 +307,7 @@ class Translator
         if node.type == :begin
             result_string = ""
             node.children.each do |stmt|
-                result_string += translate_ast(stmt).c_source + ";\n"
+                result_string += translate_statement(stmt).c_source
             end
             
             TranslationResult.new(result_string, PrimitiveType::Void)
@@ -293,7 +318,7 @@ class Translator
     end
     
     def translate_statement(node)
-        TranslationResult.new(translate_ast(node).c_source, PrimitiveType::Void)
+        TranslationResult.new(translate_ast(node).c_source + ";\n", PrimitiveType::Void)
     end
 end
 
@@ -301,6 +326,7 @@ x = 1
 y = 2
 z = Proc.new do |a|
     a =x*x
+    a=x*2+y+2+2*x
 end
 
 puts Translator.translate_block(z)

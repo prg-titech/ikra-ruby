@@ -3,15 +3,18 @@ require_relative "ruby_type"
 class PrimitiveType
     include RubyType
     
-    def initialize(c_type, ruby_type)
+    attr_reader :c_size
+    
+    def initialize(c_type, ruby_type, c_size)
         @c_type = c_type
         @ruby_type = ruby_type
+        @c_size = c_size
     end
     
-    Int = self.new("int", Fixnum)
-    Float = self.new("float", Float)
-    Bool = self.new("bool", TrueClass)
-    Void = self.new("void", nil)
+    Int = self.new("int", Fixnum, 4)
+    Float = self.new("float", Float, 4)
+    Bool = self.new("bool", TrueClass, 1)
+    Void = self.new("void", nil, 0)
     
     def to_ruby_type
         @ruby_type

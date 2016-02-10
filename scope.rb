@@ -1,4 +1,16 @@
 class Scope < Array
+    class Variable
+        attr_reader :type
+        attr_accessor :read
+        attr_accessor :written
+        
+        def initialize(type)
+            @type = type
+            @read = false
+            @written = false
+        end
+    end
+    
     def top_frame
         last
     end
@@ -16,7 +28,7 @@ class Scope < Array
             raise "#{name} already defined"
         end
         
-        top_frame[name] = type
+        top_frame[name] = Variable.new(type)
     end
     
     def define_shadowed(name, type)
@@ -24,7 +36,7 @@ class Scope < Array
             raise "#{name} already defined"
         end
         
-        top_frame[name] = type
+        top_frame[name] = Variable.new(type)
     end
     
     def is_defined?(name)
@@ -34,9 +46,9 @@ class Scope < Array
     end
     
     def get_type(name)
-        each do |frame|
+        reverse_each do |frame|
             if frame.has_key?(name)
-                return frame[name]
+                return frame[name].type
             end
         end
         
@@ -49,6 +61,40 @@ class Scope < Array
         elsif not is_defined?(name)
             define(name, type)
         end
+    end
+    
+    def read!(name)
+        frame = reverse_each.detect do |fr|
+            fr.has_key?(name)
+        end
+        
+        frame[name].read = true
+    end
+    
+    def written!(name)
+        frame = reverse_each.detect do |fr|
+            fr.has_key?(name)
+        end
+        
+        frame[name].written = true
+    end
+    
+    def read_variables(frame_position)
+        frame = self[frame_position]
+        frame.select do |name, var|
+            var.read
+        end.keys
+    end
+    
+    def written_variables(frame_position)
+        frame = self[frame_position]
+        frame.select do |name, var|
+            var.written
+        end.keys
+    end
+    
+    def read_and_written_variables(frame_position)
+        read_variables(frame_position) + written_variables(frame_position)
     end
     
     def new_frame(&block)
