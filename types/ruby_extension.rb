@@ -14,6 +14,10 @@ class Fixnum
         def to_ikra_type
             PrimitiveType::Int
         end
+        
+        def _ikra_c_to_f(receiver)
+            Translator::TranslationResult.new("(float) #{receiver.c_source}", PrimitiveType::Float)
+        end
     end
 end
 
@@ -21,6 +25,10 @@ class Float
     class << self
         def to_ikra_type
             PrimitiveType::Float
+        end
+        
+        def _ikra_c_to_f(receiver)
+            Translator::TranslationResult.new(receiver.c_source, PrimitiveType::Float)
         end
     end
 end

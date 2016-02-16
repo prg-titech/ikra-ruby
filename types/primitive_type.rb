@@ -27,6 +27,10 @@ class PrimitiveType
     def is_primitive?
         true
     end
+    
+    def to_s
+        "<primitive: #{@c_type}>"
+    end
 end
 
 class Fixnum
