@@ -4,6 +4,8 @@ require_relative "scope"
 require_relative "parsing"
 require "set"
 require "pp"
+require "tempfile"
+require "ffi"
 require "parser/current"
 
 class Translator
@@ -22,6 +24,61 @@ class Translator
         end
     end
     
+    class CommandProxy
+        attr_accessor :c_source
+        attr_accessor :result_type
+        attr_accessor :array_size
+        
+        def initialize
+            @env_size = 0
+            @env = {}
+            @ffi_wrapper = nil
+        end
+        
+        def build
+            file = Tempfile.new(["ikra_kernel", ".cu"])
+            file.write(c_source)
+            file.close
+            
+            compile_status = %x(nvcc -o #{file.path}.dll --shared #{file.path})
+            
+            @ffi_wrapper = Module.new
+            @ffi_wrapper.extend(FFI::Library)
+            @ffi_wrapper.ffi_lib(file.path + ".dll")
+            @ffi_wrapper.attach_function(:launch_kernel, [:pointer], :pointer)
+        end
+        
+        def add_env_var(offset, size, accessor)
+            @env[offset] = accessor
+            @env_size += size
+        end
+        
+        def execute
+            env = FFI::MemoryPointer.new(@env_size)
+            
+            @env.each do |offset, accessor|
+                value = accessor.call
+                if value.class == Float
+                    env.put_float(offset, value)
+                elsif value.class == Fixnum
+                    env.put_int(offset, value)
+                else
+                    raise "Cannot pass object of type #{value.class} via FFI"
+                end
+            end
+            
+            result = @ffi_wrapper.launch_kernel(env)
+            
+            if @result_type == PrimitiveType::Int
+                result.read_array_of_int(@array_size)
+            elsif @result_type == PrimitiveType::Float
+                result.read_array_of_float(@array_size)
+            else
+                raise "Cannot retrieve array of #{@result_type} via FFI"
+            end
+        end
+    end
+    
     def self.translate_block(block, size, input_types = [])
         instance = self.new
         instance.symbol_table.push_frame
@@ -35,26 +92,24 @@ class Translator
             local_variables.push(var)
         end
         
+        input_vars = {}
         (0..input_types.size - 1).each do |index|
             variable_name = block.parameters[index][1]
             
             # how do we pass in the values?
             instance.symbol_table.define_shadowed(variable_name, input_types[index])
             local_variables.push(variable_name)
-        end
-        
-        block.parameters.each do |pair|
-            # TODO: pass in actual type
-            instance.symbol_table.define_shadowed(pair[1], PrimitiveType::Int)
-            local_variables.push(pair[1])
+            
+            input_vars[variable_name] = "threadIdx.x + blockIdx.x * blockDim.x"
         end
         
         ast = Parsing.parse(block, local_variables)
-        result = instance.translate_function(ast, size)
+        command_proxy = instance.translate_function(ast, size, block, input_vars, [size / 250, 1, 1], [250, 1, 1])
         
         instance.symbol_table.pop_frame
         
-        result
+        command_proxy.build
+        command_proxy
     end
     
     def initialize
@@ -65,11 +120,15 @@ class Translator
         @symbol_table
     end
     
-    def translate_function(node, size, input_vars = [], dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
+    EnvironmentVariable = "_env_"
+    ResultVariable = "_result_"
+    
+    def translate_function(node, size, block, input_vars = {}, dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
         result = nil
         mem_offsets = {}
         lexical_size = 0
         result_type = nil
+        command_proxy = CommandProxy.new
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
@@ -77,22 +136,36 @@ class Translator
             
             mem_offset = 0
             # lexical variables
-            @symbol_table.read_and_written_variables(-2).each do |var|
+            (@symbol_table.read_and_written_variables(-2) - input_vars.keys).each do |var|
                 type = @symbol_table.get_type(var)
-                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (environment + #{mem_offset.to_s})"
+                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (((char *) #{EnvironmentVariable}) + #{mem_offset.to_s})"
                 result = assignment + ";\n" + result
+                
+                env_accessor = Proc.new do
+                    block.binding.local_variable_get(var)
+                end
+                command_proxy.add_env_var(mem_offset, type.c_size, env_accessor)
                 
                 mem_offsets[var] = mem_offset
                 mem_offset += type.c_size
                 lexical_size += type.c_size
             end
             
+            # input variables
+            input_vars.each do |name, value|
+                result = "#{@symbol_table.get_type(name).to_c_type} #{name} = #{value};\n" + result
+            end
+            
             result_type = @symbol_table.get_type(:"#")
+            command_proxy.result_type = result_type
         end
         
         # generate kernel launcher
-        launcher = """extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(void *host_parameters)
+        launcher = """#include <stdio.h>
+        
+extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(void *host_parameters)
 {
+    printf(\"kernel launched\\n\");
     // void *host_parameters = (void *) malloc(#{lexical_size});
     void *device_parameters;
     cudaMalloc(&device_parameters, #{lexical_size});
@@ -105,7 +178,7 @@ class Translator
     dim3 dim_grid(#{dim3_grid[0]}, #{dim3_grid[1]}, #{dim3_grid[2]});
     dim3 dim_block(#{dim3_block[0]}, #{dim3_block[1]}, #{dim3_block[2]});
     
-    kernel<<<dim_grid, dim_block>>>(device_parameters);
+    kernel<<<dim_grid, dim_block>>>(device_parameters, device_result);
     
     cudaThreadSynchronize();
     cudaMemcpy(host_result, device_result, #{result_type.c_size} * #{size}, cudaMemcpyDeviceToHost);
@@ -115,7 +188,12 @@ class Translator
     return host_result;
 }"""
 
-        launcher + "\n\n__global__ void kernel(void *environment)\n" + wrap_in_c_block(result)
+        c_source = "__global__ void kernel(void *#{EnvironmentVariable}, void *#{ResultVariable})\n" + wrap_in_c_block(result) + "\n\n" + launcher
+        puts c_source
+        
+        command_proxy.c_source = c_source
+        command_proxy.array_size = size
+        command_proxy
     end
     
     def variable_definitions
@@ -356,7 +434,7 @@ class Translator
         if should_return and ExpressionStatements.include?(node.type)
             result = translate_ast(node, false)
             @symbol_table.ensure_defined(:"#", result.type)
-            TranslationResult.new("_result_ = (#{result.c_source});\n", PrimitiveType::Void)
+            TranslationResult.new("((#{result.type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = (#{result.c_source});\n", PrimitiveType::Void)
         elsif should_return
             TranslationResult.new(translate_ast(node, true).c_source + ";\n", PrimitiveType::Void)
         else
@@ -364,38 +442,3 @@ class Translator
         end
     end
 end
-
-magnify = 1.0
-hx_res = 500
-hy_res = 500
-iter_max = 100
-z = Proc.new do |j|
-    hx = j % hx_res
-    hy = j / hx_res
-    
-    cx = (hx.to_f / hx_res.to_f - 0.5) / magnify*3.0 - 0.7
-    cy = (hy.to_f / hy_res.to_f - 0.5) / magnify*3.0
-    
-    x = 0.0
-    y = 0.0
-    
-    for iter in 0..iter_max
-        xx = x*x - y*y + cx
-        y = 2.0*x*y + cy
-        x = xx
-        
-        if x*x + y*y > 100
-            iter = 999
-            break
-        end
-    end
-    
-    if iter == 999
-        0
-    else
-        1
-    end
-
-end
-
-puts Translator.translate_block(z, 10)

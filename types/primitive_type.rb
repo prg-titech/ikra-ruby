@@ -5,16 +5,17 @@ class PrimitiveType
     
     attr_reader :c_size
     
-    def initialize(c_type, ruby_type, c_size)
+    def initialize(c_type, ruby_type, c_size, ffi_type)
         @c_type = c_type
         @ruby_type = ruby_type
         @c_size = c_size
+        @ffi_type = ffi_type
     end
     
-    Int = self.new("int", Fixnum, 4)
-    Float = self.new("float", Float, 4)
-    Bool = self.new("bool", TrueClass, 1)
-    Void = self.new("void", nil, 0)
+    Int = self.new("int", Fixnum, 4, :int)
+    Float = self.new("float", Float, 4, :float)
+    Bool = self.new("bool", TrueClass, 1, :bool)
+    Void = self.new("void", nil, 0, :void)
     
     def to_ruby_type
         @ruby_type
@@ -22,6 +23,10 @@ class PrimitiveType
     
     def to_c_type
         @c_type
+    end
+    
+    def to_ffi_type
+        @ffi_type
     end
     
     def is_primitive?
