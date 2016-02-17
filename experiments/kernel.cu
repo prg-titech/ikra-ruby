@@ -44,7 +44,7 @@ int launch_kernel(float magnify, int hx_res, int hy_res, int iter_max)
     cudaMalloc(&device_result, sizeof(int) * 1);
 
     dim3 dim_grid(10000, 1, 1);
-    dim3 dim_block(250, 1, 1);
+    dim3 dim_block(100, 1, 1);
     main_kernel<<<dim_grid, dim_block>>>(magnify, hx_res, hy_res, iter_max, device_result);
 
     cudaThreadSynchronize();
