@@ -79,7 +79,27 @@ class Translator
         end
     end
     
-    def self.translate_block(block, size, input_types = [])
+    class InputVariable
+        def initialize(name, type, is_index = false)
+            @name = name
+            @type = type
+            @is_index = is_index
+        end
+        
+        def name
+            @name
+        end
+        
+        def type
+            @type
+        end
+        
+        def is_index?
+            @is_index
+        end
+    end
+    
+    def self.translate_block(block, size, input_vars = [])
         instance = self.new
         instance.symbol_table.push_frame
         
@@ -92,15 +112,9 @@ class Translator
             local_variables.push(var)
         end
         
-        input_vars = {}
-        (0..input_types.size - 1).each do |index|
-            variable_name = block.parameters[index][1]
-            
-            # how do we pass in the values?
-            instance.symbol_table.define_shadowed(variable_name, input_types[index])
-            local_variables.push(variable_name)
-            
-            input_vars[variable_name] = "threadIdx.x + blockIdx.x * blockDim.x"
+        input_vars.each do |var|
+            instance.symbol_table.define_shadowed(var.name, var.type)
+            local_variables.push(var.name)
         end
         
         ast = Parsing.parse(block, local_variables)
@@ -123,20 +137,37 @@ class Translator
     EnvironmentVariable = "_env_"
     ResultVariable = "_result_"
     
-    def translate_function(node, size, block, input_vars = {}, dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
+    # Translates an AST node to C++/CUDA code. Generates the kernel and a kernel launcher.
+    #
+    # * *Arguments*
+    #   - +node+: AST node
+    #   - +size+: Size of array (number of threads)
+    #   - +block+: Original block (for extracting environment and parameters)
+    #   - +input_vars+: Block parameters and accessor blocks
+    #   - +dim3_grid+: Dimension of grid
+    #   - +dim3_block+: Dimension of block
+    #
+    def translate_function(node, size, block, input_vars = [], dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
         result = nil
         mem_offsets = {}
         lexical_size = 0
         result_type = nil
         command_proxy = CommandProxy.new
+        launcher_params = ["void *host_parameters"]
+        kernel_params = ["void *#{EnvironmentVariable}", "void *#{ResultVariable}"]
+        kernel_args = ["device_parameters", "device_result"]
+        device_input_decl = ""
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
             result = variable_definitions + result.c_source
+            input_var_names = input_vars.map do |var|
+                var.name
+            end
             
             mem_offset = 0
             # lexical variables
-            (@symbol_table.read_and_written_variables(-2) - input_vars.keys).each do |var|
+            (@symbol_table.read_and_written_variables(-2) - input_var_names).each do |var|
                 type = @symbol_table.get_type(var)
                 assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (((char *) #{EnvironmentVariable}) + #{mem_offset.to_s})"
                 result = assignment + ";\n" + result
@@ -151,22 +182,36 @@ class Translator
                 lexical_size += type.c_size
             end
             
-            # input variables
-            input_vars.each do |name, value|
-                result = "#{@symbol_table.get_type(name).to_c_type} #{name} = #{value};\n" + result
+            # array input variables
+            input_vars.each do |var|
+                if var.is_index?
+                    value = "threadIdx.x + blockIdx.x * blockDim.x"
+                else
+                    value = "_input_#{var.name}_[threadIdx.x + blockIdx.x * blockDim.x"
+                    
+                    launcher_params.push("#{var.type.to_c_type} *host_input_#{var.name}")
+                    kernel_params.push("#{var.type.to_c_type} *_input_#{var.name}")
+                    kernel_args.push("device_input_#{var.name}")
+                    device_input_decl += """#{var.type.to_c_type} *device_input_#{var.name};
+cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
+cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
+"""
+                end
+                
+                result = "#{var.type.to_c_type} #{var.name} = #{value};\n" + result
             end
             
             result_type = @symbol_table.get_type(:"#")
             command_proxy.result_type = result_type
         end
         
+        input_vars = 
         # generate kernel launcher
         launcher = """#include <stdio.h>
         
-extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(void *host_parameters)
+extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{launcher_params.join(", ")})
 {
     printf(\"kernel launched\\n\");
-    // void *host_parameters = (void *) malloc(#{lexical_size});
     void *device_parameters;
     cudaMalloc(&device_parameters, #{lexical_size});
     cudaMemcpy(device_parameters, host_parameters, #{lexical_size}, cudaMemcpyHostToDevice);
@@ -175,10 +220,12 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(void 
     #{result_type.to_c_type} *device_result;
     cudaMalloc(&device_result, #{result_type.c_size} * #{size});
     
+    #{device_input_decl}
+    
     dim3 dim_grid(#{dim3_grid[0]}, #{dim3_grid[1]}, #{dim3_grid[2]});
     dim3 dim_block(#{dim3_block[0]}, #{dim3_block[1]}, #{dim3_block[2]});
     
-    kernel<<<dim_grid, dim_block>>>(device_parameters, device_result);
+    kernel<<<dim_grid, dim_block>>>(#{kernel_args.join(", ")});
     
     cudaThreadSynchronize();
     cudaMemcpy(host_result, device_result, #{result_type.c_size} * #{size}, cudaMemcpyDeviceToHost);
@@ -188,7 +235,7 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(void 
     return host_result;
 }"""
 
-        c_source = "__global__ void kernel(void *#{EnvironmentVariable}, void *#{ResultVariable})\n" + wrap_in_c_block(result) + "\n\n" + launcher
+        c_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result) + "\n\n" + launcher
         puts c_source
         
         command_proxy.c_source = c_source

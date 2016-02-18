@@ -1,21 +1,7 @@
 require_relative "translator"
 require_relative "types/primitive_type"
 
-class ArrayNewCommand
-    def initialize(size, block)
-        @size = size
-        @block = block
-    end
-    
-    def execute
-        @result = Translator.translate_block(@block, @size, [PrimitiveType::Int]).execute
-        @result
-    end
-    
-    def size
-        @size
-    end
-    
+module ArrayCommand
     def [](index)
         if @result == nil
             execute
@@ -25,7 +11,28 @@ class ArrayNewCommand
     end
 end
 
+class ArrayNewCommand
+    include ArrayCommand
+    
+    def initialize(size, block)
+        @size = size
+        @block = block
+    end
+    
+    def execute
+        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, true)
+        @result = Translator.translate_block(@block, @size, [input_var]).execute
+        @result
+    end
+    
+    def size
+        @size
+    end
+end
+
 class ArrayMapCommand
+    include ArrayCommand
+    
     def initialize(target, block)
         @target = target
         @block = block
@@ -33,6 +40,8 @@ class ArrayMapCommand
 end
 
 class ArrayIdentityCommand
+    include ArrayCommand
+    
     def initialize(target)
         @target = target
     end
