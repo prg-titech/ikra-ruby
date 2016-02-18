@@ -37,6 +37,17 @@ class ArrayMapCommand
         @target = target
         @block = block
     end
+    
+    def execute
+        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, false)
+        proxy = Translator.translate_block(@block, size, [input_var])
+        @result = proxy.execute(@target.execute)
+        @result
+    end
+    
+    def size
+        @target.size
+    end
 end
 
 class ArrayIdentityCommand
@@ -44,6 +55,14 @@ class ArrayIdentityCommand
     
     def initialize(target)
         @target = target
+    end
+    
+    def execute
+        @target
+    end
+    
+    def size
+        @target.size
     end
 end
 

@@ -33,6 +33,7 @@ class Translator
             @env_size = 0
             @env = {}
             @ffi_wrapper = nil
+            @expected_input_types = []
         end
         
         def build
@@ -45,7 +46,11 @@ class Translator
             @ffi_wrapper = Module.new
             @ffi_wrapper.extend(FFI::Library)
             @ffi_wrapper.ffi_lib(file.path + ".dll")
-            @ffi_wrapper.attach_function(:launch_kernel, [:pointer], :pointer)
+            @ffi_wrapper.attach_function(:launch_kernel, [:pointer] * (@expected_input_types.size + 1), :pointer)
+        end
+        
+        def add_input_type(type)
+            @expected_input_types.push(type)
         end
         
         def add_env_var(offset, size, accessor)
@@ -53,9 +58,12 @@ class Translator
             @env_size += size
         end
         
-        def execute
-            env = FFI::MemoryPointer.new(@env_size)
+        def execute(*input)
+            if input.size != @expected_input_types.size
+                raise "Expected #{@expected_input_types.size} parameters (#{input.size} given)"
+            end
             
+            env = FFI::MemoryPointer.new(@env_size)
             @env.each do |offset, accessor|
                 value = accessor.call
                 if value.class == Float
@@ -67,7 +75,24 @@ class Translator
                 end
             end
             
-            result = @ffi_wrapper.launch_kernel(env)
+            all_input = [env]
+            (0..input.size - 1).each do |index|
+                arg = FFI::MemoryPointer.new(input[index].size * @expected_input_types[index].c_size)
+                if @expected_input_types[index] == PrimitiveType::Int
+                    arg.put_array_of_int(0, input[index])
+                elsif @expected_input_types[index] == PrimitiveType::Float
+                    arg.put_array_of_float(0, input[index])
+                else
+                    raise "Cannot handle array of #{@result_type} via FFI"
+                end
+                all_input.push(arg)
+            end
+            
+            result = @ffi_wrapper.launch_kernel(*all_input)
+            
+            all_input.each do |pointer|
+                pointer.free
+            end
             
             if @result_type == PrimitiveType::Int
                 result.read_array_of_int(@array_size)
@@ -99,6 +124,10 @@ class Translator
         end
     end
     
+    def self.grid_block_size(size)
+        [[[size / 250, 1].max, 1, 1], [(size >= 250 ? 250 : size), 1, 1]]
+    end
+    
     def self.translate_block(block, size, input_vars = [])
         instance = self.new
         instance.symbol_table.push_frame
@@ -118,7 +147,8 @@ class Translator
         end
         
         ast = Parsing.parse(block, local_variables)
-        command_proxy = instance.translate_function(ast, size, block, input_vars, [size / 250, 1, 1], [250, 1, 1])
+        dimensions = grid_block_size(size)
+        command_proxy = instance.translate_function(ast, size, block, input_vars, dimensions[0], dimensions[1])
         
         instance.symbol_table.pop_frame
         
@@ -152,11 +182,11 @@ class Translator
         mem_offsets = {}
         lexical_size = 0
         result_type = nil
-        command_proxy = CommandProxy.new
         launcher_params = ["void *host_parameters"]
         kernel_params = ["void *#{EnvironmentVariable}", "void *#{ResultVariable}"]
         kernel_args = ["device_parameters", "device_result"]
         device_input_decl = ""
+        command_proxy = CommandProxy.new
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
@@ -187,14 +217,15 @@ class Translator
                 if var.is_index?
                     value = "threadIdx.x + blockIdx.x * blockDim.x"
                 else
-                    value = "_input_#{var.name}_[threadIdx.x + blockIdx.x * blockDim.x"
+                    value = "_input_#{var.name}[threadIdx.x + blockIdx.x * blockDim.x]"
+                    command_proxy.add_input_type(var.type)
                     
                     launcher_params.push("#{var.type.to_c_type} *host_input_#{var.name}")
                     kernel_params.push("#{var.type.to_c_type} *_input_#{var.name}")
                     kernel_args.push("device_input_#{var.name}")
                     device_input_decl += """#{var.type.to_c_type} *device_input_#{var.name};
-cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
-cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
+    cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
+    cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
 """
                 end
                 
@@ -235,7 +266,10 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{lau
     return host_result;
 }"""
 
-        c_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result) + "\n\n" + launcher
+        # TODO: check: threadIdx.x + blockIdx.x * blockDim.x < #{size}
+        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + 
+            wrap_in_c_block("if (true)\n" + wrap_in_c_block(result))
+        c_source = kernel_source + "\n\n" + launcher
         puts c_source
         
         command_proxy.c_source = c_source
