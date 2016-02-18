@@ -166,6 +166,7 @@ class Translator
     
     EnvironmentVariable = "_env_"
     ResultVariable = "_result_"
+    TempResultVariable = "_temp_result_"
     
     # Translates an AST node to C++/CUDA code. Generates the kernel and a kernel launcher.
     #
@@ -190,6 +191,9 @@ class Translator
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
+            result_type = @symbol_table.get_type(:"#")
+            command_proxy.result_type = result_type
+            
             result = variable_definitions + result.c_source
             input_var_names = input_vars.map do |var|
                 var.name
@@ -212,6 +216,9 @@ class Translator
                 lexical_size += type.c_size
             end
             
+            # declare temp result variable
+            result = "#{result_type.to_c_type} #{TempResultVariable};\n" + result
+            
             # array input variables
             input_vars.each do |var|
                 if var.is_index?
@@ -231,9 +238,6 @@ class Translator
                 
                 result = "#{var.type.to_c_type} #{var.name} = #{value};\n" + result
             end
-            
-            result_type = @symbol_table.get_type(:"#")
-            command_proxy.result_type = result_type
         end
         
         input_vars = 
@@ -267,8 +271,8 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{lau
 }"""
 
         # TODO: check: threadIdx.x + blockIdx.x * blockDim.x < #{size}
-        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + 
-            wrap_in_c_block("if (true)\n" + wrap_in_c_block(result))
+        assign_result = "((#{result_type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = #{TempResultVariable};\n"
+        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result + "\n" + assign_result)
         c_source = kernel_source + "\n\n" + launcher
         puts c_source
         
@@ -514,8 +518,8 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{lau
     def translate_statement(node, should_return = false)
         if should_return and ExpressionStatements.include?(node.type)
             result = translate_ast(node, false)
-            @symbol_table.ensure_defined(:"#", result.type)
-            TranslationResult.new("((#{result.type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = (#{result.c_source});\n", PrimitiveType::Void)
+            @symbol_table.ensure_defined(:"#", result.type) #
+            TranslationResult.new("#{TempResultVariable} = #{result.c_source};\n", PrimitiveType::Void)
         elsif should_return
             TranslationResult.new(translate_ast(node, true).c_source + ";\n", PrimitiveType::Void)
         else
