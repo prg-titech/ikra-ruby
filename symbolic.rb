@@ -20,7 +20,7 @@ class ArrayNewCommand
     end
     
     def execute
-        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, true)
+        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, Translator::InputVariable::Index)
         @result = Translator.translate_block(@block, @size, [input_var]).execute
         @result
     end
@@ -39,7 +39,7 @@ class ArrayMapCommand
     end
     
     def execute
-        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, false)
+        input_var = Translator::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, Translator::InputVariable::Normal)
         proxy = Translator.translate_block(@block, size, [input_var])
         @result = proxy.execute(@target.execute)
         @result

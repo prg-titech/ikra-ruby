@@ -24,6 +24,12 @@ class Translator
         end
     end
     
+    class BlockTranslationResult
+        attr_accessor :c_source
+        attr_accessor :env_vars     # offset --> accessor function
+        attr_accessor :result_type
+    end
+    
     class CommandProxy
         attr_accessor :c_source
         attr_accessor :result_type
@@ -105,22 +111,32 @@ class Translator
     end
     
     class InputVariable
-        def initialize(name, type, is_index = false)
+        Normal = 0
+        Index = 1
+        PreviousFusion = 2
+        
+        attr_accessor :type
+        
+        def initialize(name, type, source_type = Normal)
             @name = name
             @type = type
-            @is_index = is_index
+            @source_type = source_type
         end
         
         def name
             @name
         end
         
-        def type
-            @type
+        def is_index?
+            @source_type == Index
         end
         
-        def is_index?
-            @is_index
+        def is_fusion?
+            @source_type == Fusion
+        end
+        
+        def is_normal?
+            @source_type == Normal
         end
     end
     
@@ -203,7 +219,7 @@ class Translator
             # lexical variables
             (@symbol_table.read_and_written_variables(-2) - input_var_names).each do |var|
                 type = @symbol_table.get_type(var)
-                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (((char *) #{EnvironmentVariable}) + #{mem_offset.to_s})"
+                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (((char *) #{EnvironmentVariable}) + _env_offset_ + #{mem_offset.to_s})"
                 result = assignment + ";\n" + result
                 
                 env_accessor = Proc.new do
@@ -223,7 +239,7 @@ class Translator
             input_vars.each do |var|
                 if var.is_index?
                     value = "threadIdx.x + blockIdx.x * blockDim.x"
-                else
+                elsif var.is_normal?
                     value = "_input_#{var.name}[threadIdx.x + blockIdx.x * blockDim.x]"
                     command_proxy.add_input_type(var.type)
                     
@@ -272,7 +288,7 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{lau
 
         # TODO: check: threadIdx.x + blockIdx.x * blockDim.x < #{size}
         assign_result = "((#{result_type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = #{TempResultVariable};\n"
-        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result + "\n" + assign_result)
+        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block("\#define _env_offset_ 0\n" + result + "\n" + assign_result)
         c_source = kernel_source + "\n\n" + launcher
         puts c_source
         
