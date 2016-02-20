@@ -27,6 +27,7 @@ class Translator
     class BlockTranslationResult
         attr_accessor :c_source
         attr_accessor :env_vars     # offset --> accessor function
+        attr_accessor :env_size
         attr_accessor :result_type
     end
     
@@ -132,7 +133,7 @@ class Translator
         end
         
         def is_fusion?
-            @source_type == Fusion
+            @source_type == PreviousFusion
         end
         
         def is_normal?
@@ -144,7 +145,7 @@ class Translator
         [[[size / 250, 1].max, 1, 1], [(size >= 250 ? 250 : size), 1, 1]]
     end
     
-    def self.translate_block(block, size, input_vars = [])
+    def self.translate_block(block: block, size: size, input_vars: input_vars = [], function_name: function_name)
         instance = self.new
         instance.symbol_table.push_frame
         
@@ -164,12 +165,11 @@ class Translator
         
         ast = Parsing.parse(block, local_variables)
         dimensions = grid_block_size(size)
-        command_proxy = instance.translate_function(ast, size, block, input_vars, dimensions[0], dimensions[1])
-        
+        block_translation_result = instance.translate_function(ast, size, block, function_name, input_vars, dimensions[0], dimensions[1])
+
         instance.symbol_table.pop_frame
-        
-        command_proxy.build
-        command_proxy
+
+        block_translation_result
     end
     
     def initialize
@@ -194,7 +194,7 @@ class Translator
     #   - +dim3_grid+: Dimension of grid
     #   - +dim3_block+: Dimension of block
     #
-    def translate_function(node, size, block, input_vars = [], dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
+    def translate_function(node, size, block, function_name, input_vars = [], dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
         result = nil
         mem_offsets = {}
         lexical_size = 0
@@ -250,51 +250,24 @@ class Translator
     cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
     cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
 """
+                elsif var.is_fusion?
+                    # TODO: handle multiple previous
+                    value = "_previous_"
                 end
                 
                 result = "#{var.type.to_c_type} #{var.name} = #{value};\n" + result
             end
         end
         
-        input_vars = 
-        # generate kernel launcher
-        launcher = """#include <stdio.h>
-        
-extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{launcher_params.join(", ")})
-{
-    printf(\"kernel launched\\n\");
-    void *device_parameters;
-    cudaMalloc(&device_parameters, #{lexical_size});
-    cudaMemcpy(device_parameters, host_parameters, #{lexical_size}, cudaMemcpyHostToDevice);
-    
-    #{result_type.to_c_type} *host_result = (#{result_type.to_c_type} *) malloc(#{result_type.c_size} * #{size});
-    #{result_type.to_c_type} *device_result;
-    cudaMalloc(&device_result, #{result_type.c_size} * #{size});
-    
-    #{device_input_decl}
-    
-    dim3 dim_grid(#{dim3_grid[0]}, #{dim3_grid[1]}, #{dim3_grid[2]});
-    dim3 dim_block(#{dim3_block[0]}, #{dim3_block[1]}, #{dim3_block[2]});
-    
-    kernel<<<dim_grid, dim_block>>>(#{kernel_args.join(", ")});
-    
-    cudaThreadSynchronize();
-    cudaMemcpy(host_result, device_result, #{result_type.c_size} * #{size}, cudaMemcpyDeviceToHost);
-    cudaFree(device_result);
-    cudaFree(device_parameters);
-    
-    return host_result;
-}"""
-
-        # TODO: check: threadIdx.x + blockIdx.x * blockDim.x < #{size}
         assign_result = "((#{result_type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = #{TempResultVariable};\n"
-        kernel_source = "__global__ void kernel(#{kernel_params.join(", ")})\n" + wrap_in_c_block("\#define _env_offset_ 0\n" + result + "\n" + assign_result)
-        c_source = kernel_source + "\n\n" + launcher
-        puts c_source
+        kernel_source = "__global__ void #{function_name}(#{kernel_params.join(", ")})\n" + wrap_in_c_block("\#define _env_offset_ 0\n" + result + "\n" + assign_result)
         
-        command_proxy.c_source = c_source
-        command_proxy.array_size = size
-        command_proxy
+        block_translation_result = BlockTranslationResult.new
+        block_translation_result.c_source = kernel_source
+        # TODO: handle more than one return value
+        block_translation_result.result_type = [result_type]
+        block_translation_result.env_size = lexical_size
+        block_translation_result
     end
     
     def variable_definitions

@@ -38,6 +38,10 @@ class PrimitiveType
     end
 end
 
+class UnknownType
+    Instance = self.new
+end
+
 class Fixnum
     def self.to_ikra_type
         PrimitiveType::Int

@@ -8,6 +8,12 @@ module Compiler
         # Array of InputVariable
         attr_reader :input_vars
         
+        def initialize(block: block, size: size)
+            @block = block
+            @size = size
+            @input_vars = []
+        end
+
         def add_input_var(var)
             @input_vars.push(var)
         end
@@ -51,19 +57,29 @@ module Compiler
                 function_name: "kernel_inner_#{@block_index}")
             
             @kernel_inner_source = block_result.c_source
-            @invocation_source = "kernel_inner_#{@block_index}(#{invocation_source}, (void *) (((char *) #{EnvironmentVariable}) + #{env_offset}))"
+            @invocation_source = "kernel_inner_#{@block_index}(#{@invocation_source}, (void *) (((char *) #{EnvironmentVariable}) + #{@env_offset}))"
             
-            @previous_block_result_types = block_result.previous_block_result_types
+            @previous_block_result_types = block_result.result_type
             @env_offset += block_result.env_size
             @block_index += 1
         end
         
+        def full_source
+            @kernel_inner_source + "\n\n" + """__global__ kernel()
+{
+    return #{@invocation_source};
+}
+"""
+        end
+
         def wrap_in_c_block(str)
             "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "\n}\n"
         end
     end
     
-    def compile(*requests)
-        # use reduce to combine previous result with new request
+    def self.compile(request)
+        compilation_result = KernelCompilationResult.new
+        compilation_result.merge_request!(request)
+        compilation_result
     end
 end
