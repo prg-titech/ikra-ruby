@@ -36,3 +36,24 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{lau
         command_proxy.c_source = c_source
         command_proxy.array_size = size
         command_proxy
+        
+        
+                        if var.is_index?
+                    value = "threadIdx.x + blockIdx.x * blockDim.x"
+                elsif var.is_normal?
+                    value = "_input_#{var.name}[threadIdx.x + blockIdx.x * blockDim.x]"
+                    command_proxy.add_input_type(var.type)
+                    
+                    launcher_params.push("#{var.type.to_c_type} *host_input_#{var.name}")
+                    kernel_params.push("#{var.type.to_c_type} _input_#{var.name}")
+                    kernel_args.push("device_input_#{var.name}")
+                    device_input_decl += """#{var.type.to_c_type} *device_input_#{var.name};
+    cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
+    cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
+"""
+                elsif var.is_fusion?
+                    # TODO: handle multiple previous
+                    value = "_previous_"
+                end
+                
+                result = "#{var.type.to_c_type} #{var.name} = #{value};\n" + result

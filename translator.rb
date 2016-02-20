@@ -31,121 +31,7 @@ class Translator
         attr_accessor :result_type
     end
     
-    class CommandProxy
-        attr_accessor :c_source
-        attr_accessor :result_type
-        attr_accessor :array_size
-        
-        def initialize
-            @env_size = 0
-            @env = {}
-            @ffi_wrapper = nil
-            @expected_input_types = []
-        end
-        
-        def build
-            file = Tempfile.new(["ikra_kernel", ".cu"])
-            file.write(c_source)
-            file.close
-            
-            compile_status = %x(nvcc -o #{file.path}.dll --shared #{file.path})
-            
-            @ffi_wrapper = Module.new
-            @ffi_wrapper.extend(FFI::Library)
-            @ffi_wrapper.ffi_lib(file.path + ".dll")
-            @ffi_wrapper.attach_function(:launch_kernel, [:pointer] * (@expected_input_types.size + 1), :pointer)
-        end
-        
-        def add_input_type(type)
-            @expected_input_types.push(type)
-        end
-        
-        def add_env_var(offset, size, accessor)
-            @env[offset] = accessor
-            @env_size += size
-        end
-        
-        def execute(*input)
-            if input.size != @expected_input_types.size
-                raise "Expected #{@expected_input_types.size} parameters (#{input.size} given)"
-            end
-            
-            env = FFI::MemoryPointer.new(@env_size)
-            @env.each do |offset, accessor|
-                value = accessor.call
-                if value.class == Float
-                    env.put_float(offset, value)
-                elsif value.class == Fixnum
-                    env.put_int(offset, value)
-                else
-                    raise "Cannot pass object of type #{value.class} via FFI"
-                end
-            end
-            
-            all_input = [env]
-            (0..input.size - 1).each do |index|
-                arg = FFI::MemoryPointer.new(input[index].size * @expected_input_types[index].c_size)
-                if @expected_input_types[index] == PrimitiveType::Int
-                    arg.put_array_of_int(0, input[index])
-                elsif @expected_input_types[index] == PrimitiveType::Float
-                    arg.put_array_of_float(0, input[index])
-                else
-                    raise "Cannot handle array of #{@result_type} via FFI"
-                end
-                all_input.push(arg)
-            end
-            
-            result = @ffi_wrapper.launch_kernel(*all_input)
-            
-            all_input.each do |pointer|
-                pointer.free
-            end
-            
-            if @result_type == PrimitiveType::Int
-                result.read_array_of_int(@array_size)
-            elsif @result_type == PrimitiveType::Float
-                result.read_array_of_float(@array_size)
-            else
-                raise "Cannot retrieve array of #{@result_type} via FFI"
-            end
-        end
-    end
-    
-    class InputVariable
-        Normal = 0
-        Index = 1
-        PreviousFusion = 2
-        
-        attr_accessor :type
-        
-        def initialize(name, type, source_type = Normal)
-            @name = name
-            @type = type
-            @source_type = source_type
-        end
-        
-        def name
-            @name
-        end
-        
-        def is_index?
-            @source_type == Index
-        end
-        
-        def is_fusion?
-            @source_type == PreviousFusion
-        end
-        
-        def is_normal?
-            @source_type == Normal
-        end
-    end
-    
-    def self.grid_block_size(size)
-        [[[size / 250, 1].max, 1, 1], [(size >= 250 ? 250 : size), 1, 1]]
-    end
-    
-    def self.translate_block(block: block, size: size, input_vars: input_vars = [], function_name: function_name)
+    def self.translate_block(block:, size:, input_vars: [], function_name:)
         instance = self.new
         instance.symbol_table.push_frame
         
@@ -158,14 +44,14 @@ class Translator
             local_variables.push(var)
         end
         
+        # have to declare variables here because they must to known to the parser
         input_vars.each do |var|
             instance.symbol_table.define_shadowed(var.name, var.type)
             local_variables.push(var.name)
         end
         
         ast = Parsing.parse(block, local_variables)
-        dimensions = grid_block_size(size)
-        block_translation_result = instance.translate_function(ast, size, block, function_name, input_vars, dimensions[0], dimensions[1])
+        block_translation_result = instance.translate_function(ast, size, block, function_name, input_vars)
 
         instance.symbol_table.pop_frame
 
@@ -194,21 +80,19 @@ class Translator
     #   - +dim3_grid+: Dimension of grid
     #   - +dim3_block+: Dimension of block
     #
-    def translate_function(node, size, block, function_name, input_vars = [], dim3_grid = [1, 1, 1], dim3_block = [size, 1, 1])
+    def translate_function(node, size, block, function_name, input_vars = [])
         result = nil
         mem_offsets = {}
         lexical_size = 0
         result_type = nil
         launcher_params = ["void *host_parameters"]
-        kernel_params = ["void *#{EnvironmentVariable}", "void *#{ResultVariable}"]
+        kernel_params = ["char *#{EnvironmentVariable}"]
         kernel_args = ["device_parameters", "device_result"]
         device_input_decl = ""
-        command_proxy = CommandProxy.new
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
             result_type = @symbol_table.get_type(:"#")
-            command_proxy.result_type = result_type
             
             result = variable_definitions + result.c_source
             input_var_names = input_vars.map do |var|
@@ -225,7 +109,7 @@ class Translator
                 env_accessor = Proc.new do
                     block.binding.local_variable_get(var)
                 end
-                command_proxy.add_env_var(mem_offset, type.c_size, env_accessor)
+                #command_proxy.add_env_var(mem_offset, type.c_size, env_accessor)
                 
                 mem_offsets[var] = mem_offset
                 mem_offset += type.c_size
@@ -237,30 +121,13 @@ class Translator
             
             # array input variables
             input_vars.each do |var|
-                if var.is_index?
-                    value = "threadIdx.x + blockIdx.x * blockDim.x"
-                elsif var.is_normal?
-                    value = "_input_#{var.name}[threadIdx.x + blockIdx.x * blockDim.x]"
-                    command_proxy.add_input_type(var.type)
-                    
-                    launcher_params.push("#{var.type.to_c_type} *host_input_#{var.name}")
-                    kernel_params.push("#{var.type.to_c_type} *_input_#{var.name}")
-                    kernel_args.push("device_input_#{var.name}")
-                    device_input_decl += """#{var.type.to_c_type} *device_input_#{var.name};
-    cudaMalloc(&device_input_#{var.name}, #{var.type.c_size} * #{size});
-    cudaMemcpy(device_input_#{var.name}, host_input_#{var.name}, #{var.type.c_size} * #{size}, cudaMemcpyHostToDevice);
-"""
-                elsif var.is_fusion?
-                    # TODO: handle multiple previous
-                    value = "_previous_"
-                end
-                
-                result = "#{var.type.to_c_type} #{var.name} = #{value};\n" + result
+                kernel_params.push("#{var.type.to_c_type} #{var.name}")
             end
         end
         
-        assign_result = "((#{result_type.to_c_type} *) #{ResultVariable})[threadIdx.x + blockIdx.x * blockDim.x] = #{TempResultVariable};\n"
-        kernel_source = "__global__ void #{function_name}(#{kernel_params.join(", ")})\n" + wrap_in_c_block("\#define _env_offset_ 0\n" + result + "\n" + assign_result)
+        ##{ResultVariable}[threadIdx.x + blockIdx.x * blockDim.x] =
+        assign_result = "return #{TempResultVariable};\n"
+        kernel_source = "__device__ #{result_type.to_c_type} #{function_name}(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result + "\n" + assign_result)
         
         block_translation_result = BlockTranslationResult.new
         block_translation_result.c_source = kernel_source
