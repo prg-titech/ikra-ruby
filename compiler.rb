@@ -60,11 +60,10 @@ module Compiler
             @previous_block_result_types = []
             @invocation_source = ""
             @kernel_inner_source = ""
-            @kernel_params = ["char *_env_"]
+            @kernel_params = ["struct _environment_ *_env_"]
             @kernel_args = ["device_env"]
             @launcher_input_decl = ""
-            @launcher_params = ["char *host_env"]
-            @env_offset = 0
+            @launcher_params = ["struct _environment_ *host_env"]
             @env_size = 0
             @initial_size = nil
             
@@ -73,6 +72,9 @@ module Compiler
             @expected_input_types = []
             @input_accumulator = []
             @env_vars = []
+            @env_struct_type = nil
+            @env_struct_layout = []
+            @env_var_count = 0
         end
         
         def merge_request!(request)
@@ -104,7 +106,7 @@ module Compiler
             @kernel_inner_source += block_result.c_source
             
             # Call arguments/parameters
-            inner_kernel_args = ["#{EnvironmentVariable} + #{@env_offset}"]
+            inner_kernel_args = [EnvironmentVariable]
             arg_index = 0
             request.input_vars.each do |var|
                 arg_string = nil
@@ -131,13 +133,14 @@ module Compiler
             
             # Merge environment variables
             block_result.env_vars.each do |var|
-                @env_vars.push(Translator::EnvironmentVariable.new(accessor: var.accessor, type: var.type, offset: var.offset + @env_offset))
+                @env_vars.push(var)
+                @env_struct_layout += [:"field_#{@env_var_count}", var.type.to_ffi_type]
+                @env_var_count += 1
             end
             
             @invocation_source = "kernel_inner_#{@block_index}(#{inner_kernel_args.join(", ")})"
             
             @previous_block_result_types = block_result.result_type
-            @env_offset += block_result.env_size
             @env_size += block_result.env_size
             
             @block_index += 1
@@ -147,6 +150,11 @@ module Compiler
             dimensions = grid_block_size(@initial_size)
             dim3_grid = dimensions[0]
             dim3_block = dimensions[1]
+            
+            struct_fields = @env_vars.map do |var|
+                var.type.to_c_type + " " + var.var_name + ";"
+            end.join("\n")
+            struct_def = "struct _environment_\n" + wrap_in_c_block(struct_fields) + ";\n\n"
             
             result_type = @previous_block_result_types.first
             kernel_params = ["#{result_type.to_c_type} *_result_"] + @kernel_params
@@ -158,9 +166,9 @@ module Compiler
 extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@launcher_params.join(", ")})
 {
     printf(\"kernel launched\\n\");
-    char *device_env;
-    cudaMalloc(&device_env, #{@env_size});
-    cudaMemcpy(device_env, host_env, #{@env_size}, cudaMemcpyHostToDevice);
+    struct _environment_ *device_env;
+    cudaMalloc(&device_env, sizeof(struct _environment_));
+    cudaMemcpy(device_env, host_env, sizeof(struct _environment_), cudaMemcpyHostToDevice);
     
     #{result_type.to_c_type} *host_result = (#{result_type.to_c_type} *) malloc(#{result_type.c_size} * #{@initial_size});
     #{result_type.to_c_type} *device_result;
@@ -188,7 +196,7 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
 }
 """
 
-            @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
+            struct_def + @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
         end
         
         def grid_block_size(size)
@@ -226,6 +234,9 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
             
             compile_status = %x(nvcc -o #{file.path}.dll --shared #{file.path})
             
+            @env_struct_type = Class.new(FFI::Struct)
+            @env_struct_type.layout(*@env_struct_layout)
+            
             @ffi_wrapper = Module.new
             @ffi_wrapper.extend(FFI::Library)
             @ffi_wrapper.ffi_lib(file.path + ".dll")
@@ -239,19 +250,23 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
                 raise "Expected #{@expected_input_types.size} parameters (#{@input_accumulator.size} given)"
             end
             
-            env = FFI::MemoryPointer.new(@env_size)
-            @env_vars.each do |var|
-                value = var.accessor.call
-                if value.class == Float
-                    env.put_float(var.offset, value)
-                elsif value.class == Fixnum
-                    env.put_int(var.offset, value)
-                else
-                    raise "Cannot pass object of type #{value.class} via FFI"
+            all_input = []
+            
+            if @env_var_count > 0
+                env_struct = @env_struct_type.new
+                env_index = 0
+                @env_vars.each do |var|
+                    value = var.accessor.call
+                    env_struct[:"field_#{env_index}"] = value
+                    env_index += 1
                 end
+                
+                all_input.push(env_struct.to_ptr)
+            else
+                # Empty struct: pass some pointer
+                all_input.push(FFI::MemoryPointer.new(0))
             end
             
-            all_input = [env]
             all_input += @input_accumulator
             result = @ffi_wrapper.launch_kernel(*all_input)
             

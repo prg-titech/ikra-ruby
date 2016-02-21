@@ -36,12 +36,14 @@ end
 
 should_invert = 1
 result = mandel_basic.pmap do |color|
-    if should_invert != 0
+    if should_invert == 1
         if color == 1
             0
         else
             1
         end
+    else
+        color
     end
 end
 

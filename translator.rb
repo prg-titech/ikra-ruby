@@ -26,7 +26,7 @@ class Translator
     
     class BlockTranslationResult
         attr_accessor :c_source
-        attr_accessor :env_vars     # offset --> accessor function
+        attr_accessor :env_vars
         attr_accessor :env_size
         attr_accessor :result_type
         
@@ -35,8 +35,8 @@ class Translator
             @env_vars = []
         end
         
-        def add_env_var(offset:, type:, accessor:)
-            @env_vars.push(EnvironmentVariable.new(accessor: accessor, type: type, offset: offset))
+        def add_env_var(type:, accessor:, var_name:)
+            @env_vars.push(EnvironmentVariable.new(accessor: accessor, type: type, var_name: var_name))
             @env_size += type.c_size
         end
     end
@@ -44,12 +44,12 @@ class Translator
     class EnvironmentVariable
         attr_reader :accessor
         attr_reader :type
-        attr_reader :offset
+        attr_reader :var_name
         
-        def initialize(accessor:, type:, offset:)
+        def initialize(accessor:, type:, var_name:)
             @accessor = accessor
             @type = type
-            @offset = offset
+            @var_name = var_name
         end
     end
     
@@ -104,10 +104,9 @@ class Translator
     #
     def translate_function(node, size, block, function_name, input_vars = [])
         result = nil
-        mem_offsets = {}
         result_type = nil
         launcher_params = ["void *host_parameters"]
-        kernel_params = ["char *#{EnvironmentVariableName}"]
+        kernel_params = ["struct _environment_ *#{EnvironmentVariableName}"]
         kernel_args = ["device_parameters", "device_result"]
         device_input_decl = ""
         block_translation_result = BlockTranslationResult.new
@@ -121,20 +120,21 @@ class Translator
                 var.name
             end
             
-            mem_offset = 0
+            env_index = 0
             # lexical variables
             (@symbol_table.read_and_written_variables(-2) - input_var_names).each do |var|
                 type = @symbol_table.get_type(var)
-                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (#{EnvironmentVariableName} + #{mem_offset.to_s})"
+                struct_var_name = "#{function_name}_env_#{env_index}_#{var.to_s}"
+                assignment = "#{type.to_c_type} #{var.to_s} = _env_->#{struct_var_name}"
                 result = assignment + ";\n" + result
                 
                 env_accessor = Proc.new do
                     block.binding.local_variable_get(var)
                 end
-                block_translation_result.add_env_var(offset: mem_offset, type: type, accessor: env_accessor)
-                
-                mem_offsets[var] = mem_offset
-                mem_offset += type.c_size
+                block_translation_result.add_env_var(
+                    type: type, 
+                    accessor: env_accessor,
+                    var_name: struct_var_name)
             end
             
             # declare temp result variable
