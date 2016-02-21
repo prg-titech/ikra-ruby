@@ -6,7 +6,7 @@ hx_res = 500
 hy_res = 500
 iter_max = 100
 
-result = Array.pnew(hx_res * hy_res) do |j|
+mandel_basic = Array.pnew(hx_res * hy_res) do |j|
     hx = j % hx_res
     hy = j / hx_res
     
@@ -31,6 +31,17 @@ result = Array.pnew(hx_res * hy_res) do |j|
         0
     else
         1
+    end
+end
+
+should_invert = 1
+result = mandel_basic.pmap do |color|
+    if should_invert != 0
+        if color == 1
+            0
+        else
+            1
+        end
     end
 end
 

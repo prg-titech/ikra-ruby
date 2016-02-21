@@ -14,7 +14,7 @@ module ArrayCommand
     def execute
         compilation_request = translate
         allocate(compilation_request)
-        compilation_request.execute
+        @result = compilation_request.execute
     end
     
     def to_command
@@ -125,11 +125,11 @@ class Array
     end
 end
 
-arr = [5, 7, 1, 3, 9, 9]
-res = arr.pmap do |el|
-    el * el
-end.pmap do |el|
-    el + 1
-end
+#arr = [5, 7, 1, 3, 9, 9]
+#res = arr.pmap do |el|
+#    el * el
+#end.pmap do |el|
+#    el + 1
+#end
 
-puts res.execute
+#puts res.execute

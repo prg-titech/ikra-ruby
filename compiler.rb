@@ -72,7 +72,7 @@ module Compiler
             @ffi_wrapper = nil
             @expected_input_types = []
             @input_accumulator = []
-            @env = {}
+            @env_vars = []
         end
         
         def merge_request!(request)
@@ -127,6 +127,11 @@ module Compiler
                 end
                 inner_kernel_args.push(arg_string)
                 arg_index += 1
+            end
+            
+            # Merge environment variables
+            block_result.env_vars.each do |var|
+                @env_vars.push(Translator::EnvironmentVariable.new(accessor: var.accessor, type: var.type, offset: var.offset + @env_offset))
             end
             
             @invocation_source = "kernel_inner_#{@block_index}(#{inner_kernel_args.join(", ")})"
@@ -227,11 +232,6 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
             @ffi_wrapper.attach_function(:launch_kernel, [:pointer] * (@expected_input_types.size + 1), :pointer)
         end
         
-        def add_env_var(offset, size, accessor)
-            @env[offset] = accessor
-            @env_size += size
-        end
-        
         def execute
             build
             
@@ -240,12 +240,12 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
             end
             
             env = FFI::MemoryPointer.new(@env_size)
-            @env.each do |offset, accessor|
-                value = accessor.call
+            @env_vars.each do |var|
+                value = var.accessor.call
                 if value.class == Float
-                    env.put_float(offset, value)
+                    env.put_float(var.offset, value)
                 elsif value.class == Fixnum
-                    env.put_int(offset, value)
+                    env.put_int(var.offset, value)
                 else
                     raise "Cannot pass object of type #{value.class} via FFI"
                 end

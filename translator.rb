@@ -29,6 +29,28 @@ class Translator
         attr_accessor :env_vars     # offset --> accessor function
         attr_accessor :env_size
         attr_accessor :result_type
+        
+        def initialize
+            @env_size = 0
+            @env_vars = []
+        end
+        
+        def add_env_var(offset:, type:, accessor:)
+            @env_vars.push(EnvironmentVariable.new(accessor: accessor, type: type, offset: offset))
+            @env_size += type.c_size
+        end
+    end
+    
+    class EnvironmentVariable
+        attr_reader :accessor
+        attr_reader :type
+        attr_reader :offset
+        
+        def initialize(accessor:, type:, offset:)
+            @accessor = accessor
+            @type = type
+            @offset = offset
+        end
     end
     
     def self.translate_block(block:, size:, input_vars: [], function_name:)
@@ -66,9 +88,9 @@ class Translator
         @symbol_table
     end
     
-    EnvironmentVariable = "_env_"
-    ResultVariable = "_result_"
-    TempResultVariable = "_temp_result_"
+    EnvironmentVariableName = "_env_"
+    ResultVariableNameName = "_result_"
+    TempResultVariableName = "_temp_result_"
     
     # Translates an AST node to C++/CUDA code. Generates the kernel and a kernel launcher.
     #
@@ -83,12 +105,12 @@ class Translator
     def translate_function(node, size, block, function_name, input_vars = [])
         result = nil
         mem_offsets = {}
-        lexical_size = 0
         result_type = nil
         launcher_params = ["void *host_parameters"]
-        kernel_params = ["char *#{EnvironmentVariable}"]
+        kernel_params = ["char *#{EnvironmentVariableName}"]
         kernel_args = ["device_parameters", "device_result"]
         device_input_decl = ""
+        block_translation_result = BlockTranslationResult.new
         
         @symbol_table.new_frame do
             result = translate_multi_begin_or_statement(node, true)
@@ -103,21 +125,20 @@ class Translator
             # lexical variables
             (@symbol_table.read_and_written_variables(-2) - input_var_names).each do |var|
                 type = @symbol_table.get_type(var)
-                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (((char *) #{EnvironmentVariable}) + _env_offset_ + #{mem_offset.to_s})"
+                assignment = "#{type.to_c_type} #{var.to_s} = * (#{type.to_c_type} *) (#{EnvironmentVariableName} + #{mem_offset.to_s})"
                 result = assignment + ";\n" + result
                 
                 env_accessor = Proc.new do
                     block.binding.local_variable_get(var)
                 end
-                #command_proxy.add_env_var(mem_offset, type.c_size, env_accessor)
+                block_translation_result.add_env_var(offset: mem_offset, type: type, accessor: env_accessor)
                 
                 mem_offsets[var] = mem_offset
                 mem_offset += type.c_size
-                lexical_size += type.c_size
             end
             
             # declare temp result variable
-            result = "#{result_type.to_c_type} #{TempResultVariable};\n" + result
+            result = "#{result_type.to_c_type} #{TempResultVariableName};\n" + result
             
             # array input variables
             input_vars.each do |var|
@@ -125,15 +146,13 @@ class Translator
             end
         end
         
-        ##{ResultVariable}[threadIdx.x + blockIdx.x * blockDim.x] =
-        assign_result = "return #{TempResultVariable};\n"
+        ##{ResultVariableName}[threadIdx.x + blockIdx.x * blockDim.x] =
+        assign_result = "return #{TempResultVariableName};\n"
         kernel_source = "__device__ #{result_type.to_c_type} #{function_name}(#{kernel_params.join(", ")})\n" + wrap_in_c_block(result + "\n" + assign_result)
         
-        block_translation_result = BlockTranslationResult.new
         block_translation_result.c_source = kernel_source
         # TODO: handle more than one return value
         block_translation_result.result_type = [result_type]
-        block_translation_result.env_size = lexical_size
         block_translation_result
     end
     
@@ -375,7 +394,7 @@ class Translator
         if should_return and ExpressionStatements.include?(node.type)
             result = translate_ast(node, false)
             @symbol_table.ensure_defined(:"#", result.type) #
-            TranslationResult.new("#{TempResultVariable} = #{result.c_source};\n", PrimitiveType::Void)
+            TranslationResult.new("#{TempResultVariableName} = #{result.c_source};\n", PrimitiveType::Void)
         elsif should_return
             TranslationResult.new(translate_ast(node, true).c_source + ";\n", PrimitiveType::Void)
         else
