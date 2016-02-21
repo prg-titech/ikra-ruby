@@ -1,6 +1,9 @@
 require_relative "translator"
+require "logger"
 
 module Compiler
+    Log = Logger.new(STDOUT)
+    
     class InputVariable
         Normal = 0
         Index = 1
@@ -226,13 +229,17 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
         end
         
         def build
-            puts full_source
+            Log.info("Full CUDA source: \n#{full_source}")
             
             file = Tempfile.new(["ikra_kernel", ".cu"])
             file.write(full_source)
             file.close
             
-            compile_status = %x(nvcc -o #{file.path}.dll --shared #{file.path})
+            compiler_invocation = "nvcc -o #{file.path}.dll --shared #{file.path}"
+            time_before = Time.now
+            Log.info("Compiling CUDA code: #{compiler_invocation}")
+            compile_status = %x(#{compiler_invocation})
+            Log.info("Done, took #{Time.now - time_before} s")
             
             @env_struct_type = Class.new(FFI::Struct)
             @env_struct_type.layout(*@env_struct_layout)
@@ -268,7 +275,12 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
             end
             
             all_input += @input_accumulator
+            
+            # Measure time and launch kernel
+            Log.info("Launching kernel...")
+            time_before = Time.now
             result = @ffi_wrapper.launch_kernel(*all_input)
+            Log.info("Kernel time: #{Time.now - time_before} s")
             
             all_input.each do |pointer|
                 pointer.free
@@ -276,13 +288,17 @@ extern \"C\" __declspec(dllexport) #{result_type.to_c_type} *launch_kernel(#{@la
             
             # TODO: handle multiple return values
             result_type = @previous_block_result_types.first
+            return_value = nil
             if result_type == PrimitiveType::Int
-                result.read_array_of_int(@initial_size)
+                return_value = result.read_array_of_int(@initial_size)
             elsif result_type == PrimitiveType::Float
-                result.read_array_of_float(@initial_size)
+                return_value = result.read_array_of_float(@initial_size)
             else
                 raise "Cannot retrieve array of #{result_type} via FFI"
             end
+            
+            Log.info("Return values FFI transfer complete")
+            return_value
         end
     end
     

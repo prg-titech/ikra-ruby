@@ -2,9 +2,9 @@ require_relative "symbolic"
 require "chunky_png"
 
 magnify = 1.0
-hx_res = 500
-hy_res = 500
-iter_max = 100
+hx_res = 2000
+hy_res = 2000
+iter_max = 256
 
 mandel_basic = Array.pnew(hx_res * hy_res) do |j|
     hx = j % hx_res
@@ -22,35 +22,31 @@ mandel_basic = Array.pnew(hx_res * hy_res) do |j|
         x = xx
         
         if x*x + y*y > 100
-            iter = 999
             break
         end
     end
     
-    if iter == 999
-        0
-    else
-        1
-    end
+    iter % 256
 end
 
-should_invert = 1
-result = mandel_basic.pmap do |color|
-    if should_invert == 1
-        if color == 1
-            0
-        else
-            1
-        end
+inverted = 1
+mandel_filtered = mandel_basic.pmap do |color|
+    if inverted == 1
+        255 - color
     else
         color
     end
 end
 
-png = ChunkyPNG::Image.new(hx_res, hy_res, ChunkyPNG::Color::TRANSPARENT)
-for i in 0..result.size - 1
-    png[i % hx_res, i / hx_res] = result[i] == 0 ? ChunkyPNG::Color('blue') : ChunkyPNG::Color('white')
+color_cache = {}
+color_cache.default_proc = Proc.new do |hash, key|
+    hash[key] = ChunkyPNG::Color.rgb(key, 0, 0)
 end
 
-png.save('result.png', :interlace => true)
+png = ChunkyPNG::Image.new(hx_res, hy_res, ChunkyPNG::Color::TRANSPARENT)
+for i in 0..mandel_filtered.size - 1
+    png[i % hx_res, i / hx_res] = color_cache[mandel_filtered[i]]
+end
+
+png.save('result.png', :interlace => false)
 

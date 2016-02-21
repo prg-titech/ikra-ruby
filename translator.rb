@@ -7,8 +7,11 @@ require "pp"
 require "tempfile"
 require "ffi"
 require "parser/current"
+require "logger"
 
 class Translator
+    Log = Logger.new(STDOUT)
+    
     class TranslationResult
         def initialize(c_source, type)
             @c_source = c_source
@@ -73,6 +76,8 @@ class Translator
         end
         
         ast = Parsing.parse(block, local_variables)
+        Log.info("Block AST: \n #{ast}")
+        
         block_translation_result = instance.translate_function(ast, size, block, function_name, input_vars)
 
         instance.symbol_table.pop_frame
@@ -174,7 +179,13 @@ class Translator
     ExpressionStatements = [:int, :float, :bool, :lvar, :lvasgn, :send]
     
     def translate_ast(node, should_return = false)
-        send("translate_#{node.type.to_s}".to_sym, node, should_return)
+        if should_return and ExpressionStatements.include?(node.type)
+            result = send("translate_#{node.type.to_s}".to_sym, node, false)
+            @symbol_table.ensure_defined(:"#", result.type) #
+            TranslationResult.new("#{TempResultVariableName} = #{result.c_source};\n", PrimitiveType::Void)
+        else
+            send("translate_#{node.type.to_s}".to_sym, node, should_return)
+        end
     end
     
     def translate_int(node, should_return = false)
@@ -236,7 +247,7 @@ class Translator
             @symbol_table.ensure_defined(variable_name, PrimitiveType::Int)
             
             result_string = "for (#{variable_name} = (#{range_from.c_source}); #{variable_name} <= (#{range_to.c_source}); #{variable_name}++)\n" + 
-                wrap_in_c_block(translate_multi_begin_or_statement(node.children[2]).c_source)
+                wrap_in_c_block(translate_multi_begin_or_statement(node.children[2]).c_source) + "#{variable_name}--"
                
             TranslationResult.new(result_string, PrimitiveType::Void)
         end
@@ -363,14 +374,22 @@ class Translator
     end
     
     def translate_begin(node, should_return = false)
-        # BEGIN for loops, functions, etc. are handled separately
-        # TODO: handle multiple statements in BEGIN
-        
-        if node.children.size > 1
-            raise "Cannot handle multiple statements in BEGIN block"
+        if node.children.size == 1
+            translate_ast(node.children[0], should_return)
+        else
+            # Use lambda function to put multiple statements in one expression
+            result_string = ""
+            node.children[0...-1].each do |stmt|
+                result_string += translate_statement(stmt).c_source
+            end
+            
+            # Treat last stmt as expr to get return type
+            # TODO: handle case where return goes inside
+            last_stmt = translate_ast(node.children.last, should_return)
+            result_string += "return " + last_stmt.c_source + ";"
+                
+            TranslationResult.new("[&]{#{result_string}}()", last_stmt.type)
         end
-        
-        translate_ast(node.children[0], should_return)
     end
     
     def translate_multi_begin_or_statement(node, last_returns = false)
@@ -391,14 +410,6 @@ class Translator
     end
     
     def translate_statement(node, should_return = false)
-        if should_return and ExpressionStatements.include?(node.type)
-            result = translate_ast(node, false)
-            @symbol_table.ensure_defined(:"#", result.type) #
-            TranslationResult.new("#{TempResultVariableName} = #{result.c_source};\n", PrimitiveType::Void)
-        elsif should_return
-            TranslationResult.new(translate_ast(node, true).c_source + ";\n", PrimitiveType::Void)
-        else
-            TranslationResult.new(translate_ast(node, false).c_source + ";\n", PrimitiveType::Void)
-        end
+        TranslationResult.new(translate_ast(node, should_return).c_source + ";\n", PrimitiveType::Void)
     end
 end

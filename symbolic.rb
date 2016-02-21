@@ -65,7 +65,6 @@ class ArrayMapCommand
     def translate
         compilation_result = @target.translate
 
-        # TODO: how to handle size here?
         current_request = Compiler::CompilationRequest.new(block: @block, size: size)
         current_request.add_input_var(Compiler::InputVariable.new(@block.parameters[0][1], UnknownType::Instance, Compiler::InputVariable::PreviousFusion))
         compilation_result.merge_request!(current_request)
@@ -76,6 +75,18 @@ class ArrayMapCommand
     def allocate(compilation_request)
         @target.allocate(compilation_request)
     end
+end
+
+class ArraySelectCommand
+    include ArrayCommand
+
+    def initialize(target, block)
+        @target = target
+        @block = block
+    end
+    
+    # how to implement SELECT?
+    # idea: two return values (actual value and boolean indicator as struct type)
 end
 
 class ArrayIdentityCommand
