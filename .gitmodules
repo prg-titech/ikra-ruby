@@ -1,0 +1,3 @@
+[submodule "sourcify"]
+	path = sourcify
+	url = git@github.com:matthias-springer/sourcify.git

@@ -75,7 +75,7 @@ class Translator
             local_variables.push(var.name)
         end
         
-        ast = Parsing.parse(block, local_variables)
+        ast = Parsing.parse_block(block, local_variables)
         Log.info("Block AST: \n #{ast}")
         
         block_translation_result = instance.translate_function(ast, size, block, function_name, input_vars)
@@ -83,6 +83,10 @@ class Translator
         instance.symbol_table.pop_frame
 
         block_translation_result
+    end
+    
+    def self.translate_class(cls:, selectors: [])
+        
     end
     
     def initialize
