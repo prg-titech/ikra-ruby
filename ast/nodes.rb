@@ -25,7 +25,7 @@ module Ikra
         end
         
         class IntNode < Node
-            attr_reader : value
+            attr_reader :value
             
             def initialize(value:)
                 @value = value

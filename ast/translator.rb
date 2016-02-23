@@ -1,3 +1,5 @@
+require_relative "nodes.rb"
+
 # Rule: every statement ends with newline
 
 module Ikra

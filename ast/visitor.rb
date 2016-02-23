@@ -1,3 +1,5 @@
+require_relative "nodes.rb"
+
 module Ikra
     module AST
         class Node
