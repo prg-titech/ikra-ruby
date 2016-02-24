@@ -40,6 +40,14 @@ module Ikra
             end
         end
         
+        class BoolNode < Node
+            attr_reader :value
+            
+            def initialize(value:)
+                @value = value
+            end
+        end
+        
         class ForNode < Node
             attr_reader :iterator_identifier
             attr_reader :range_from
@@ -52,6 +60,10 @@ module Ikra
                 @range_to = range_to
                 @body_stmts = body_stmts
             end
+        end
+        
+        class BreakNode < Node
+        
         end
         
         class IfNode < Node

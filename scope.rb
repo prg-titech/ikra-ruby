@@ -1,11 +1,13 @@
+require "set"
+
 class Scope < Array
     class Variable
-        attr_reader :type
+        attr_reader :types
         attr_accessor :read
         attr_accessor :written
         
-        def initialize(type)
-            @type = type
+        def initialize(types = Set.new)
+            @types = types
             @read = false
             @written = false
         end
@@ -16,19 +18,15 @@ class Scope < Array
     end
     
     def push_frame
-        push(Hash.new)
+        frame = Hash.new
+        frame.default_proc = Proc.new do |hash, key|
+            hash[key] = Variable.new
+        end
+        push(frame)
     end
     
     def pop_frame
         pop
-    end
-    
-    def define(name, type)
-        if is_defined?(name)
-            raise "#{name} already defined"
-        end
-        
-        top_frame[name] = Variable.new(type)
     end
     
     def define_shadowed(name, type)
@@ -45,22 +43,18 @@ class Scope < Array
         end
     end
     
-    def get_type(name)
+    def get_types(name)
         reverse_each do |frame|
             if frame.has_key?(name)
-                return frame[name].type
+                return frame[name].types
             end
         end
         
         raise "#{name} not found in symbol table"
     end
     
-    def ensure_defined(name, type)
-        if is_defined?(name) and get_type(name) != type
-            raise "Expected that #{name} has type #{type} but found #{get_type(name)}"
-        elsif not is_defined?(name)
-            define(name, type)
-        end
+    def add_types(name, types)
+        top_frame[name].types.merge(types)
     end
     
     def read!(name)

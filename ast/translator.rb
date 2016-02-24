@@ -44,6 +44,12 @@ module Ikra
             end
         end
         
+        class BoolNode
+            def translate_expression
+                value.to_s
+            end
+        end
+        
         class ForNode
             def translate_statement
                 loop_header = "for (#{iterator_identifier.to_s} = #{range_from}; #{iterator_identifier.to_s} <= #{range_to}; #{iterator_identifier.to_s}++)\n"
@@ -55,6 +61,16 @@ module Ikra
                 loop_header = "for (#{iterator_identifier.to_s} = #{range_from}; #{iterator_identifier.to_s} <= #{range_to}; #{iterator_identifier.to_s}++)\n"
                 full_loop = loop_header + "\n" + body_stmts.translate_statement + "\n#{iterator_identifier.to_s}--;\nreturn 0;"
                 statements_as_expression(full_loop)
+            end
+        end
+        
+        class BreakNode
+            def translate_expression
+                raise "Not implemented yet"
+            end
+            
+            def translate_statement
+                "break;\n"
             end
         end
         

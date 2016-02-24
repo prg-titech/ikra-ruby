@@ -32,9 +32,21 @@ module Ikra
             end
         end
         
+        class BoolNode
+            def accept(visitor)
+                visitor.visit_bool_node(self)
+            end
+        end
+        
         class ForNode
             def accept(visitor)
                 visitor.visit_for_node(self)
+            end
+        end
+        
+        class BreakNode
+            def accept(visitor)
+             visitor.visit_break_node(self)
             end
         end
         
@@ -77,10 +89,18 @@ module Ikra
             
             end
             
+            def visit_bool_node(node)
+            
+            end
+            
             def visit_for_node(node)
                 node.range_from.accept(self)
                 node.range_to.accept(self)
                 node.body_stmts.accept(self)
+            end
+            
+            def visit_break_node(node)
+            
             end
             
             def visit_if_node(node)
@@ -96,7 +116,11 @@ module Ikra
             end
             
             def visit_send_node(node)
-                node.receiver.accept(self)
+                # Receiver might be nil for self sends
+                if node.receiver != nil
+                    node.receiver.accept(self)
+                end
+                
                 node.arguments.each do |arg|
                     arg.accept(self)
                 end
