@@ -1,5 +1,5 @@
-require_relative "translator"
-require_relative "compiler"
+require "set"
+require_relative "translator/compiler"
 require_relative "types/primitive_type"
 
 module ArrayCommand
@@ -35,10 +35,10 @@ class ArrayNewCommand
     end
     
     def translate
-        current_request = Compiler::CompilationRequest.new(block: @block, size: size)
+        current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: @block, size: size)
         # TODO: check if all elements are of same type?
-        current_request.add_input_var(Compiler::InputVariable.new(@block.parameters[0][1], PrimitiveType::Int, Compiler::InputVariable::Index))
-        Compiler.compile(current_request)
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], [PrimitiveType::Int].to_set, Ikra::Translator::Compiler::InputVariable::Index))
+        Ikra::Translator::Compiler.compile(current_request)
     end
     
     def size
@@ -65,8 +65,8 @@ class ArrayMapCommand
     def translate
         compilation_result = @target.translate
 
-        current_request = Compiler::CompilationRequest.new(block: @block, size: size)
-        current_request.add_input_var(Compiler::InputVariable.new(@block.parameters[0][1], UnknownType::Instance, Compiler::InputVariable::PreviousFusion))
+        current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: @block, size: size)
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], [UnknownType::Instance].to_set, Ikra::Translator::Compiler::InputVariable::PreviousFusion))
         compilation_result.merge_request!(current_request)
 
         compilation_result
@@ -109,10 +109,10 @@ class ArrayIdentityCommand
     end
 
     def translate
-        current_request = Compiler::CompilationRequest.new(block: Block, size: size)
+        current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: Block, size: size)
         # TODO: check if all elements are of same type?
-        current_request.add_input_var(Compiler::InputVariable.new(Block.parameters[0][1], @target.first.class.to_ikra_type))
-        Compiler.compile(current_request)
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(Block.parameters[0][1], [@target.first.class.to_ikra_type].to_set))
+        Ikra::Translator::Compiler.compile(current_request)
     end
     
     def allocate(compilation_request)

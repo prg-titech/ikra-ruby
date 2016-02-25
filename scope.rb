@@ -89,7 +89,7 @@ class Scope < Array
     
     def add_types(name, types)
         if types.class != Set
-            raise "Expected set of types"
+            raise "Expected set of types (got #{types.class})"
         end
 
         top_frame[name].types.merge(types)

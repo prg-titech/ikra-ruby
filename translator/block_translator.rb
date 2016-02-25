@@ -12,6 +12,18 @@ require_relative "local_variables_enumerator"
 
 module Ikra
     module Translator
+        class BlockTranslationResult
+            attr_accessor :c_source
+            attr_accessor :result_types
+            attr_accessor :function_name
+            
+            def initialize(c_source:, result_types:, function_name:)
+                @c_source = c_source
+                @result_types = result_types
+                @function_name = function_name
+            end
+        end
+
         class << self
             def translate_block(block:, symbol_table:, env_builder:, input_types: [])
                 translation_result = nil
@@ -79,8 +91,8 @@ module Ikra
                     end
                     translation_result.prepend("#{var.type.first.to_c_type} #{var.var_name} = #{EnvParameterName}.#{mangled_name};\n")
 
-                    env_builder.add_variable(var_name: var.var_name, 
-                        type: var.type, 
+                    env_builder.add_variable(var_name: mangled_name, 
+                        types: var.type, 
                         value: block.binding.local_variable_get(var.var_name))
                 end
 
@@ -105,7 +117,10 @@ module Ikra
                 translation_result = "__device__ #{return_type.to_c_type} #{mangled_name}(#{function_parameters.join(", ")})\n" +
                     wrap_in_c_block(translation_result)
 
-                translation_result
+                # TODO: handle more than one result type
+                BlockTranslationResult.new(c_source: translation_result, 
+                    result_types: [return_types],
+                    function_name: mangled_name)
             end
         end
     end
