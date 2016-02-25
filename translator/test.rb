@@ -1,8 +1,6 @@
-require_relative "nodes.rb"
-require_relative "builder.rb"
+require_relative "block_translator.rb"
 require_relative "translator.rb"
-require_relative "../types/type_inference.rb"
-require_relative "../parsing"
+require_relative "../types/primitive_type"
 require_relative "../scope"
 
 magnify = 1.0
@@ -33,8 +31,8 @@ block = Proc.new do |j|
     iter % 256
 end
 
-source = Parsing.parse_block(block)
-ast = Ikra::AST::Builder.translate_ast(source)
 scope = Scope.new
-scope.push_frame
-ast.accept(Ikra::TypeInference::Visitor.new(scope))
+puts Ikra::Translator.translate_block(block: block, 
+    symbol_table: scope, 
+    env_builder: Ikra::Translator::EnvironmentBuilder.new, 
+    input_types: [[PrimitiveType::Int].to_set])

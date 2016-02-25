@@ -68,6 +68,12 @@ module Ikra
             end
         end
         
+        class ReturnNode
+            def accept(visitor)
+                visitor.visit_return_node(self)
+            end
+        end
+
         class Visitor
             def visit_node(node)
             
@@ -106,11 +112,14 @@ module Ikra
             def visit_if_node(node)
                 node.condition.accept(self)
                 node.true_body_stmts.accept(self)
-                node.false_body_stmts.accept(self)
+
+                if node.false_body_stmts != nil
+                    node.false_body_stmts.accept(self)
+                end
             end
             
             def visit_begin_node(node)
-                node.each do |stmt|
+                node.body_stmts.each do |stmt|
                     stmt.accept(self)
                 end
             end
@@ -124,6 +133,10 @@ module Ikra
                 node.arguments.each do |arg|
                     arg.accept(self)
                 end
+            end
+
+            def visit_return_node(node)
+                node.value.accept(self)
             end
         end
     end

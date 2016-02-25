@@ -1,5 +1,38 @@
 require "set"
 
+class Frame < Hash
+    def function_frame!
+        @is_function_frame = true
+    end
+
+    def is_function_frame?
+        @is_function_frame ||= false
+        @is_function_frame
+    end
+
+    def add_return_types(types)
+        if not is_function_frame?
+            raise "Return types allowed only for function frames"
+        end
+
+        if types.class != Set
+            raise "Expected set of types"
+        end
+
+        @return_types ||= Set.new
+        @return_types.merge(types)
+    end
+
+    def return_types
+        if not is_function_frame?
+            raise "Return types allowed only for function frames"
+        end
+
+        @return_types ||= Set.new
+        @return_types
+    end
+end
+
 class Scope < Array
     class Variable
         attr_reader :types
@@ -18,7 +51,7 @@ class Scope < Array
     end
     
     def push_frame
-        frame = Hash.new
+        frame = Frame.new
         frame.default_proc = Proc.new do |hash, key|
             hash[key] = Variable.new
         end
@@ -29,6 +62,7 @@ class Scope < Array
         pop
     end
     
+    # TODO: maybe remove?
     def define_shadowed(name, type)
         if top_frame.has_key?(name)
             raise "#{name} already defined"
@@ -54,9 +88,22 @@ class Scope < Array
     end
     
     def add_types(name, types)
+        if types.class != Set
+            raise "Expected set of types"
+        end
+
         top_frame[name].types.merge(types)
     end
     
+    def add_return_types(types)
+        reverse_each.detect do |fr|
+            fr.add_return_types(types)
+            return self
+        end
+
+        raise "Function frame not found"
+    end
+
     def read!(name)
         frame = reverse_each.detect do |fr|
             fr.has_key?(name)

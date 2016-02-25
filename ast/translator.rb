@@ -52,14 +52,14 @@ module Ikra
         
         class ForNode
             def translate_statement
-                loop_header = "for (#{iterator_identifier.to_s} = #{range_from}; #{iterator_identifier.to_s} <= #{range_to}; #{iterator_identifier.to_s}++)\n"
-                loop_header + "\n" + body_stmts.translate_statement + "\n#{iterator_identifier.to_s}--;\n"
+                loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
+                loop_header + "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\n"
             end
             
             def translate_expression
                 # TODO: return value should be range
-                loop_header = "for (#{iterator_identifier.to_s} = #{range_from}; #{iterator_identifier.to_s} <= #{range_to}; #{iterator_identifier.to_s}++)\n"
-                full_loop = loop_header + "\n" + body_stmts.translate_statement + "\n#{iterator_identifier.to_s}--;\nreturn 0;"
+                loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
+                full_loop = loop_header + "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\nreturn 0;"
                 statements_as_expression(full_loop)
             end
         end
@@ -161,12 +161,28 @@ module Ikra
                     
                     "(#{receiver.translate_expression} #{selector.to_s} #{arguments.first.translate_expression})"
                 else
-                    args = arguments.map do |arg|
-                        arg.translate_expression
-                    end.join(", ")
-                    
-                    "#{receiver}.#{selector.to_s}(#{args})"
+                    if receiver.get_types.size == 1 and
+                            receiver.get_types.first.to_ruby_type.singleton_methods.include?(("_ikra_c_" + selector.to_s).to_sym)
+                        # TODO: support multiple types for receiver
+                        receiver.get_types.first.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
+                    else
+                        args = arguments.map do |arg|
+                            arg.translate_expression
+                        end.join(", ")
+                        
+                        "#{receiver.translate_expression}.#{selector.to_s}(#{args})"
+                    end
                 end
+            end
+        end
+
+        class ReturnNode
+            def translate_expression
+                raise "ReturnNode is never an expression"
+            end
+
+            def translate_statement
+                "return #{value.translate_expression};\n"
             end
         end
     end

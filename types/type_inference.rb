@@ -29,6 +29,10 @@ module Ikra
                 
                 changed
             end
+
+            def get_types
+                @types || Set.new
+            end
         end
     end
     
@@ -46,6 +50,7 @@ module Ikra
             
             def visit_lvar_read_node(node)
                 types = @symbol_table.get_types(node.identifier)
+                @symbol_table.read!(node.identifier)
                 changed = node.add_types(types)
                 types
             end
@@ -54,6 +59,7 @@ module Ikra
                 types = node.value.accept(self)
                 changed = node.add_types(types)
                 @symbol_table.add_types(node.identifier, types)
+                @symbol_table.written!(node.identifier)
                 types
             end
             
@@ -76,7 +82,7 @@ module Ikra
                 assert_single_type(node.range_from.accept(self), PrimitiveType::Int)
                 assert_single_type(node.range_to.accept(self), PrimitiveType::Int)
                 
-                changed = @symbol_table.add_types(node.iterator_identifier, [PrimitiveType::Int])
+                changed = @symbol_table.add_types(node.iterator_identifier, [PrimitiveType::Int].to_set)
                 
                 super(node)
                 
@@ -85,18 +91,22 @@ module Ikra
                 [PrimitiveType::Int].to_set
             end
             
-            def visit_break_node
+            def visit_break_node(node)
                 [PrimitiveType::Void].to_set
             end
             
             def visit_if_node(node)
-                puts node.condition.accept(self).first
                 assert_single_type(node.condition.accept(self), PrimitiveType::Bool)
                 
                 types = Set.new
-                types.add(true_body_stmts.accept(self))     # Begin always has type of last stmt
-                types.add(false_body_stmts.accept(self))
-                
+                types.merge(node.true_body_stmts.accept(self))     # Begin always has type of last stmt
+
+                if node.false_body_stmts == nil
+                    types.add(PrimitiveType::Void)
+                else
+                    types.merge(node.false_body_stmts.accept(self))
+                end
+
                 changed = node.add_types(types)
                 types
             end
@@ -112,17 +122,30 @@ module Ikra
                 types
             end
             
-            arith_operators = [:+, :-, :*, :/, :%]
-            compare_operators = [:<, :<=, :>, :>=]
-            equality_operators = [:==, :!=]
-            logic_operators = [:&, :'&&', :|, :'||', :^]
-            primitive_operators = arith_operators + compare_operators + equality_operators + logic_operators
+            def visit_return_node(node)
+                types = node.value.accept(self)
+                change = node.add_types(types)
+                @symbol_table.add_return_types(types)
+                types
+            end
+
+            ArithOperators = [:+, :-, :*, :/, :%]
+            CompareOperators = [:<, :<=, :>, :>=]
+            EqualityOperators = [:==, :!=]
+            LogicOperators = [:&, :'&&', :|, :'||', :^]
+            PrimitiveOperators = ArithOperators + CompareOperators + EqualityOperators + LogicOperators
                 
-            def begin_send_node(node)
-                receiver_types = node.receiver.accept(self)
+            def visit_send_node(node)
+                # TODO: handle self sends
+                receiver_types = nil
+                if node.receiver == nil
+                    receiver_types = [PrimitiveType::Int].to_set
+                else
+                    receiver_types = node.receiver.accept(self)
+                end
                 types = Set.new
                 
-                if primitive_operators.include?(node.selector)
+                if PrimitiveOperators.include?(node.selector)
                     if node.arguments.size != 1
                         raise "Expected 1 argument for binary selector (#{node.arguments.size} given)"
                     end
@@ -130,18 +153,18 @@ module Ikra
                     operand_types = node.arguments.first.accept(self)
                     for recv_type in receiver_types
                         for op_type in operand_types
-                            types.add(primitive_operator_type(node.selector, recv_type, op_type))
+                            types.merge([primitive_operator_type(node.selector, recv_type, op_type)].to_set)
                         end
                     end
                 else
                     types = Set.new
                     for recv_type in receiver_types
-                        if recv_type.to_ruby_type.singleton_methods.include?(("_ikra_c_" + node.selector.to_s).to_sym)
+                        if recv_type.to_ruby_type.singleton_methods.include?(("_ikra_t_" + node.selector.to_s).to_sym)
                             # TODO: pass arguments
-                            types.add(recv_type.to_ruby_type.send(("_ikra_c_" + node.selector.to_s).to_sym, "").type)
+                            types.merge(recv_type.to_ruby_type.send(("_ikra_t_" + node.selector.to_s).to_sym, receiver_types))
                         else
                             # TODO: handle return value, pass arguments
-                            types.add(PrimitiveType::Void)
+                            types.merge([PrimitiveType::Void].to_set)
                         end
                     end
                 end
@@ -154,7 +177,7 @@ module Ikra
             def primitive_operator_type(selector, receiver_type, operand_type)
                 arg_types = [receiver_type, operand_type]
                 
-                if arith_operators.include?(selector)
+                if ArithOperators.include?(selector)
                     type_mapping = {[PrimitiveType::Int, PrimitiveType::Int] => PrimitiveType::Int,
                         [PrimitiveType::Int, PrimitiveType::Float] => PrimitiveType::Float,
                         [PrimitiveType::Float, PrimitiveType::Float] => PrimitiveType::Float}
@@ -166,7 +189,7 @@ module Ikra
                     else
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
-                elsif compare_operators.include?(selector)
+                elsif CompareOperators.include?(selector)
                     type_mapping = {[PrimitiveType::Int, PrimitiveType::Int] => PrimitiveType::Bool,
                         [PrimitiveType::Int, PrimitiveType::Float] => PrimitiveType::Bool,
                         [PrimitiveType::Float, PrimitiveType::Float] => PrimitiveType::Bool}
@@ -178,7 +201,7 @@ module Ikra
                     else
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
-                elsif equality_operators.include?(selector)
+                elsif EqualityOperators.include?(selector)
                     type_mapping = {[PrimitiveType::Bool, PrimitiveType::Bool] => PrimitiveType::Bool,
                         [PrimitiveType::Int, PrimitiveType::Int] => PrimitiveType::Bool,
                         [PrimitiveType::Int, PrimitiveType::Float] => PrimitiveType::Bool,
@@ -194,7 +217,7 @@ module Ikra
                     else
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
-                elsif logic_operators.include?(selector)
+                elsif LogicOperators.include?(selector)
                     # TODO: need proper implementation
                     int_float = [PrimitiveType::Int, PrimitiveType::Float].to_set
                     if selector == :'&&'

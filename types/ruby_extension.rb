@@ -1,5 +1,7 @@
+require "set"
 require_relative "primitive_type"
 require_relative "dynamic_type"
+require_relative "../translator"
 
 class Object
     class << self
@@ -15,8 +17,13 @@ class Fixnum
             PrimitiveType::Int
         end
         
+        def _ikra_t_to_f(receiver_type)
+            # TODO: check if this type can be cast
+            [PrimitiveType::Float].to_set
+        end
+
         def _ikra_c_to_f(receiver)
-            Translator::TranslationResult.new("(float) #{receiver.c_source}", PrimitiveType::Float)
+            "(float) #{receiver}"
         end
     end
 end
