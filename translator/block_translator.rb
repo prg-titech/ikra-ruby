@@ -27,6 +27,8 @@ module Ikra
 
         class << self
             def translate_block(block:, symbol_table:, env_builder:, input_types: [])
+                Log.info("Translating block with input types #{input_types.to_type_array_string}")
+
                 translation_result = nil
                 env_variables = nil
                 return_types = nil

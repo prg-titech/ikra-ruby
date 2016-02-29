@@ -5,9 +5,9 @@ require "logger"
 
 module Ikra
     module Translator
+        Log = Logger.new(STDOUT)
+        
         module Compiler
-            Log = Logger.new(STDOUT)
-            
             class InputVariable
                 Normal = 0
                 Index = 1

@@ -1,4 +1,6 @@
 class Array
+
+    # TODO: probably do not need this anymore
     def common_superclass
         class_counter = {}
         class_counter.default = 0
@@ -19,7 +21,7 @@ class Array
                     smallest = cls
                 end
             end
-        endl
+        end
         
         smallest
     end

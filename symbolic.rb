@@ -1,6 +1,8 @@
 require "set"
 require_relative "translator/compiler"
 require_relative "types/primitive_type"
+require_relative "types/class_type"
+require_relative "type_aware_array"
 
 module ArrayCommand
     def [](index)
@@ -110,8 +112,12 @@ class ArrayIdentityCommand
 
     def translate
         current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: Block, size: size)
-        # TODO: check if all elements are of same type?
-        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(Block.parameters[0][1], [@target.first.class.to_ikra_type].to_set))
+        
+        types = @target.all_types.map do |cls|
+            cls.to_ikra_type
+        end
+
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(Block.parameters[0][1], types.to_set))
         Ikra::Translator::Compiler.compile(current_request)
     end
     

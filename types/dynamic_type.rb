@@ -10,8 +10,3 @@ class DynamicType
     end
 end
 
-class Object
-    def self.to_ikra_type
-        DynamicType::Dynamic
-    end
-end
