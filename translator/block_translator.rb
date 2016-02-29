@@ -9,6 +9,7 @@ require_relative "../scope"
 require_relative "translator"
 require_relative "last_returns_visitor"
 require_relative "local_variables_enumerator"
+require_relative "../ast/printer"
 
 module Ikra
     module Translator
@@ -43,8 +44,8 @@ module Ikra
                     # Generate AST
                     parser_local_vars = block.binding.local_variables + block_parameters
                     source = Parsing.parse_block(block, parser_local_vars)
-                    ast = Ikra::AST::Builder.translate_ast(source)
-                    
+                    ast = Ikra::AST::Builder.from_parser_ast(source)
+
                     # Add return statements
                     ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
 
@@ -89,7 +90,7 @@ module Ikra
                     if var.type.size != 1
                         raise "Cannot handle != 1 env argument types"
                     end
-                    translation_result.prepend("#{var.type.first.to_c_type} #{var.var_name} = #{EnvParameterName}.#{mangled_name};\n")
+                    translation_result.prepend("#{var.type.first.to_c_type} #{var.var_name} = #{EnvParameterName}->#{mangled_name};\n")
 
                     env_builder.add_variable(var_name: mangled_name, 
                         types: var.type, 

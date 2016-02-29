@@ -67,10 +67,10 @@ module Ikra
                     @previous_block_result_types = []
                     @invocation_source = ""
                     @kernel_inner_source = ""
-                    @kernel_params = ["struct _environment_ *_env_"]
+                    @kernel_params = ["struct #{EnvStructName} *_env_"]
                     @kernel_args = ["device_env"]
                     @launcher_input_decl = ""
-                    @launcher_params = ["struct _environment_ *host_env"]
+                    @launcher_params = ["struct #{EnvStructName} *host_env"]
                     @env_builder = EnvironmentBuilder.new
                     @initial_size = nil
                     @symbol_table = Scope.new
@@ -152,7 +152,7 @@ module Ikra
                     dim3_grid = dimensions[0]
                     dim3_block = dimensions[1]
                     
-                    struct_def = @env_builder.struct_definition("_environment_")
+                    struct_def = @env_builder.struct_definition(EnvStructName)
 
                     result_type = @previous_block_result_types.first
                     kernel_params = ["#{result_type.first.to_c_type} *_result_"] + @kernel_params
@@ -164,9 +164,9 @@ module Ikra
 extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel(#{@launcher_params.join(", ")})
 {
     printf(\"kernel launched\\n\");
-    struct _environment_ *device_env;
-    cudaMalloc(&device_env, sizeof(struct _environment_));
-    cudaMemcpy(device_env, host_env, sizeof(struct _environment_), cudaMemcpyHostToDevice);
+    struct #{EnvStructName} *device_env;
+    cudaMalloc(&device_env, sizeof(struct #{EnvStructName}));
+    cudaMemcpy(device_env, host_env, sizeof(struct #{EnvStructName}), cudaMemcpyHostToDevice);
     
     #{result_type.first.to_c_type} *host_result = (#{result_type.first.to_c_type} *) malloc(#{result_type.first.c_size} * #{@initial_size});
     #{result_type.first.to_c_type} *device_result;
@@ -279,7 +279,8 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
                     end
                     
                     # TODO: handle multiple return values
-                    result_type = @previous_block_result_types.first
+                    # TODO: handle multiple types of each return value
+                    result_type = @previous_block_result_types.first.first
                     return_value = nil
                     if result_type == PrimitiveType::Int
                         return_value = result.read_array_of_int(@initial_size)

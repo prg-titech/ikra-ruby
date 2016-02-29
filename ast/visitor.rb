@@ -8,6 +8,12 @@ module Ikra
             end
         end
         
+        class RootNode
+            def accept(visitor)
+                visitor.visit_root_node(self)
+            end
+        end
+
         class LVarReadNode
             def accept(visitor)
                 visitor.visit_lvar_read_node(self)
@@ -77,6 +83,10 @@ module Ikra
         class Visitor
             def visit_node(node)
             
+            end
+
+            def visit_root_node(node)
+                node.child.accept(self)
             end
             
             def visit_lvar_read_node(node)

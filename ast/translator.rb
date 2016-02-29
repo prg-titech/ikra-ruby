@@ -20,6 +20,16 @@ module Ikra
             end
         end
         
+        class RootNode
+            def translate_statement
+                child.translate_statement
+            end
+
+            def translate_expression
+                child.translate_expression
+            end
+        end
+
         class LVarReadNode
             def translate_expression
                 identifier.to_s

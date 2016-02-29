@@ -12,7 +12,7 @@ module Ikra
             end
 
             def replace_child(node, another_node)
-                instance_variables do |inst_var|
+                instance_variables.each do |inst_var|
                     if instance_variable_get(inst_var) == node
                         instance_variable_set(inst_var, another_node)
                         another_node.parent = self
@@ -21,6 +21,15 @@ module Ikra
             end
         end
         
+        class RootNode < Node
+            attr_reader :child
+
+            def initialize(child:)
+                @child = child
+                child.parent = self
+            end
+        end
+
         class LVarReadNode < Node
             attr_reader :identifier
             

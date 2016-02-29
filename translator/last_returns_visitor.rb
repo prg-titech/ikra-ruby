@@ -4,6 +4,10 @@ require_relative "../ast/visitor"
 module Ikra
     module Translator
         class LastStatementReturnsVisitor < AST::Visitor
+            def visit_root_node(node)
+                node.child.accept(self)
+            end
+
             def visit_lvar_read_node(node)
                 node.parent.replace_child(node, AST::ReturnNode.new(value: node))
             end
