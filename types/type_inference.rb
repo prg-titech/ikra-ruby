@@ -3,6 +3,7 @@ require_relative "primitive_type"
 require_relative "ruby_extension"
 require_relative "../ast/nodes.rb"
 require_relative "../ast/visitor.rb"
+require_relative "../ast/method_definition"
 require_relative "../scope.rb"
 
 module Ikra
@@ -38,6 +39,41 @@ module Ikra
     
     module TypeInference
         class Visitor < AST::Visitor
+            attr_reader :aux_methods
+
+            def get_aux_method(type, selector, types)
+                aux_methods.select do |aux|
+                    aux.type == type and aux.selector == selector and aux.parameter_types == types
+                end
+            end
+
+            def visit_method_call(send_node)
+                # TODO: constant lookup (via binding.receiver.eval)
+                recv_type = send_node.receiver.get_types
+                selector = send_node.selector
+                param_types = send_node.arguments.map do |arg|
+                    arg.get_types
+                end
+
+                cached_value = get_aux_method(recv_type, selector, param_types)
+                if cached_value != nil
+                    return cached_value.return_type
+                end
+
+                # TODO: handle multiple types
+                ast = recv_type.first.method_ast(selector)
+                ast.accept(self)
+
+                method_def = MethodDefinition.new(type: recv_type.first, 
+                    selector: selector,
+                    parameter_types: param_types,
+                    return_type: ast.get_types,
+                    ast: ast)
+                @aux_methods.push(method_def)
+
+                method_def.return_type
+            end
+
             def assert_single_type(type_set, expected_type)
                 if type_set.size != 1 || type_set.first != expected_type
                     raise "Expected type #{expected_type} but found #{type_set.to_a}"
@@ -46,8 +82,15 @@ module Ikra
             
             def initialize(symbol_table)
                 @symbol_table = symbol_table
+                @aux_methods = []
             end
             
+            def visit_root_node(node)
+                types = node.child.accept(self)
+                node.add_types(types)
+                types
+            end
+
             def visit_lvar_read_node(node)
                 types = @symbol_table.get_types(node.identifier)
                 @symbol_table.read!(node.identifier)
@@ -163,8 +206,7 @@ module Ikra
                             # TODO: pass arguments
                             types.merge(recv_type.to_ruby_type.send(("_ikra_t_" + node.selector.to_s).to_sym, receiver_types))
                         else
-                            # TODO: handle return value, pass arguments
-                            types.merge([PrimitiveType::Void].to_set)
+                            types.merge(visit_method_call(self))
                         end
                     end
                 end

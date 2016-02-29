@@ -1,4 +1,7 @@
 require_relative "ruby_type"
+require_relative "../sourcify/lib/sourcify"
+require_relative "../parsing"
+require_relative "../ast/builder"
 
 class ClassType
     include RubyType
@@ -20,6 +23,11 @@ class ClassType
 
     def initialize(cls)
         @cls = cls
+    end
+
+    def method_ast(selector)
+        source = Parsing.parse_method(cls.instance_method(selector))
+        Ikra::AST::Builder.from_parser_ast(source)
     end
 
     def to_s
