@@ -12,6 +12,12 @@ module Ikra
             end
         end
 
+        class ConstNode
+            def to_s
+                "[ConstNode: #{identifier.to_s}]"
+            end
+        end
+
         class LVarReadNode
             def to_s
                 "[LVarReadNode: #{identifier.to_s}]"

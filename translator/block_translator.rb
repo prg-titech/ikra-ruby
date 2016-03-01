@@ -17,11 +17,13 @@ module Ikra
             attr_accessor :c_source
             attr_accessor :result_types
             attr_accessor :function_name
-            
-            def initialize(c_source:, result_types:, function_name:)
+            attr_accessor :aux_methods
+
+            def initialize(c_source:, result_types:, function_name:, aux_methods: [])
                 @c_source = c_source
                 @result_types = result_types
                 @function_name = function_name
+                @aux_methods = aux_methods
             end
         end
 
@@ -33,6 +35,7 @@ module Ikra
                 env_variables = nil
                 return_types = nil
                 local_variables = nil
+                aux_methods = nil
 
                 increase_translation_id
 
@@ -65,7 +68,10 @@ module Ikra
                     # Infer type of all statements
                     symbol_table.new_frame do
                         symbol_table.top_frame.function_frame!
-                        ast.accept(Ikra::TypeInference::Visitor.new(symbol_table))
+                        type_inference_visitor = Ikra::TypeInference::Visitor.new(symbol_table, block.binding)
+                        ast.accept(type_inference_visitor)
+
+                        aux_methods = type_inference_visitor.aux_methods
                         return_types = symbol_table.top_frame.return_types
                     end
 
@@ -123,7 +129,8 @@ module Ikra
                 # TODO: handle more than one result type
                 BlockTranslationResult.new(c_source: translation_result, 
                     result_types: [return_types],
-                    function_name: mangled_name)
+                    function_name: mangled_name,
+                    aux_methods: aux_methods)
             end
         end
     end

@@ -16,6 +16,11 @@ module Ikra
                     end
                 end
                 
+                def translate_const(node)
+                    # TODO: what is the meaning of the first child?
+                    ConstNode.new(identifier: node.children[1])
+                end
+
                 def translate_int(node)
                     IntNode.new(value: node.children[0])
                 end

@@ -8,6 +8,12 @@ module Ikra
             end
         end
         
+        class ConstNode
+            def accept(visitor)
+                visitor.visit_const_node(self)
+            end
+        end
+
         class RootNode
             def accept(visitor)
                 visitor.visit_root_node(self)
@@ -85,6 +91,10 @@ module Ikra
             
             end
 
+            def visit_const_node(node)
+
+            end
+            
             def visit_root_node(node)
                 node.child.accept(self)
             end

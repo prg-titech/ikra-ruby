@@ -30,6 +30,12 @@ module Ikra
             end
         end
 
+        class ConstNode
+            def translate_expression
+                raise "Not implemented"
+            end
+        end
+
         class LVarReadNode
             def translate_expression
                 identifier.to_s
@@ -176,11 +182,16 @@ module Ikra
                         # TODO: support multiple types for receiver
                         receiver.get_types.first.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
                     else
-                        args = arguments.map do |arg|
+                        self_argument = []
+                        if receiver.get_types.first.should_generate_type?
+                            self_argument = [receiver]
+                        end
+
+                        args = (self_argument + arguments).map do |arg|
                             arg.translate_expression
                         end.join(", ")
                         
-                        "#{receiver.translate_expression}.#{selector.to_s}(#{args})"
+                        "#{receiver.get_types.first.mangled_method_name(selector)}(#{args})"
                     end
                 end
             end

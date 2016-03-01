@@ -1,12 +1,13 @@
 require_relative "translator"
 require_relative "block_translator"
+require_relative "method_translator"
 require_relative "../scope"
 require "logger"
 
 module Ikra
+    Log = Logger.new(STDOUT)
+
     module Translator
-        Log = Logger.new(STDOUT)
-        
         module Compiler
             class InputVariable
                 Normal = 0
@@ -75,6 +76,9 @@ module Ikra
                     @initial_size = nil
                     @symbol_table = Scope.new
                     
+                    # Methods
+                    @aux_methods = []
+
                     # Variables needed for FFI wrapper
                     @ffi_wrapper = nil
                     @env_struct_type = nil
@@ -114,7 +118,8 @@ module Ikra
                         symbol_table: @symbol_table)
                     
                     @kernel_inner_source += block_result.c_source
-                    
+                    @aux_methods += block_result.aux_methods
+
                     # Call arguments/parameters
                     inner_kernel_args = [EnvironmentVariable]
                     arg_index = 0
@@ -188,13 +193,17 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
     return host_result;
 }"""
 
+                aux_methods_source = @aux_methods.map do |meth|
+                    meth.to_c_source
+                end.join("\n")
+
                 kernel_source = """__global__ void kernel(#{kernel_params.join(", ")})
 {
     _result_[threadIdx.x + blockIdx.x * blockDim.x] = #{@invocation_source};
 }
 """
 
-                    struct_def + @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
+                    struct_def + aux_methods_source + "\n" + @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
                 end
                 
                 def grid_block_size(size)

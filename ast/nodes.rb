@@ -30,6 +30,14 @@ module Ikra
             end
         end
 
+        class ConstNode < Node
+            attr_reader :identifier
+
+            def initialize(identifier:)
+                @identifier = identifier
+            end
+        end
+
         class LVarReadNode < Node
             attr_reader :identifier
             

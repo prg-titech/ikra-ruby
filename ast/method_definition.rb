@@ -14,6 +14,10 @@ module Ikra
                 @return_type = return_type
                 @ast = ast
             end
+
+            def parameter_names
+                type.method_parameters(selector)
+            end
         end
     end
 end

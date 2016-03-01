@@ -39,10 +39,10 @@ module Ikra
     
     module TypeInference
         class Visitor < AST::Visitor
-            attr_reader :aux_methods
+            attr_accessor :aux_methods
 
             def get_aux_method(type, selector, types)
-                aux_methods.select do |aux|
+                aux_methods.detect do |aux|
                     aux.type == type and aux.selector == selector and aux.parameter_types == types
                 end
             end
@@ -60,14 +60,37 @@ module Ikra
                     return cached_value.return_type
                 end
 
+                Log.info("Type inference: proceed into method #{recv_type.first}.#{selector}(#{param_types.to_type_array_string})")
                 # TODO: handle multiple types
                 ast = recv_type.first.method_ast(selector)
-                ast.accept(self)
 
-                method_def = MethodDefinition.new(type: recv_type.first, 
+                # Set up new symbol table (pushing a frame is not sufficient here)
+                return_value = nil
+                old_symbol_table = @symbol_table
+                @symbol_table = Scope.new
+                @symbol_table.new_frame do
+                    @symbol_table.top_frame.function_frame!
+
+                    # Add parameters to symbol table
+                    recv_type.first.method_parameters(selector).zip(param_types).each do |param|
+                        @symbol_table.add_types(param[0], param[1])
+                    end
+
+                    # Add return statements
+                    ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
+
+                    # Infer types
+                    ast.accept(self)
+                    return_value = @symbol_table.top_frame.return_types
+                end
+                
+                # Restore old symbol table
+                @symbol_table = old_symbol_table
+
+                method_def = AST::MethodDefinition.new(type: recv_type.first, 
                     selector: selector,
                     parameter_types: param_types,
-                    return_type: ast.get_types,
+                    return_type: return_value,
                     ast: ast)
                 @aux_methods.push(method_def)
 
@@ -80,14 +103,26 @@ module Ikra
                 end
             end
             
-            def initialize(symbol_table)
+            def initialize(symbol_table, binding = nil)
                 @symbol_table = symbol_table
+                @binding = binding
+
                 @aux_methods = []
             end
             
             def visit_root_node(node)
                 types = node.child.accept(self)
                 node.add_types(types)
+                types
+            end
+
+            def visit_const_node(node)
+                if not @binding
+                    raise "Unable to resolve constants without Binding"
+                end
+
+                types = [@binding.eval(node.identifier.to_s).class.to_ikra_type].to_set
+                changed = node.add_types(types)
                 types
             end
 
@@ -181,6 +216,7 @@ module Ikra
             def visit_send_node(node)
                 # TODO: handle self sends
                 receiver_types = nil
+
                 if node.receiver == nil
                     receiver_types = [PrimitiveType::Int].to_set
                 else
@@ -206,7 +242,11 @@ module Ikra
                             # TODO: pass arguments
                             types.merge(recv_type.to_ruby_type.send(("_ikra_t_" + node.selector.to_s).to_sym, receiver_types))
                         else
-                            types.merge(visit_method_call(self))
+                            node.arguments.each do |arg|
+                                arg.accept(self)
+                            end
+
+                            types.merge(visit_method_call(node))
                         end
                     end
                 end
