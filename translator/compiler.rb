@@ -65,7 +65,7 @@ module Ikra
                 def initialize
                     # Variables used during compilation
                     @block_index = 0
-                    @previous_block_result_types = []
+                    @previous_block_result_type = nil
                     @invocation_source = ""
                     @kernel_inner_source = ""
                     @kernel_params = ["struct #{EnvStructName} *_env_"]
@@ -93,15 +93,16 @@ module Ikra
                     num_fusion_request = request.input_vars.select do |var|
                         var.is_fusion?
                     end.size
-                    if num_fusion_request != @previous_block_result_types.size
-                        raise "Mismatch in number of resulting values (expected #{num_fusion_request}, found #{@previous_block_result_types.size}"
+                    if num_fusion_request > 1
+                        raise "More than one fusion request"
+                    end
+                    if num_fusion_request == 1 and @previous_block_result_type == nil
+                        raise "No previous result type provided"
                     end
                     
-                    previous_types_index = 0
                     request.input_vars.each do |var|
                         if var.is_fusion?
-                            var.type = @previous_block_result_types[previous_types_index]
-                            previous_types_index += 1
+                            var.type = @previous_block_result_type
                         end
                     end
                     
@@ -148,7 +149,7 @@ module Ikra
                     
                     @invocation_source = "#{block_result.function_name}(#{inner_kernel_args.join(", ")})"
                     
-                    @previous_block_result_types = block_result.result_type
+                    @previous_block_result_type = block_result.result_type
                     @block_index += 1
                 end
                 
@@ -159,7 +160,7 @@ module Ikra
                     
                     struct_def = @env_builder.struct_definition(EnvStructName)
 
-                    result_type = @previous_block_result_types.first
+                    result_type = @previous_block_result_type
                     kernel_params = ["#{result_type.singleton_type.to_c_type} *_result_"] + @kernel_params
                     kernel_args = ["device_result"] + @kernel_args
                     
@@ -304,7 +305,7 @@ extern \"C\" EXPORT #{result_type.singleton_type.to_c_type} *launch_kernel(#{@la
                     
                     # TODO: handle multiple return values
                     # TODO: handle multiple types of each return value
-                    result_type = @previous_block_result_types.first.singleton_type
+                    result_type = @previous_block_result_type.singleton_type
                     return_value = nil
                     if result_type == PrimitiveType::Int
                         return_value = result.read_array_of_int(@initial_size)

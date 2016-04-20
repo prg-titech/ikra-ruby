@@ -100,7 +100,7 @@ module Ikra
                     translation_result.prepend("#{var.type.singleton_type.to_c_type} #{var.var_name} = #{EnvParameterName}->#{mangled_name};\n")
 
                     env_builder.add_variable(var_name: mangled_name, 
-                        types: var.type, 
+                        type: var.type, 
                         value: block.binding.local_variable_get(var.var_name))
                 end
 
@@ -118,7 +118,7 @@ module Ikra
 
                 function_parameters = ["struct #{EnvStructName} *#{EnvParameterName}"]
                 block_parameter_types.each do |param|
-                    function_parameters.push("#{param[1].first.to_c_type} #{param[0].to_s}")
+                    function_parameters.push("#{param[1].singleton_type.to_c_type} #{param[0].to_s}")
                 end
 
                 translation_result = "__device__ #{return_type.singleton_type.to_c_type} #{mangled_name}(#{function_parameters.join(", ")})\n" +

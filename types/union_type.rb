@@ -86,6 +86,10 @@ class UnionType
         union_type.include_all?(self)
     end
 
+    def to_s
+        "{#{@types.to_a.join(", ")}}"
+    end
+
     class << self
         def create_int
             new(PrimitiveType::Int)
@@ -101,6 +105,10 @@ class UnionType
 
         def create_void
             new(PrimitiveType::Void)
+        end
+
+        def create_unknown
+            new(UnknownType::Instance)
         end
 
         def array_subseteq(subseq_type, superset_type)

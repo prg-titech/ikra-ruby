@@ -1,6 +1,7 @@
 require "set"
 require_relative "primitive_type"
 require_relative "dynamic_type"
+require_relative "union_type"
 require_relative "../translator"
 
 class Object
@@ -19,7 +20,7 @@ class Fixnum
         
         def _ikra_t_to_f(receiver_type)
             # TODO: check if this type can be cast
-            [PrimitiveType::Float].to_set
+            UnionType.create_float
         end
 
         def _ikra_c_to_f(receiver)

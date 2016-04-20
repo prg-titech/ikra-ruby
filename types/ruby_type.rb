@@ -22,15 +22,7 @@ end
 class Array
     def to_type_array_string
         "[" + map do |set|
-            set.to_type_string
+            set.to_s
         end.join(", ") + "]"
-    end
-end
-
-class Set
-    def to_type_string
-        "{" + map do |type|
-            type.to_s
-        end.join(", ") + "}"
     end
 end

@@ -208,7 +208,7 @@ module Ikra
                         end
                     end
                 else
-                    for recv_type in receiver_type
+                    for recv_type in receiver_type.types
                         if recv_type.to_ruby_type.singleton_methods.include?(("_ikra_t_" + node.selector.to_s).to_sym)
                             # TODO: pass arguments
                             type.expand(recv_type.to_ruby_type.send(("_ikra_t_" + node.selector.to_s).to_sym, receiver_type))
