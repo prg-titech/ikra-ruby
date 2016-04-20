@@ -9,8 +9,8 @@ module Ikra
                 @vars = {}
             end
 
-            def add_local_var(var, types)
-                @vars[var] = types
+            def add_local_var(var, type)
+                @vars[var] = type
             end
 
             def local_variables
@@ -18,11 +18,11 @@ module Ikra
             end
 
             def visit_lvar_read_node(node)
-                add_local_var(node.identifier, node.get_types)
+                add_local_var(node.identifier, node.get_type)
             end
             
             def visit_lvar_write_node(node)
-                add_local_var(node.identifier, node.get_types)
+                add_local_var(node.identifier, node.get_type)
                 node.value.accept(self)
             end
         end

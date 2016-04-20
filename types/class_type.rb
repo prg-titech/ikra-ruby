@@ -34,7 +34,8 @@ class ClassType
     end
 
     def to_c_type
-        "struct _cls_#{@cls.to_s}"
+        # TODO: sometimes this should be a union type struct
+        "int"
     end
 
     def mangled_method_name(selector)
@@ -47,6 +48,7 @@ class ClassType
     end
 
     def method_parameters(selector)
+        # returns names
         # TODO: handle optional params, kwargs, etc.
         to_ruby_type.instance_method(selector).parameters.map do |param|
             param[1]

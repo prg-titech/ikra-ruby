@@ -1,4 +1,3 @@
-require "set"
 require_relative "../ast/nodes.rb"
 require_relative "../ast/builder.rb"
 require_relative "../ast/translator.rb"
@@ -15,13 +14,13 @@ module Ikra
     module Translator
         class BlockTranslationResult
             attr_accessor :c_source
-            attr_accessor :result_types
+            attr_accessor :result_type
             attr_accessor :function_name
             attr_accessor :aux_methods
 
-            def initialize(c_source:, result_types:, function_name:, aux_methods: [])
+            def initialize(c_source:, result_type:, function_name:, aux_methods: [])
                 @c_source = c_source
-                @result_types = result_types
+                @result_type = result_type
                 @function_name = function_name
                 @aux_methods = aux_methods
             end
@@ -33,7 +32,7 @@ module Ikra
 
                 translation_result = nil
                 env_variables = nil
-                return_types = nil
+                return_type = nil
                 local_variables = nil
                 aux_methods = nil
 
@@ -56,13 +55,13 @@ module Ikra
 
                     # Add lexical variables to symbol table
                     block.binding.local_variables.each do |var|
-                        symbol_table.add_types(var, [block.binding.local_variable_get(var).class.to_ikra_type].to_set)
+                        symbol_table.declare_expand_type(var, UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type))
                     end
 
                     # Add block parameter to symbol table
                     # TODO: find a good way to pass type in
                     block_parameter_types.each do |var|
-                        symbol_table.add_types(var[0], var[1])
+                        symbol_table.declare_expand_type(var[0], var[1])
                     end
 
                     # Infer type of all statements
@@ -72,12 +71,12 @@ module Ikra
                         ast.accept(type_inference_visitor)
 
                         aux_methods = type_inference_visitor.aux_methods
-                        return_types = symbol_table.top_frame.return_types
+                        return_type = symbol_table.top_frame.return_type
                     end
 
                     # Get required env variables
                     env_variables = (symbol_table.read_and_written_variables(-1) - block_parameters).map do |var|
-                        VariableWithType.new(var_name: var, type: symbol_table.get_types(var))
+                        VariableWithType.new(var_name: var, type: symbol_table.get_type(var))
                     end
 
                     # Get local variables
@@ -95,10 +94,10 @@ module Ikra
                 # Load environment variables
                 env_variables.each do |var|
                     mangled_name = mangle_var_name_translation_id(var.var_name)
-                    if var.type.size != 1
-                        raise "Cannot handle != 1 env argument types"
+                    if not var.type.is_singleton?
+                        raise "Cannot handle polymorphic types yet"
                     end
-                    translation_result.prepend("#{var.type.first.to_c_type} #{var.var_name} = #{EnvParameterName}->#{mangled_name};\n")
+                    translation_result.prepend("#{var.type.singleton_type.to_c_type} #{var.var_name} = #{EnvParameterName}->#{mangled_name};\n")
 
                     env_builder.add_variable(var_name: mangled_name, 
                         types: var.type, 
@@ -107,28 +106,27 @@ module Ikra
 
                 # Declare local variables
                 local_variables.each do |name, types|
-                    translation_result.prepend("#{types.first.to_c_type} #{name};\n")
+                    translation_result.prepend("#{types.singleton_type.to_c_type} #{name};\n")
                 end
 
                 # Function signature
                 mangled_name = mangle_block_name_translation_id("")
 
-                if return_types.size != 1
-                    raise "Cannot handle #{return_types.size} return types"
+                if not return_type.is_singleton?
+                    raise "Cannot handle polymorphic return types yet"
                 end
-                return_type = return_types.first
 
                 function_parameters = ["struct #{EnvStructName} *#{EnvParameterName}"]
                 block_parameter_types.each do |param|
                     function_parameters.push("#{param[1].first.to_c_type} #{param[0].to_s}")
                 end
 
-                translation_result = "__device__ #{return_type.to_c_type} #{mangled_name}(#{function_parameters.join(", ")})\n" +
+                translation_result = "__device__ #{return_type.singleton_type.to_c_type} #{mangled_name}(#{function_parameters.join(", ")})\n" +
                     wrap_in_c_block(translation_result)
 
                 # TODO: handle more than one result type
                 BlockTranslationResult.new(c_source: translation_result, 
-                    result_types: [return_types],
+                    result_type: return_type,
                     function_name: mangled_name,
                     aux_methods: aux_methods)
             end

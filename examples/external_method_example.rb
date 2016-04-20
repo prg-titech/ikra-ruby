@@ -26,9 +26,9 @@ result = Array.pnew(10) do |i|
 	x1 = i * i
 	x2 = 2 * i
 
-	result = a.max(x1, x2)
+	res = a.max(x1, x2)
 	#result2 = A.static_max(x1, x2)
-	result
+	res
 end
 
 sum = 0

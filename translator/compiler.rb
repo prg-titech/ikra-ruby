@@ -14,11 +14,11 @@ module Ikra
                 Index = 1
                 PreviousFusion = 2
                 
-                attr_accessor :types
+                attr_accessor :type
                 
-                def initialize(name, types, source_type = Normal)
+                def initialize(name, type, source_type = Normal)
                     @name = name
-                    @types = types
+                    @type = type
                     @source_type = source_type
                 end
                 
@@ -100,14 +100,14 @@ module Ikra
                     previous_types_index = 0
                     request.input_vars.each do |var|
                         if var.is_fusion?
-                            var.types = @previous_block_result_types[previous_types_index]
+                            var.type = @previous_block_result_types[previous_types_index]
                             previous_types_index += 1
                         end
                     end
                     
                     # Input types
                     input_types = request.input_vars.map do |var|
-                        var.types
+                        var.type
                     end
 
                     # Translate next block
@@ -131,14 +131,14 @@ module Ikra
                         elsif var.is_index?
                             arg_string = "threadIdx.x + blockIdx.x * blockDim.x"
                         elsif var.is_normal?
-                            @expected_input_types.push(var.types.first)
-                            @launcher_params.push("#{var.types.first.to_c_type} *host_k#{@block_index}_#{arg_index}")
-                            @kernel_params.push("#{var.types.first.to_c_type} *_input_k#{@block_index}_#{arg_index}_")
+                            @expected_input_types.push(var.type.singleton_type)
+                            @launcher_params.push("#{var.type.singleton_type.to_c_type} *host_k#{@block_index}_#{arg_index}")
+                            @kernel_params.push("#{var.type.singleton_type.to_c_type} *_input_k#{@block_index}_#{arg_index}_")
                             arg_string = "_input_k#{@block_index}_#{arg_index}_[threadIdx.x + blockIdx.x * blockDim.x]"
                             
-                            @launcher_input_decl += """#{var.types.first.to_c_type} *device_k#{@block_index}_#{arg_index};
-    cudaMalloc(&device_k#{@block_index}_#{arg_index}, #{var.types.first.c_size} * #{request.size});
-    cudaMemcpy(device_k#{@block_index}_#{arg_index}, host_k#{@block_index}_#{arg_index}, #{var.types.first.c_size} * #{request.size}, cudaMemcpyHostToDevice);
+                            @launcher_input_decl += """#{var.type.singleton_type.to_c_type} *device_k#{@block_index}_#{arg_index};
+    cudaMalloc(&device_k#{@block_index}_#{arg_index}, #{var.type.singleton_type.c_size} * #{request.size});
+    cudaMemcpy(device_k#{@block_index}_#{arg_index}, host_k#{@block_index}_#{arg_index}, #{var.type.singleton_type.c_size} * #{request.size}, cudaMemcpyHostToDevice);
 """
                             @kernel_args.push("device_k#{@block_index}_#{arg_index}")
                         end
@@ -148,7 +148,7 @@ module Ikra
                     
                     @invocation_source = "#{block_result.function_name}(#{inner_kernel_args.join(", ")})"
                     
-                    @previous_block_result_types = block_result.result_types
+                    @previous_block_result_types = block_result.result_type
                     @block_index += 1
                 end
                 
@@ -160,22 +160,37 @@ module Ikra
                     struct_def = @env_builder.struct_definition(EnvStructName)
 
                     result_type = @previous_block_result_types.first
-                    kernel_params = ["#{result_type.first.to_c_type} *_result_"] + @kernel_params
+                    kernel_params = ["#{result_type.singleton_type.to_c_type} *_result_"] + @kernel_params
                     kernel_args = ["device_result"] + @kernel_args
                     
                     # TODO: handle multiple result types
                     launcher = """#include <stdio.h>
 
-extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel(#{@launcher_params.join(", ")})
+#if defined(_MSC_VER)
+    //  Microsoft 
+    #define EXPORT __declspec(dllexport)
+    #define IMPORT __declspec(dllimport)
+#elif defined(_GCC)
+    //  GCC
+    #define EXPORT __attribute__((visibility(\"default\")))
+    #define IMPORT
+#else
+    //  do nothing and hope for the best?
+    #define EXPORT
+    #define IMPORT
+    #pragma warning Unknown dynamic link import/export semantics.
+#endif
+
+extern \"C\" EXPORT #{result_type.singleton_type.to_c_type} *launch_kernel(#{@launcher_params.join(", ")})
 {
     printf(\"kernel launched\\n\");
     struct #{EnvStructName} *device_env;
     cudaMalloc(&device_env, sizeof(struct #{EnvStructName}));
     cudaMemcpy(device_env, host_env, sizeof(struct #{EnvStructName}), cudaMemcpyHostToDevice);
     
-    #{result_type.first.to_c_type} *host_result = (#{result_type.first.to_c_type} *) malloc(#{result_type.first.c_size} * #{@initial_size});
-    #{result_type.first.to_c_type} *device_result;
-    cudaMalloc(&device_result, #{result_type.first.c_size} * #{@initial_size});
+    #{result_type.singleton_type.to_c_type} *host_result = (#{result_type.singleton_type.to_c_type} *) malloc(#{result_type.singleton_type.c_size} * #{@initial_size});
+    #{result_type.singleton_type.to_c_type} *device_result;
+    cudaMalloc(&device_result, #{result_type.singleton_type.c_size} * #{@initial_size});
     
     #{@launcher_input_decl}
     
@@ -185,7 +200,7 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
     kernel<<<dim_grid, dim_block>>>(#{kernel_args.join(", ")});
     
     cudaThreadSynchronize();
-    cudaMemcpy(host_result, device_result, #{result_type.first.c_size} * #{@initial_size}, cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_result, device_result, #{result_type.singleton_type.c_size} * #{@initial_size}, cudaMemcpyDeviceToHost);
     cudaFree(device_result);
     cudaFree(device_env);
     // TODO: free input arg device mem
@@ -239,7 +254,7 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
                     file.write(full_source)
                     file.close
                     
-                    compiler_invocation = "nvcc -o #{file.path}.dll --shared #{file.path}"
+                    compiler_invocation = "nvcc -o #{file.path}.so --shared -Xcompiler -fPIC #{file.path}"
                     time_before = Time.now
                     Log.info("Compiling CUDA code: #{compiler_invocation}")
                     compile_status = %x(#{compiler_invocation})
@@ -250,7 +265,7 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
                     
                     @ffi_wrapper = Module.new
                     @ffi_wrapper.extend(FFI::Library)
-                    @ffi_wrapper.ffi_lib(file.path + ".dll")
+                    @ffi_wrapper.ffi_lib(file.path + ".so")
                     @ffi_wrapper.attach_function(:launch_kernel, [:pointer] * (@expected_input_types.size + 1), :pointer)
                 end
                 
@@ -289,7 +304,7 @@ extern \"C\" __declspec(dllexport) #{result_type.first.to_c_type} *launch_kernel
                     
                     # TODO: handle multiple return values
                     # TODO: handle multiple types of each return value
-                    result_type = @previous_block_result_types.first.first
+                    result_type = @previous_block_result_types.first.singleton_type
                     return_value = nil
                     if result_type == PrimitiveType::Int
                         return_value = result.read_array_of_int(@initial_size)

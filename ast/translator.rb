@@ -177,13 +177,13 @@ module Ikra
                     
                     "(#{receiver.translate_expression} #{selector.to_s} #{arguments.first.translate_expression})"
                 else
-                    if receiver.get_types.size == 1 and
-                            receiver.get_types.first.to_ruby_type.singleton_methods.include?(("_ikra_c_" + selector.to_s).to_sym)
+                    if receiver.get_type.is_singleton? and
+                            receiver.get_type.singleton_type.to_ruby_type.singleton_methods.include?(("_ikra_c_" + selector.to_s).to_sym)
                         # TODO: support multiple types for receiver
-                        receiver.get_types.first.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
+                        receiver.get_type.singleton_type.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
                     else
                         self_argument = []
-                        if receiver.get_types.first.should_generate_type?
+                        if receiver.get_type.singleton_type.should_generate_type?
                             self_argument = [receiver]
                         end
 
@@ -191,7 +191,7 @@ module Ikra
                             arg.translate_expression
                         end.join(", ")
                         
-                        "#{receiver.get_types.first.mangled_method_name(selector)}(#{args})"
+                        "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args})"
                     end
                 end
             end

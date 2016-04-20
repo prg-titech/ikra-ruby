@@ -1,4 +1,5 @@
 require "set"
+require_relative "types/union_type"
 
 class Frame < Hash
     def function_frame!
@@ -10,37 +11,37 @@ class Frame < Hash
         @is_function_frame
     end
 
-    def add_return_types(types)
+    def add_return_type(type)
         if not is_function_frame?
-            raise "Return types allowed only for function frames"
+            raise "Return type allowed only for function frames"
         end
 
-        if types.class != Set
-            raise "Expected set of types"
+        if not type.is_union_type?
+            raise "Expected union type"
         end
 
-        @return_types ||= Set.new
-        @return_types.merge(types)
+        @return_type ||= UnionType.new
+        @return_type.expand(type)
     end
 
-    def return_types
+    def return_type
         if not is_function_frame?
-            raise "Return types allowed only for function frames"
+            raise "Return type allowed only for function frames"
         end
 
-        @return_types ||= Set.new
-        @return_types
+        @return_type ||= UnionType.new
+        @return_type
     end
 end
 
 class Scope < Array
     class Variable
-        attr_reader :types
+        attr_reader :type
         attr_accessor :read
         attr_accessor :written
         
-        def initialize(types = Set.new)
-            @types = types
+        def initialize(type = UnionType.new)
+            @type = type
             @read = false
             @written = false
         end
@@ -77,27 +78,27 @@ class Scope < Array
         end
     end
     
-    def get_types(name)
+    def get_type(name)
         reverse_each do |frame|
             if frame.has_key?(name)
-                return frame[name].types
+                return frame[name].type
             end
         end
         
         raise "#{name} not found in symbol table"
     end
     
-    def add_types(name, types)
-        if types.class != Set
-            raise "Expected set of types (got #{types.class})"
+    def declare_expand_type(name, type)
+        if not type.is_union_type?
+            raise "Expected union type"
         end
 
-        top_frame[name].types.merge(types)
+        top_frame[name].type.expand(type)
     end
     
-    def add_return_types(types)
+    def add_return_type(type)
         reverse_each.detect do |fr|
-            fr.add_return_types(types)
+            fr.add_return_type(type)
             return self
         end
 

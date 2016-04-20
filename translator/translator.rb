@@ -17,19 +17,19 @@ module Ikra
                 @vars = []
             end
 
-            def add_variable(var_name:, types:, value:)
-                if types.class != Set
-                    raise "Expected Set (got #{types.class})"
+            def add_variable(var_name:, type:, value:)
+                if not type.is_union_type?
+                    raise "Expected union type"
                 end
 
-                @vars.push([var_name, types, value])
+                @vars.push([var_name, type, value])
             end
 
             def to_ffi_struct_type
                 env_struct_layout = []
                 env_index = 0
                 @vars.each do |var|
-                    env_struct_layout += [:"field_#{env_index}", var[1].first.to_ffi_type]
+                    env_struct_layout += [:"field_#{env_index}", var[1].singleton_type.to_ffi_type]
                     env_index += 1
                 end
 
@@ -50,7 +50,7 @@ module Ikra
             def c_size
                 size = 0
                 @vars.each do |var|
-                    size += var.first.c_size
+                    size += var.singleton_type.c_size
                 end
 
                 size
@@ -58,7 +58,7 @@ module Ikra
 
             def struct_definition(struct_name)
                 defs = @vars.map do |var|
-                    "#{var[1].first.to_c_type} #{var[0]};"
+                    "#{var[1].singleton_type.to_c_type} #{var[0]};"
                 end.join("\n")
 
                 """struct #{struct_name}
