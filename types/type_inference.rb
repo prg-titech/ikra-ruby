@@ -63,7 +63,7 @@ module Ikra
                     return_value_type = @symbol_table.top_frame.return_type
                 end
                 
-                Log.info("Type inference: method return type is #{return_value_type.to_type_string}")
+                Log.info("Type inference: method return type is #{return_value_type.to_s}")
 
                 # Restore old symbol table
                 @symbol_table = old_symbol_table

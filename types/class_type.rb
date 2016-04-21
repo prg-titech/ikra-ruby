@@ -35,7 +35,7 @@ class ClassType
 
     def to_c_type
         # TODO: sometimes this should be a union type struct
-        "int"
+        "objid_t"
     end
 
     def mangled_method_name(selector)

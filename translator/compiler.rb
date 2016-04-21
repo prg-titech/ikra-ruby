@@ -158,6 +158,8 @@ module Ikra
                     dim3_grid = dimensions[0]
                     dim3_block = dimensions[1]
                     
+                    preamble = "#define objid_t int\n\n"
+
                     struct_def = @env_builder.struct_definition(EnvStructName)
 
                     result_type = @previous_block_result_type
@@ -219,7 +221,7 @@ extern \"C\" EXPORT #{result_type.singleton_type.to_c_type} *launch_kernel(#{@la
 }
 """
 
-                    struct_def + aux_methods_source + "\n" + @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
+                    preamble + struct_def + aux_methods_source + "\n" + @kernel_inner_source + "\n" + kernel_source + "\n" + launcher
                 end
                 
                 def grid_block_size(size)
