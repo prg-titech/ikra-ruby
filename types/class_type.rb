@@ -1,3 +1,4 @@
+require "set"
 require_relative "ruby_type"
 require_relative "../sourcify/lib/sourcify"
 require_relative "../parsing"
@@ -9,6 +10,7 @@ class ClassType
     attr_reader :cls
 
     class << self
+        # Ensure singleton per class
         def new(cls)
             if @cache == nil
                 @cache = {}
@@ -23,6 +25,24 @@ class ClassType
 
     def initialize(cls)
         @cls = cls
+        @inst_vars_read = Set.new
+        @inst_vars_written = Set.new
+    end
+
+    def inst_var_read!(inst_var_name)
+        @inst_vars_read.add(inst_var_name)
+    end
+
+    def inst_var_written!(inst_var_name)
+        @inst_var_written.add(inst_var_name)
+    end
+
+    def inst_var_read?(inst_var_name)
+        @inst_var_read.include?(inst_var_name)
+    end
+
+    def inst_var_written(inst_var_name)
+        @inst_var_written.include?(inst_var_name)
     end
 
     def to_ruby_type

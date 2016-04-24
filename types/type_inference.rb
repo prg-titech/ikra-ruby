@@ -17,79 +17,141 @@ module Ikra
     end
     
     module TypeInference
-        class Visitor < AST::Visitor
-            attr_accessor :aux_methods
-
-            def get_aux_method(type, selector, types)
-                aux_methods.detect do |aux|
-                    type <= aux.type and aux.selector == selector and UnionType.array_subseteq(types, aux.parameter_types)
+        class ObjectTracer
+            def initialize
+                # object pool: Ikra type --> set of objs
+                @object_pool = Hash.new
+                @object_pool.default_proc = proc do |hash, key|
+                    hash[key] = Set.new
                 end
             end
 
-            def visit_method_call(send_node)
-                # TODO: constant lookup (via binding.receiver.eval)
-                recv_type = send_node.receiver.get_type
-                selector = send_node.selector
-                param_types = send_node.arguments.map do |arg|
-                    arg.get_type
+            def trace_object(object)
+
+            end
+
+            def trace_inst_vars(cls, inst_var_name)
+
+            end
+        end
+
+        class Visitor < AST::Visitor
+            attr_reader :methods
+
+            def initialize
+                # methods: Ikra type x selector --> MethodDefinition
+                @methods = Hash.new
+                @methods.default_proc = proc do |hash, key|
+                    hash[key] = Hash.new
                 end
 
-                cached_value = get_aux_method(recv_type, selector, param_types)
-                if cached_value != nil
-                    return cached_value.return_type
-                end
+                # Top of stack is the method that is currently processed
+                @method_stack = []
 
+                # Method definitions that must be processed
+                @worklist = Set.new
+            end
+
+            def symbol_table
+                current_method.symbol_table
+            end
+
+            def binding
+                current_method.binding
+            end
+
+            def current_method
+                @method_stack.last
+            end
+
+            # This is used as an entry point for the visitor
+            def process_method(method_definition)
                 Log.info("Type inference: proceed into method #{recv_type.singleton_type}.#{selector}(#{param_types.to_type_array_string})")
+
+                @method_stack.push(method_definition)
+                ast = method_definition.ast
                 # TODO: handle multiple types
-                ast = recv_type.singleton_type.method_ast(selector)
+                recv_type = method_definition.type
 
                 # Set up new symbol table (pushing a frame is not sufficient here)
                 return_value_type = nil
-                old_symbol_table = @symbol_table
-                @symbol_table = Scope.new
-                @symbol_table.new_frame do
-                    @symbol_table.top_frame.function_frame!
-
+                symbol_table.new_frame do                       # lexical variables, parameters defined on this level
                     # Add parameters to symbol table (name -> type)
-                    recv_type.singleton_type.method_parameters(selector).zip(param_types).each do |param|
-                        @symbol_table.declare_expand_type(param[0], param[1])
+                    method_definition.parameter_variables.each do |name, type|
+                        symbol_table.declare_expand_type(name, type)
                     end
 
-                    # Add return statements
-                    ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
+                    symbol_table.new_function_frame do          # local variables defined on this level
+                        # Add return statements
+                        ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
 
-                    # Infer types
-                    ast.accept(self)
-                    return_value_type = @symbol_table.top_frame.return_type
+                        # Infer types
+                        ast.accept(self)
+                        return_value_type = symbol_table.top_frame.return_type
+
+                        # Get local variable definitons
+                        local_variables_enumerator = Translator::LocalVariablesEnumerator.new
+                        ast.accept(local_variables_enumerator)
+                        local_variables = local_variables_enumerator.local_variables.reject do |name, type|
+                            parameter_names.include?(name) ||  # No input parameters
+                                symbol_table.read_and_written_variables(-1).include?(name) # No env vars
+                        end
+                    end
                 end
                 
                 Log.info("Type inference: method return type is #{return_value_type.to_s}")
 
-                # Restore old symbol table
-                @symbol_table = old_symbol_table
+                @method_stack.pop
 
-                method_def = AST::MethodDefinition.new(
-                    type: recv_type.singleton_type, 
-                    selector: selector,
-                    parameter_types: param_types,
-                    return_type: return_value_type,
-                    ast: ast)
-                @aux_methods.push(method_def)
+                method_definition.return_type = return_value_type
+                return_value_type
+            end
 
-                method_def.return_type
+            def visit_method_call(send_node)
+                recv_type = send_node.receiver.get_type
+                parameter_names = recv_type.singleton_type.method_parameters(selector)
+                arg_types = send_node.arguments.map do |arg| arg.get_type end
+                selector = send_node.selector
+                ast = recv_type.singleton_type.method_ast(selector)
+
+                if not @methods[recv_type].include?(selector)
+                    # This method was never visited before
+                    parameter_variables = 
+                    @methods[recv_type][selector] = MethodDefinition.new(
+                        type: recv_type.singleton_type,
+                        selector: selector,
+                        parameter_variables: Hash[*parameter_names.zip(
+                            Array.new(arg_types.size) do 
+                                UnionType.new
+                            end).flatten],
+                        return_type: UnionType.new,
+                        ast: ast)
+                end
+
+                method_def = @methods[recv_type][selector]
+                # Method needs processing if any parameter is expanded
+                needs_processing = parameter_names.map.with_index do |name, index|
+                    method_def.parameter_variables[name].expand(arg_types[index])   # returns true if expanded 
+                end.reduce(:|)
+
+                last_return_type = method_def.return_type       # return value type from the last pass
+                
+                if needs_processing
+                    process_method(method_def)
+                end
+
+                if not last_return_type.include_all?(method_def.return_type)
+                    # Return type was expanded during this pass, reprocess all callers (except for current method)
+                    @worklist += (method_def.callers - [current_method])
+                end
+
+                method_def.callers.add(current_method)
             end
 
             def assert_singleton_type(union_type, expected_type)
                 if union_type.singleton_type != expected_type
                     raise "Expected type #{expected_type} but found #{union_type.singleton_type}"
                 end
-            end
-            
-            def initialize(symbol_table, binding = nil)
-                @symbol_table = symbol_table
-                @binding = binding
-
-                @aux_methods = []
             end
             
             def visit_root_node(node)
@@ -106,14 +168,14 @@ module Ikra
             end
 
             def visit_lvar_read_node(node)
-                @symbol_table.read!(node.identifier)
-                node.get_type.expand_return_type(@symbol_table.get_type(node.identifier))
+                symbol_table.read!(node.identifier)
+                node.get_type.expand_return_type(symbol_table.get_type(node.identifier))
             end
 
             def visit_lvar_write_node(node)
                 type = node.value.accept(self)
-                @symbol_table.declare_expand_type(node.identifier, type)
-                @symbol_table.written!(node.identifier)
+                symbol_table.declare_expand_type(node.identifier, type)
+                symbol_table.written!(node.identifier)
                 node.get_type.expand_return_type(type)
             end
             
@@ -133,7 +195,7 @@ module Ikra
                 assert_singleton_type(node.range_from.accept(self), PrimitiveType::Int)
                 assert_singleton_type(node.range_to.accept(self), PrimitiveType::Int)
                 
-                changed = @symbol_table.declare_expand_type(node.iterator_identifier, UnionType.create_int)
+                changed = symbol_table.declare_expand_type(node.iterator_identifier, UnionType.create_int)
                 
                 super(node)
                 
@@ -173,7 +235,7 @@ module Ikra
             
             def visit_return_node(node)
                 type = node.value.accept(self)
-                @symbol_table.add_return_type(type)
+                symbol_table.add_return_type(type)
                 node.get_type.expand_return_type(type)
             end
 

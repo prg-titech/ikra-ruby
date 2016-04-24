@@ -9,6 +9,7 @@ require_relative "translator"
 require_relative "last_returns_visitor"
 require_relative "local_variables_enumerator"
 require_relative "../ast/printer"
+require_relative "../ast/method_definition"
 
 module Ikra
     module Translator
@@ -26,70 +27,54 @@ module Ikra
             end
         end
 
+        block_selector_dummy = :"<BLOCK>"
+
         class << self
             def translate_block(block:, symbol_table:, env_builder:, input_types: [])
                 Log.info("Translating block with input types #{input_types.to_type_array_string}")
 
-                translation_result = nil
-                env_variables = nil
-                return_type = nil
-                local_variables = nil
-                aux_methods = nil
-
                 increase_translation_id
+
+                # Generate AST
+                parser_local_vars = block.binding.local_variables + block_parameters
+                source = Parsing.parse_block(block, parser_local_vars)
+                ast = AST::Builder.from_parser_ast(source)
 
                 # Block parameters and types
                 block_parameters = block.parameters.map do |param|
                     param[1]
                 end
-                block_parameter_types = block_parameters.zip(input_types)
+                block_parameter_types = Hash[*block_parameters.zip(input_types).flatten]
 
-                symbol_table.new_frame do
-                    # Generate AST
-                    parser_local_vars = block.binding.local_variables + block_parameters
-                    source = Parsing.parse_block(block, parser_local_vars)
-                    ast = Ikra::AST::Builder.from_parser_ast(source)
+                # Define MethodDefinition for block
+                block_def = AST::MethodDefinition.new(
+                    type: UnionType.new,        # TODO: what to pass in here?
+                    selector: block_selector_dummy,
+                    parameter_variables: block_parameter_types,
+                    return_type: UnionType.new,
+                    ast: ast)
 
-                    # Add return statements
-                    ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
-
-                    # Add lexical variables to symbol table
-                    block.binding.local_variables.each do |var|
-                        symbol_table.declare_expand_type(var, UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type))
-                    end
-
-                    # Add block parameter to symbol table
-                    # TODO: find a good way to pass type in
-                    block_parameter_types.each do |var|
-                        symbol_table.declare_expand_type(var[0], var[1])
-                    end
-
-                    # Infer type of all statements
-                    symbol_table.new_frame do
-                        symbol_table.top_frame.function_frame!
-                        type_inference_visitor = Ikra::TypeInference::Visitor.new(symbol_table, block.binding)
-                        ast.accept(type_inference_visitor)
-
-                        aux_methods = type_inference_visitor.aux_methods
-                        return_type = symbol_table.top_frame.return_type
-                    end
-
-                    # Get required env variables
-                    env_variables = (symbol_table.read_and_written_variables(-1) - block_parameters).map do |var|
-                        VariableWithType.new(var_name: var, type: symbol_table.get_type(var))
-                    end
-
-                    # Get local variables
-                    local_variables_enumerator = LocalVariablesEnumerator.new
-                    ast.accept(local_variables_enumerator)
-                    local_variables = local_variables_enumerator.local_variables.reject do |name, type|
-                        block_parameters.include?(name) ||  # No input parameters
-                            symbol_table.read_and_written_variables(-1).include?(name) # No env vars
-                    end
-                    
-                    # Translate to CUDA/C++ code
-                    translation_result = ast.translate_statement
+                # Lexical variables
+                block.binding.local_variables.each do |var|
+                    block_def.lexical_variables[var] = UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type)
                 end
+
+                # Type inference
+                type_inference_visitor = TypeInference::Visitor.new
+                type_inference_visitor.process_method(block_def)
+                aux_methods = type_inference_visitor.methods
+                return_type = block_def.symbol_table.top_frame.return_type
+
+
+
+                # ------------ TODO: continue refactoring here ----------------
+                # Get required env variables from second to top-most frame
+                env_variables = (block_def.symbol_table.read_and_written_variables(-1) - block_parameters).map do |var|
+                    VariableWithType.new(var_name: var, type: block_def.symbol_table.get_type(var))
+                end
+                    
+                # Translate to CUDA/C++ code
+                translation_result = ast.translate_statement
 
                 # Load environment variables
                 env_variables.each do |var|
@@ -125,7 +110,8 @@ module Ikra
                     wrap_in_c_block(translation_result)
 
                 # TODO: handle more than one result type
-                BlockTranslationResult.new(c_source: translation_result, 
+                BlockTranslationResult.new(
+                    c_source: translation_result, 
                     result_type: return_type,
                     function_name: mangled_name,
                     aux_methods: aux_methods)

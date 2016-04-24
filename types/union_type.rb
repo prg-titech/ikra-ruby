@@ -80,7 +80,7 @@ class UnionType
 
         (union_type.types - @types).size == 0
     end
-
+    
     # subseteq
     def <=(union_type)
         union_type.include_all?(self)

@@ -58,6 +58,11 @@ class Scope < Array
         end
         push(frame)
     end
+
+    def push_function_frame
+        push_frame
+        top_frame.function_frame!
+    end
     
     def pop_frame
         pop
