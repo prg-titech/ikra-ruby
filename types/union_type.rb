@@ -80,7 +80,7 @@ class UnionType
 
         (union_type.types - @types).size == 0
     end
-    
+
     # subseteq
     def <=(union_type)
         union_type.include_all?(self)
@@ -120,6 +120,12 @@ class UnionType
 
                     tuple[0] <= tuple[1]
                 end.reduce(:&)
+        end
+
+        def parameter_hash_to_s(hash)
+            hash.map do |name, type|
+                name.to_s + ": " + type.to_s
+            end.join(", ")
         end
     end
 end

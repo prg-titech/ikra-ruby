@@ -119,7 +119,7 @@ module Ikra
                         symbol_table: @symbol_table)
                     
                     @kernel_inner_source += block_result.c_source
-                    @aux_methods += block_result.aux_methods
+                    @aux_methods += block_result.aux_methods.values
 
                     # Call arguments/parameters
                     inner_kernel_args = [EnvironmentVariable]

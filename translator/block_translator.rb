@@ -27,7 +27,7 @@ module Ikra
             end
         end
 
-        block_selector_dummy = :"<BLOCK>"
+        BlockSelectorDummy = :"<BLOCK>"
 
         class << self
             def translate_block(block:, symbol_table:, env_builder:, input_types: [])
@@ -35,21 +35,21 @@ module Ikra
 
                 increase_translation_id
 
-                # Generate AST
-                parser_local_vars = block.binding.local_variables + block_parameters
-                source = Parsing.parse_block(block, parser_local_vars)
-                ast = AST::Builder.from_parser_ast(source)
-
                 # Block parameters and types
                 block_parameters = block.parameters.map do |param|
                     param[1]
                 end
                 block_parameter_types = Hash[*block_parameters.zip(input_types).flatten]
 
+                # Generate AST
+                parser_local_vars = block.binding.local_variables + block_parameters
+                source = Parsing.parse_block(block, parser_local_vars)
+                ast = AST::Builder.from_parser_ast(source)
+
                 # Define MethodDefinition for block
                 block_def = AST::MethodDefinition.new(
                     type: UnionType.new,        # TODO: what to pass in here?
-                    selector: block_selector_dummy,
+                    selector: BlockSelectorDummy,
                     parameter_variables: block_parameter_types,
                     return_type: UnionType.new,
                     ast: ast)
@@ -61,36 +61,27 @@ module Ikra
 
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
-                type_inference_visitor.process_method(block_def)
+                return_type = type_inference_visitor.process_method(block_def)
                 aux_methods = type_inference_visitor.methods
-                return_type = block_def.symbol_table.top_frame.return_type
-
-
-
-                # ------------ TODO: continue refactoring here ----------------
-                # Get required env variables from second to top-most frame
-                env_variables = (block_def.symbol_table.read_and_written_variables(-1) - block_parameters).map do |var|
-                    VariableWithType.new(var_name: var, type: block_def.symbol_table.get_type(var))
-                end
                     
                 # Translate to CUDA/C++ code
                 translation_result = ast.translate_statement
 
                 # Load environment variables
-                env_variables.each do |var|
-                    mangled_name = mangle_var_name_translation_id(var.var_name)
-                    if not var.type.is_singleton?
+                block_def.accessed_lexical_variables.each do |name, type|
+                    mangled_name = mangle_var_name_translation_id(name)
+                    if not type.is_singleton?
                         raise "Cannot handle polymorphic types yet"
                     end
-                    translation_result.prepend("#{var.type.singleton_type.to_c_type} #{var.var_name} = #{EnvParameterName}->#{mangled_name};\n")
+                    translation_result.prepend("#{type.singleton_type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
 
                     env_builder.add_variable(var_name: mangled_name, 
-                        type: var.type, 
-                        value: block.binding.local_variable_get(var.var_name))
+                        type: type, 
+                        value: block.binding.local_variable_get(name))
                 end
 
                 # Declare local variables
-                local_variables.each do |name, types|
+                block_def.local_variables.each do |name, types|
                     translation_result.prepend("#{types.singleton_type.to_c_type} #{name};\n")
                 end
 

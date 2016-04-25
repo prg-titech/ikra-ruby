@@ -32,6 +32,10 @@ class Frame < Hash
         @return_type ||= UnionType.new
         @return_type
     end
+
+    def variable_names
+        keys
+    end
 end
 
 class Scope < Array
@@ -51,6 +55,10 @@ class Scope < Array
         last
     end
     
+    def previous_frame
+        self[-2]
+    end
+
     def push_frame
         frame = Frame.new
         frame.default_proc = Proc.new do |hash, key|
@@ -140,12 +148,18 @@ class Scope < Array
         end.keys
     end
     
-    def read_and_written_variables(frame_position)
+    def read_and_written_variables(frame_position = -1)
         read_variables(frame_position) + written_variables(frame_position)
     end
     
     def new_frame(&block)
         push_frame
+        yield
+        pop_frame
+    end
+
+    def new_function_frame(&block)
+        push_function_frame
         yield
         pop_frame
     end

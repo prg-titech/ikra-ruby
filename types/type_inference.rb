@@ -66,7 +66,7 @@ module Ikra
 
             # This is used as an entry point for the visitor
             def process_method(method_definition)
-                Log.info("Type inference: proceed into method #{recv_type.singleton_type}.#{selector}(#{param_types.to_type_array_string})")
+                Log.info("Type inference: proceed into method #{method_definition.type}.#{method_definition.selector}(#{UnionType.parameter_hash_to_s(method_definition.parameter_variables)})")
 
                 @method_stack.push(method_definition)
                 ast = method_definition.ast
@@ -78,6 +78,10 @@ module Ikra
                 symbol_table.new_frame do                       # lexical variables, parameters defined on this level
                     # Add parameters to symbol table (name -> type)
                     method_definition.parameter_variables.each do |name, type|
+                        symbol_table.declare_expand_type(name, type)
+                    end
+                    # Add lexical variables to symbol table (name -> type)
+                    method_definition.lexical_variables.each do |name, type|
                         symbol_table.declare_expand_type(name, type)
                     end
 
@@ -92,10 +96,14 @@ module Ikra
                         # Get local variable definitons
                         local_variables_enumerator = Translator::LocalVariablesEnumerator.new
                         ast.accept(local_variables_enumerator)
-                        local_variables = local_variables_enumerator.local_variables.reject do |name, type|
-                            parameter_names.include?(name) ||  # No input parameters
-                                symbol_table.read_and_written_variables(-1).include?(name) # No env vars
+                        method_definition.local_variables = local_variables_enumerator.local_variables.reject do |name, type|
+                            symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
                         end
+                    end
+
+                    # Determine read/written lexical variables
+                    (symbol_table.read_and_written_variables(-1) - method_definition.parameter_variables.keys).each do |var|
+                        method_definition.accessed_lexical_variables[var] = symbol_table.get_type(var)
                     end
                 end
                 
