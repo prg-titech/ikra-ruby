@@ -3,6 +3,7 @@ require_relative "block_translator"
 require_relative "method_translator"
 require_relative "../scope"
 require "logger"
+require "tempfile"
 
 module Ikra
     Log = Logger.new(STDOUT)
@@ -74,7 +75,6 @@ module Ikra
                     @launcher_params = ["struct #{EnvStructName} *host_env"]
                     @env_builder = EnvironmentBuilder.new
                     @initial_size = nil
-                    @symbol_table = Scope.new
                     
                     # Methods
                     @aux_methods = []
@@ -115,8 +115,7 @@ module Ikra
                     block_result = Translator.translate_block(
                         block: request.block, 
                         input_types: input_types, 
-                        env_builder: @env_builder,
-                        symbol_table: @symbol_table)
+                        env_builder: @env_builder)
                     
                     @kernel_inner_source += block_result.c_source
                     @aux_methods += block_result.aux_methods.values
@@ -240,9 +239,9 @@ extern \"C\" EXPORT #{result_type.singleton_type.to_c_type} *launch_kernel(#{@la
                     end
                     
                     arr = FFI::MemoryPointer.new(array.size * @expected_input_types[next_index].c_size)
-                    if @expected_input_types[next_index] == PrimitiveType::Int
+                    if @expected_input_types[next_index] == Types::PrimitiveType::Int
                         arr.put_array_of_int(0, array)
-                    elsif @expected_input_types[next_index] == PrimitiveType::Float
+                    elsif @expected_input_types[next_index] == Types::PrimitiveType::Float
                         arr.put_array_of_float(0, array)
                     else
                         raise "Cannot handle array of #{@result_type} via FFI"
@@ -309,9 +308,9 @@ extern \"C\" EXPORT #{result_type.singleton_type.to_c_type} *launch_kernel(#{@la
                     # TODO: handle multiple types of each return value
                     result_type = @previous_block_result_type.singleton_type
                     return_value = nil
-                    if result_type == PrimitiveType::Int
+                    if result_type == Types::PrimitiveType::Int
                         return_value = result.read_array_of_int(@initial_size)
-                    elsif result_type == PrimitiveType::Float
+                    elsif result_type == Types::PrimitiveType::Float
                         return_value = result.read_array_of_float(@initial_size)
                     else
                         raise "Cannot retrieve array of #{result_type} via FFI"

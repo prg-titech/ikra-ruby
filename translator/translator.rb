@@ -2,16 +2,6 @@ require "ffi"
 
 module Ikra
     module Translator
-        class VariableWithType
-            attr_reader :type
-            attr_reader :var_name
-            
-            def initialize(type:, var_name:)
-                @type = type
-                @var_name = var_name
-            end
-        end
-
         class EnvironmentBuilder
             def initialize
                 @vars = []

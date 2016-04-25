@@ -1,21 +1,27 @@
 
 require "set"
 
-module RubyType
-    def to_ruby_type
-        raise NotImplementedError
-    end
-    
-    def to_c_type
-        raise NotImplementedError
-    end
-    
-    def is_primitive?
-        false
-    end
+module Ikra
+    module Types
 
-    def is_union_type?
-        false
+        # Defines the minimal interface for Ikra types. Instances of {UnionType} are expected in most cases.
+        module RubyType
+            def to_ruby_type
+                raise NotImplementedError
+            end
+            
+            def to_c_type
+                raise NotImplementedError
+            end
+            
+            def is_primitive?
+                false
+            end
+
+            def is_union_type?
+                false
+            end
+        end
     end
 end
 

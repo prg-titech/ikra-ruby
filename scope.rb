@@ -20,7 +20,7 @@ class Frame < Hash
             raise "Expected union type"
         end
 
-        @return_type ||= UnionType.new
+        @return_type ||= Ikra::Types::UnionType.new
         @return_type.expand(type)
     end
 
@@ -29,7 +29,7 @@ class Frame < Hash
             raise "Return type allowed only for function frames"
         end
 
-        @return_type ||= UnionType.new
+        @return_type ||= Ikra::Types::UnionType.new
         @return_type
     end
 
@@ -44,7 +44,7 @@ class Scope < Array
         attr_accessor :read
         attr_accessor :written
         
-        def initialize(type = UnionType.new)
+        def initialize(type = Ikra::Types::UnionType.new)
             @type = type
             @read = false
             @written = false

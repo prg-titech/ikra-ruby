@@ -13,10 +13,20 @@ require_relative "../ast/method_definition"
 
 module Ikra
     module Translator
+
+        # The result of Ruby-to-CUDA translation of a block using {Translator}
         class BlockTranslationResult
+
+            # @return [String] Generated CUDA source code
             attr_accessor :c_source
+
+            # @return [UnionType] Return value type of method/block
             attr_accessor :result_type
+
+            # @return [String] Name of function in CUDA source code
             attr_accessor :function_name
+
+            # @return [Array<Ikra::AST::MethodDefinition>] Auxiliary methods that are called by this block (including transitive method calls)
             attr_accessor :aux_methods
 
             def initialize(c_source:, result_type:, function_name:, aux_methods: [])
@@ -30,7 +40,12 @@ module Ikra
         BlockSelectorDummy = :"<BLOCK>"
 
         class << self
-            def translate_block(block:, symbol_table:, env_builder:, input_types: [])
+            # Translates a Ruby block to CUDA source code.
+            # @param [Proc] block the block to be translated
+            # @param [EnvironmentBuilder] env_builder environment builder instance collecting information about lexical variables (environment)
+            # @param [Array<UnionType>] input_types types of arguments passed to the block
+            # @return [BlockTranslationResult]
+            def translate_block(block:, env_builder:, input_types: [])
                 Log.info("Translating block with input types #{input_types.to_type_array_string}")
 
                 increase_translation_id
@@ -48,15 +63,15 @@ module Ikra
 
                 # Define MethodDefinition for block
                 block_def = AST::MethodDefinition.new(
-                    type: UnionType.new,        # TODO: what to pass in here?
+                    type: Types::UnionType.new,        # TODO: what to pass in here?
                     selector: BlockSelectorDummy,
                     parameter_variables: block_parameter_types,
-                    return_type: UnionType.new,
+                    return_type: Types::UnionType.new,
                     ast: ast)
 
                 # Lexical variables
                 block.binding.local_variables.each do |var|
-                    block_def.lexical_variables[var] = UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type)
+                    block_def.lexical_variables[var] = Types::UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type)
                 end
 
                 # Type inference

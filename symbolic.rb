@@ -40,7 +40,7 @@ class ArrayNewCommand
     def translate
         current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: @block, size: size)
         # TODO: check if all elements are of same type?
-        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], UnionType.create_int, Ikra::Translator::Compiler::InputVariable::Index))
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], Ikra::Types::UnionType.create_int, Ikra::Translator::Compiler::InputVariable::Index))
         Ikra::Translator::Compiler.compile(current_request)
     end
     
@@ -69,7 +69,7 @@ class ArrayMapCommand
         compilation_result = @target.translate
 
         current_request = Ikra::Translator::Compiler::CompilationRequest.new(block: @block, size: size)
-        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], UnionType.create_unknown, Ikra::Translator::Compiler::InputVariable::PreviousFusion))
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(@block.parameters[0][1], Ikra::Types::UnionType.create_unknown, Ikra::Translator::Compiler::InputVariable::PreviousFusion))
         compilation_result.merge_request!(current_request)
 
         compilation_result
@@ -118,7 +118,7 @@ class ArrayIdentityCommand
             cls.to_ikra_type
         end
 
-        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(Block.parameters[0][1], UnionType.new(*types.to_set.to_a)))
+        current_request.add_input_var(Ikra::Translator::Compiler::InputVariable.new(Block.parameters[0][1], Ikra::Types::UnionType.new(*types.to_set.to_a)))
         Ikra::Translator::Compiler.compile(current_request)
     end
     

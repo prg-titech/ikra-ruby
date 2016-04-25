@@ -2,6 +2,8 @@ require_relative "nodes"
 
 module Ikra
     module AST
+
+        # Builds an Ikra AST from a Parser RubyGem AST
         module Builder
             class << self
                 def from_parser_ast(node)

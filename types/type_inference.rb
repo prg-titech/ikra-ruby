@@ -11,7 +11,7 @@ module Ikra
     module AST
         class Node
             def get_type
-                @type ||= UnionType.new
+                @type ||= Types::UnionType.new
             end
         end
     end
@@ -66,7 +66,7 @@ module Ikra
 
             # This is used as an entry point for the visitor
             def process_method(method_definition)
-                Log.info("Type inference: proceed into method #{method_definition.type}.#{method_definition.selector}(#{UnionType.parameter_hash_to_s(method_definition.parameter_variables)})")
+                Log.info("Type inference: proceed into method #{method_definition.type}.#{method_definition.selector}(#{Types::UnionType.parameter_hash_to_s(method_definition.parameter_variables)})")
 
                 @method_stack.push(method_definition)
                 ast = method_definition.ast
@@ -87,7 +87,7 @@ module Ikra
 
                     symbol_table.new_function_frame do          # local variables defined on this level
                         # Add return statements
-                        ast.accept(Ikra::Translator::LastStatementReturnsVisitor.new)
+                        ast.accept(Translator::LastStatementReturnsVisitor.new)
 
                         # Infer types
                         ast.accept(self)
@@ -130,9 +130,9 @@ module Ikra
                         selector: selector,
                         parameter_variables: Hash[*parameter_names.zip(
                             Array.new(arg_types.size) do 
-                                UnionType.new
+                                Types::UnionType.new
                             end).flatten],
-                        return_type: UnionType.new,
+                        return_type: Types::UnionType.new,
                         ast: ast)
                 end
 
@@ -172,7 +172,7 @@ module Ikra
                 end
 
                 node.get_type.expand_return_type(
-                    UnionType.new([@binding.eval(node.identifier.to_s).class.to_ikra_type]))
+                    Types::UnionType.new([@binding.eval(node.identifier.to_s).class.to_ikra_type]))
             end
 
             def visit_lvar_read_node(node)
@@ -188,42 +188,42 @@ module Ikra
             end
             
             def visit_int_node(node)
-                node.get_type.expand_return_type(UnionType.create_int)
+                node.get_type.expand_return_type(Types::UnionType.create_int)
             end
             
             def visit_float_node(node)
-                node.get_type.expand_return_type(UnionType.create_float)
+                node.get_type.expand_return_type(Types::UnionType.create_float)
             end
             
             def visit_bool_node(node)
-                node.get_type.expand_return_type(UnionType.create_bool)
+                node.get_type.expand_return_type(Types::UnionType.create_bool)
             end
             
             def visit_for_node(node)
-                assert_singleton_type(node.range_from.accept(self), PrimitiveType::Int)
-                assert_singleton_type(node.range_to.accept(self), PrimitiveType::Int)
+                assert_singleton_type(node.range_from.accept(self), Types::PrimitiveType::Int)
+                assert_singleton_type(node.range_to.accept(self), Types::PrimitiveType::Int)
                 
-                changed = symbol_table.declare_expand_type(node.iterator_identifier, UnionType.create_int)
+                changed = symbol_table.declare_expand_type(node.iterator_identifier, Types::UnionType.create_int)
                 
                 super(node)
                 
                 # TODO: Should return range
 
-                node.get_type.expand_return_type(UnionType.create_int)
+                node.get_type.expand_return_type(Types::UnionType.create_int)
             end
             
             def visit_break_node(node)
-                UnionType.create_void
+                Types::UnionType.create_void
             end
             
             def visit_if_node(node)
-                assert_singleton_type(node.condition.accept(self), PrimitiveType::Bool)
+                assert_singleton_type(node.condition.accept(self), Types::PrimitiveType::Bool)
                 
-                type = UnionType.new
+                type = Types::UnionType.new
                 type.expand(node.true_body_stmts.accept(self))       # Begin always has type of last stmt
 
                 if node.false_body_stmts == nil
-                    type.expand(UnionType.create_void)
+                    type.expand(Types::UnionType.create_void)
                 else
                     type.expand(node.false_body_stmts.accept(self))
                 end
@@ -259,11 +259,11 @@ module Ikra
                 receiver_type = nil
 
                 if node.receiver == nil
-                    receiver_type = UnionType.create_int
+                    receiver_type = Types::UnionType.create_int
                 else
                     receiver_type = node.receiver.accept(self)
                 end
-                type = UnionType.new
+                type = Types::UnionType.new
                 
                 if PrimitiveOperators.include?(node.selector)
                     if node.arguments.size != 1
@@ -301,9 +301,9 @@ module Ikra
                 arg_types = [receiver_type, operand_type]
                 
                 if ArithOperators.include?(selector)
-                    type_mapping = {[PrimitiveType::Int, PrimitiveType::Int] => UnionType.create_int,
-                        [PrimitiveType::Int, PrimitiveType::Float] => UnionType.create_float,
-                        [PrimitiveType::Float, PrimitiveType::Float] => UnionType.create_float}
+                    type_mapping = {[Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_int,
+                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_float,
+                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_float}
                     
                     if type_mapping.has_key?(arg_types)
                         return type_mapping[arg_types]
@@ -313,9 +313,9 @@ module Ikra
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
                 elsif CompareOperators.include?(selector)
-                    type_mapping = {[PrimitiveType::Int, PrimitiveType::Int] => UnionType.create_bool,
-                        [PrimitiveType::Int, PrimitiveType::Float] => UnionType.create_bool,
-                        [PrimitiveType::Float, PrimitiveType::Float] => UnionType.create_bool}
+                    type_mapping = {[Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_bool,
+                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_bool,
+                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_bool}
                     
                     if type_mapping.has_key?(arg_types)
                         return type_mapping[arg_types]
@@ -325,31 +325,31 @@ module Ikra
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
                 elsif EqualityOperators.include?(selector)
-                    type_mapping = {[PrimitiveType::Bool, PrimitiveType::Bool] => UnionType.create_bool,
-                        [PrimitiveType::Int, PrimitiveType::Int] => UnionType.create_bool,
-                        [PrimitiveType::Int, PrimitiveType::Float] => UnionType.create_bool,
-                        [PrimitiveType::Float, PrimitiveType::Float] => UnionType.create_bool}
+                    type_mapping = {[Types::PrimitiveType::Bool, Types::PrimitiveType::Bool] => Types::UnionType.create_bool,
+                        [Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_bool,
+                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_bool,
+                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_bool}
                         
                     if type_mapping.has_key?(arg_types)
                         return type_mapping[arg_types]
                     elsif type_mapping.has_key?(arg_types.reverse)
                         return type_mapping[arg_types.reverse]
-                    elsif not arg_types.include?(PrimitiveType::Void) and receiver.type.is_primitive? and operand.type.is_primitive?
+                    elsif not arg_types.include?(Types::PrimitiveType::Void) and receiver.type.is_primitive? and operand.type.is_primitive?
                         # TODO: this should also return a translation result: selector == :== ? "false" : "true"
-                        return UnionType.create_bool
+                        return Types::UnionType.create_bool
                     else
                         raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
                     end
                 elsif LogicOperators.include?(selector)
                     # TODO: need proper implementation
-                    int_float = [PrimitiveType::Int, PrimitiveType::Float].to_set
+                    int_float = [Types::PrimitiveType::Int, Types::PrimitiveType::Float].to_set
                     if selector == :'&&'
                         if (int_float + arg_types).size == 2
                             # Both are int/float
                             # TODO: this should return the operand
-                            return UnionType.new(operand_type)
-                        elsif operand_type == PrimitiveType::Bool and receiver_type == PrimitiveType::Bool
-                            return UnionType.create_bool
+                            return Types::UnionType.new(operand_type)
+                        elsif operand_type == PrimitiveType::Bool and receiver_type == Types::PrimitiveType::Bool
+                            return Types::UnionType.create_bool
                         else
                             raise "Cannot handle types #{receiver_type} and #{operand_type} for primitive operator #{selector.to_s}"
                         end
@@ -357,15 +357,15 @@ module Ikra
                         if (int_float + arg_types).size == 2
                             # Both are int/float
                             # TODO: this should return the receiver
-                            return UnionType.new(receiver_type)
-                        elsif operand_type == PrimitiveType::Bool and receiver_type == PrimitiveType::Bool
-                            return UnionType.create_bool
+                            return Types::UnionType.new(receiver_type)
+                        elsif operand_type == Types::PrimitiveType::Bool and receiver_type == Types::PrimitiveType::Bool
+                            return Types::UnionType.create_bool
                         else
                             raise "Cannot handle types #{receiver_type} and #{operand_type} for primitive operator #{selector.to_s}"
                         end
                     elsif selector == :& or selector == :| or selector == :^
-                        type_mapping = {[PrimitiveType::Bool, PrimitiveType::Bool] => UnionType.create_bool,
-                            [PrimitiveType::Int, PrimitiveType::Int] => UnionType.create_int}
+                        type_mapping = {[Types::PrimitiveType::Bool, Types::PrimitiveType::Bool] => Types::UnionType.create_bool,
+                            [Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_int}
                             
                         if type_mapping.has_key?(arg_types)
                             return type_mapping[arg_types]
