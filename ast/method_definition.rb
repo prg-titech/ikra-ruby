@@ -13,7 +13,7 @@ module Ikra
             attr_accessor :binding                      # needed for resolving constants
             attr_accessor :local_variables              # local variables defined in the method (name -> type)
             attr_accessor :lexical_variables            # lexical variables (defined outside; name -> type)
-            attr_accessor :accessed_lexical_variables   # accessed lexical variables, only these variables are transferred to the GPU
+            attr_accessor :accessed_lexical_variables   # accessed lexical variables, only these variables are transferred to the GPU. TODO: Do we still need this? This is now determined in symbolic.rb
             attr_accessor :parameter_variables          # parameters of the method/block (name -> type)
 
             def initialize(type:, selector:, parameter_variables:, return_type:, ast:)

@@ -17,24 +17,6 @@ module Ikra
     end
     
     module TypeInference
-        class ObjectTracer
-            def initialize
-                # object pool: Ikra type --> set of objs
-                @object_pool = Hash.new
-                @object_pool.default_proc = proc do |hash, key|
-                    hash[key] = Set.new
-                end
-            end
-
-            def trace_object(object)
-
-            end
-
-            def trace_inst_vars(cls, inst_var_name)
-
-            end
-        end
-
         class Visitor < AST::Visitor
             attr_reader :methods
 

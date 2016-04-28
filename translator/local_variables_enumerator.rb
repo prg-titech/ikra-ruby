@@ -23,7 +23,7 @@ module Ikra
             
             def visit_lvar_write_node(node)
                 add_local_var(node.identifier, node.get_type)
-                node.value.accept(self)
+                super(node)
             end
         end
     end

@@ -1,4 +1,4 @@
-require_relative "../symbolic"
+require_relative "../ikra"
 
 array = (1..10000).to_a
 squared = array.pmap do |value|

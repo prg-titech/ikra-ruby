@@ -1,4 +1,4 @@
-require_relative "../symbolic"
+require_relative "../ikra"
 require "chunky_png"
 
 magnify = 1.0

@@ -85,6 +85,16 @@ module Ikra
                 self
             end
 
+            def expand_with_singleton_type(singleton_type)
+                if singleton_type.is_union_type?
+                    raise "Singleton type expected"
+                end
+
+                is_expanded = !@types.include?(singleton_type)
+                @types.add(singleton_type)
+                is_expanded
+            end
+
             # Determines if this union type contains a specific singleton type.
             # @param [RubyType] singleton_type The other type
             # @return [Bool] true if the type is included
@@ -104,7 +114,7 @@ module Ikra
                 (union_type.types - @types).size == 0
             end
 
-            # Alias for {include_all?}
+            # Alias for {#include_all?}
             def <=(union_type)
                 union_type.include_all?(self)
             end

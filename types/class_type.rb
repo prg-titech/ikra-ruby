@@ -1,5 +1,6 @@
 require "set"
 require_relative "ruby_type"
+require_relative "union_type"
 require_relative "../sourcify/lib/sourcify"
 require_relative "../parsing"
 require_relative "../ast/builder"
@@ -10,6 +11,7 @@ module Ikra
             include RubyType
 
             attr_reader :cls
+            attr_reader :inst_vars_types
 
             class << self
                 # Ensure singleton per class
@@ -29,6 +31,11 @@ module Ikra
                 @cls = cls
                 @inst_vars_read = Set.new
                 @inst_vars_written = Set.new
+
+                @inst_vars_types = Hash.new
+                @inst_vars_types.default_proc = Proc.new do |hash, key|
+                    hash[key] = UnionType.new
+                end
             end
 
             def inst_var_read!(inst_var_name)
@@ -90,6 +97,7 @@ end
 
 class Object
     def self.to_ikra_type
+        # TODO: should this method be defined on Class?
         Ikra::Types::ClassType.new(self)
     end
 end

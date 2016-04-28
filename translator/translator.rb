@@ -2,7 +2,11 @@ require "ffi"
 
 module Ikra
     module Translator
+
+        # A data structure containing information about lexical variables. An [EnvironmentBuilder] instance accumulates information about lexical variables and generates a C++ struct definition.
         class EnvironmentBuilder
+            # TODO: refactor internal data structure
+            
             def initialize
                 @vars = []
             end

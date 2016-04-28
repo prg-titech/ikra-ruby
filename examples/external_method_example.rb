@@ -1,4 +1,4 @@
-require_relative "../symbolic"
+require_relative "../ikra"
 
 class A
 	def max(a, b)

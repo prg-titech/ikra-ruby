@@ -1,4 +1,4 @@
-require_relative "../symbolic.rb"
+require_relative "../ikra"
 
 class Vehicle
 

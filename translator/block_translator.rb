@@ -41,25 +41,15 @@ module Ikra
 
         class << self
             # Translates a Ruby block to CUDA source code.
-            # @param [Proc] block the block to be translated
+            # @param [AST::Node] ast abstract syntax tree of the block
             # @param [EnvironmentBuilder] env_builder environment builder instance collecting information about lexical variables (environment)
-            # @param [Array<UnionType>] input_types types of arguments passed to the block
+            # @param [Hash{Symbol => UnionType}] input_types types of arguments passed to the block
+            # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are accessed within the block
             # @return [BlockTranslationResult]
-            def translate_block(block:, env_builder:, input_types: [])
+            def translate_block(ast:, env_builder:, block_parameter_types: {}, lexical_variables: {})
                 Log.info("Translating block with input types #{input_types.to_type_array_string}")
 
                 increase_translation_id
-
-                # Block parameters and types
-                block_parameters = block.parameters.map do |param|
-                    param[1]
-                end
-                block_parameter_types = Hash[*block_parameters.zip(input_types).flatten]
-
-                # Generate AST
-                parser_local_vars = block.binding.local_variables + block_parameters
-                source = Parsing.parse_block(block, parser_local_vars)
-                ast = AST::Builder.from_parser_ast(source)
 
                 # Define MethodDefinition for block
                 block_def = AST::MethodDefinition.new(
@@ -70,8 +60,8 @@ module Ikra
                     ast: ast)
 
                 # Lexical variables
-                block.binding.local_variables.each do |var|
-                    block_def.lexical_variables[var] = Types::UnionType.new(block.binding.local_variable_get(var).class.to_ikra_type)
+                lexical_variables.each do |name, value|
+                    block_def.lexical_variables[name] = Types::UnionType.new(value.class.to_ikra_type)
                 end
 
                 # Type inference
@@ -83,16 +73,14 @@ module Ikra
                 translation_result = ast.translate_statement
 
                 # Load environment variables
-                block_def.accessed_lexical_variables.each do |name, type|
+                lexical_variables.each do |name, value|
                     mangled_name = mangle_var_name_translation_id(name)
-                    if not type.is_singleton?
-                        raise "Cannot handle polymorphic types yet"
-                    end
-                    translation_result.prepend("#{type.singleton_type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
+                    translation_result.prepend("#{value.class.to_ikra_type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
 
-                    env_builder.add_variable(var_name: mangled_name, 
+                    env_builder.add_variable(
+                        var_name: mangled_name, 
                         type: type, 
-                        value: block.binding.local_variable_get(name))
+                        value: lexical_variables[name])
                 end
 
                 # Declare local variables
