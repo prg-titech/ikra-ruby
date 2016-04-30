@@ -8,12 +8,15 @@ module Ikra
             attr_accessor :environment_builder
             attr_accessor :generated_source
             attr_accessor :invocation
+            attr_accessor :size
+            attr_accessor :return_type
 
             def initialize
                 @environment_builder = EnvironmentBuilder.new           # [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
                 @generated_source = ""                                  # [String] containing the currently generated source code.
                 @invocation = "NULL"                                    # [String] source code used for invoking the block function.
                 @return_type = Types::UnionType.new                     # [Types::UnionType] return type of the block.
+                @size = 0                                               # [Fixnum] number of elements in base array
             end
 
             def clone
@@ -40,19 +43,40 @@ module Ikra
                     env_builder: command_translation_result.environment_builder,
                     lexical_variables: command.lexical_externals)
 
-                command_translation_result.generated_source = block_translation_result.c_source
+                command_translation_result.generated_source = block_translation_result.generated_source
 
-                # CONTINUE HERE... TO DO: generate source for aux_methods, ....
+                tid = "threadIdx.x + blockIdx.x * blockDim.x"
+                command_translation_result.invocation = "#{block_translation_result.function_name}(#{EnvParameterName}, #{tid})"
+                command_translation_result.size = command.size
+                command_translation_result.return_type = block_translation_result.result_type
             end
 
             def visit_array_identity_command(command)
                 # create brand new result
-                result = CommandTranslationResult.new
-                result.invocation = 
+                command_translation_result = CommandTranslationResult.new
+
+                # no source code generation
+                command_translation_result.invocation = "_input_k#{command.unique_id}_[threadIdx.x + blockIdx.x * blockDim.x]"
+                command_translation_result.size = command.size
+                command_translation_result.return_type = command.base_type
             end
 
             def visit_array_map_command(command)
-                dependent_result = super.clone
+                dependent_result = super                            # visit target (dependent) command
+                command_translation_result = CommandTranslationResult.new
+                command_translation_result.environment_builder = dependent_result.environment_builder.clone
+
+                block_translation_result = Translator.translate_block(
+                    ast: command.ast,
+                    block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
+                    env_builder: command_translation_result.environment_builder,
+                    lexical_variables: command.lexical_variables)
+
+                command_translation_result.generated_source = dependent_result.generated_source + "\n\n" + block_translation_result.generated_source
+
+                command_translation_result.invocation = "#{block_translation_result.function_name}(#{EnvParameterName}, #{dependent_result.invocation})"
+                command_translation_result.size = dependent_result.size
+                command_translation_result.return_type = block_translation_result.result_type
             end
         end
 

@@ -18,7 +18,7 @@ module Ikra
         class BlockTranslationResult
 
             # @return [String] Generated CUDA source code
-            attr_accessor :c_source
+            attr_accessor :block_source
 
             # @return [UnionType] Return value type of method/block
             attr_accessor :result_type
@@ -30,10 +30,16 @@ module Ikra
             attr_accessor :aux_methods
 
             def initialize(c_source:, result_type:, function_name:, aux_methods: [])
-                @c_source = c_source
+                @block_source = c_source
                 @result_type = result_type
                 @function_name = function_name
                 @aux_methods = aux_methods
+            end
+
+            def generated_source
+                @aux_methods.map do |meth|
+                    meth.to_c_source
+                end.join("\n\n") + @block_source
             end
         end
 
@@ -95,7 +101,7 @@ module Ikra
                     raise "Cannot handle polymorphic return types yet"
                 end
 
-                function_parameters = ["struct #{EnvStructName} *#{EnvParameterName}"]
+                function_parameters = ["environment_t *#{EnvParameterName}"]
                 block_parameter_types.each do |param|
                     function_parameters.push("#{param[1].singleton_type.to_c_type} #{param[0].to_s}")
                 end
