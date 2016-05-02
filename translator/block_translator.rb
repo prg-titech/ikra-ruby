@@ -48,11 +48,11 @@ module Ikra
         class << self
             # Translates a Ruby block to CUDA source code.
             # @param [AST::Node] ast abstract syntax tree of the block
-            # @param [EnvironmentBuilder] env_builder environment builder instance collecting information about lexical variables (environment)
+            # @param [EnvironmentBuilder] environment_builder environment builder instance collecting information about lexical variables (environment)
             # @param [Hash{Symbol => UnionType}] input_types types of arguments passed to the block
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are accessed within the block
             # @return [BlockTranslationResult]
-            def translate_block(ast:, env_builder:, block_parameter_types: {}, lexical_variables: {})
+            def translate_block(ast:, environment_builder:, block_parameter_types: {}, lexical_variables: {})
                 Log.info("Translating block with input types #{input_types.to_type_array_string}")
 
                 increase_translation_id
@@ -80,13 +80,9 @@ module Ikra
 
                 # Load environment variables
                 lexical_variables.each do |name, value|
-                    mangled_name = mangle_var_name_translation_id(name)
-                    translation_result.prepend("#{value.class.to_ikra_type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
-
-                    env_builder.add_variable(
-                        var_name: mangled_name, 
-                        type: type, 
-                        value: lexical_variables[name])
+                    type = value.class.to_ikra_type
+                    mangled_name = environment_builder.add_object(name, value)
+                    translation_result.prepend("#{type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
                 end
 
                 # Declare local variables
