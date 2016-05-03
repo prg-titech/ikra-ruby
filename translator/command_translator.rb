@@ -132,6 +132,11 @@ module Ikra
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
             end
 
+            def result_size
+                # TODO: this is a dirty hack
+                @base_arrays.values.first.size
+            end
+
             def compile
                 # Prepare file replacements
                 @file_replacements["grid_dim[0]"] = "#{[size / 250, 1].max}"
@@ -140,6 +145,8 @@ module Ikra
                 @file_replacements["block_dim[0]"] = "#{size >= 250 ? 250 : size}"
                 @file_replacements["block_dim[1]"] = "1"
                 @file_replacements["block_dim[2]"] = "1"
+                @file_replacements["result_type"] = @return_type.singleton_type.to_c_type
+                @file_replacements["result_size"] = "#{result_size}"
 
                 # Generate source code
                 source = read_file("header.cpp")
@@ -180,8 +187,16 @@ module Ikra
                 Log.info("FFI transfer time: #{Time.now - time_before} s")
 
                 time_before = Time.now
-                ffi_interface.launch_kernel(environment_object)
+                result = ffi_interface.launch_kernel(environment_object)
                 Log.info("Kernel time: #{Time.now - time_before} s")
+
+                if return_type.singleton_type == Types::PrimitiveType::Int
+                    result.read_array_of_int(result_size)
+                elsif return_type.singleton_type == Types::PrimitiveType::Float
+                    result.read_array_of_float(result_size)
+                else
+                    raise NotImplementedError
+                end
             end
 
             private
@@ -257,8 +272,8 @@ module Ikra
         end
 
         class << self
-            def translate_command(array_command)
-
+            def translate_command(command)
+                command.accept(ArrayCommandVisitor.new)
             end
         end
     end

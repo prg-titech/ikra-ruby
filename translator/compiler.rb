@@ -5,7 +5,7 @@ require_relative "../scope"
 require "logger"
 require "tempfile"
 
-module Ikra
+module IkraAA
     Log = Logger.new(STDOUT)
 
     module Translator

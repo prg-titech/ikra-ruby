@@ -1,5 +1,5 @@
 require "set"
-require_relative "../translator/compiler"
+require_relative "../translator/command_translator"
 require_relative "../types/primitive_type"
 require_relative "../types/class_type"
 require_relative "../types/union_type"
@@ -39,9 +39,7 @@ module Ikra
             end
             
             def execute
-                compilation_result = translate
-                allocate(compilation_result)
-                @result = compilation_result.execute
+                @result = Translator.translate_command(self).execute
             end
             
             def to_command
@@ -116,22 +114,8 @@ module Ikra
                 @block = block
             end
             
-            def translate
-                current_request = Translator::Compiler::CompilationRequest.new(block: @block, size: size)
-                # TODO: check if all elements are of same type?
-                current_request.add_input_var(Translator::Compiler::InputVariable.new(
-                    @block.parameters[0][1], 
-                    Types::UnionType.create_int, 
-                    Translator::Compiler::InputVariable::Index))
-                Ikra::Translator::Compiler.compile(current_request)
-            end
-            
             def size
                 @size
-            end
-            
-            def allocate(compilation_request)
-                
             end
 
             protected
@@ -152,24 +136,7 @@ module Ikra
             def size
                 @target.size
             end
-
-            def translate
-                compilation_result = @target.translate
-
-                current_request = Translator::Compiler::CompilationRequest.new(block: @block, size: size)
-                current_request.add_input_var(Translator::Compiler::InputVariable.new(
-                    @block.parameters[0][1], 
-                    Types::UnionType.create_unknown, 
-                    Translator::Compiler::InputVariable::PreviousFusion))
-                compilation_result.merge_request!(current_request)
-
-                compilation_result
-            end
             
-            def allocate(compilation_request)
-                @target.allocate(compilation_request)
-            end
-
             protected
 
             attr_reader :block
@@ -220,19 +187,6 @@ module Ikra
             
             def size
                 @target.size
-            end
-
-            def translate
-                current_request = Translator::Compiler::CompilationRequest.new(block: Block, size: size)
-                
-                current_request.add_input_var(Translator::Compiler::InputVariable.new(
-                    Block.parameters[0][1], 
-                    base_type))
-                Translator::Compiler.compile(current_request)
-            end
-            
-            def allocate(compilation_request)
-                compilation_request.allocate_input_array(@target)
             end
 
             # Returns a collection of external objects that are accessed within a parallel section. This includes all elements of the base array.
