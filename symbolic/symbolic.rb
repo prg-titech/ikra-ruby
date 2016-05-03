@@ -30,6 +30,19 @@ module Ikra
         end
 
         module ArrayCommand
+
+            attr_reader :unique_id                  # [Fixnum] Returns a unique ID for this command. It is used during name mangling in the code generator to determine the name of array identifiers (and do other stuff?).
+
+            @@unique_id  = 1
+            
+            def initialize
+                super
+
+                # Generate unique ID
+                @unique_id = @@unique_id
+                @@unique_id += 1
+            end
+
             def [](index)
                 if @result == nil
                     execute
@@ -110,6 +123,8 @@ module Ikra
             include ArrayCommand
             
             def initialize(size, block)
+                super()
+
                 @size = size
                 @block = block
             end
@@ -129,6 +144,8 @@ module Ikra
             attr_reader :target
 
             def initialize(target, block)
+                super()
+
                 @target = target
                 @block = block
             end
@@ -148,6 +165,8 @@ module Ikra
             attr_reader :target
 
             def initialize(target, block)
+                super
+
                 @target = target
                 @block = block
             end
@@ -160,22 +179,17 @@ module Ikra
             include ArrayCommand
             
             attr_reader :target
-            attr_reader :unique_id                  # [Fixnum] Returns a unique ID for this command. It is used during name mangling in the code generator to determine the name of array identifiers.
 
             Block = Proc.new do |element|
                 element
             end
 
+            @@unique_id = 1
+
             def initialize(target)
+                super()
+
                 @target = target
-
-                # Generate unique ID
-                if @@unique_id == nil
-                    @@unique_id = 1
-                end
-
-                @unique_id = @@unique_id
-                @@unique_id += 1
 
                 # Ensure that base array cannot be modified
                 target.freeze

@@ -1,4 +1,6 @@
 require "set"
+require_relative "nodes"
+require_relative "visitor"
 
 module Ikra
     module AST

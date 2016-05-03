@@ -53,7 +53,7 @@ module Ikra
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are accessed within the block
             # @return [BlockTranslationResult]
             def translate_block(ast:, environment_builder:, block_parameter_types: {}, lexical_variables: {})
-                Log.info("Translating block with input types #{input_types.to_type_array_string}")
+                Log.info("Translating block with input types #{block_parameter_types}")
 
                 increase_translation_id
 

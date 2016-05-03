@@ -16,7 +16,7 @@ module Ikra
             end
 
             def nvcc_invocation_string(in_file, out_file)
-                "nvcc -o #{out_file} --shared -Xcompiler -fPIC #{in_file}"
+                "nvcc -o #{out_file} -I/usr/local/cuda/samples/common/inc --shared -Xcompiler -fPIC #{in_file}"
             end
 
             def so_suffix

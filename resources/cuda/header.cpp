@@ -1,10 +1,7 @@
 #include <stdio.h>
 
-#include <cutil_inline.h>
-#include <cutil_gl_inline.h>
-
-#include <cuda_runtime_api.h>
-#include <cuda_gl_interop.h>
+#include <helper_cuda.h>
+#include <helper_cuda_gl.h>
 
 using namespace std;
 

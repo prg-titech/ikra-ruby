@@ -1,8 +1,11 @@
-require "ffi"
-require_relative "translator"
-require_relative "../config/os_configuration"
 require "logger"
 require "tempfile"
+require "ffi"
+require_relative "translator"
+require_relative "block_translator"
+require_relative "../config/os_configuration"
+require_relative "../symbolic/symbolic"
+require_relative "../symbolic/visitor"
 
 module Ikra
     Log = Logger.new(STDOUT)
@@ -37,7 +40,7 @@ module Ikra
 
                 struct_def = "struct environment_struct\n"
                 @objects.each do |key, value|
-                    struct_def += "    #{value.to_ikra_type.to_c_type} #{key};\n"
+                    struct_def += "    #{value.class.to_ikra_type.to_c_type} #{key};\n"
                 end
                 struct_def += "};\n"
 
@@ -149,10 +152,12 @@ module Ikra
                 @file_replacements["result_size"] = "#{result_size}"
 
                 # Generate source code
-                source = read_file("header.cpp")
-                    + @envionment_builder.struct_definition("environment_struct")
-                    + read_file("kernel_launcher.cpp")
-                    + @generated_source
+                source = read_file("header.cpp") +
+                    @environment_builder.build_struct_definition + 
+                    read_file("kernel_launcher.cpp") + 
+                    @generated_source 
+
+                Log.info("Generated source code:\n#{source}")
 
                 # Write source code to temporary file
                 file = Tempfile.new(["ikra_kernel", ".cu"])
@@ -160,7 +165,7 @@ module Ikra
                 file.close
 
                 # Run compiler
-                so_filename = "#{file.path}.#{Configuation.so_suffix}"])
+                so_filename = "#{file.path}.#{Configuration.so_suffix}"
                 nvcc_command = Configuration.nvcc_invocation_string(file.path, so_filename)
 
                 Log.info("Compiling kernel: #{nvcc_command}")
@@ -203,6 +208,10 @@ module Ikra
 
             def read_file(file_name)
                 full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
+                if !File.exist?(full_name)
+                    raise "File does not exist: #{full_name}"
+                end
+
                 contents = File.open(full_name, "rb").read
 
                 @file_replacements.each do |s1, s2|
@@ -259,7 +268,7 @@ module Ikra
                     ast: command.ast,
                     block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
                     environment_builder: command_translation_result.environment_builder[command.unique_id],
-                    lexical_variables: command.lexical_variables)
+                    lexical_variables: command.lexical_externals)
 
                 command_translation_result.generated_source = dependent_result.generated_source + "\n\n" + block_translation_result.generated_source
 
