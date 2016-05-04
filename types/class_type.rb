@@ -100,4 +100,10 @@ class Object
         # TODO: should this method be defined on Class?
         Ikra::Types::ClassType.new(self)
     end
+
+    # Returns the [Ikra::Types::RubyType] for this class. This version of the method receives the actual object as a parameter. This is necessary for example to determine the exact type of an array (including inner type).
+    def self.to_ikra_type_obj(object)
+        to_ikra_type
+    end
 end
+

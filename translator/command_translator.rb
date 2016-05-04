@@ -12,6 +12,10 @@ module Ikra
 
     module Translator
 
+        module Constants
+            ENV_IDENTIFIER = "_env_"
+        end
+
         # Interface for transferring data to the CUDA side using FFI. Builds a struct containing all required objects (including lexical variables). Traces objects.
         class EnvironmentBuilder
 
@@ -35,12 +39,17 @@ module Ikra
                 cuda_id
             end
 
+            # Returns the name of the field containing the base array for a certain identity command.
+            def self.base_identifier(command_id)
+                "b#{command_id}_base"
+            end
+
             def build_struct_definition
                 @objects.freeze
 
-                struct_def = "struct environment_struct\n"
+                struct_def = "struct environment_struct\n{\n"
                 @objects.each do |key, value|
-                    struct_def += "    #{value.class.to_ikra_type.to_c_type} #{key};\n"
+                    struct_def += "    #{value.class.to_ikra_type_obj(value).to_c_type} #{key};\n"
                 end
                 struct_def += "};\n"
 
@@ -129,7 +138,7 @@ module Ikra
                 @invocation = "NULL"                                    # [String] source code used for invoking the block function.
                 @return_type = Types::UnionType.new                     # [Types::UnionType] return type of the block.
                 @size = 0                                               # [Fixnum] number of elements in base array
-                @base_arrays = {}                                       # [Hash{Symbol => Array}] hash mapping identifier in CUDA code to array
+                @base_arrays = {}                                       # [Hash{Symbol => Array}] hash mapping identifier in CUDA code to array. TODO: do we need this field?
 
                 @file_replacements = {}                                 # [Hash{String => String}] contains strings that should be replaced when reading a file 
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
@@ -150,12 +159,15 @@ module Ikra
                 @file_replacements["block_dim[2]"] = "1"
                 @file_replacements["result_type"] = @return_type.singleton_type.to_c_type
                 @file_replacements["result_size"] = "#{result_size}"
+                @file_replacements["block_invocation"] = @invocation
+                @file_replacements["env_identifier"] = Constants::ENV_IDENTIFIER
 
                 # Generate source code
                 source = read_file("header.cpp") +
                     @environment_builder.build_struct_definition + 
-                    read_file("kernel_launcher.cpp") + 
-                    @generated_source 
+                    @generated_source +
+                    read_file("kernel.cpp") + 
+                    read_file("kernel_launcher.cpp") 
 
                 Log.info("Generated source code:\n#{source}")
 
@@ -215,7 +227,8 @@ module Ikra
                 contents = File.open(full_name, "rb").read
 
                 @file_replacements.each do |s1, s2|
-                    contents = contents.gsub("/*#{s1}*/", s2)
+                    replacement = "/*{#{s1}}*/"
+                    contents = contents.gsub(replacement, s2)
                 end
 
                 contents
@@ -249,7 +262,7 @@ module Ikra
                 command_translation_result = CommandTranslationResult.new
 
                 # no source code generation
-                command_translation_result.invocation = "_input_k#{command.unique_id}_[threadIdx.x + blockIdx.x * blockDim.x]"
+                command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[threadIdx.x + blockIdx.x * blockDim.x]"
                 command_translation_result.size = command.size
                 command_translation_result.return_type = command.base_type
                 command_translation_result.base_arrays["_input_k#{command.unique_id}_".to_sym] = command.target

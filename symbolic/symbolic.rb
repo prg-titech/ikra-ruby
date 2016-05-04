@@ -3,6 +3,7 @@ require_relative "../translator/command_translator"
 require_relative "../types/primitive_type"
 require_relative "../types/class_type"
 require_relative "../types/union_type"
+require_relative "../types/array_type"
 require_relative "../type_aware_array"
 require_relative "../parsing"
 require_relative "../ast/nodes"
@@ -34,7 +35,7 @@ module Ikra
             attr_reader :unique_id                  # [Fixnum] Returns a unique ID for this command. It is used during name mangling in the code generator to determine the name of array identifiers (and do other stuff?).
 
             @@unique_id  = 1
-            
+
             def initialize
                 super
 
