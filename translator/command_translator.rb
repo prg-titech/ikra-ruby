@@ -14,21 +14,45 @@ module Ikra
 
         module Constants
             ENV_IDENTIFIER = "_env_"
+            ENV_DEVICE_IDENTIFIER = "dev_env"
+            ENV_HOST_IDENTIFIER = "host_env"
+        end
+
+
+        def self.read_file(file_name:, replacements: {})
+            full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
+            if !File.exist?(full_name)
+                raise "File does not exist: #{full_name}"
+            end
+
+            contents = File.open(full_name, "rb").read
+
+            replacements.each do |s1, s2|
+                replacement = "/*{#{s1}}*/"
+                contents = contents.gsub(replacement, s2)
+            end
+
+            contents
         end
 
         # Interface for transferring data to the CUDA side using FFI. Builds a struct containing all required objects (including lexical variables). Traces objects.
         class EnvironmentBuilder
 
             attr_accessor :objects
+            attr_accessor :device_struct_allocation
 
             def initialize
                 @objects = {}
+                @device_struct_allocation = ""
             end
 
             # Adds an objects as a lexical variable.
             def add_object(command_id, identifier, object)
                 cuda_id = "l#{command_id}_#{identifier}"
                 objects[cuda_id] = object
+                
+                update_dev_struct_allocation(cuda_id, object)
+
                 cuda_id
             end
 
@@ -36,7 +60,32 @@ module Ikra
             def add_base_array(command_id, object)
                 cuda_id = "b#{command_id}_base"
                 objects[cuda_id] = object
+                cuda_id_size = "b#{command_id}_size"
+                objects[cuda_id_size] = object.size
+
+                update_dev_struct_allocation(cuda_id, object)
+
                 cuda_id
+            end
+
+            def update_dev_struct_allocation(field, object)
+                if object.class == Array
+                    # Allocate new array
+                    @device_struct_allocation += Translator.read_file(
+                        file_name: "env_builder_copy_array.cpp",
+                        replacements: { 
+                            "field" => field, 
+                            "host_env" => Constants::ENV_HOST_IDENTIFIER,
+                            "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
+                            "size_bytes" => (object.first.class.to_ikra_type.c_size * object.size).to_s})
+                else
+                    @device_struct_allocation += Translator.read_file(
+                        file_name: "env_builder_copy_field.cpp",
+                        replacements: { 
+                            "field" => field, 
+                            "host_env" => Constants::ENV_HOST_IDENTIFIER,
+                            "dev_env" => Constants::ENV_DEVICE_IDENTIFIER})
+                end
             end
 
             # Returns the name of the field containing the base array for a certain identity command.
@@ -59,7 +108,7 @@ module Ikra
             def build_ffi_type
                 struct_layout = []
                 @objects.each do |key, value|
-                    struct_layout += [key.to_sym, value.class.to_ikra_type.to_ffi_type]
+                    struct_layout += [key.to_sym, value.class.to_ikra_type_obj(value).to_ffi_type]
                 end
 
                 struct_type = Class.new(FFI::Struct)
@@ -119,6 +168,7 @@ module Ikra
             def clone
                 result = self.class.new
                 result.objects = @objects.clone
+                result.device_struct_allocation = @device_struct_allocation
                 result
             end
         end
@@ -140,7 +190,6 @@ module Ikra
                 @size = 0                                               # [Fixnum] number of elements in base array
                 @base_arrays = {}                                       # [Hash{Symbol => Array}] hash mapping identifier in CUDA code to array. TODO: do we need this field?
 
-                @file_replacements = {}                                 # [Hash{String => String}] contains strings that should be replaced when reading a file 
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
             end
 
@@ -151,23 +200,27 @@ module Ikra
 
             def compile
                 # Prepare file replacements
-                @file_replacements["grid_dim[0]"] = "#{[size / 250, 1].max}"
-                @file_replacements["grid_dim[1]"] = "1"
-                @file_replacements["grid_dim[2]"] = "1"
-                @file_replacements["block_dim[0]"] = "#{size >= 250 ? 250 : size}"
-                @file_replacements["block_dim[1]"] = "1"
-                @file_replacements["block_dim[2]"] = "1"
-                @file_replacements["result_type"] = @return_type.singleton_type.to_c_type
-                @file_replacements["result_size"] = "#{result_size}"
-                @file_replacements["block_invocation"] = @invocation
-                @file_replacements["env_identifier"] = Constants::ENV_IDENTIFIER
+                file_replacements = {}                                  # [Hash{String => String}] contains strings that should be replaced when reading a file 
+                file_replacements["grid_dim[0]"] = "#{[size / 250, 1].max}"
+                file_replacements["grid_dim[1]"] = "1"
+                file_replacements["grid_dim[2]"] = "1"
+                file_replacements["block_dim[0]"] = "#{size >= 250 ? 250 : size}"
+                file_replacements["block_dim[1]"] = "1"
+                file_replacements["block_dim[2]"] = "1"
+                file_replacements["result_type"] = @return_type.singleton_type.to_c_type
+                file_replacements["result_size"] = "#{result_size}"
+                file_replacements["block_invocation"] = @invocation
+                file_replacements["env_identifier"] = Constants::ENV_IDENTIFIER
+                file_replacements["copy_env"] = @environment_builder.device_struct_allocation
+                file_replacements["dev_env"] = Constants::ENV_DEVICE_IDENTIFIER
+                file_replacements["host_env"] = Constants::ENV_HOST_IDENTIFIER
 
                 # Generate source code
-                source = read_file("header.cpp") +
+                source = Translator.read_file(file_name: "header.cpp", replacements: file_replacements) +
                     @environment_builder.build_struct_definition + 
                     @generated_source +
-                    read_file("kernel.cpp") + 
-                    read_file("kernel_launcher.cpp") 
+                    Translator.read_file(file_name: "kernel.cpp", replacements: file_replacements) + 
+                    Translator.read_file(file_name: "kernel_launcher.cpp", replacements: file_replacements)
 
                 Log.info("Generated source code:\n#{source}")
 
@@ -177,8 +230,8 @@ module Ikra
                 file.close
 
                 # Run compiler
-                so_filename = "#{file.path}.#{Configuration.so_suffix}"
-                nvcc_command = Configuration.nvcc_invocation_string(file.path, so_filename)
+                @so_filename = "#{file.path}.#{Configuration.so_suffix}"
+                nvcc_command = Configuration.nvcc_invocation_string(file.path, @so_filename)
 
                 Log.info("Compiling kernel: #{nvcc_command}")
                 time_before = Time.now
@@ -214,24 +267,6 @@ module Ikra
                 else
                     raise NotImplementedError
                 end
-            end
-
-            private
-
-            def read_file(file_name)
-                full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
-                if !File.exist?(full_name)
-                    raise "File does not exist: #{full_name}"
-                end
-
-                contents = File.open(full_name, "rb").read
-
-                @file_replacements.each do |s1, s2|
-                    replacement = "/*{#{s1}}*/"
-                    contents = contents.gsub(replacement, s2)
-                end
-
-                contents
             end
         end
 

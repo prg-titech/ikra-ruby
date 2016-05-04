@@ -30,6 +30,10 @@ module Ikra
             def to_c_type
                 "#{@inner_type.to_c_type} *"
             end
+
+            def to_ffi_type
+                :pointer
+            end
         end
     end
 end
