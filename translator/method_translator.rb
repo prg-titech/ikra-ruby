@@ -9,11 +9,7 @@ module Ikra
                 end).join(", ")
 
                 signature = "__device__ #{return_type.singleton_type.to_c_type} #{type.mangled_method_name(selector)}(#{method_params})"
-                signature + "\n" + wrap_in_c_block(ast.translate_statement)
-            end
-
-            def wrap_in_c_block(str)
-                "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "\n}\n"
+                signature + "\n" + Translator.wrap_in_c_block(ast.translate_statement)
             end
         end
     end

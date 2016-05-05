@@ -5,9 +5,6 @@ require_relative "../types/type_inference"
 require_relative "../types/primitive_type"
 require_relative "../parsing"
 require_relative "../scope"
-require_relative "translator"
-require_relative "last_returns_visitor"
-require_relative "local_variables_enumerator"
 require_relative "../ast/printer"
 require_relative "../ast/method_definition"
 
@@ -49,13 +46,12 @@ module Ikra
             # Translates a Ruby block to CUDA source code.
             # @param [AST::Node] ast abstract syntax tree of the block
             # @param [EnvironmentBuilder] environment_builder environment builder instance collecting information about lexical variables (environment)
-            # @param [Hash{Symbol => UnionType}] input_types types of arguments passed to the block
+            # @param [Hash{Symbol => UnionType}] block_parameter_types types of arguments passed to the block
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are accessed within the block
+            # @param [Fixnum] command_id a unique identifier of the block
             # @return [BlockTranslationResult]
-            def translate_block(ast:, environment_builder:, block_parameter_types: {}, lexical_variables: {})
+            def translate_block(ast:, environment_builder:, command_id:, block_parameter_types: {}, lexical_variables: {})
                 Log.info("Translating block with input types #{block_parameter_types}")
-
-                increase_translation_id
 
                 # Define MethodDefinition for block
                 block_def = AST::MethodDefinition.new(
@@ -82,7 +78,7 @@ module Ikra
                 lexical_variables.each do |name, value|
                     type = value.class.to_ikra_type
                     mangled_name = environment_builder.add_object(name, value)
-                    translation_result.prepend("#{type.to_c_type} #{name} = #{EnvParameterName}->#{mangled_name};\n")
+                    translation_result.prepend("#{type.to_c_type} #{name} = #{Constants::ENV_IDENTIFIER}->#{mangled_name};\n")
                 end
 
                 # Declare local variables
@@ -91,13 +87,13 @@ module Ikra
                 end
 
                 # Function signature
-                mangled_name = mangle_block_name_translation_id("")
+                mangled_name = "_block_k_#{command_id}_"
 
                 if not return_type.is_singleton?
                     raise "Cannot handle polymorphic return types yet"
                 end
 
-                function_parameters = ["environment_t *#{EnvParameterName}"]
+                function_parameters = ["environment_t *#{Constants::ENV_IDENTIFIER}"]
                 block_parameter_types.each do |param|
                     function_parameters.push("#{param[1].singleton_type.to_c_type} #{param[0].to_s}")
                 end

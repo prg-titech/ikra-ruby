@@ -11,14 +11,6 @@ module Ikra
     Log = Logger.new(STDOUT)
 
     module Translator
-
-        module Constants
-            ENV_IDENTIFIER = "_env_"
-            ENV_DEVICE_IDENTIFIER = "dev_env"
-            ENV_HOST_IDENTIFIER = "host_env"
-        end
-
-
         def self.read_file(file_name:, replacements: {})
             full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
             if !File.exist?(full_name)
@@ -79,12 +71,7 @@ module Ikra
                             "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
                             "size_bytes" => (object.first.class.to_ikra_type.c_size * object.size).to_s})
                 else
-                    @device_struct_allocation += Translator.read_file(
-                        file_name: "env_builder_copy_field.cpp",
-                        replacements: { 
-                            "field" => field, 
-                            "host_env" => Constants::ENV_HOST_IDENTIFIER,
-                            "dev_env" => Constants::ENV_DEVICE_IDENTIFIER})
+                    # Nothing to do, this case is handled by mem-copying the struct
                 end
             end
 
@@ -180,22 +167,19 @@ module Ikra
             attr_accessor :invocation
             attr_accessor :size
             attr_accessor :return_type
-            attr_accessor :base_arrays
 
             def initialize
                 @environment_builder = EnvironmentBuilder.new           # [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
                 @generated_source = ""                                  # [String] containing the currently generated source code.
                 @invocation = "NULL"                                    # [String] source code used for invoking the block function.
                 @return_type = Types::UnionType.new                     # [Types::UnionType] return type of the block.
-                @size = 0                                               # [Fixnum] number of elements in base array
-                @base_arrays = {}                                       # [Hash{Symbol => Array}] hash mapping identifier in CUDA code to array. TODO: do we need this field?
+                @size = 0                                               # [Fixnum] number of elements in base array 
 
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
             end
 
             def result_size
-                # TODO: this is a dirty hack
-                @base_arrays.values.first.size
+                @size
             end
 
             def compile
@@ -280,12 +264,13 @@ module Ikra
                     # only one block parameter (int)
                     block_parameter_types: {command.block_parameter_names.first => Types::UnionType.create_int},
                     environment_builder: command_translation_result.environment_builder[command.unique_id],
-                    lexical_variables: command.lexical_externals)
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
 
                 command_translation_result.generated_source = block_translation_result.generated_source
 
                 tid = "threadIdx.x + blockIdx.x * blockDim.x"
-                command_translation_result.invocation = "#{block_translation_result.function_name}(#{EnvParameterName}, #{tid})"
+                command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{tid})"
                 command_translation_result.size = command.size
                 command_translation_result.return_type = block_translation_result.result_type
 
@@ -300,7 +285,6 @@ module Ikra
                 command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[threadIdx.x + blockIdx.x * blockDim.x]"
                 command_translation_result.size = command.size
                 command_translation_result.return_type = command.base_type
-                command_translation_result.base_arrays["_input_k#{command.unique_id}_".to_sym] = command.target
                 command_translation_result.environment_builder.add_base_array(command.unique_id, command.target)
 
                 command_translation_result
@@ -310,17 +294,17 @@ module Ikra
                 dependent_result = super                            # visit target (dependent) command
                 command_translation_result = CommandTranslationResult.new
                 command_translation_result.environment_builder = dependent_result.environment_builder.clone
-                command_translation_result.base_arrays = dependent_result.base_arrays.clone
 
                 block_translation_result = Translator.translate_block(
                     ast: command.ast,
                     block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
                     environment_builder: command_translation_result.environment_builder[command.unique_id],
-                    lexical_variables: command.lexical_externals)
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
 
                 command_translation_result.generated_source = dependent_result.generated_source + "\n\n" + block_translation_result.generated_source
 
-                command_translation_result.invocation = "#{block_translation_result.function_name}(#{EnvParameterName}, #{dependent_result.invocation})"
+                command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
                 command_translation_result.size = dependent_result.size
                 command_translation_result.return_type = block_translation_result.result_type
 
