@@ -11,6 +11,9 @@ module Ikra
     Log = Logger.new(STDOUT)
 
     module Translator
+        # Reads a CUDA source code file and replaces identifiers by provided substitutes.
+        # @param [String] file_name name of source code file
+        # @param [Hash{String => String}] replacements replacements
         def self.read_file(file_name:, replacements: {})
             full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
             if !File.exist?(full_name)
@@ -160,7 +163,7 @@ module Ikra
             end
         end
 
-        # Result of translating a [Symbolic::ArrayCommand].
+        # Result of translating a {Ikra::Symbolic::ArrayCommand}.
         class CommandTranslationResult
             attr_accessor :environment_builder
             attr_accessor :generated_source
@@ -182,6 +185,7 @@ module Ikra
                 @size
             end
 
+            # Compiles CUDA source code and generates a shared library.
             def compile
                 # Prepare file replacements
                 file_replacements = {}                                  # [Hash{String => String}] contains strings that should be replaced when reading a file 
@@ -227,6 +231,7 @@ module Ikra
                 end
             end
 
+            # Attaches a the compiled shared library via Ruby FFI and invokes the kernel.
             def execute
                 if !File.exist?(@so_filename)
                     compile
@@ -254,6 +259,7 @@ module Ikra
             end
         end
 
+        # A visitor traversing the tree (currently list) of symbolic array commands. Every command is converted into a {CommandTranslationResult} and possibly merged with the result of dependent (previous) results. This is how kernel fusion is implemented.
         class ArrayCommandVisitor < Symbolic::Visitor
             def visit_array_new_command(command)
                 # create brand new result
