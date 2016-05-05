@@ -98,8 +98,14 @@ module Ikra
                     function_parameters.push("#{param[1].singleton_type.to_c_type} #{param[0].to_s}")
                 end
 
-                translation_result = "__device__ #{return_type.singleton_type.to_c_type} #{mangled_name}(#{function_parameters.join(", ")})\n" +
-                    wrap_in_c_block(translation_result)
+                function_head = Translator.read_file(
+                    file_name: "block_function_head.cpp",
+                    replacements: { 
+                        "name" => mangled_name, 
+                        "return_type" => return_type.singleton_type.to_c_type,
+                        "parameters" => function_parameters.join(", ")})
+
+                translation_result = function_head + wrap_in_c_block(translation_result)
 
                 # TODO: handle more than one result type
                 BlockTranslationResult.new(

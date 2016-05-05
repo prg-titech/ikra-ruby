@@ -11,24 +11,6 @@ module Ikra
     Log = Logger.new(STDOUT)
 
     module Translator
-        # Reads a CUDA source code file and replaces identifiers by provided substitutes.
-        # @param [String] file_name name of source code file
-        # @param [Hash{String => String}] replacements replacements
-        def self.read_file(file_name:, replacements: {})
-            full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
-            if !File.exist?(full_name)
-                raise "File does not exist: #{full_name}"
-            end
-
-            contents = File.open(full_name, "rb").read
-
-            replacements.each do |s1, s2|
-                replacement = "/*{#{s1}}*/"
-                contents = contents.gsub(replacement, s2)
-            end
-
-            contents
-        end
 
         # Interface for transferring data to the CUDA side using FFI. Builds a struct containing all required objects (including lexical variables). Traces objects.
         class EnvironmentBuilder
