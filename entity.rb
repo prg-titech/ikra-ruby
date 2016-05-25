@@ -7,5 +7,5 @@ module Ikra
 end
 
 class Array
-    include Entity
+    include Ikra::Entity
 end

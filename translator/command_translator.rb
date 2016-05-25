@@ -1,4 +1,3 @@
-require "logger"
 require "tempfile"
 require "ffi"
 require_relative "translator"
@@ -6,10 +5,9 @@ require_relative "block_translator"
 require_relative "../config/os_configuration"
 require_relative "../symbolic/symbolic"
 require_relative "../symbolic/visitor"
+require_relative "../types/object_tracer"
 
 module Ikra
-    Log = Logger.new(STDOUT)
-
     module Translator
 
         # Interface for transferring data to the CUDA side using FFI. Builds a struct containing all required objects (including lexical variables). Traces objects.
@@ -302,6 +300,10 @@ module Ikra
 
         class << self
             def translate_command(command)
+                # Run type inference for objects/classes and trace objects
+                all_objects = TypeInference::ObjectTracer.process(command)
+
+                # Translate command
                 command.accept(ArrayCommandVisitor.new)
             end
         end
