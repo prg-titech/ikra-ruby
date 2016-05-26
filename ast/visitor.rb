@@ -32,6 +32,12 @@ module Ikra
             end
         end
         
+        class IVarReadNode
+            def accept(visitor)
+                visitor.visit_ivar_read_node(self)
+            end
+        end
+
         class IntNode
             def accept(visitor)
                 visitor.visit_int_node(self)
@@ -105,6 +111,10 @@ module Ikra
             
             def visit_lvar_write_node(node)
                 node.value.accept(self)
+            end
+            
+            def visit_ivar_read_node(node)
+
             end
             
             def visit_int_node(node)

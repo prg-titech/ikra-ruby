@@ -190,7 +190,12 @@ module Ikra
                     Translator.read_file(file_name: "kernel.cpp", replacements: file_replacements) + 
                     Translator.read_file(file_name: "kernel_launcher.cpp", replacements: file_replacements)
 
-                Log.info("Generated source code:\n#{source}")
+                line_no_digits = Math.log(source.lines.count, 10).ceil
+                source_with_line_numbers = source.lines.each_with_index.map do |line, num| 
+                    "[#{(num + 1).to_s.rjust(line_no_digits, "0")}] #{line}" 
+                end.join("")
+
+                Log.info("Generated source code:\n#{source_with_line_numbers}")
 
                 # Write source code to temporary file
                 file = Tempfile.new(["ikra_kernel", ".cu"])

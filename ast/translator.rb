@@ -1,4 +1,5 @@
 require_relative "nodes.rb"
+require_relative "../translator/translator"
 
 # Rule: every statement ends with newline
 
@@ -48,6 +49,13 @@ module Ikra
             end
         end
         
+        class IVarReadNode
+            def translate_expression
+                array_identifier = class_owner.to_ikra_type.inst_var_array_name(identifier)
+                "#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
+            end
+        end
+
         class IntNode
             def translate_expression
                 value.to_s

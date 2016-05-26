@@ -64,16 +64,26 @@ module Ikra
 
             def to_c_type
                 # TODO: sometimes this should be a union type struct
-                "objid_t"
+                "obj_id_t"
             end
 
             def mangled_method_name(selector)
                 "_method_#{@cls.to_s}_#{selector}_"
             end
 
+            def inst_var_array_name(inst_var_name)
+                if inst_var_name.to_s[0] != "@"
+                    raise "Expected instance variable identifier"
+                end
+
+                "_iv_#{@cls.to_s}_#{inst_var_name.to_s[1..-1]}_"
+            end
+
             def method_ast(selector)
                 source = Parsing.parse_method(cls.instance_method(selector))
-                AST::Builder.from_parser_ast(source)
+                ast = AST::Builder.from_parser_ast(source)
+                ast.class_owner = @cls
+                ast
             end
 
             def method_parameters(selector)
@@ -90,6 +100,11 @@ module Ikra
 
             def to_s
                 "<class: #{@cls.to_s}>"
+            end
+
+            def c_size
+                # IDs are 4 byte integers
+                4
             end
         end
     end

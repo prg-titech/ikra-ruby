@@ -69,8 +69,11 @@ module Ikra
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 return_type = type_inference_visitor.process_method(block_def)
-                aux_methods = type_inference_visitor.methods
-                    
+                # The following method returns nested dictionaries, but we only need the values
+                aux_methods = type_inference_visitor.methods.values.map do |hash|
+                    hash.values
+                end.flatten
+
                 # Translate to CUDA/C++ code
                 translation_result = ast.translate_statement
 

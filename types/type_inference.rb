@@ -99,15 +99,16 @@ module Ikra
 
             def visit_method_call(send_node)
                 recv_type = send_node.receiver.get_type
+                selector = send_node.selector
                 parameter_names = recv_type.singleton_type.method_parameters(selector)
                 arg_types = send_node.arguments.map do |arg| arg.get_type end
-                selector = send_node.selector
                 ast = recv_type.singleton_type.method_ast(selector)
+                method_visited_before = nil
 
                 if not @methods[recv_type].include?(selector)
                     # This method was never visited before
                     parameter_variables = 
-                    @methods[recv_type][selector] = MethodDefinition.new(
+                    @methods[recv_type][selector] = AST::MethodDefinition.new(
                         type: recv_type.singleton_type,
                         selector: selector,
                         parameter_variables: Hash[*parameter_names.zip(
@@ -116,11 +117,14 @@ module Ikra
                             end).flatten],
                         return_type: Types::UnionType.new,
                         ast: ast)
+                    method_visited_before = false
+                else
+                    method_visited_before = true
                 end
 
                 method_def = @methods[recv_type][selector]
-                # Method needs processing if any parameter is expanded
-                needs_processing = parameter_names.map.with_index do |name, index|
+                # Method needs processing if any parameter is expanded (or method was never visited before)
+                needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
                     method_def.parameter_variables[name].expand(arg_types[index])   # returns true if expanded 
                 end.reduce(:|)
 
@@ -136,6 +140,9 @@ module Ikra
                 end
 
                 method_def.callers.add(current_method)
+
+                # Return value of all visit methods should be the type
+                method_def.return_type
             end
 
             def assert_singleton_type(union_type, expected_type)
@@ -169,6 +176,10 @@ module Ikra
                 node.get_type.expand_return_type(type)
             end
             
+            def visit_ivar_read_node(node)
+                node.class_owner.to_ikra_type.inst_vars_types[node.identifier]
+            end
+
             def visit_int_node(node)
                 node.get_type.expand_return_type(Types::UnionType.create_int)
             end

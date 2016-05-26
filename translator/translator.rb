@@ -39,4 +39,10 @@ module Ikra
             end
         end
     end
+
+    module AST
+        module Constants
+            SELF_IDENTIFIER = "_self_"
+        end
+    end
 end

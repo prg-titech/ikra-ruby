@@ -43,6 +43,10 @@ module Ikra
                     LVarWriteNode.new(identifier: node.children[0], value: translate_node(node.children[1]))
                 end
                 
+                def translate_ivar(node)
+                    IVarReadNode.new(identifier: node.children[0])
+                end
+
                 def translate_if(node)
                     IfNode.new(condition: translate_node(node.children[0]),
                         true_body_stmts: translate_node(node.children[1]),

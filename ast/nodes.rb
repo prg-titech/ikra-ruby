@@ -19,10 +19,15 @@ module Ikra
                     end
                 end
             end
+
+            def class_owner
+                @parent.class_owner
+            end
         end
         
         class RootNode < Node
             attr_reader :child
+            attr_accessor :class_owner          # @return [Class] The class where this method is defined
 
             def initialize(child:)
                 @child = child
@@ -58,6 +63,14 @@ module Ikra
             end
         end
         
+        class IVarReadNode < Node
+            attr_reader :identifier
+
+            def initialize(identifier:)
+                @identifier = identifier
+            end
+        end
+
         class IntNode < Node
             attr_reader :value
             

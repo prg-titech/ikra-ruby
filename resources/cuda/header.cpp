@@ -25,12 +25,16 @@ using namespace std;
 #endif
 /* ----- END Shared Library Export ----- */
 
+/* ----- BEGIN Class Type ----- */
+typedef int obj_id_t;
+typedef int class_id_t;
+/* ----- END Class Type ----- */
 
 /* ----- BEGIN Union Type ----- */
 typedef struct union_type_struct
 {
-    int class_id;
-    int object_id;
+    class_id_t class_id;
+    obj_id_t object_id;
 } union_t;
 /* ----- END Union Type ----- */
 

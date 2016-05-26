@@ -48,7 +48,7 @@ module Ikra
                         @objects[object.class].add(object)
                         @num_traced_objects += 1
 
-                        @object.instance_variables do |inst_var_name|
+                        object.instance_variables.each do |inst_var_name|
                             value = object.instance_variable_get(inst_var_name)
                             value_type = value.class.to_ikra_type
 

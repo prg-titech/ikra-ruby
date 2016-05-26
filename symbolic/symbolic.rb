@@ -85,6 +85,7 @@ module Ikra
             # Returns the abstract syntax tree for a parallel section.
             def ast
                 # TODO: add caching for AST here
+                # TODO: maybe set dummy class_owner here?
                 parser_local_vars = block.binding.local_variables + block_parameter_names
                 source = Parsing.parse_block(block, parser_local_vars)
                 AST::Builder.from_parser_ast(source)
