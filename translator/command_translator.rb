@@ -150,6 +150,7 @@ module Ikra
             attr_accessor :invocation
             attr_accessor :size
             attr_accessor :return_type
+            attr_accessor :kernel_classes
 
             def initialize
                 @environment_builder = EnvironmentBuilder.new           # [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
@@ -157,6 +158,7 @@ module Ikra
                 @invocation = "NULL"                                    # [String] source code used for invoking the block function.
                 @return_type = Types::UnionType.new                     # [Types::UnionType] return type of the block.
                 @size = 0                                               # [Fixnum] number of elements in base array 
+                @kernel_classes = []                                    # [Array<Class>] Ruby classes that are used within the kernel
 
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
             end
@@ -185,6 +187,7 @@ module Ikra
 
                 # Generate source code
                 source = Translator.read_file(file_name: "header.cpp", replacements: file_replacements) +
+                    soa_object_array_code + 
                     @environment_builder.build_struct_definition + 
                     @generated_source +
                     Translator.read_file(file_name: "kernel.cpp", replacements: file_replacements) + 
@@ -214,6 +217,18 @@ module Ikra
                 if $? != 0
                     raise "nvcc failed: #{compile_status}"
                 end
+            end
+
+            # Generates the CUDA code defining the arrays for the Structure-of-Arrays object layout.
+            def soa_object_array_code
+                definitions = @kernel_classes.map do |cls|
+                    ikra_cls_type = cls.to_ikra_type
+                    ikra_cls_type.accessed_inst_vars.map do |inst_var|
+                        "__device__ #{ikra_cls_type.inst_vars_types[inst_var].singleton_type.to_c_type} * #{ikra_cls_type.inst_var_array_name(inst_var)};"
+                    end.join("\n")
+                end.join("\n")
+
+                Translator.read_file(file_name: "soa_header.cpp", replacements: {"definitions" => definitions})
             end
 
             # Attaches a the compiled shared library via Ruby FFI and invokes the kernel.
@@ -309,7 +324,11 @@ module Ikra
                 all_objects = TypeInference::ObjectTracer.process(command)
 
                 # Translate command
-                command.accept(ArrayCommandVisitor.new)
+                command_translation_result = command.accept(ArrayCommandVisitor.new)
+                command_translation_result.kernel_classes += all_objects.keys
+                command_translation_result.kernel_classes.uniq!
+
+                command_translation_result
             end
         end
     end

@@ -54,6 +54,10 @@ module Ikra
                 @inst_var_written.include?(inst_var_name)
             end
 
+            def accessed_inst_vars
+                @inst_vars_read + @inst_vars_written
+            end
+
             def to_ruby_type
                 @cls
             end

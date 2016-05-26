@@ -177,7 +177,9 @@ module Ikra
             end
             
             def visit_ivar_read_node(node)
-                node.class_owner.to_ikra_type.inst_vars_types[node.identifier]
+                cls_type = node.class_owner.to_ikra_type
+                cls_type.inst_var_read!(node.identifier)
+                cls_type.inst_vars_types[node.identifier]
             end
 
             def visit_int_node(node)
