@@ -51,7 +51,8 @@ module Ikra
             # @param [Fixnum] command_id a unique identifier of the block
             # @return [BlockTranslationResult]
             def translate_block(ast:, environment_builder:, command_id:, block_parameter_types: {}, lexical_variables: {})
-                Log.info("Translating block with input types #{block_parameter_types}")
+                parameter_types_string = "[" + block_parameter_types.map do |id, type| "#{id}: #{type}" end.join(", ") + "]"
+                Log.info("Translating block with input types #{parameter_types_string}")
 
                 # Define MethodDefinition for block
                 block_def = AST::MethodDefinition.new(
