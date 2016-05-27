@@ -38,9 +38,18 @@ module Ikra
                 cuda_id_size = "b#{command_id}_size"
                 objects[cuda_id_size] = object.size
 
+                # Generate code for copying data to global memory
                 update_dev_struct_allocation(cuda_id, object)
 
                 cuda_id
+            end
+
+            # Add an array for the Structure of Arrays object layout
+            def add_soa_array(name, object)
+                objects[name] = object
+                objects["#{name}_size"] = object.size
+
+                update_dev_struct_allocation(name, object)
             end
 
             def update_dev_struct_allocation(field, object)
@@ -145,20 +154,18 @@ module Ikra
 
         # Result of translating a {Ikra::Symbolic::ArrayCommand}.
         class CommandTranslationResult
-            attr_accessor :environment_builder
-            attr_accessor :generated_source
-            attr_accessor :invocation
-            attr_accessor :size
-            attr_accessor :return_type
-            attr_accessor :kernel_classes
+            attr_accessor :environment_builder                          # @return [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
+            attr_accessor :generated_source                             # @return [String] containing the currently generated source code.
+            attr_accessor :invocation                                   # @return [String] source code used for invoking the block function.
+            attr_accessor :size                                         # @return [Fixnum] number of elements in base array 
+            attr_accessor :return_type                                  # @return [Types::UnionType] return type of the block.
 
-            def initialize
-                @environment_builder = EnvironmentBuilder.new           # [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
-                @generated_source = ""                                  # [String] containing the currently generated source code.
-                @invocation = "NULL"                                    # [String] source code used for invoking the block function.
-                @return_type = Types::UnionType.new                     # [Types::UnionType] return type of the block.
-                @size = 0                                               # [Fixnum] number of elements in base array 
-                @kernel_classes = []                                    # [Array<Class>] Ruby classes that are used within the kernel
+            def initialize(environment_builder)
+                @environment_builder = environment_builder
+                @generated_source = ""
+                @invocation = "NULL"
+                @return_type = Types::UnionType.new
+                @size = 0
 
                 @so_filename = ""                                       # [String] file name of shared library containing CUDA kernel
             end
@@ -187,7 +194,6 @@ module Ikra
 
                 # Generate source code
                 source = Translator.read_file(file_name: "header.cpp", replacements: file_replacements) +
-                    soa_object_array_code + 
                     @environment_builder.build_struct_definition + 
                     @generated_source +
                     Translator.read_file(file_name: "kernel.cpp", replacements: file_replacements) + 
@@ -217,18 +223,6 @@ module Ikra
                 if $? != 0
                     raise "nvcc failed: #{compile_status}"
                 end
-            end
-
-            # Generates the CUDA code defining the arrays for the Structure-of-Arrays object layout.
-            def soa_object_array_code
-                definitions = @kernel_classes.map do |cls|
-                    ikra_cls_type = cls.to_ikra_type
-                    ikra_cls_type.accessed_inst_vars.map do |inst_var|
-                        "__device__ #{ikra_cls_type.inst_vars_types[inst_var].singleton_type.to_c_type} * #{ikra_cls_type.inst_var_array_name(inst_var)};"
-                    end.join("\n")
-                end.join("\n")
-
-                Translator.read_file(file_name: "soa_header.cpp", replacements: {"definitions" => definitions})
             end
 
             # Attaches a the compiled shared library via Ruby FFI and invokes the kernel.
@@ -261,15 +255,20 @@ module Ikra
 
         # A visitor traversing the tree (currently list) of symbolic array commands. Every command is converted into a {CommandTranslationResult} and possibly merged with the result of dependent (previous) results. This is how kernel fusion is implemented.
         class ArrayCommandVisitor < Symbolic::Visitor
+            
+            def initialize(environment_builder)
+                @environment_builder = environment_builder
+            end
+
             def visit_array_new_command(command)
                 # create brand new result
-                command_translation_result = CommandTranslationResult.new
+                command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 block_translation_result = Translator.translate_block(
                     ast: command.ast,
                     # only one block parameter (int)
                     block_parameter_types: {command.block_parameter_names.first => Types::UnionType.create_int},
-                    environment_builder: command_translation_result.environment_builder[command.unique_id],
+                    environment_builder: @environment_builder[command.unique_id],
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id)
 
@@ -285,26 +284,24 @@ module Ikra
 
             def visit_array_identity_command(command)
                 # create brand new result
-                command_translation_result = CommandTranslationResult.new
+                command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 # no source code generation
                 command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[threadIdx.x + blockIdx.x * blockDim.x]"
                 command_translation_result.size = command.size
                 command_translation_result.return_type = command.base_type
-                command_translation_result.environment_builder.add_base_array(command.unique_id, command.target)
 
                 command_translation_result
             end
 
             def visit_array_map_command(command)
                 dependent_result = super                            # visit target (dependent) command
-                command_translation_result = CommandTranslationResult.new
-                command_translation_result.environment_builder = dependent_result.environment_builder.clone
+                command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 block_translation_result = Translator.translate_block(
                     ast: command.ast,
                     block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
-                    environment_builder: command_translation_result.environment_builder[command.unique_id],
+                    environment_builder: @environment_builder[command.unique_id],
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id)
 
@@ -318,15 +315,35 @@ module Ikra
             end
         end
 
+        # Retrieves all base arrays and registers them with the {EnvironmentBuilder}. Yhis functionality is in a separate class to avoid scattering with object tracer calls.
+        class BaseArrayRegistrator < Symbolic::Visitor
+            def initialize(environment_builder, object_tracer)
+                @environment_builder = environment_builder
+                @object_tracer = object_tracer
+            end
+
+            def visit_array_identity_command(command)
+                transformed_base_array = @object_tracer.convert_base_array(command.target)
+                @environment_builder.add_base_array(command.unique_id, transformed_base_array)
+            end
+        end
+
         class << self
             def translate_command(command)
+                environment_builder = EnvironmentBuilder.new
+
                 # Run type inference for objects/classes and trace objects
-                all_objects = TypeInference::ObjectTracer.process(command)
+                object_tracer = TypeInference::ObjectTracer.new(command)
+                all_objects = object_tracer.trace_all
 
                 # Translate command
-                command_translation_result = command.accept(ArrayCommandVisitor.new)
-                command_translation_result.kernel_classes += all_objects.keys
-                command_translation_result.kernel_classes.uniq!
+                command_translation_result = command.accept(ArrayCommandVisitor.new(environment_builder))
+
+                # Add SoA arrays to environment
+                object_tracer.register_soa_arrays(environment_builder)
+
+                # Add base arrays to environment
+                command.accept(BaseArrayRegistrator.new(environment_builder, object_tracer))
 
                 command_translation_result
             end

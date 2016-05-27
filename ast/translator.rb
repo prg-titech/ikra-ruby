@@ -52,7 +52,7 @@ module Ikra
         class IVarReadNode
             def translate_expression
                 array_identifier = class_owner.to_ikra_type.inst_var_array_name(identifier)
-                "#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
+                "#{Translator::Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
             end
         end
 
@@ -195,9 +195,9 @@ module Ikra
                             self_argument = [receiver]
                         end
 
-                        args = (self_argument + arguments).map do |arg|
+                        args = ([Translator::Constants::ENV_IDENTIFIER] + (self_argument + arguments).map do |arg|
                             arg.translate_expression
-                        end.join(", ")
+                        end).join(", ")
                         
                         "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args})"
                     end

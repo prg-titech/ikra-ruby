@@ -8,14 +8,9 @@ module Ikra
 
         # The object tracer determines a set of objects that are relevant for the execution of a parallel section (grouped by class). Only instances of classes that have {Ikra::Entity} included are such relevant objects.
         class ObjectTracer
-            def self.process(command)
-                instance = self.new(RootsFinder.process(command))
-                instance.trace_all
-            end
-
-            def initialize(roots)
+            def initialize(command)
                 # Hash map: Class -> Set[Object]
-                @roots = roots
+                @roots = RootsFinder.process(command)
                 @num_traced_objects = 0
 
                 @objects = Hash.new
@@ -44,7 +39,7 @@ module Ikra
 
             def trace_object(object)
                 if not object.class.to_ikra_type.is_primitive?
-                    if not @objects[object.class].include_key?(object)
+                    if not @objects[object.class].has_key?(object)
                         # object was not traced yet
                         @objects[object.class][object] = (@top_object_id[object.class] += 1)
                         @num_traced_objects += 1
@@ -66,14 +61,15 @@ module Ikra
             end
 
             # Generates arrays for the Structure of Arrays (SoA) object layout
-            def soa_arrays
+            def register_soa_arrays(environment_builder)
                 # arrays: class x inst var name -> Array
                 arrays = Hash.new
-                arrays.default_proc = do |hash, cls|
-                    hash[key] = Hash.new
-                    hash[key].default_proc = do |inner_hash, inst_var|
-                        inner_hash[inst_var] = Array.new(@top_object_id[cls] + 1)
+                arrays.default_proc = proc do |hash, cls|
+                    inner_hash = Hash.new
+                    inner_hash.default_proc = proc do |inner, inst_var|
+                        inner[inst_var] = Array.new(@top_object_id[cls] + 1)
                     end
+                    hash[cls] = inner_hash
                 end
 
                 @objects.each do |cls, objs|
@@ -81,24 +77,38 @@ module Ikra
                         objs.each do |obj, id|
                             inst_var_value = obj.instance_variable_get(inst_var)
 
-                            if !inst_var_value.class.include?(Entity)
-                                Log.warn("Attempting to transfer an object that is not an Ikra::Entity. Could be a false positive. Skipping.")
+                            if inst_var_value.class.to_ikra_type.is_primitive?
+                                # Use object value directly
+                                arrays[cls][inst_var][id] = inst_var_value
                             else
-                                array_value = nil
-                                if inst_var_value.class.to_ikra_type.is_primitive?
-                                    # Use object value directly
-                                    array_value = inst_var_value
+                                if !inst_var_value.class.include?(Entity)
+                                    Log.warn("Attempting to transfer an object of class #{inst_var_value.class} that is not an Ikra::Entity. Could be a false positive. Skipping.")
                                 else
                                     # Use object ID
-                                    array_value = @objects[inst_var_value.class][inst_var_value]
+                                    arrays[cls][inst_var][id] = @objects[inst_var_value.class][inst_var_value]
                                 end
-                                arrays[cls][inst_var][id] = array_value
                             end
                         end
                     end
                 end
+                
+                arrays.each do |cls, inner_hash|
+                    inner_hash.each do |inst_var, array|
+                        environment_builder.add_soa_array(cls.to_ikra_type.inst_var_array_name(inst_var), array)
+                    end
+                end
+            end
 
-                arrays
+            # Returns an array of IDs for the base array or the base array itself if all values are primitive
+            def convert_base_array(base_array)
+                # TODO: adapt to dynamic types
+                if base_array.first.class.to_ikra_type.is_primitive?
+                    base_array
+                else
+                    base_array.map do |obj|
+                        @objects[obj.class][obj]
+                    end
+                end
             end
 
             # Finds all roots (including dependent commands) of a command.
