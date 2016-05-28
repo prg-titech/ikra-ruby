@@ -6,6 +6,8 @@ require_relative "../translator/translator"
 module Ikra
     module AST
         class Node
+            @@next_temp_identifier_id = 0
+
             def translate_statement
                 translate_expression + ";\n"
             end
@@ -16,8 +18,23 @@ module Ikra
                 "[&]{ #{str} }()"
             end
             
+            def indent_block(str)
+                str.split("\n").map do |line| "    " + line end.join("\n")
+            end
+
             def wrap_in_c_block(str)
-                "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "\n}\n"
+                "{\n" + indent_block(str) + "\n}\n"
+            end
+
+            def temp_identifier_id
+                @@next_temp_identifier_id += 1
+                @@next_temp_identifier_id
+            end
+
+            # Generates code that assigns the value of a node to a newly-defined variable.
+            def define_assign_variable(name, node)
+                type = node.get_type.to_c_type
+                "#{type} #{name} = #{node.translate_expression};"
             end
         end
         
@@ -190,16 +207,45 @@ module Ikra
                         # TODO: support multiple types for receiver
                         receiver.get_type.singleton_type.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
                     else
-                        self_argument = []
-                        if receiver.get_type.singleton_type.should_generate_type?
-                            self_argument = [receiver]
-                        end
+                        # TODO: generate argument code only once
 
-                        args = ([Translator::Constants::ENV_IDENTIFIER] + (self_argument + arguments).map do |arg|
-                            arg.translate_expression
-                        end).join(", ")
-                        
-                        "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args})"
+                        if receiver.get_type.is_singleton?
+                            self_argument = []
+                            if receiver.get_type.singleton_type.should_generate_type?
+                                self_argument = [receiver]
+                            end
+
+                            args = ([Translator::Constants::ENV_IDENTIFIER] + (self_argument + arguments).map do |arg|
+                                arg.translate_expression
+                            end).join(", ")
+                            
+                            "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args})"
+                        else
+                            # Polymorphic case
+                            # TODO: This is not an expression anymore!
+                            poly_id = temp_identifier_id
+                            receiver_identifier = "_polytemp_recv_#{poly_id}"
+                            result_identifier = "_polytemp_result_#{poly_id}"
+                            header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
+                            case_statements = []
+
+                            receiver.get_type.types.each do |type|
+                                self_argument = []
+                                if type.should_generate_type?
+                                    # No need to pass type as subtypes are regarded as entirely new types
+                                    self_argument = ["#{receiver_identifier}.object_id"]
+                                end
+
+                                args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument + arguments.map do |arg|
+                                    arg.translate_expression
+                                end).join(", ")
+                                
+                                case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args}); break;")
+                            end
+
+                            # TODO: compound statements only work with the GNU C++ compiler
+                            "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
+                        end
                     end
                 end
             end

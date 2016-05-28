@@ -13,6 +13,10 @@ module Ikra
         # Interface for transferring data to the CUDA side using FFI. Builds a struct containing all required objects (including lexical variables). Traces objects.
         class EnvironmentBuilder
 
+            class UnionTypeStruct < FFI::Struct
+                layout :class_id, :int32, :object_id, :int32
+            end
+
             attr_accessor :objects
             attr_accessor :device_struct_allocation
 
@@ -35,8 +39,13 @@ module Ikra
             def add_base_array(command_id, object)
                 cuda_id = "b#{command_id}_base"
                 objects[cuda_id] = object
+
                 cuda_id_size = "b#{command_id}_size"
-                objects[cuda_id_size] = object.size
+                if object.class == FFI::MemoryPointer
+                    objects[cuda_id_size] = object.size / UnionTypeStruct.size
+                else
+                    objects[cuda_id_size] = object.size
+                end
 
                 # Generate code for copying data to global memory
                 update_dev_struct_allocation(cuda_id, object)
@@ -62,6 +71,16 @@ module Ikra
                             "host_env" => Constants::ENV_HOST_IDENTIFIER,
                             "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
                             "size_bytes" => (object.first.class.to_ikra_type.c_size * object.size).to_s})
+                elsif object.class == FFI::MemoryPointer
+                    # This is an array of union type structs
+                    # Allocate new array
+                    @device_struct_allocation += Translator.read_file(
+                        file_name: "env_builder_copy_array.cpp",
+                        replacements: { 
+                            "field" => field, 
+                            "host_env" => Constants::ENV_HOST_IDENTIFIER,
+                            "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
+                            "size_bytes" => object.size.to_s})   
                 else
                     # Nothing to do, this case is handled by mem-copying the struct
                 end
@@ -77,7 +96,12 @@ module Ikra
 
                 struct_def = "struct environment_struct\n{\n"
                 @objects.each do |key, value|
-                    struct_def += "    #{value.class.to_ikra_type_obj(value).to_c_type} #{key};\n"
+                    if value.class == FFI::MemoryPointer
+                        # TODO: can this be an extension method of FFI::MemoryPointer?
+                        struct_def += "    union_t * #{key};\n"
+                    else
+                        struct_def += "    #{value.class.to_ikra_type_obj(value).to_c_type} #{key};\n"
+                    end
                 end
                 struct_def += "};\n"
 
@@ -87,7 +111,12 @@ module Ikra
             def build_ffi_type
                 struct_layout = []
                 @objects.each do |key, value|
-                    struct_layout += [key.to_sym, value.class.to_ikra_type_obj(value).to_ffi_type]
+                    if value.class == FFI::MemoryPointer
+                        # TODO: can this be an extension method of FFI::MemoryPointer?
+                        struct_layout += [key.to_sym, :pointer]
+                    else
+                        struct_layout += [key.to_sym, value.class.to_ikra_type_obj(value).to_ffi_type]
+                    end
                 end
 
                 struct_type = Class.new(FFI::Struct)
@@ -323,7 +352,8 @@ module Ikra
             end
 
             def visit_array_identity_command(command)
-                transformed_base_array = @object_tracer.convert_base_array(command.target)
+                need_union_type = !command.base_type.is_singleton?
+                transformed_base_array = @object_tracer.convert_base_array(command.target, need_union_type)
                 @environment_builder.add_base_array(command.unique_id, transformed_base_array)
             end
         end

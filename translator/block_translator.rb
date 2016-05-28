@@ -99,7 +99,7 @@ module Ikra
 
                 function_parameters = ["environment_t *#{Constants::ENV_IDENTIFIER}"]
                 block_parameter_types.each do |param|
-                    function_parameters.push("#{param[1].singleton_type.to_c_type} #{param[0].to_s}")
+                    function_parameters.push("#{param[1].to_c_type} #{param[0].to_s}")
                 end
 
                 function_head = Translator.read_file(

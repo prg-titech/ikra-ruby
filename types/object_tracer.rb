@@ -1,7 +1,9 @@
 require "set"
+require "ffi"
 require_relative "../entity"
 require_relative "class_type"
 require_relative "../symbolic/symbolic"
+require_relative "../translator/command_translator"
 
 module Ikra
     module TypeInference
@@ -99,14 +101,35 @@ module Ikra
                 end
             end
 
-            # Returns an array of IDs for the base array or the base array itself if all values are primitive
-            def convert_base_array(base_array)
-                # TODO: adapt to dynamic types
-                if base_array.first.class.to_ikra_type.is_primitive?
+            # Returns an array of IDs for the base array or the base array itself if all values are primitive. 
+            # TODO: This should be done in the environment builder, but I want to avoid copying over arrays...
+            def convert_base_array(base_array, need_union_type)
+                if base_array.first.class.to_ikra_type.is_primitive? && !need_union_type
                     base_array
                 else
-                    base_array.map do |obj|
-                        @objects[obj.class][obj]
+                    if !need_union_type
+                        base_array.map do |obj|
+                            @objects[obj.class][obj]
+                        end
+                    else
+                        mem_block = FFI::MemoryPointer.new(Translator::EnvironmentBuilder::UnionTypeStruct, base_array.size)
+                        array = base_array.size.times.collect do |index|
+                            Translator::EnvironmentBuilder::UnionTypeStruct.new(mem_block + index * Translator::EnvironmentBuilder::UnionTypeStruct.size)
+                        end
+
+                        base_array.each_with_index do |obj, index|
+                            obj_type = obj.class.to_ikra_type
+                            array[index][:class_id] = obj_type.class_id
+
+                            if obj_type.is_primitive?
+                                # TODO: what if the primitive value is not an integer?
+                                array[index][:object_id] = obj
+                            else
+                                array[index][:object_id] = @objects[obj.class][obj]
+                            end
+                        end
+
+                        mem_block
                     end
                 end
             end

@@ -10,6 +10,10 @@ class MyObject1
     def squared
         @value * @value
     end
+
+    def to_s
+        "MyObject1 instance"
+    end
 end
 
 class MyObject2
@@ -19,8 +23,12 @@ class MyObject2
         @value = value * 2
     end
 
-    def half_squared
+    def squared
         (@value / 2) * (@value / 2)
+    end
+
+    def to_s
+        "MyObject2 instance"
     end
 
 end

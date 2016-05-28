@@ -100,49 +100,56 @@ module Ikra
             def visit_method_call(send_node)
                 recv_type = send_node.receiver.get_type
                 selector = send_node.selector
-                parameter_names = recv_type.singleton_type.method_parameters(selector)
-                arg_types = send_node.arguments.map do |arg| arg.get_type end
-                ast = recv_type.singleton_type.method_ast(selector)
-                method_visited_before = nil
+                return_type = Types::UnionType.new
 
-                if not @methods[recv_type].include?(selector)
-                    # This method was never visited before
-                    parameter_variables = 
-                    @methods[recv_type][selector] = AST::MethodDefinition.new(
-                        type: recv_type.singleton_type,
-                        selector: selector,
-                        parameter_variables: Hash[*parameter_names.zip(
-                            Array.new(arg_types.size) do 
-                                Types::UnionType.new
-                            end).flatten],
-                        return_type: Types::UnionType.new,
-                        ast: ast)
-                    method_visited_before = false
-                else
-                    method_visited_before = true
+                recv_type.types.each do |recv_singleton_type|
+                    parameter_names = recv_singleton_type.method_parameters(selector)
+                    arg_types = send_node.arguments.map do |arg| arg.get_type end
+                    ast = recv_singleton_type.method_ast(selector)
+                    method_visited_before = nil
+
+                    if not @methods[recv_singleton_type].include?(selector)
+                        # This method was never visited before
+                        parameter_variables = 
+                        @methods[recv_singleton_type][selector] = AST::MethodDefinition.new(
+                            type: recv_singleton_type,
+                            selector: selector,
+                            parameter_variables: Hash[*parameter_names.zip(
+                                Array.new(arg_types.size) do 
+                                    Types::UnionType.new
+                                end).flatten],
+                            return_type: Types::UnionType.new,
+                            ast: ast)
+                        method_visited_before = false
+                    else
+                        method_visited_before = true
+                    end
+
+                    method_def = @methods[recv_singleton_type][selector]
+                    # Method needs processing if any parameter is expanded (or method was never visited before)
+                    needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
+                        method_def.parameter_variables[name].expand(arg_types[index])   # returns true if expanded 
+                    end.reduce(:|)
+
+                    last_return_type = method_def.return_type       # return value type from the last pass
+                    
+                    if needs_processing
+                        process_method(method_def)
+                    end
+
+                    if not last_return_type.include_all?(method_def.return_type)
+                        # Return type was expanded during this pass, reprocess all callers (except for current method)
+                        @worklist += (method_def.callers - [current_method])
+                    end
+
+                    method_def.callers.add(current_method)
+
+                    # Return value of all visit methods should be the type
+                    return_type.expand(method_def.return_type)
                 end
 
-                method_def = @methods[recv_type][selector]
-                # Method needs processing if any parameter is expanded (or method was never visited before)
-                needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
-                    method_def.parameter_variables[name].expand(arg_types[index])   # returns true if expanded 
-                end.reduce(:|)
-
-                last_return_type = method_def.return_type       # return value type from the last pass
-                
-                if needs_processing
-                    process_method(method_def)
-                end
-
-                if not last_return_type.include_all?(method_def.return_type)
-                    # Return type was expanded during this pass, reprocess all callers (except for current method)
-                    @worklist += (method_def.callers - [current_method])
-                end
-
-                method_def.callers.add(current_method)
-
-                # Return value of all visit methods should be the type
-                method_def.return_type
+                send_node.get_type.expand(return_type)
+                return_type
             end
 
             def assert_singleton_type(union_type, expected_type)
