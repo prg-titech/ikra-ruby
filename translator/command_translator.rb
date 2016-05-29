@@ -6,6 +6,7 @@ require_relative "../config/os_configuration"
 require_relative "../symbolic/symbolic"
 require_relative "../symbolic/visitor"
 require_relative "../types/object_tracer"
+require_relative "../config/configuration"
 
 module Ikra
     module Translator
@@ -316,7 +317,38 @@ module Ikra
                 command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 # no source code generation
-                command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[threadIdx.x + blockIdx.x * blockDim.x]"
+
+                if Configuration::JOB_REORDERING
+                    reordering_array = command.target.each_with_index.sort do |a, b|
+                        a.first.class.object_id <=> b.first.class.object_id
+                    end.map(&:last)
+
+                    # Generate debug output
+                    dbg_elements = []
+                    dbg_last = command.target[reordering_array[0]].class
+                    dbg_counter = 1
+
+                    for idx in 1..(command.target.size - 1)
+                        dbg_next = command.target[reordering_array[idx]].class
+
+                        if dbg_next == dbg_last
+                            dbg_counter += 1
+                        else
+                            dbg_elements.push("#{dbg_last.to_s} (#{dbg_counter})")
+                            dbg_last = dbg_next
+                            dbg_counter = 1
+                        end
+                    end
+                    dbg_elements.push("#{dbg_last.to_s} (#{dbg_counter})")
+
+                    Log.info("Generated job reordering array, resulting in: [#{dbg_elements.join(", ")}]")
+
+                    reordering_array_name = @environment_builder.add_base_array("#{command.unique_id}j", reordering_array)
+                    command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[#{Constants::ENV_IDENTIFIER}->#{reordering_array_name}[threadIdx.x + blockIdx.x * blockDim.x]]"
+                else
+                    command_translation_result.invocation = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[threadIdx.x + blockIdx.x * blockDim.x]"
+                end
+                
                 command_translation_result.size = command.size
                 command_translation_result.return_type = command.base_type
 
