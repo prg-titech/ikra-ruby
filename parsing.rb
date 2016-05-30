@@ -1,5 +1,6 @@
 require "parser/current"
 require_relative "sourcify/lib/sourcify"
+require "method_source"
 
 module Parsing
     class << self
@@ -20,9 +21,10 @@ module Parsing
             method.parameters.each do |param|
                 parser.static_env.declare(param[1])
             end
-            
+
             parser_source = Parser::Source::Buffer.new('(string)', 1)
-            parser_source.source = method.to_source(strip_enclosure: true)
+            # TODO: dirty hack necessary because Parser is broken
+            parser_source.source = method.source.lines[1..-2].join
             
             return parser.parse(parser_source)
         end

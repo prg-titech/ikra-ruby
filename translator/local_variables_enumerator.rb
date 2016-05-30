@@ -25,6 +25,11 @@ module Ikra
                 add_local_var(node.identifier, node.get_type)
                 super(node)
             end
+
+            def visit_for_node(node)
+                add_local_var(node.iterator_identifier, Types::UnionType.create_int)
+                super(node)
+            end
         end
     end
 end

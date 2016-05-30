@@ -32,9 +32,14 @@ class Array
     
     alias :old_push :push
     
-    def push(element)
-        old_push(element)
-        type_counter[element.class] += 1
+    def push(*elements)
+        old_push(*elements)
+
+        for element in elements
+            type_counter[element.class] += 1
+        end
+
+        self
     end
     
     alias :old_set :[]=

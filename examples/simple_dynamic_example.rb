@@ -8,7 +8,15 @@ class MyObject1
     end
 
     def squared
-        @value * @value
+        result=@value/2
+        for i in 1..@value/2
+            temp_sum = 0
+            for j in 1..@value/2
+                temp_sum = temp_sum + result
+            end
+            result = temp_sum % 131
+        end
+        result
     end
 
     def to_s
@@ -24,17 +32,20 @@ class MyObject2
     end
 
     def squared
-        (@value / 2) * (@value / 2)
+        result=@value/2
+        for i in 1..@value/2
+            result = (result * @value/2) % 131
+        end
+        result
     end
 
     def to_s
         "MyObject2 instance"
     end
-
 end
 
 base = []
-for i in 1..10000
+for i in 1..100000
     if i % 2 == 0
         base.push(MyObject1.new(i))
     else

@@ -37,4 +37,5 @@ Gemfile.lock
 
 doc
 experiments
+dbg*.rb
 
