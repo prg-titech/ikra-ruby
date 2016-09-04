@@ -1,4 +1,4 @@
-require_relative "../ikra"
+require "ikra"
 
 class MyObject
     include Ikra::Entity

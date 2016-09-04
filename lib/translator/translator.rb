@@ -3,6 +3,7 @@ require_relative "command_translator"
 require_relative "last_returns_visitor"
 require_relative "local_variables_enumerator"
 require_relative "method_translator"
+require_relative "../config/configuration"
 
 module Ikra
 
@@ -23,7 +24,7 @@ module Ikra
             # @param [String] file_name name of source code file
             # @param [Hash{String => String}] replacements replacements
             def read_file(file_name:, replacements: {})
-                full_name = File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
+                full_name = Ikra::Configuration.resource_file_name(file_name)
                 if !File.exist?(full_name)
                     raise "File does not exist: #{full_name}"
                 end

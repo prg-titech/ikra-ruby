@@ -3,24 +3,29 @@ require "rbconfig"
 module Ikra
     module Configuration
         class << self
+            SUPPORTED_OS = [:linux, :macosx]
+            CUDA_NVCC = "/Developer/NVIDIA/CUDA-7.5/bin/nvcc"
+
             def check_software_configuration
-                if operating_system != :linux
-                    raise "Operating system not supported"
+                if !SUPPORTED_OS.include?(operating_system)
+                    raise "Operating system not supported: #{operating_system}"
                 end
 
                 # Check if nvcc is installed
-                %x("nvcc")
+                %x(#{CUDA_NVCC})
                 if $?.exitstatus != 1
                     raise "nvcc not installed"
                 end
             end
 
             def nvcc_invocation_string(in_file, out_file)
-                "nvcc -o #{out_file} -I/usr/local/cuda/samples/common/inc --shared -Xcompiler -fPIC #{in_file}"
+                "#{CUDA_NVCC} -o #{out_file} -I/usr/local/cuda/samples/common/inc --shared -Xcompiler -fPIC #{in_file}"
             end
 
             def so_suffix
                 if operating_system == :linux
+                    "so"
+                elsif operating_system == :macosx
                     "so"
                 elsif operating_system == :windows
                     "dll"

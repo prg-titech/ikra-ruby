@@ -241,6 +241,13 @@ module Ikra
                 file.write(source)
                 file.close
 
+                # Write to codegen_expect
+                if Configuration.codegen_expect_file_name != nil
+                    expect_file = File.new(Configuration.codegen_expect_file_name, "w+")
+                    expect_file.write(source)
+                    expect_file.close
+                end
+
                 # Run compiler
                 @so_filename = "#{file.path}.#{Configuration.so_suffix}"
                 nvcc_command = Configuration.nvcc_invocation_string(file.path, @so_filename)
