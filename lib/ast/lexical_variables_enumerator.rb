@@ -5,8 +5,8 @@ require_relative "visitor"
 module Ikra
     module AST
 
-        # Visitor for determining the names all lexical variables that are accessed by a block (or method??)
-        # TODO: does a method have access to lexical variables?
+        # Visitor for determining the names all lexical variables that are accessed by a block (or method??). Lexical variables that are in scope are determined when translating the Ruby code and passed to this visitor.
+        # TODO(matthias): Does a method have access to lexical variables?
         class LexicalVariablesEnumerator < Visitor
             attr_reader :lexical_variables
 
@@ -15,6 +15,7 @@ module Ikra
                 @lexical_variables = Set.new
             end
 
+            # Register usage of lexical variable
             def add_lvar_access(identifier)
                 if @lexical_var_names.include?(identifier)
                     @lexical_variables.add(identifier)

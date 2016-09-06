@@ -3,12 +3,14 @@ require_relative "nodes"
 module Ikra
     module AST
 
-        # Builds an Ikra AST from a Parser RubyGem AST
+        # Builds an Ikra (Ruby) AST from a Parser RubyGem AST
         module Builder
             class << self
                 def from_parser_ast(node)
                     RootNode.new(child: translate_node(node))
                 end
+
+                private
 
                 def translate_node(node)
                     if node == nil
@@ -19,7 +21,7 @@ module Ikra
                 end
                 
                 def translate_const(node)
-                    # TODO: what is the meaning of the first child?
+                    # TODO(matthias): what is the meaning of the first child?
                     ConstNode.new(identifier: node.children[1])
                 end
 

@@ -82,11 +82,6 @@ module Ikra
                             symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
                         end
                     end
-
-                    # Determine read/written lexical variables
-                    (symbol_table.read_and_written_variables(-1) - method_definition.parameter_variables.keys).each do |var|
-                        method_definition.accessed_lexical_variables[var] = symbol_table.get_type(var)
-                    end
                 end
                 
                 Log.info("Type inference: method return type is #{return_value_type.to_s}")
