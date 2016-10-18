@@ -38,7 +38,7 @@ module Ikra
             end
         end
         
-        class RootNode
+        class MethodOrBlockNode
             def translate_statement
                 child.translate_statement
             end

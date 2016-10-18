@@ -3,8 +3,9 @@ require_relative "../ast/visitor"
 
 module Ikra
     module Translator
+        # Visitor that replaces implicit returns with explicit ones
         class LastStatementReturnsVisitor < AST::Visitor
-            def visit_root_node(node)
+            def visit_method_or_block_node(node)
                 node.child.accept(self)
             end
 

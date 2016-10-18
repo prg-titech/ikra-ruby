@@ -14,9 +14,9 @@ module Ikra
             end
         end
 
-        class RootNode
+        class MethodOrBlockNode
             def accept(visitor)
-                visitor.visit_root_node(self)
+                visitor.visit_method_or_block_node(self)
             end
         end
 
@@ -101,7 +101,7 @@ module Ikra
 
             end
             
-            def visit_root_node(node)
+            def visit_method_or_block_node(node)
                 node.child.accept(self)
             end
             

@@ -153,7 +153,7 @@ module Ikra
                 end
             end
             
-            def visit_root_node(node)
+            def visit_method_or_block_node(node)
                 node.get_type.expand_return_type(node.child.accept(self))
             end
 

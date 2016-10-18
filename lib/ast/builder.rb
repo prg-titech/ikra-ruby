@@ -7,7 +7,7 @@ module Ikra
         module Builder
             class << self
                 def from_parser_ast(node)
-                    RootNode.new(child: translate_node(node))
+                    MethodOrBlockNode.new(child: translate_node(node))
                 end
 
                 private

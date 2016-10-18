@@ -1,6 +1,10 @@
 module Ikra
     module AST
         class Node
+
+        end
+
+        class Node
             attr_accessor :parent
 
             def is_begin_node?
@@ -25,7 +29,7 @@ module Ikra
             end
         end
         
-        class RootNode < Node
+        class MethodOrBlockNode < Node
             attr_reader :child
             attr_accessor :class_owner          # @return [Class] The class where this method is defined
 
