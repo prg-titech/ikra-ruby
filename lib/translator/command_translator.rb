@@ -120,6 +120,9 @@ module Ikra
                     end
                 end
 
+                # Add dummy at the end of layout, because layouts cannot be empty
+                struct_layout += [:dummy, :int]
+
                 struct_type = Class.new(FFI::Struct)
                 struct_type.layout(*struct_layout)
 
@@ -152,6 +155,8 @@ module Ikra
                     end
                 end
 
+                struct[:dummy] = 0
+                
                 struct.to_ptr
             end
 

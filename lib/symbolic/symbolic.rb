@@ -36,6 +36,10 @@ module Ikra
 
             @@unique_id  = 1
 
+            def self.reset_unique_id
+                @@unique_id = 1
+            end
+
             def initialize
                 super
 

@@ -4,7 +4,9 @@ module Ikra
     module Configuration
         class << self
             SUPPORTED_OS = [:linux, :macosx]
-            CUDA_NVCC = "/Developer/NVIDIA/CUDA-7.5/bin/nvcc"
+            CUDA_NVCC = "/usr/local/cuda-8.0/bin/nvcc"
+            CUDA_COMMON_INCLUDE = "/home/matthias/NVIDIA_CUDA-7.5_Samples/common/inc"
+            CUDA_CUPTI_INCLUDE = "/usr/local/cuda-7.5/extras/CUPTI/include"
 
             def check_software_configuration
                 if !SUPPORTED_OS.include?(operating_system)
@@ -16,10 +18,18 @@ module Ikra
                 if $?.exitstatus != 1
                     raise "nvcc not installed"
                 end
+
+                if !File.directory?(CUDA_COMMON_INCLUDE)
+                    raise "Directory does not exist: #{CUDA_COMMON_INCLUDE}. Check OS configuration!"
+                end
+
+                if !File.directory?(CUDA_CUPTI_INCLUDE)
+                    raise "Directory does not exist: #{CUDA_CUPTI_INCLUDE}. Check OS configuration!"
+                end
             end
 
             def nvcc_invocation_string(in_file, out_file)
-                "#{CUDA_NVCC} -o #{out_file} -I/usr/local/cuda/samples/common/inc --shared -Xcompiler -fPIC #{in_file}"
+                "#{CUDA_NVCC} -o #{out_file} -I#{CUDA_COMMON_INCLUDE} -I#{CUDA_CUPTI_INCLUDE} --shared -Xcompiler -fPIC #{in_file}"
             end
 
             def so_suffix

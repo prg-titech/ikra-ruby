@@ -3,8 +3,8 @@ require "chunky_png"
 
 def run_mandel
     magnify = 1.0
-    hx_res = 2000
-    hy_res = 2000
+    hx_res = 200
+    hy_res = 200
     iter_max = 256
 
     mandel_basic = Array.pnew(hx_res * hy_res) do |j|
@@ -49,6 +49,6 @@ def run_mandel
         png[i % hx_res, i / hx_res] = color_cache[mandel_filtered[i]]
     end
 
-    png.save('result.png', :interlace => false)
+    png.save(Ikra::Configuration.codegen_expect_file_name_for("result.png"), :interlace => false)
 end
 

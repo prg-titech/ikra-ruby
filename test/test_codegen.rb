@@ -3,7 +3,11 @@ require "ikra"
 require_relative "codegen/mandelbrot"
 require_relative "codegen/square"
 
-class ExamplesTest < Test::Unit::TestCase
+class CodegenTest < Test::Unit::TestCase
+    def setup
+        Ikra::Configuration.reset_state
+    end
+
     def test_mandelbrot
         Ikra::Configuration.codegen_expect_file_name = "mandelbrot"
         run_mandel
