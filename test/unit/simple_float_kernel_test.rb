@@ -1,10 +1,8 @@
-require "test/unit"
 require "ikra"
+require_relative "unit_test_template"
 
-class SimpleFloatKernelTest < Test::Unit::TestCase
+class SimpleFloatKernelTest < UnitTestCase
     def test_kernel
-        Ikra::Configuration.codegen_expect_file_name = nil
-
         all_floats = Array.pnew(100) do |j|
             1.12
         end
