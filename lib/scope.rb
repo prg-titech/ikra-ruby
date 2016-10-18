@@ -122,7 +122,7 @@ class Scope < Array
         frame = reverse_each.detect do |fr|
             fr.has_key?(name)
         end
-        
+
         frame[name].read = true
     end
     
@@ -130,7 +130,7 @@ class Scope < Array
         frame = reverse_each.detect do |fr|
             fr.has_key?(name)
         end
-        
+
         frame[name].written = true
     end
     

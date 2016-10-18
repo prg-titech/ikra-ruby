@@ -14,6 +14,35 @@ module Ikra
                 @type ||= Types::UnionType.new
             end
         end
+
+        class BlockDefNode
+            # Mapping: parameter name -> UnionType
+            def parameters_names_and_types
+                @parameters_names_and_types ||= {}
+            end
+
+            def parameters_names_and_types=(value)
+                @parameters_names_and_types = value
+            end
+
+            # Mapping: lexical variable name -> UnionType
+            def lexical_variables_names_and_types
+                @lexical_variables_names_and_types ||= {}
+            end
+
+            # Mapping: local variable name -> UnionType
+            def local_variables_names_and_types
+                @local_variables_names_and_types ||= {}
+            end
+
+            def local_variables_names_and_types=(value)
+                @local_variables_names_and_types = value
+            end
+
+            def symbol_table
+                @symbol_table ||= Scope.new
+            end
+        end
     end
     
     module TypeInference
@@ -28,29 +57,73 @@ module Ikra
                 end
 
                 # Top of stack is the method that is currently processed
-                @method_stack = []
+                @work_stack = []
 
-                # Method definitions that must be processed
+                # Block/method definitions that must be processed
                 @worklist = Set.new
             end
 
             def symbol_table
-                current_method.symbol_table
+                current_method_or_block.symbol_table
             end
 
             def binding
-                current_method.binding
+                current_method_or_block.binding
             end
 
-            def current_method
-                @method_stack.last
+            def current_method_or_block
+                @work_stack.last
+            end
+
+            # This is used as an entry point for the visitor
+            def process_block(block_def_node)
+                Log.info("Type inference: proceed into block(#{Types::UnionType.parameter_hash_to_s(block_def_node.parameters_names_and_types)})")
+                @work_stack.push(block_def_node)
+                body_ast = block_def_node.body
+
+                # Set up new symbol table (pushing a frame is not sufficient here)
+                return_value_type = nil
+                symbol_table.new_frame do                       
+                    # Lexical variables, parameters defined on this level
+
+                    # Add parameters to symbol table (name -> type)
+                    block_def_node.parameters_names_and_types.each do |name, type|
+                        symbol_table.declare_expand_type(name, type)
+                    end
+                    # Add lexical variables to symbol table (name -> type)
+                    block_def_node.lexical_variables_names_and_types.each do |name, type|
+                        symbol_table.declare_expand_type(name, type)
+                    end
+
+                    symbol_table.new_function_frame do          # local variables defined on this level
+                        # Add return statements
+                        body_ast.accept(Translator::LastStatementReturnsVisitor.new)
+
+                        # Infer types
+                        body_ast.accept(self)
+                        return_value_type = symbol_table.top_frame.return_type
+
+                        # Get local variable definitons
+                        local_variables_enumerator = Translator::LocalVariablesEnumerator.new
+                        body_ast.accept(local_variables_enumerator)
+                        block_def_node.local_variables_names_and_types = local_variables_enumerator.local_variables.reject do |name, type|
+                            symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
+                        end
+                    end
+                end
+                
+                Log.info("Type inference: block return type is #{return_value_type.to_s}")
+
+                @work_stack.pop
+
+                block_def_node.get_type.expand_return_type(return_value_type)
             end
 
             # This is used as an entry point for the visitor
             def process_method(method_definition)
                 Log.info("Type inference: proceed into method #{method_definition.type}.#{method_definition.selector}(#{Types::UnionType.parameter_hash_to_s(method_definition.parameter_variables)})")
 
-                @method_stack.push(method_definition)
+                @work_stack.push(method_definition)
                 ast = method_definition.ast
                 # TODO: handle multiple types
                 recv_type = method_definition.type
@@ -86,7 +159,7 @@ module Ikra
                 
                 Log.info("Type inference: method return type is #{return_value_type.to_s}")
 
-                @method_stack.pop
+                @work_stack.pop
 
                 method_definition.return_type = return_value_type
                 return_value_type
@@ -134,10 +207,10 @@ module Ikra
 
                     if not last_return_type.include_all?(method_def.return_type)
                         # Return type was expanded during this pass, reprocess all callers (except for current method)
-                        @worklist += (method_def.callers - [current_method])
+                        @worklist += (method_def.callers - [current_method_or_block])
                     end
 
-                    method_def.callers.add(current_method)
+                    method_def.callers.add(current_method_or_block)
 
                     # Return value of all visit methods should be the type
                     return_type.expand(method_def.return_type)

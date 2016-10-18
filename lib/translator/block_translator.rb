@@ -54,22 +54,17 @@ module Ikra
                 parameter_types_string = "[" + block_parameter_types.map do |id, type| "#{id}: #{type}" end.join(", ") + "]"
                 Log.info("Translating block with input types #{parameter_types_string}")
 
-                # Define MethodDefinition for block
-                block_def = AST::MethodDefinition.new(
-                    type: Types::UnionType.new,        # TODO: what to pass in here?
-                    selector: BlockSelectorDummy,
-                    parameter_variables: block_parameter_types,
-                    return_type: Types::UnionType.new,
-                    ast: block_def_node.body)
+                # Add information to block_def_node
+                block_def_node.parameters_names_and_types = block_parameter_types
 
                 # Lexical variables
                 lexical_variables.each do |name, value|
-                    block_def.lexical_variables[name] = Types::UnionType.new(value.class.to_ikra_type)
+                    block_def_node.lexical_variables_names_and_types[name] = Types::UnionType.new(value.class.to_ikra_type)
                 end
 
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
-                return_type = type_inference_visitor.process_method(block_def)
+                return_type = type_inference_visitor.process_block(block_def_node)
                 # The following method returns nested dictionaries, but we only need the values
                 aux_methods = type_inference_visitor.methods.values.map do |hash|
                     hash.values
@@ -86,7 +81,7 @@ module Ikra
                 end
 
                 # Declare local variables
-                block_def.local_variables.each do |name, types|
+                block_def_node.local_variables_names_and_types.each do |name, types|
                     translation_result.prepend("#{types.singleton_type.to_c_type} #{name};\n")
                 end
 
