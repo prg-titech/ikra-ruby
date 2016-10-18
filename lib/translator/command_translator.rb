@@ -307,7 +307,7 @@ module Ikra
                 command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 block_translation_result = Translator.translate_block(
-                    ast: command.ast,
+                    block_def_node: command.block_def_node,
                     # only one block parameter (int)
                     block_parameter_types: {command.block_parameter_names.first => Types::UnionType.create_int},
                     environment_builder: @environment_builder[command.unique_id],
@@ -372,7 +372,7 @@ module Ikra
                 command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 block_translation_result = Translator.translate_block(
-                    ast: command.ast,
+                    block_def_node: command.block_def_node,
                     block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
                     environment_builder: @environment_builder[command.unique_id],
                     lexical_variables: command.lexical_externals,

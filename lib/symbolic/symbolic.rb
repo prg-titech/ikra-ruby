@@ -87,12 +87,14 @@ module Ikra
             end
 
             # Returns the abstract syntax tree for a parallel section.
-            def ast
+            def block_def_node
                 # TODO: add caching for AST here
                 # TODO: maybe set dummy class_owner here?
                 parser_local_vars = block.binding.local_variables + block_parameter_names
                 source = Parsing.parse_block(block, parser_local_vars)
-                AST::Builder.from_parser_ast(source)
+                AST::BlockDefNode.new(
+                    ruby_block: block,
+                    body: AST::Builder.from_parser_ast(source))
             end
 
             # Returns a collection of lexical variables that are accessed within a parallel section.
@@ -100,7 +102,7 @@ module Ikra
             def lexical_externals
                 all_lexical_vars = block.binding.local_variables
                 lexical_vars_enumerator = AST::LexicalVariablesEnumerator.new(all_lexical_vars)
-                ast.accept(lexical_vars_enumerator)
+                block_def_node.accept(lexical_vars_enumerator)
                 accessed_variables = lexical_vars_enumerator.lexical_variables
 
                 result = Hash.new

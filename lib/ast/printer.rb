@@ -6,6 +6,36 @@ module Ikra
             end
         end
 
+        class ProgramNode
+            def to_s
+                "[ProgramNode: #{blocks.to_s}; #{classes.to_s}]"
+            end
+        end
+
+        class ClassDefNode
+            def to_s
+                "[ClassDefNode: #{name}; #{instance_variables.to_s}; #{instance_methods.to_s}]"
+            end
+        end
+
+        class InstVarDefNode
+            def to_s
+                "[InstVarDefNode: #{name}, read = #{read}, written = #{written}]"
+            end
+        end
+
+        class InstMethDefNode
+            def to_s
+                "[InstMethDefNode: #{name} #{body.to_s}]"
+            end
+        end
+
+        class BlockDefNode
+            def to_s
+                "[BlockDefNode: #{body.to_s}]"
+            end
+        end
+
         class MethodOrBlockNode
             def to_s
                 "[MethodOrBlockNode: #{child.to_s}]"

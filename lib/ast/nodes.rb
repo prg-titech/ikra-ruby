@@ -4,7 +4,73 @@ module Ikra
 
         end
 
-        class Node
+        class ProgramNode
+            # First block is program entry point
+            attr_reader :blocks
+            attr_reader :classes
+
+            def initialize(blocks: [], classes: [])
+                @blocks = blocks
+                @classes = classes
+            end
+        end
+
+        class ClassDefNode < Node
+            attr_reader :name
+            attr_reader :instance_variables
+            attr_reader :instance_methods
+
+            def initialize(name:, ruby_class:, instance_variables: [], instance_methods: [])
+                @name = name
+                @ruby_class = ruby_class
+                @instance_variables = []
+                @instance_methods = []
+            end
+
+            def add_instance_variable(inst_var)
+                instance_variables.push(inst_var)
+            end
+
+            def add_instance_method(inst_meth)
+                instance_methods.push(inst_meth)
+            end
+        end
+
+        class InstVarDefNode < Node
+            attr_reader :name
+            attr_accessor :read
+            attr_accessor :written
+
+            def initialize(name:, read: false, written: false)
+                @name = name
+                @read = read
+                @written = written
+            end
+        end
+
+        class InstMethDefNode < Node
+            attr_reader :name
+            attr_reader :ruby_method
+            attr_reader :body
+
+            def initialize(name:, body:, ruby_method:)
+                @name = name
+                @body = body
+                @ruby_method = ruby_method
+            end
+        end
+
+        class BlockDefNode < Node
+            attr_reader :body
+            attr_reader :ruby_block
+
+            def initialize(body:, ruby_block:)
+                @body = body
+                @ruby_block = ruby_block
+            end
+        end
+
+        class TreeNode < Node
             attr_accessor :parent
 
             def is_begin_node?
@@ -29,7 +95,7 @@ module Ikra
             end
         end
         
-        class MethodOrBlockNode < Node
+        class MethodOrBlockNode < TreeNode
             attr_reader :child
             attr_accessor :class_owner          # @return [Class] The class where this method is defined
 
@@ -39,7 +105,7 @@ module Ikra
             end
         end
 
-        class ConstNode < Node
+        class ConstNode < TreeNode
             attr_reader :identifier
 
             def initialize(identifier:)
@@ -47,7 +113,7 @@ module Ikra
             end
         end
 
-        class LVarReadNode < Node
+        class LVarReadNode < TreeNode
             attr_reader :identifier
             
             def initialize(identifier:)
@@ -55,7 +121,7 @@ module Ikra
             end
         end
         
-        class LVarWriteNode < Node
+        class LVarWriteNode < TreeNode
             attr_reader :identifier
             attr_reader :value
             
@@ -67,7 +133,7 @@ module Ikra
             end
         end
         
-        class IVarReadNode < Node
+        class IVarReadNode < TreeNode
             attr_reader :identifier
 
             def initialize(identifier:)
@@ -75,7 +141,7 @@ module Ikra
             end
         end
 
-        class IntNode < Node
+        class IntNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -83,7 +149,7 @@ module Ikra
             end
         end
         
-        class FloatNode < Node
+        class FloatNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -91,7 +157,7 @@ module Ikra
             end
         end
         
-        class BoolNode < Node
+        class BoolNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -99,7 +165,7 @@ module Ikra
             end
         end
         
-        class ForNode < Node
+        class ForNode < TreeNode
             attr_reader :iterator_identifier
             attr_reader :range_from
             attr_reader :range_to
@@ -117,11 +183,11 @@ module Ikra
             end
         end
         
-        class BreakNode < Node
+        class BreakNode < TreeNode
         
         end
         
-        class IfNode < Node
+        class IfNode < TreeNode
             attr_reader :condition
             attr_reader :true_body_stmts
             attr_reader :false_body_stmts
@@ -140,7 +206,7 @@ module Ikra
             end
         end
         
-        class BeginNode < Node
+        class BeginNode < TreeNode
             attr_reader :body_stmts
             
             def initialize(body_stmts: [])
@@ -167,7 +233,7 @@ module Ikra
             end
         end
         
-        class SendNode < Node
+        class SendNode < TreeNode
             attr_reader :receiver
             attr_reader :selector
             attr_reader :arguments
@@ -199,7 +265,7 @@ module Ikra
             end
         end
 
-        class ReturnNode < Node
+        class ReturnNode < TreeNode
             attr_reader :value
 
             def initialize(value:)

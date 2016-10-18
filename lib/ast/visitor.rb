@@ -8,6 +8,38 @@ module Ikra
             end
         end
         
+        class ProgramNode
+            def accept(visitor)
+                def accept(visitor)
+                    visitor.visit_program_node(self)
+                end
+            end
+        end
+
+        class ClassDefNode
+            def accept(visitor)
+                visitor.visit_class_def_node(self)
+            end
+        end
+
+        class InstVarDefNode
+            def accept(visitor)
+                visitor.visit_inst_var_def_node(self)
+            end
+        end
+
+        class InstMethDefNode
+            def accept(visitor)
+                visitor.visit_inst_meth_def_node(self)
+            end
+        end
+
+        class BlockDefNode
+            def accept(visitor)
+                visitor.visit_block_def_node(self)
+            end
+        end
+
         class ConstNode
             def accept(visitor)
                 visitor.visit_const_node(self)
@@ -95,6 +127,38 @@ module Ikra
         class Visitor
             def visit_node(node)
             
+            end
+
+            def visit_program_node(node)
+                node.classes.each do |c|
+                    c.accept(self)
+                end
+
+                node.blocks.each do |b|
+                    b.accept(self)
+                end
+            end
+
+            def visit_class_def_node(node)
+                node.instance_variables.each do |iv|
+                    iv.accept(self)
+                end
+
+                node.instance_methods.each do |im|
+                    im.accept(self)
+                end
+            end
+
+            def visit_inst_var_def_node(node)
+
+            end
+
+            def visit_inst_meth_def_node(node)
+                node.body.accept(self)
+            end
+
+            def visit_block_def_node(node)
+                node.body.accept(self)
             end
 
             def visit_const_node(node)

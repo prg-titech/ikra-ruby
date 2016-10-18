@@ -38,6 +38,16 @@ module Ikra
             end
         end
         
+        class BlockDefNode
+            def translate_statement
+                body.translate_statement
+            end
+
+            def translate_expression
+                raise "Translating block as expression is not supported"
+            end
+        end
+
         class MethodOrBlockNode
             def translate_statement
                 child.translate_statement

@@ -44,13 +44,13 @@ module Ikra
 
         class << self
             # Translates a Ruby block to CUDA source code.
-            # @param [AST::Node] ast abstract syntax tree of the block
+            # @param [AST::BlockDefNode] block_def_node AST (abstract syntax tree) of the block
             # @param [EnvironmentBuilder] environment_builder environment builder instance collecting information about lexical variables (environment)
             # @param [Hash{Symbol => UnionType}] block_parameter_types types of arguments passed to the block
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are accessed within the block
             # @param [Fixnum] command_id a unique identifier of the block
             # @return [BlockTranslationResult]
-            def translate_block(ast:, environment_builder:, command_id:, block_parameter_types: {}, lexical_variables: {})
+            def translate_block(block_def_node:, environment_builder:, command_id:, block_parameter_types: {}, lexical_variables: {})
                 parameter_types_string = "[" + block_parameter_types.map do |id, type| "#{id}: #{type}" end.join(", ") + "]"
                 Log.info("Translating block with input types #{parameter_types_string}")
 
@@ -60,7 +60,7 @@ module Ikra
                     selector: BlockSelectorDummy,
                     parameter_variables: block_parameter_types,
                     return_type: Types::UnionType.new,
-                    ast: ast)
+                    ast: block_def_node.body)
 
                 # Lexical variables
                 lexical_variables.each do |name, value|
@@ -76,7 +76,7 @@ module Ikra
                 end.flatten
 
                 # Translate to CUDA/C++ code
-                translation_result = ast.translate_statement
+                translation_result = block_def_node.translate_statement
 
                 # Load environment variables
                 lexical_variables.each do |name, value|
