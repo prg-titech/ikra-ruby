@@ -48,7 +48,11 @@ module Ikra
             end
         end
 
-        class InstMethDefNode < Node
+        class BehaviorNode < Node
+
+        end
+        
+        class InstMethDefNode < BehaviorNode
             attr_reader :name
             attr_reader :ruby_method
             attr_reader :body
@@ -60,7 +64,7 @@ module Ikra
             end
         end
 
-        class BlockDefNode < Node
+        class BlockDefNode < BehaviorNode
             attr_reader :body
             attr_reader :ruby_block
 

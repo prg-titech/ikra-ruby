@@ -4,7 +4,6 @@ require_relative "union_type"
 require_relative "ruby_extension"
 require_relative "../ast/nodes.rb"
 require_relative "../ast/visitor.rb"
-require_relative "../ast/method_definition"
 require_relative "../scope.rb"
 
 module Ikra
@@ -15,7 +14,27 @@ module Ikra
             end
         end
 
-        class BlockDefNode
+        class InstMethDefNode
+            attr_accessor :receiver_type
+
+            def initialize_types(receiver_type:, return_type: UnionType.new)
+                @receiver_type = receiver_type
+                @type = return_type
+            end
+
+            def self.new_with_types(name:, body:, parameters_names_and_types:, ruby_method:, receiver_type:, return_type: UnionType.new)
+                instance = new(name: name, body: body, ruby_method: ruby_method)
+                instance.initialize_types(receiver_type: receiver_type, return_type: return_type)
+                instance.parameters_names_and_types = parameters_names_and_types
+                return instance
+            end
+
+            def callers
+                @callers ||= []
+            end
+        end
+
+        class BehaviorNode
             # Mapping: parameter name -> UnionType
             def parameters_names_and_types
                 @parameters_names_and_types ||= {}
@@ -50,7 +69,7 @@ module Ikra
             attr_reader :methods
 
             def initialize
-                # methods: Ikra type x selector --> MethodDefinition
+                # methods: Ikra type x selector --> InstMethDefNode
                 @methods = Hash.new
                 @methods.default_proc = proc do |hash, key|
                     hash[key] = Hash.new
@@ -120,38 +139,39 @@ module Ikra
             end
 
             # This is used as an entry point for the visitor
-            def process_method(method_definition)
-                Log.info("Type inference: proceed into method #{method_definition.type}.#{method_definition.selector}(#{Types::UnionType.parameter_hash_to_s(method_definition.parameter_variables)})")
+            def process_method(method_def_node)
+                Log.info("Type inference: proceed into method #{method_def_node.receiver_type}.#{method_def_node.selector}(#{Types::UnionType.parameter_hash_to_s(method_def_node.parameters_names_and_types)})")
 
-                @work_stack.push(method_definition)
-                ast = method_definition.ast
+                @work_stack.push(method_def_node)
+                body_ast = method_def_node.body
+
                 # TODO: handle multiple types
-                recv_type = method_definition.type
+                recv_type = method_def_node.receiver_type
 
                 # Set up new symbol table (pushing a frame is not sufficient here)
                 return_value_type = nil
                 symbol_table.new_frame do                       # lexical variables, parameters defined on this level
                     # Add parameters to symbol table (name -> type)
-                    method_definition.parameter_variables.each do |name, type|
+                    method_def_node.parameters_names_and_types.each do |name, type|
                         symbol_table.declare_expand_type(name, type)
                     end
                     # Add lexical variables to symbol table (name -> type)
-                    method_definition.lexical_variables.each do |name, type|
+                    method_def_node.lexical_variables_names_and_types.each do |name, type|
                         symbol_table.declare_expand_type(name, type)
                     end
 
                     symbol_table.new_function_frame do          # local variables defined on this level
                         # Add return statements
-                        ast.accept(Translator::LastStatementReturnsVisitor.new)
+                        body_ast.accept(Translator::LastStatementReturnsVisitor.new)
 
                         # Infer types
-                        ast.accept(self)
+                        body_ast.accept(self)
                         return_value_type = symbol_table.top_frame.return_type
 
                         # Get local variable definitons
                         local_variables_enumerator = Translator::LocalVariablesEnumerator.new
-                        ast.accept(local_variables_enumerator)
-                        method_definition.local_variables = local_variables_enumerator.local_variables.reject do |name, type|
+                        body_ast.accept(local_variables_enumerator)
+                        method_def_node.local_variables_names_and_types = local_variables_enumerator.local_variables.reject do |name, type|
                             symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
                         end
                     end
@@ -161,8 +181,7 @@ module Ikra
 
                 @work_stack.pop
 
-                method_definition.return_type = return_value_type
-                return_value_type
+                method_def_node.get_type.expand_return_type(return_value_type)
             end
 
             def visit_method_call(send_node)
@@ -178,42 +197,42 @@ module Ikra
 
                     if not @methods[recv_singleton_type].include?(selector)
                         # This method was never visited before
-                        parameter_variables = 
-                        @methods[recv_singleton_type][selector] = AST::MethodDefinition.new(
-                            type: recv_singleton_type,
-                            selector: selector,
-                            parameter_variables: Hash[*parameter_names.zip(
+                        method_def_node = AST::InstMethDefNode.new_with_types(
+                            name: selector,
+                            body: ast,
+                            parameters_names_and_types: Hash[*parameter_names.zip(
                                 Array.new(arg_types.size) do 
                                     Types::UnionType.new
                                 end).flatten],
-                            return_type: Types::UnionType.new,
-                            ast: ast)
+                            ruby_method: nil,
+                            receiver_type: recv_singleton_type)
+                        @methods[recv_singleton_type][selector] = method_def_node
                         method_visited_before = false
                     else
                         method_visited_before = true
                     end
 
-                    method_def = @methods[recv_singleton_type][selector]
+                    method_def_node = @methods[recv_singleton_type][selector]
                     # Method needs processing if any parameter is expanded (or method was never visited before)
                     needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
-                        method_def.parameter_variables[name].expand(arg_types[index])   # returns true if expanded 
+                        method_def_node.parameters_names_and_types[name].expand(arg_types[index])   # returns true if expanded 
                     end.reduce(:|)
 
-                    last_return_type = method_def.return_type       # return value type from the last pass
+                    last_return_type = method_def_node.return_type       # return value type from the last pass
                     
                     if needs_processing
-                        process_method(method_def)
+                        process_method(method_def_node)
                     end
 
-                    if not last_return_type.include_all?(method_def.return_type)
+                    if not last_return_type.include_all?(method_def_node.type)
                         # Return type was expanded during this pass, reprocess all callers (except for current method)
-                        @worklist += (method_def.callers - [current_method_or_block])
+                        @worklist += (method_def_node.callers - [current_method_or_block])
                     end
 
-                    method_def.callers.add(current_method_or_block)
+                    method_def_node.callers.add(current_method_or_block)
 
                     # Return value of all visit methods should be the type
-                    return_type.expand(method_def.return_type)
+                    return_type.expand(method_def_node.type)
                 end
 
                 send_node.get_type.expand(return_type)

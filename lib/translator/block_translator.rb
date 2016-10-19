@@ -6,7 +6,6 @@ require_relative "../types/primitive_type"
 require_relative "../parsing"
 require_relative "../scope"
 require_relative "../ast/printer"
-require_relative "../ast/method_definition"
 
 module Ikra
     module Translator
@@ -23,7 +22,7 @@ module Ikra
             # @return [String] Name of function in CUDA source code
             attr_accessor :function_name
 
-            # @return [Array<Ikra::AST::MethodDefinition>] Auxiliary methods that are called by this block (including transitive method calls)
+            # @return [Array<Ikra::AST::InstMethDefNode>] Auxiliary methods that are called by this block (including transitive method calls)
             attr_accessor :aux_methods
 
             def initialize(c_source:, result_type:, function_name:, aux_methods: [])
