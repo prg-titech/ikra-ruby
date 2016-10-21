@@ -51,7 +51,7 @@ module Ikra
             end
 
             def visit_return_node(node)
-                raise "Function returns already"
+                # Do nothing
             end
         end
     end

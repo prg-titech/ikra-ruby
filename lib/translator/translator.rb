@@ -13,6 +13,7 @@ module Ikra
             ENV_IDENTIFIER = "_env_"
             ENV_DEVICE_IDENTIFIER = "dev_env"
             ENV_HOST_IDENTIFIER = "host_env"
+            LEXICAL_VAR_PREFIX = "lex_"
         end
 
         class << self

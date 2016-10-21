@@ -31,6 +31,7 @@ module Ikra
         end
 
         module ArrayCommand
+            include Enumerable
 
             attr_reader :unique_id                  # [Fixnum] Returns a unique ID for this command. It is used during name mangling in the code generator to determine the name of array identifiers (and do other stuff?).
 
@@ -55,7 +56,17 @@ module Ikra
                 
                 @result[index]
             end
-            
+
+            def each(&block)
+                execute
+                next_index = 0
+                
+                while next_index < size
+                    yield(self[next_index])
+                    next_index += 1
+                end
+            end
+
             def execute
                 @result = Translator.translate_command(self).execute
             end

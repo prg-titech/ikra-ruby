@@ -6,6 +6,7 @@ require_relative "../types/primitive_type"
 require_relative "../parsing"
 require_relative "../scope"
 require_relative "../ast/printer"
+require_relative "variable_classifier_visitor"
 
 module Ikra
     module Translator
@@ -69,6 +70,10 @@ module Ikra
                     hash.values
                 end.flatten
 
+                # Classify variables (lexical or local)
+                block_def_node.accept(VariableClassifier.new(
+                    lexical_variable_names: lexical_variables.keys))
+
                 # Translate to CUDA/C++ code
                 translation_result = block_def_node.translate_statement
 
@@ -76,7 +81,7 @@ module Ikra
                 lexical_variables.each do |name, value|
                     type = value.class.to_ikra_type
                     mangled_name = environment_builder.add_object(name, value)
-                    translation_result.prepend("#{type.to_c_type} #{name} = #{Constants::ENV_IDENTIFIER}->#{mangled_name};\n")
+                    translation_result.prepend("#{type.to_c_type} #{Constants::LEXICAL_VAR_PREFIX}#{name} = #{Constants::ENV_IDENTIFIER}->#{mangled_name};\n")
                 end
 
                 # Declare local variables

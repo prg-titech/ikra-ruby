@@ -62,18 +62,18 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
     float cx;
     int hy;
     int hx;
-    int iter_max = _env_->l1_iter_max;
-    int hy_res = _env_->l1_hy_res;
-    float magnify = _env_->l1_magnify;
-    int hx_res = _env_->l1_hx_res;
+    int lex_iter_max = _env_->l1_iter_max;
+    int lex_hy_res = _env_->l1_hy_res;
+    float lex_magnify = _env_->l1_magnify;
+    int lex_hx_res = _env_->l1_hx_res;
     {
-        hx = ((j % hx_res));
-        hy = ((j / hx_res));
-        cx = (((((((((((float) hx / (float) hx_res)) - 0.5)) / magnify)) * 3.0)) - 0.7));
-        cy = (((((((((float) hy / (float) hy_res)) - 0.5)) / magnify)) * 3.0));
+        hx = ((j % lex_hx_res));
+        hy = ((j / lex_hx_res));
+        cx = (((((((((((float) hx / (float) lex_hx_res)) - 0.5)) / lex_magnify)) * 3.0)) - 0.7));
+        cy = (((((((((float) hy / (float) lex_hy_res)) - 0.5)) / lex_magnify)) * 3.0));
         x = 0.0;
         y = 0.0;
-        for (iter = 0; iter <= iter_max; iter++)
+        for (iter = 0; iter <= lex_iter_max; iter++)
         {
             xx = ((((((x * x)) - ((y * y)))) + cx));
             y = ((((((2.0 * x)) * y)) + cy));
@@ -91,8 +91,8 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
 
 __device__ int _block_k_2_(environment_t *_env_, int color)
 {
-    int inverted = _env_->l2_inverted;
-    if (((inverted == 1)))
+    int lex_inverted = _env_->l2_inverted;
+    if (((lex_inverted == 1)))
     {
         {
             return (255 - color);

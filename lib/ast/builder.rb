@@ -85,6 +85,10 @@ module Ikra
                     BreakNode.new
                 end
                 
+                def translate_return(node)
+                    ReturnNode.new(value: translate_node(node.children[0]))
+                end
+
                 def translate_send(node)
                     SendNode.new(receiver: translate_node(node.children[0]),
                         selector: node.children[1],

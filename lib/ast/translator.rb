@@ -66,13 +66,13 @@ module Ikra
 
         class LVarReadNode
             def translate_expression
-                identifier.to_s
+                mangled_identifier.to_s
             end
         end
         
         class LVarWriteNode
             def translate_expression
-                "#{identifier.to_s} = #{value.translate_expression}"
+                "#{mangled_identifier.to_s} = #{value.translate_expression}"
             end
         end
         
