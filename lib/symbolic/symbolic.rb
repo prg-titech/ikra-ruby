@@ -58,13 +58,20 @@ module Ikra
             end
 
             def each(&block)
-                execute
                 next_index = 0
-                
+
                 while next_index < size
                     yield(self[next_index])
                     next_index += 1
                 end
+            end
+
+            def pack(fmt)
+                if @result == nil
+                    execute
+                end
+
+                @result.pack(fmt)
             end
 
             def execute
