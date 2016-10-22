@@ -4,7 +4,6 @@ require_relative "../ast/translator.rb"
 require_relative "../types/type_inference"
 require_relative "../types/primitive_type"
 require_relative "../parsing"
-require_relative "../scope"
 require_relative "../ast/printer"
 require_relative "variable_classifier_visitor"
 
@@ -23,7 +22,7 @@ module Ikra
             # @return [String] Name of function in CUDA source code
             attr_accessor :function_name
 
-            # @return [Array<Ikra::AST::InstMethDefNode>] Auxiliary methods that are called by this block (including transitive method calls)
+            # @return [Array<Ikra::AST::MethDefNode>] Auxiliary methods that are called by this block (including transitive method calls)
             attr_accessor :aux_methods
 
             def initialize(c_source:, result_type:, function_name:, aux_methods: [])
@@ -65,10 +64,9 @@ module Ikra
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 return_type = type_inference_visitor.process_block(block_def_node)
-                # The following method returns nested dictionaries, but we only need the values
-                aux_methods = type_inference_visitor.methods.values.map do |hash|
-                    hash.values
-                end.flatten
+
+                # Auxiliary methods are instance methods that are called by the block
+                aux_methods = type_inference_visitor.all_methods
 
                 # Classify variables (lexical or local)
                 block_def_node.accept(VariableClassifier.new(
@@ -85,16 +83,12 @@ module Ikra
                 end
 
                 # Declare local variables
-                block_def_node.local_variables_names_and_types.each do |name, types|
-                    translation_result.prepend("#{types.singleton_type.to_c_type} #{name};\n")
+                block_def_node.local_variables_names_and_types.each do |name, type|
+                    translation_result.prepend("#{type.to_c_type} #{name};\n")
                 end
 
                 # Function signature
                 mangled_name = "_block_k_#{command_id}_"
-
-                if not return_type.is_singleton?
-                    raise "Cannot handle polymorphic return types yet"
-                end
 
                 function_parameters = ["environment_t *#{Constants::ENV_IDENTIFIER}"]
                 block_parameter_types.each do |param|
@@ -105,7 +99,7 @@ module Ikra
                     file_name: "block_function_head.cpp",
                     replacements: { 
                         "name" => mangled_name, 
-                        "return_type" => return_type.singleton_type.to_c_type,
+                        "return_type" => return_type.to_c_type,
                         "parameters" => function_parameters.join(", ")})
 
                 translation_result = function_head + wrap_in_c_block(translation_result)

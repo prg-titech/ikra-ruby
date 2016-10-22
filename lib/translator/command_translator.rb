@@ -219,7 +219,7 @@ module Ikra
                 file_replacements["block_dim[0]"] = "#{size >= 250 ? 250 : size}"
                 file_replacements["block_dim[1]"] = "1"
                 file_replacements["block_dim[2]"] = "1"
-                file_replacements["result_type"] = @return_type.singleton_type.to_c_type
+                file_replacements["result_type"] = @return_type.to_c_type
                 file_replacements["result_size"] = "#{result_size}"
                 file_replacements["block_invocation"] = @invocation
                 file_replacements["env_identifier"] = Constants::ENV_IDENTIFIER

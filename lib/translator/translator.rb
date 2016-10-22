@@ -1,7 +1,6 @@
 require_relative "block_translator"
 require_relative "command_translator"
 require_relative "last_returns_visitor"
-require_relative "local_variables_enumerator"
 require_relative "method_translator"
 require_relative "../config/configuration"
 

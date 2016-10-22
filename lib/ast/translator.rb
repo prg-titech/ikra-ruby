@@ -221,15 +221,17 @@ module Ikra
 
                         if receiver.get_type.is_singleton?
                             self_argument = []
-                            if receiver.get_type.singleton_type.should_generate_type?
-                                self_argument = [receiver]
+                            if receiver.get_type.singleton_type.should_generate_self_arg?
+                                self_argument = [receiver.translate_expression]
+                            else
+                                self_argument = ["NULL"]
                             end
 
-                            args = ([Translator::Constants::ENV_IDENTIFIER] + (self_argument + arguments).map do |arg|
-                                arg.translate_expression
-                            end).join(", ")
-                            
-                            "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args})"
+                            args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
+                                arguments.map do |arg| arg.translate_expression end
+                            args_string = args.join(", ")
+
+                            "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
                         else
                             # Polymorphic case
                             # TODO: This is not an expression anymore!
@@ -241,16 +243,18 @@ module Ikra
 
                             receiver.get_type.types.each do |type|
                                 self_argument = []
-                                if type.should_generate_type?
+                                if type.should_generate_self_arg?
                                     # No need to pass type as subtypes are regarded as entirely new types
                                     self_argument = ["#{receiver_identifier}.object_id"]
+                                else
+                                    self_argument = ["NULL"]
                                 end
 
-                                args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument + arguments.map do |arg|
-                                    arg.translate_expression
-                                end).join(", ")
+                                args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
+                                    arguments.map do |arg| arg.translate_expression end
+                                args_string = args.join(", ")
                                 
-                                case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args}); break;")
+                                case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args_string}); break;")
                             end
 
                             # TODO: compound statements only work with the GNU C++ compiler
