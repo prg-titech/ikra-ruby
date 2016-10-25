@@ -72,64 +72,28 @@ end
 
 # Mandelbrot implementation
 def mandelbrot_cpu(size)
-    magnify = 1.0
     hx_res = size
     hy_res = size
-    iter_max = 256
 
     mandel_basic = Array.new(hx_res * hy_res) do |j|
         hx = j % hx_res
         hy = j / hx_res
         
-        cx = (hx.to_f / hx_res.to_f - 0.5) / magnify*3.0 - 0.7
-        cy = (hy.to_f / hy_res.to_f - 0.5) / magnify*3.0
-        
-        x = 0.0
-        y = 0.0
-        
-        for iter in 0..iter_max
-            xx = x*x - y*y + cx
-            y = 2.0*x*y + cy
-            x = xx
-            
-            if x*x + y*y > 100
-                break
-            end
-        end
-        
-        (iter % 256) * 0xffffff
+        (hx % 256) * 0xffff00 + (hy % 256)
     end
 
     return mandel_basic
 end
 
 def mandelbrot_gpu(size)
-    magnify = 1.0
     hx_res = size
     hy_res = size
-    iter_max = 256
 
-    mandel_basic = Array.pnew(hx_res * hy_res) do |j|
+    mandel_basic = (0...1000000).to_a.pmap do |j|
         hx = j % hx_res
         hy = j / hx_res
         
-        cx = (hx.to_f / hx_res.to_f - 0.5) / magnify*3.0 - 0.7
-        cy = (hy.to_f / hy_res.to_f - 0.5) / magnify*3.0
-        
-        x = 0.0
-        y = 0.0
-        
-        for iter in 0..iter_max
-            xx = x*x - y*y + cx
-            y = 2.0*x*y + cy
-            x = xx
-            
-            if x*x + y*y > 100
-                break
-            end
-        end
-        
-        (iter % 256) * 0xffffff
+        (hx % 256) * 0xffff00 + (hy % 256)
     end
 
     return mandel_basic
