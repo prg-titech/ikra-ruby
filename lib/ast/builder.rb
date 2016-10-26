@@ -81,6 +81,12 @@ module Ikra
                     end
                 end
                 
+                def translate_while(node)
+                    WhileNode.new(
+                        condition: translate_node(node.children[0]),
+                        body_stmts: translate_node(node.children[1]))
+                end
+
                 def translate_break(node)
                     BreakNode.new
                 end

@@ -28,4 +28,22 @@ class ControlFlowTest < UnitTestCase
             assert_equal(k*(k+1) / 2, sum[k])
         end
     end
+
+    def test_while
+        sum = Array.pnew(100) do |j|
+            result = 0
+            i = 1
+
+            while i <= j
+                result += i
+                i += 1
+            end
+
+            result
+        end
+
+        for k in 0..99
+            assert_equal(k*(k+1) / 2, sum[k])
+        end
+    end
 end

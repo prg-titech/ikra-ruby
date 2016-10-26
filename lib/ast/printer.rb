@@ -84,6 +84,12 @@ module Ikra
             end
         end
 
+        class WhileNode
+            def to_s
+                "[WhileNode: #{condition.to_s}, #{body_stmts.to_s}]"
+            end
+        end
+
         class BreakNode
             def to_s
                 "[BreakNode]"

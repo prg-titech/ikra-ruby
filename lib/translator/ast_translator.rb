@@ -135,6 +135,16 @@ module Ikra
             end
         end
         
+        class WhileNode
+            def translate_statement
+                "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
+            end
+
+            def translate_expression
+                statements_as_expression(translate_statement + "\nreturn 0;")
+            end
+        end
+
         class BreakNode
             def translate_expression
                 raise "Not implemented yet"
