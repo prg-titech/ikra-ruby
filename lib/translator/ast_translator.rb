@@ -1,4 +1,5 @@
 require_relative "../ast/nodes.rb"
+require_relative "../ruby_core/ruby_integration"
 
 # Rule: every statement ends with newline
 # TODO: Add proper exceptions (CompilationError)
@@ -232,18 +233,20 @@ module Ikra
                     "(#{receiver.translate_expression} #{selector.to_s} #{arguments.first.translate_expression})"
                 else
                     if receiver.get_type.is_singleton? and
-                            receiver.get_type.singleton_type.to_ruby_type.singleton_methods.include?(("_ikra_c_" + selector.to_s).to_sym)
+                            RubyIntegration.has_implementation?(receiver.get_type.singleton_type.to_ruby_type, selector)
+
+                        ruby_recv_type = receiver.get_type.singleton_type.to_ruby_type
 
                         # TODO: support multiple types for receiver
                         args = []
-                        if receiver.get_type.singleton_type.should_generate_self_arg?
+                        if RubyIntegration.should_pass_self?(ruby_recv_type, selector)
                             args.push(receiver.translate_expression)
                         end
 
                         # Add regular arguments
                         args.push(*arguments.map do |arg| arg.translate_expression end)
 
-                        receiver.get_type.singleton_type.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, *args)
+                        RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
                     else
                         # TODO: generate argument code only once
 

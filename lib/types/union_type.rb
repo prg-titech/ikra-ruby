@@ -1,4 +1,5 @@
 require_relative "ruby_type"
+require_relative "primitive_type"
 require "set"
 
 module Ikra
