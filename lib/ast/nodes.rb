@@ -1,10 +1,10 @@
 module Ikra
     module AST
         class Node
-
+            attr_accessor :parent
         end
 
-        class ProgramNode
+        class ProgramNode < Node
             # First block is program entry point
             attr_reader :blocks
             attr_reader :classes
@@ -19,24 +19,46 @@ module Ikra
             attr_reader :name
             attr_reader :instance_variables
             attr_reader :instance_methods
+            attr_reader :ruby_class
+            
+            # Class variables/methods are defined as instance variables/methods on the singleton
+            # class ClassDefNode
 
-            def initialize(name:, ruby_class:, instance_variables: [], instance_methods: [])
+            def initialize(
+                    name:, 
+                    ruby_class:, 
+                    instance_variables: [], 
+                    instance_methods: [], 
+                    class_variables: [], 
+                    class_methods: [])
                 @name = name
                 @ruby_class = ruby_class
-                @instance_variables = []
-                @instance_methods = []
+                @instance_variables = instance_variables
+                @instance_methods = instance_methods
             end
 
             def add_instance_variable(inst_var)
                 instance_variables.push(inst_var)
+                inst_meth.parent = self
             end
 
             def add_instance_method(inst_meth)
                 instance_methods.push(inst_meth)
+                inst_meth.parent = self
+            end
+
+            def has_instance_method?(selector)
+                return instance_method(selector) != nil
+            end
+
+            def instance_method(selector)
+                return instance_methods.find do |meth|
+                    meth.name == selector
+                end
             end
         end
 
-        class InstVarDefNode < Node
+        class VarDefNode < Node
             attr_reader :name
             attr_accessor :read
             attr_accessor :written
@@ -49,10 +71,12 @@ module Ikra
         end
 
         class BehaviorNode < Node
-
+            def find_behavior_node
+                return self
+            end
         end
-        
-        class InstMethDefNode < BehaviorNode
+
+        class MethDefNode < BehaviorNode
             attr_reader :name
             attr_reader :ruby_method
             attr_reader :body
@@ -61,6 +85,15 @@ module Ikra
                 @name = name
                 @body = body
                 @ruby_method = ruby_method
+
+                body.parent = self
+            end
+
+            def binding
+                # TODO: check if this actually works
+                return if ruby_method == nil 
+                    nil
+                    else ruby_method.send(:binding)
             end
         end
 
@@ -71,12 +104,16 @@ module Ikra
             def initialize(body:, ruby_block:)
                 @body = body
                 @ruby_block = ruby_block
+
+                body.parent = self
+            end
+
+            def binding
+                return ruby_block.binding
             end
         end
 
         class TreeNode < Node
-            attr_accessor :parent
-
             def is_begin_node?
                 false
             end
@@ -96,6 +133,10 @@ module Ikra
 
             def class_owner
                 @parent.class_owner
+            end
+
+            def find_behavior_node
+                return parent.find_behavior_node
             end
         end
         

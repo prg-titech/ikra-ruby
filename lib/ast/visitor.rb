@@ -22,15 +22,15 @@ module Ikra
             end
         end
 
-        class InstVarDefNode
+        class VarDefNode
             def accept(visitor)
-                visitor.visit_inst_var_def_node(self)
+                visitor.visit_var_def_node(self)
             end
         end
 
-        class InstMethDefNode
+        class MethDefNode
             def accept(visitor)
-                visitor.visit_inst_meth_def_node(self)
+                visitor.visit_meth_def_node(self)
             end
         end
 
@@ -149,11 +149,11 @@ module Ikra
                 end
             end
 
-            def visit_inst_var_def_node(node)
+            def visit_var_def_node(node)
 
             end
 
-            def visit_inst_meth_def_node(node)
+            def visit_meth_def_node(node)
                 node.body.accept(self)
             end
 

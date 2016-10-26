@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class SimpleMapKernelTest < UnitTestCase
     def test_kernel
-        base_array = Array.new(100) do |j|
+        base_array = Array.pnew(100) do |j|
             j + 1
         end
 

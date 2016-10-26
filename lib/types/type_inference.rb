@@ -1,28 +1,51 @@
 require "set"
-require_relative "primitive_type"
-require_relative "union_type"
-require_relative "ruby_extension"
+
 require_relative "../ast/nodes.rb"
 require_relative "../ast/visitor.rb"
-require_relative "../scope.rb"
+
+require_relative "primitive_type"
+require_relative "symbol_table"
+require_relative "union_type"
+require_relative "ruby_extension"
 
 module Ikra
     module AST
         class Node
             def get_type
-                @type ||= Types::UnionType.new
+                return @type ||= Types::UnionType.new
             end
         end
 
-        class InstMethDefNode
+        class ClassDefNode
+            def get_type
+                return ruby_class.to_ikra_type
+            end
+        end
+
+        class LVarReadNode
+            attr_accessor :variable_type
+        end
+
+        class LVarWriteNode
+            attr_accessor :variable_type
+        end
+
+        class MethDefNode
             attr_accessor :receiver_type
 
-            def initialize_types(receiver_type:, return_type: UnionType.new)
+            def initialize_types(receiver_type:, return_type: Types::UnionType.new)
                 @receiver_type = receiver_type
                 @type = return_type
             end
 
-            def self.new_with_types(name:, body:, parameters_names_and_types:, ruby_method:, receiver_type:, return_type: UnionType.new)
+            def self.new_with_types(
+                    name:,
+                    body:,
+                    parameters_names_and_types:,
+                    ruby_method:,
+                    receiver_type:,
+                    return_type: Types::UnionType.new)
+
                 instance = new(name: name, body: body, ruby_method: ruby_method)
                 instance.initialize_types(receiver_type: receiver_type, return_type: return_type)
                 instance.parameters_names_and_types = parameters_names_and_types
@@ -59,20 +82,22 @@ module Ikra
             end
 
             def symbol_table
-                @symbol_table ||= Scope.new
+                @symbol_table ||= TypeInference::SymbolTable.new
             end
         end
     end
     
     module TypeInference
         class Visitor < AST::Visitor
-            attr_reader :methods
+            attr_reader :classes
 
             def initialize
-                # methods: Ikra type x selector --> InstMethDefNode
-                @methods = Hash.new
-                @methods.default_proc = proc do |hash, key|
-                    hash[key] = Hash.new
+                # Ikra type -> ClassDefNode
+                @classes = {}
+                @classes.default_proc = proc do |hash, key|
+                    hash[key] = AST::ClassDefNode.new(
+                        name: key.cls.name,
+                        ruby_class: key.cls)
                 end
 
                 # Top of stack is the method that is currently processed
@@ -80,6 +105,12 @@ module Ikra
 
                 # Block/method definitions that must be processed
                 @worklist = Set.new
+            end
+
+            def all_methods
+                return classes.values.map do |class_|
+                    class_.instance_methods
+                end.flatten
             end
 
             def symbol_table
@@ -100,37 +131,37 @@ module Ikra
                 @work_stack.push(block_def_node)
                 body_ast = block_def_node.body
 
-                # Set up new symbol table (pushing a frame is not sufficient here)
-                return_value_type = nil
-                symbol_table.new_frame do                       
-                    # Lexical variables, parameters defined on this level
+                # Variables that are not defined inside the block
+                predefined_variables = []
 
-                    # Add parameters to symbol table (name -> type)
-                    block_def_node.parameters_names_and_types.each do |name, type|
-                        symbol_table.declare_expand_type(name, type)
-                    end
-                    # Add lexical variables to symbol table (name -> type)
-                    block_def_node.lexical_variables_names_and_types.each do |name, type|
-                        symbol_table.declare_expand_type(name, type)
-                    end
+                # Add parameters to symbol table (name -> type)
+                block_def_node.parameters_names_and_types.each do |name, type|
+                    symbol_table.declare_variable(name, type: type)
+                    predefined_variables.push(name)
+                end
 
-                    symbol_table.new_function_frame do          # local variables defined on this level
-                        # Add return statements
-                        body_ast.accept(Translator::LastStatementReturnsVisitor.new)
+                # Add lexical variables to symbol table (name -> type)
+                block_def_node.lexical_variables_names_and_types.each do |name, type|
+                    # Variable might be shadowed by parameter
+                    symbol_table.ensure_variable_declared(name, type: type, kind: :lexical)
+                    predefined_variables.push(name)
+                end
 
-                        # Infer types
-                        body_ast.accept(self)
-                        return_value_type = symbol_table.top_frame.return_type
+                # Add return statements
+                body_ast.accept(Translator::LastStatementReturnsVisitor.new)
 
-                        # Get local variable definitons
-                        local_variables_enumerator = Translator::LocalVariablesEnumerator.new
-                        body_ast.accept(local_variables_enumerator)
-                        block_def_node.local_variables_names_and_types = local_variables_enumerator.local_variables.reject do |name, type|
-                            symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
-                        end
+                # Infer types
+                body_ast.accept(self)
+
+                # Get local variable definitons
+                for variable_name in symbol_table.read_and_written_variables
+                    if !predefined_variables.include?(variable_name)
+                        block_def_node.local_variables_names_and_types[variable_name] =
+                            symbol_table[variable_name]
                     end
                 end
-                
+
+                return_value_type = symbol_table.return_type 
                 Log.info("Type inference: block return type is #{return_value_type.to_s}")
 
                 @work_stack.pop
@@ -140,43 +171,45 @@ module Ikra
 
             # This is used as an entry point for the visitor
             def process_method(method_def_node)
-                Log.info("Type inference: proceed into method #{method_def_node.receiver_type}.#{method_def_node.selector}(#{Types::UnionType.parameter_hash_to_s(method_def_node.parameters_names_and_types)})")
+                Log.info("Type inference: proceed into method #{method_def_node.receiver_type}.#{method_def_node.name}(#{Types::UnionType.parameter_hash_to_s(method_def_node.parameters_names_and_types)})")
 
                 @work_stack.push(method_def_node)
                 body_ast = method_def_node.body
 
-                # TODO: handle multiple types
+                # TODO: handle multiple receiver types
                 recv_type = method_def_node.receiver_type
 
-                # Set up new symbol table (pushing a frame is not sufficient here)
-                return_value_type = nil
-                symbol_table.new_frame do                       # lexical variables, parameters defined on this level
-                    # Add parameters to symbol table (name -> type)
-                    method_def_node.parameters_names_and_types.each do |name, type|
-                        symbol_table.declare_expand_type(name, type)
-                    end
-                    # Add lexical variables to symbol table (name -> type)
-                    method_def_node.lexical_variables_names_and_types.each do |name, type|
-                        symbol_table.declare_expand_type(name, type)
-                    end
+                # Variables that are not defined inside the method
+                predefined_variables = []
 
-                    symbol_table.new_function_frame do          # local variables defined on this level
-                        # Add return statements
-                        body_ast.accept(Translator::LastStatementReturnsVisitor.new)
+                # Add parameters to symbol table (name -> type)
+                method_def_node.parameters_names_and_types.each do |name, type|
+                    symbol_table.declare_variable(name, type: type)
+                    predefined_variables.push(name)
+                end
 
-                        # Infer types
-                        body_ast.accept(self)
-                        return_value_type = symbol_table.top_frame.return_type
+                # Add lexical variables to symbol table (name -> type)
+                method_def_node.lexical_variables_names_and_types.each do |name, type|
+                    # Variable might be shadowed by parameter
+                    symbol_table.ensure_variable_declared(name, type: type, kind: :lexical)
+                    predefined_variables.push(name)
+                end
 
-                        # Get local variable definitons
-                        local_variables_enumerator = Translator::LocalVariablesEnumerator.new
-                        body_ast.accept(local_variables_enumerator)
-                        method_def_node.local_variables_names_and_types = local_variables_enumerator.local_variables.reject do |name, type|
-                            symbol_table.previous_frame.variable_names.include?(name)       # no lexical vars or parameters
-                        end
+                # Add return statements
+                body_ast.accept(Translator::LastStatementReturnsVisitor.new)
+
+                # Infer types
+                body_ast.accept(self)
+
+                # Get local variable definitons
+                for variable_name in symbol_table.read_and_written_variables
+                    if !predefined_variables.include?(variable_name)
+                        method_def_node.local_variables_names_and_types[variable_name] =
+                            symbol_table[variable_name]
                     end
                 end
                 
+                return_value_type = symbol_table.return_type 
                 Log.info("Type inference: method return type is #{return_value_type.to_s}")
 
                 @work_stack.pop
@@ -195,9 +228,9 @@ module Ikra
                     ast = recv_singleton_type.method_ast(selector)
                     method_visited_before = nil
 
-                    if not @methods[recv_singleton_type].include?(selector)
+                    if not @classes[recv_singleton_type].has_instance_method?(selector)
                         # This method was never visited before
-                        method_def_node = AST::InstMethDefNode.new_with_types(
+                        method_def_node = AST::MethDefNode.new_with_types(
                             name: selector,
                             body: ast,
                             parameters_names_and_types: Hash[*parameter_names.zip(
@@ -206,33 +239,35 @@ module Ikra
                                 end).flatten],
                             ruby_method: nil,
                             receiver_type: recv_singleton_type)
-                        @methods[recv_singleton_type][selector] = method_def_node
+                        @classes[recv_singleton_type].add_instance_method(method_def_node)
                         method_visited_before = false
                     else
                         method_visited_before = true
                     end
 
-                    method_def_node = @methods[recv_singleton_type][selector]
+                    method_def_node = @classes[recv_singleton_type].instance_method(selector)
                     # Method needs processing if any parameter is expanded (or method was never visited before)
                     needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
                         method_def_node.parameters_names_and_types[name].expand(arg_types[index])   # returns true if expanded 
                     end.reduce(:|)
 
-                    last_return_type = method_def_node.return_type       # return value type from the last pass
+                    # Return value type from the last pass
+                    # TODO: Have to make a copy here?
+                    last_return_type = method_def_node.get_type
                     
                     if needs_processing
                         process_method(method_def_node)
                     end
 
-                    if not last_return_type.include_all?(method_def_node.type)
+                    if not last_return_type.include_all?(method_def_node.get_type)
                         # Return type was expanded during this pass, reprocess all callers (except for current method)
                         @worklist += (method_def_node.callers - [current_method_or_block])
                     end
 
-                    method_def_node.callers.add(current_method_or_block)
+                    method_def_node.callers.push(current_method_or_block)
 
                     # Return value of all visit methods should be the type
-                    return_type.expand(method_def_node.type)
+                    return_type.expand(method_def_node.get_type)
                 end
 
                 send_node.get_type.expand(return_type)
@@ -250,24 +285,38 @@ module Ikra
             end
 
             def visit_const_node(node)
-                if not @binding
+                if not binding
                     raise "Unable to resolve constants without Binding"
                 end
 
-                node.get_type.expand_return_type(
-                    Types::UnionType.new([@binding.eval(node.identifier.to_s).class.to_ikra_type]))
+                constant = binding.eval(node.identifier.to_s)
+                constant_class = nil
+
+                if constant.is_a?(Class)
+                    constant_class = constant.singleton_class
+                else
+                    constant_class = constant.class
+                end
+
+                node.get_type.expand_return_type(Types::UnionType.new(constant_class.to_ikra_type))
             end
 
             def visit_lvar_read_node(node)
                 symbol_table.read!(node.identifier)
-                node.get_type.expand_return_type(symbol_table.get_type(node.identifier))
+
+                # Extend type of variable
+                return node.get_type.expand_return_type(symbol_table[node.identifier])
             end
 
             def visit_lvar_write_node(node)
                 type = node.value.accept(self)
-                symbol_table.declare_expand_type(node.identifier, type)
+
+                # Declare/extend type in symbol table
+                symbol_table.ensure_variable_declared(node.identifier, type: type)
                 symbol_table.written!(node.identifier)
-                node.get_type.expand_return_type(type)
+
+                # Extend type of variable
+                return node.get_type.expand_return_type(type)
             end
             
             def visit_ivar_read_node(node)
@@ -292,7 +341,7 @@ module Ikra
                 assert_singleton_type(node.range_from.accept(self), Types::PrimitiveType::Int)
                 assert_singleton_type(node.range_to.accept(self), Types::PrimitiveType::Int)
                 
-                changed = symbol_table.declare_expand_type(node.iterator_identifier, Types::UnionType.create_int)
+                changed = symbol_table.ensure_variable_declared(node.iterator_identifier, type: Types::UnionType.create_int)
                 
                 super(node)
                 
@@ -332,7 +381,7 @@ module Ikra
             
             def visit_return_node(node)
                 type = node.value.accept(self)
-                symbol_table.add_return_type(type)
+                symbol_table.expand_return_type(type)
                 node.get_type.expand_return_type(type)
             end
 

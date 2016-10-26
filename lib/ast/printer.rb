@@ -18,15 +18,15 @@ module Ikra
             end
         end
 
-        class InstVarDefNode
+        class VarDefNode
             def to_s
-                "[InstVarDefNode: #{name}, read = #{read}, written = #{written}]"
+                "[VarDefNode: #{name}, read = #{read}, written = #{written}]"
             end
         end
 
-        class InstMethDefNode
+        class MethDefNode
             def to_s
-                "[InstMethDefNode: #{name} #{body.to_s}]"
+                "[MethDefNode: #{name} #{body.to_s}]"
             end
         end
 

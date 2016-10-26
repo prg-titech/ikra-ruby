@@ -71,8 +71,18 @@ module Ikra
                 "obj_id_t"
             end
 
+            # Generates a class name for [@cls], which is a valid C++ identifier.
+            #
+            # For example:
+            # A             --> A
+            # #<Class: A>   --> singleton_A
+            def class_name
+                # Handle name generation for singleton classes
+                return @cls.to_s.gsub("\#<Class:", "singleton_").gsub(">", "")
+            end
+
             def mangled_method_name(selector)
-                "_method_#{@cls.to_s}_#{selector}_"
+                "_method_#{class_name}_#{selector}_"
             end
 
             def inst_var_array_name(inst_var_name)
@@ -80,7 +90,7 @@ module Ikra
                     raise "Expected instance variable identifier"
                 end
 
-                "_iv_#{@cls.to_s}_#{inst_var_name.to_s[1..-1]}_"
+                "_iv_#{class_name}_#{inst_var_name.to_s[1..-1]}_"
             end
 
             def method_ast(selector)
@@ -98,12 +108,13 @@ module Ikra
                 end
             end
 
-            def should_generate_type?
-                to_ruby_type != Class
+            def should_generate_self_arg?
+                # Do not generate type for singleton classes
+                return !to_ruby_type.is_a?(Class.singleton_class)
             end
 
             def to_s
-                "<class: #{@cls.to_s}>"
+                "<class: #{class_name}>"
             end
 
             def c_size
