@@ -279,10 +279,6 @@ module Ikra
                     raise "Expected type #{expected_type} but found #{union_type.singleton_type}"
                 end
             end
-            
-            def visit_method_or_block_node(node)
-                node.get_type.expand_return_type(node.child.accept(self))
-            end
 
             def visit_const_node(node)
                 if not binding
@@ -299,6 +295,10 @@ module Ikra
                 end
 
                 node.get_type.expand_return_type(Types::UnionType.new(constant_class.to_ikra_type))
+            end
+
+            def visit_root_node(node)
+                node.get_type.expand_return_type(node.single_child.accept(self))
             end
 
             def visit_lvar_read_node(node)
@@ -320,7 +320,7 @@ module Ikra
             end
             
             def visit_ivar_read_node(node)
-                cls_type = node.class_owner.to_ikra_type
+                cls_type = node.enclosing_class.ruby_class.to_ikra_type
                 cls_type.inst_var_read!(node.identifier)
                 cls_type.inst_vars_types[node.identifier]
             end

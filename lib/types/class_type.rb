@@ -95,9 +95,7 @@ module Ikra
 
             def method_ast(selector)
                 source = Parsing.parse_method(cls.instance_method(selector))
-                ast = AST::Builder.from_parser_ast(source)
-                ast.class_owner = @cls
-                ast
+                AST::Builder.from_parser_ast(source)
             end
 
             def method_parameters(selector)

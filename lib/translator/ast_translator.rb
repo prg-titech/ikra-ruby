@@ -1,28 +1,53 @@
 require_relative "../ast/nodes.rb"
 
 # Rule: every statement ends with newline
+# TODO: Add proper exceptions (CompilationError)
 
 module Ikra
     module AST
-        class Node
+        class TreeNode
             @@next_temp_identifier_id = 0
 
             def translate_statement
                 translate_expression + ";\n"
             end
             
+            def translate_expression
+                return_value = expression_return_value
+                inner_stmts = nil
+
+                if return_value != nil
+                    # Node specifies a return value
+                    inner_stmts = translate_statement + "return " + return_value + ";\n"
+                else
+                    inner_stmts = translate_statement
+                end
+
+                statements_as_expression(inner_stmts)
+            end
+
             protected
             
+            def expression_return_value
+                "NULL"
+            end
+
             def statements_as_expression(str)
-                "[&]{ #{str} }()"
+                "[&]#{wrap_in_c_block(str, omit_newl: true)}()"
             end
             
             def indent_block(str)
                 str.split("\n").map do |line| "    " + line end.join("\n")
             end
 
-            def wrap_in_c_block(str)
-                "{\n" + indent_block(str) + "\n}\n"
+            def wrap_in_c_block(str, omit_newl: false)
+                result = "{\n" + indent_block(str) + "\n}"
+
+                if omit_newl
+                    return result
+                else
+                    return result + "\n"
+                end
             end
 
             def temp_identifier_id
@@ -38,12 +63,8 @@ module Ikra
         end
         
         class BlockDefNode
-            def translate_statement
+            def translate_block
                 body.translate_statement
-            end
-
-            def translate_expression
-                raise "Translating block as expression is not supported"
             end
         end
 
@@ -68,19 +89,25 @@ module Ikra
             end
         end
 
-        class MethodOrBlockNode
+        class BehaviorNode
             def translate_statement
-                child.translate_statement
+                raise "Methods/blocks cannot be translated as a statement"
             end
 
-            def translate_expression
-                child.translate_expression
+            def translate_expresion
+                raise "Methods/blocks cannot be translated as an expression"
             end
         end
 
         class ConstNode
             def translate_expression
                 raise "Not implemented"
+            end
+        end
+
+        class RootNode
+            def translate_statement
+                single_child.translate_statement
             end
         end
 
@@ -98,7 +125,7 @@ module Ikra
         
         class IVarReadNode
             def translate_expression
-                array_identifier = class_owner.to_ikra_type.inst_var_array_name(identifier)
+                array_identifier = enclosing_class.ruby_class.to_ikra_type.inst_var_array_name(identifier)
                 "#{Translator::Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
             end
         end
@@ -126,28 +153,17 @@ module Ikra
                 loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
                 loop_header + "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\n"
             end
-            
-            def translate_expression
-                # TODO: return value should be range
-                loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
-                full_loop = loop_header + "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\nreturn 0;"
-                statements_as_expression(full_loop)
-            end
         end
         
         class WhileNode
             def translate_statement
                 "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
             end
-
-            def translate_expression
-                statements_as_expression(translate_statement + "\nreturn 0;")
-            end
         end
 
         class BreakNode
             def translate_expression
-                raise "Not implemented yet"
+                raise "BreakNode is never an expression"
             end
             
             def translate_statement
@@ -158,39 +174,20 @@ module Ikra
         class IfNode
             def translate_statement
                 header = "if (#{condition.translate_expression})\n"
-                
+
                 if false_body_stmts == nil
                     header + true_body_stmts.translate_statement
                 else
                     header + true_body_stmts.translate_statement + "else\n" + false_body_stmts.translate_statement
                 end
             end
-            
+
             def translate_expression
-                header = "if (#{condition.translate_expression})\n"
-                true_body_translated = nil
-                false_body_translated = nil
-                
-                if true_body_stmts.is_begin_node?
-                    true_body_translated = true_body_stmts.translate_statement_last_returns
-                else
-                    true_body_translated = "return " + true_body_stmts.translate_expression + ";\n"
-                end
-                
-                if false_body_stmts != nil
-                    # Can be begin node or anything else
-                    if false_body_stmts.is_begin_node?
-                        false_body_translated = false_body_stmts.translate_statement_last_returns
-                    else
-                        false_body_translated = "return " + false_body_stmts.translate_expression + ";\n"
-                    end
-                end
-                
-                if false_body_translated == nil
-                    statements_as_expression(header + true_body_translated)
-                else
-                    statements_as_expression(header + true_body_translated + "else\n" + false_body_translated)
-                end
+                # Make every branch return
+                accept(Translator::LastStatementReturnsVisitor.new)
+
+                # Wrap in StatementExpression
+                statements_as_expression(translate_statement)
             end
         end
         
@@ -206,17 +203,7 @@ module Ikra
                 
                 wrap_in_c_block(body_translated)
             end
-            
-            def translate_statement_last_returns
-                if body_stmts.size == 0
-                    raise "Cannot return empty BeginNode"
-                end
-                
-                body_translated = BeginNode.new(body_stmts[0...-1]).translate_statement
-                body_translated + "return #{body_stmts.last.translate_expression};\n"
-                wrap_in_c_block(body_translated)
-            end
-            
+
             def translate_expression
                 if body_stmts.size == 0
                     raise "Empty BeginNode cannot be an expression"
@@ -226,8 +213,10 @@ module Ikra
                 else
                     # Wrap in lambda
                     # Do not worry about scope of varibles, they will all be declared at the beginning of the function
-                    statements_as_expression(translate_statement_last_returns)
+                    accept(Translator::LastStatementReturnsVisitor.new)
+                    statements_as_expression(translate_statement)
                 end
+
             end
         end
         

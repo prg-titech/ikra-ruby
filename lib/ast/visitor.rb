@@ -40,15 +40,15 @@ module Ikra
             end
         end
 
-        class ConstNode
+        class RootNode
             def accept(visitor)
-                visitor.visit_const_node(self)
+                visitor.visit_root_node(self)
             end
         end
 
-        class MethodOrBlockNode
+        class ConstNode
             def accept(visitor)
-                visitor.visit_method_or_block_node(self)
+                visitor.visit_const_node(self)
             end
         end
 
@@ -155,6 +155,10 @@ module Ikra
                 end
             end
 
+            def visit_root_node(node)
+                node.single_child.accept(self)
+            end
+
             def visit_var_def_node(node)
 
             end
@@ -169,10 +173,6 @@ module Ikra
 
             def visit_const_node(node)
 
-            end
-            
-            def visit_method_or_block_node(node)
-                node.child.accept(self)
             end
             
             def visit_lvar_read_node(node)

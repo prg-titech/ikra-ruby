@@ -56,6 +56,10 @@ module Ikra
                     meth.name == selector
                 end
             end
+
+            def enclosing_class
+                return self
+            end
         end
 
         class VarDefNode < Node
@@ -131,22 +135,22 @@ module Ikra
                 end
             end
 
-            def class_owner
-                @parent.class_owner
+            def enclosing_class
+                @parent.enclosing_class
             end
 
             def find_behavior_node
                 return parent.find_behavior_node
             end
         end
-        
-        class MethodOrBlockNode < TreeNode
-            attr_reader :child
-            attr_accessor :class_owner          # @return [Class] The class where this method is defined
 
-            def initialize(child:)
-                @child = child
-                child.parent = self
+        # Need to wrap block bodies in RootNode, so that the first node can be replaced if necessary (LastStatementReturnsVisitor)
+        class RootNode < TreeNode
+            attr_reader :single_child
+
+            def initialize(single_child:)
+                @single_child = single_child
+                single_child.parent = self
             end
         end
 

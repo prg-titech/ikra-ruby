@@ -72,7 +72,7 @@ module Ikra
                     lexical_variable_names: lexical_variables.keys))
 
                 # Translate to CUDA/C++ code
-                translation_result = block_def_node.translate_statement
+                translation_result = block_def_node.translate_block
 
                 # Load environment variables
                 lexical_variables.each do |name, value|

@@ -36,9 +36,9 @@ module Ikra
             end
         end
 
-        class MethodOrBlockNode
+        class RootNode
             def to_s
-                "[MethodOrBlockNode: #{child.to_s}]"
+                "[RootNode: #{single_child.to_s}]"
             end
         end
 

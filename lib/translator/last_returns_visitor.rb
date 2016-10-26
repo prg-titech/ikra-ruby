@@ -5,8 +5,8 @@ module Ikra
     module Translator
         # Visitor that replaces implicit returns with explicit ones
         class LastStatementReturnsVisitor < AST::Visitor
-            def visit_method_or_block_node(node)
-                node.child.accept(self)
+            def visit_root_node(node)
+                node.single_child.accept(self)
             end
 
             def visit_lvar_read_node(node)
