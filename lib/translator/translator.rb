@@ -1,8 +1,9 @@
+require_relative "../config/configuration"
+
+require_relative "ast_translator"
 require_relative "block_translator"
 require_relative "command_translator"
 require_relative "last_returns_visitor"
-require_relative "method_translator"
-require_relative "../config/configuration"
 
 module Ikra
 

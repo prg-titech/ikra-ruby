@@ -1,6 +1,5 @@
 require_relative "../ast/nodes.rb"
 require_relative "../ast/builder.rb"
-require_relative "../ast/translator.rb"
 require_relative "../types/type_inference"
 require_relative "../types/primitive_type"
 require_relative "../parsing"
@@ -34,7 +33,7 @@ module Ikra
 
             def generated_source
                 @aux_methods.map do |meth|
-                    meth.to_c_source
+                    meth.translate_method
                 end.join("\n\n") + @block_source
             end
         end
