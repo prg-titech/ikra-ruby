@@ -233,8 +233,17 @@ module Ikra
                 else
                     if receiver.get_type.is_singleton? and
                             receiver.get_type.singleton_type.to_ruby_type.singleton_methods.include?(("_ikra_c_" + selector.to_s).to_sym)
+
                         # TODO: support multiple types for receiver
-                        receiver.get_type.singleton_type.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, receiver.translate_expression)
+                        args = []
+                        if receiver.get_type.singleton_type.should_generate_self_arg?
+                            args.push(receiver.translate_expression)
+                        end
+
+                        # Add regular arguments
+                        args.push(*arguments.map do |arg| arg.translate_expression end)
+
+                        receiver.get_type.singleton_type.to_ruby_type.send(("_ikra_c_" + selector.to_s).to_sym, *args)
                     else
                         # TODO: generate argument code only once
 

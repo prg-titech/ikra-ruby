@@ -78,7 +78,7 @@ module Ikra
             # #<Class: A>   --> singleton_A
             def class_name
                 # Handle name generation for singleton classes
-                return @cls.to_s.gsub("\#<Class:", "singleton_").gsub(">", "")
+                return ruby_name.gsub("\#<Class:", "singleton_").gsub(">", "")
             end
 
             def mangled_method_name(selector)
@@ -108,7 +108,7 @@ module Ikra
 
             def should_generate_self_arg?
                 # Do not generate type for singleton classes
-                return !to_ruby_type.is_a?(Class.singleton_class)
+                return !to_ruby_type.is_a?(Module.singleton_class)
             end
 
             def to_s

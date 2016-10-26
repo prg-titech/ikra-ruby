@@ -94,10 +94,11 @@ module Ikra
             end
 
             def binding
-                # TODO: check if this actually works
-                return if ruby_method == nil 
-                    nil
-                    else ruby_method.send(:binding)
+                if ruby_method == nil 
+                    return nil
+                else 
+                    return ruby_method.send(:binding)
+                end
             end
         end
 

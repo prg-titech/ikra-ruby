@@ -217,6 +217,7 @@ module Ikra
                 method_def_node.get_type.expand_return_type(return_value_type)
             end
 
+            # This is not an actual Visitor method. It is called from visit_send_node.
             def visit_method_call(send_node)
                 recv_type = send_node.receiver.get_type
                 selector = send_node.selector
@@ -288,7 +289,7 @@ module Ikra
                 constant = binding.eval(node.identifier.to_s)
                 constant_class = nil
 
-                if constant.is_a?(Class)
+                if constant.is_a?(Module)
                     constant_class = constant.singleton_class
                 else
                     constant_class = constant.class

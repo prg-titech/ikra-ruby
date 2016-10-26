@@ -65,3 +65,33 @@ class FalseClass
         end
     end
 end
+
+module Math
+    class << self
+        class << self
+            def _ikra_t_cos(receiver_type)
+                Ikra::Types::UnionType.create_float
+            end
+
+            def _ikra_c_cos(receiver)
+                "cos((float) #{receiver})"
+            end
+
+            def _ikra_t_sin(receiver_type)
+                Ikra::Types::UnionType.create_float
+            end
+
+            def _ikra_c_sin(receiver)
+                "sin((float) #{receiver})"
+            end
+
+            def _ikra_t_tan(receiver_type)
+                Ikra::Types::UnionType.create_float
+            end
+
+            def _ikra_c_tan(receiver)
+                "tan((float) #{receiver})"
+            end
+        end
+    end
+end
