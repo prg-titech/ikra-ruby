@@ -371,12 +371,41 @@ module Ikra
             end
 
             def visit_array_map_command(command)
-                dependent_result = super                            # visit target (dependent) command
+                # visit target (dependent) command
+                dependent_result = super
+
                 command_translation_result = CommandTranslationResult.new(@environment_builder)
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
                     block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
+                    environment_builder: @environment_builder[command.unique_id],
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
+
+                command_translation_result.generated_source = dependent_result.generated_source + "\n\n" + block_translation_result.generated_source
+
+                command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
+                command_translation_result.size = dependent_result.size
+                command_translation_result.return_type = block_translation_result.result_type
+
+                command_translation_result
+            end
+
+            def visit_array_stencil_command(command)
+                dependent_result = super
+
+                command_translation_result = CommandTranslationResult.new(@environment_builder)
+
+                # Set up parameters of block
+                block_parameters = {}
+                for name in command.block_parameter_names
+                    block_parameters[name] = dependent_result.return_type
+                end
+
+                block_translation_result = Translator.translate_block(
+                    block_def_node: command.block_def_node,
+                    block_parameter_types: block_parameter_types,
                     environment_builder: @environment_builder[command.unique_id],
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id)

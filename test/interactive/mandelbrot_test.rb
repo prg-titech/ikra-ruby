@@ -89,7 +89,7 @@ def mandelbrot_gpu(size)
     hx_res = size
     hy_res = size
 
-    mandel_basic = (0...1000000).to_a.pmap do |j|
+    mandel_basic = Array.pnew(hx_res * hy_res) do |j|
         hx = j % hx_res
         hy = j / hx_res
         
