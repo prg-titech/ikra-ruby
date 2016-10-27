@@ -9,4 +9,12 @@ class MathTest < UnitTestCase
 
         assert_in_delta(-100, array.reduce(:+), 0.01)
     end
+
+    def test_acos
+        array = Array.pnew(100) do |j|
+            Math.acos(0.3) + 0
+        end
+
+        assert_in_delta(100*1.266104, array.reduce(:+), 0.01)
+    end
 end
