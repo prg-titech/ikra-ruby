@@ -13,6 +13,10 @@ module Ikra
             File.expand_path("gen/codegen_expect/#{file_name}", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))))
         end
 
+        def self.log_file_name_for(test_case_name)
+            File.expand_path("gen/log/#{test_case_name}.log", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))))
+        end
+
         def self.codegen_expect_file_name
             if @@expect_file_name == nil
                 # Do not generate expect file

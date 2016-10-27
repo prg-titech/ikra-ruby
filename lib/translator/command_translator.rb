@@ -264,6 +264,8 @@ module Ikra
 
                 if $? != 0
                     raise "nvcc failed: #{compile_status}"
+                else
+                    Log.info("nvcc successful: #{compile_status}")
                 end
             end
 

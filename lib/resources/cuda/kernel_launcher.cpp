@@ -1,7 +1,5 @@
 extern "C" EXPORT /*{result_type}*/ *launch_kernel(environment_t */*{host_env}*/)
 {
-    printf("kernel launched\n");
-    
     /* Modify host environment to contain device pointers addresses */
     /*{copy_env}*/
 

@@ -113,8 +113,6 @@ __global__ void kernel(environment_t *_env_, int *_result_)
 
 extern "C" EXPORT int *launch_kernel(environment_t *host_env)
 {
-    printf("kernel launched\n");
-    
     /* Modify host environment to contain device pointers addresses */
     
 

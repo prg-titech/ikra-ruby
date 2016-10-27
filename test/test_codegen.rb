@@ -6,6 +6,11 @@ require_relative "codegen/square"
 class CodegenTest < Test::Unit::TestCase
     def setup
         Ikra::Configuration.reset_state
+
+        test_name = self.class.to_s + "\#" + method_name
+        file_name = Ikra::Configuration.log_file_name_for(test_name)
+        File.delete(file_name) if File.exist?(file_name)
+        Ikra::Log.reopen(file_name)
     end
 
     def test_mandelbrot

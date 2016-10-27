@@ -12,8 +12,8 @@ def run_square
     end
 
     if sum == 333383335000
-        puts "Test passed!"
+        Ikra::Log.info("Test passed!")
     else
-        puts "Test failed: expected 333383335000 but found #{sum}"
+        raise "Test failed: expected 333383335000 but found #{sum}"
     end
 end

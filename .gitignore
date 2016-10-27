@@ -40,3 +40,4 @@ experiments
 dbg*.rb
 
 gen/codegen_expect/last_generated.cu
+gen/log
