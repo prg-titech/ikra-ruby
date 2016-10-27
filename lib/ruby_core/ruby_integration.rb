@@ -2,6 +2,10 @@ require_relative "../types/union_type"
 
 module Ikra
     module RubyIntegration
+        INT = Types::UnionType.create_int
+        FLOAT = Types::UnionType.create_float
+        BOOL = Types::UnionType.create_bool
+
         class Implementation
             attr_reader :num_params
             attr_reader :implementation
@@ -12,20 +16,7 @@ module Ikra
                 @num_params = num_params
                 @implementation = implementation
                 @pass_self = pass_self
-
-                if return_type.is_a?(Symbol)
-                    if return_type == :int
-                        @return_type = Types::UnionType.create_int
-                    elsif return_type == :float
-                        @return_type = Types::UnionType.create_float
-                    elsif return_type == :bool
-                        @return_type = Types::UnionType.create_bool
-                    else
-                        raise "Unknown type shortcut: #{return_type}"
-                    end
-                else
-                    @return_type = return_type
-                end
+                @return_type = return_type
             end
         end
 
@@ -54,14 +45,26 @@ module Ikra
             source = @@classes[class_][method_name].implementation
 
             args.each_with_index do |arg, index|
-                source.gsub!("##{index + 1}", arg)
+                source = source.gsub("\##{index + 1}", arg)
             end
-
+            
             return source
         end
 
-        def self.get_return_type(class_, method_name)
-            return @@classes[class_][method_name].return_type
+        def self.get_return_type(class_, method_name, *arg_types)
+            return_type = @@classes[class_][method_name].return_type
+            num_params = @@classes[class_][method_name].num_params
+
+            if return_type.is_a?(Proc)
+                # Return type depends on argument types
+                if num_params != arg_types.size
+                    raise "#{num_params} arguments expected"
+                else
+                    return return_type.call(*arg_types)
+                end
+            else
+                return return_type
+            end
         end
     end
 end

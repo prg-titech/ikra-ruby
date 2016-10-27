@@ -19,6 +19,10 @@ module Ikra
             Bool = self.new("bool", TrueClass, 1, :bool)
             Void = self.new("void", nil, 0, :void)
             
+            def ==(other)
+                return other.is_a?(PrimitiveType) && other.to_c_type == to_c_type
+            end
+
             def to_ruby_type
                 @ruby_type
             end
@@ -30,7 +34,7 @@ module Ikra
             def to_ffi_type
                 @ffi_type
             end
-            
+
             def is_primitive?
                 true
             end

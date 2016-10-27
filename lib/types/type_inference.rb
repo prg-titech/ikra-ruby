@@ -224,6 +224,10 @@ module Ikra
                 return_type = Types::UnionType.new
 
                 recv_type.types.each do |recv_singleton_type|
+                    if recv_singleton_type.is_primitive?
+                        raise "Assertion failed: PrimitiveType #{recv_singleton_type} found as recv in visit_method_call"
+                    end
+
                     parameter_names = recv_singleton_type.method_parameters(selector)
                     arg_types = send_node.arguments.map do |arg| arg.get_type end
                     ast = recv_singleton_type.method_ast(selector)
@@ -385,133 +389,34 @@ module Ikra
                 symbol_table.expand_return_type(type)
                 node.get_type.expand_return_type(type)
             end
-
-
-            ArithOperators = [:+, :-, :*, :/, :%]
-            CompareOperators = [:<, :<=, :>, :>=]
-            EqualityOperators = [:==, :!=]
-            LogicOperators = [:&, :'&&', :|, :'||', :^]
-            PrimitiveOperators = ArithOperators + CompareOperators + EqualityOperators + LogicOperators
                 
             def visit_send_node(node)
                 # TODO: handle self sends
                 receiver_type = nil
 
                 if node.receiver == nil
+                    Logger.warn("No receiver given for node #{node.to_s}")
                     receiver_type = Types::UnionType.create_int
                 else
                     receiver_type = node.receiver.accept(self)
                 end
+
+                node.arguments.each do |arg|
+                    arg.accept(self)
+                end
+
                 type = Types::UnionType.new
                 
-                if PrimitiveOperators.include?(node.selector)
-                    if node.arguments.size != 1
-                        raise "Expected 1 argument for binary selector (#{node.arguments.size} given)"
-                    end
-                    
-                    # Process every combination of recv_type x operand_type
-                    operand_type = node.arguments.first.accept(self)
-                    for recv_type in receiver_type.types
-                        for op_type in operand_type.types
-                            type.expand(primitive_operator_type(node.selector, recv_type, op_type))
-                        end
-                    end
-                else
-                    for recv_type in receiver_type.types
-                        if RubyIntegration.has_implementation?(recv_type.to_ruby_type, node.selector)
-                            type.expand(RubyIntegration.get_return_type(recv_type.to_ruby_type, node.selector))
-                        else
-                            node.arguments.each do |arg|
-                                arg.accept(self)
-                            end
-
-                            type.expand(visit_method_call(node))
-                        end
+                for recv_type in receiver_type.types
+                    if RubyIntegration.has_implementation?(recv_type.to_ruby_type, node.selector)
+                        arg_types = node.arguments.map do |arg| arg.get_type end
+                        type.expand(RubyIntegration.get_return_type(recv_type.to_ruby_type, node.selector, *arg_types))
+                    else
+                        type.expand(visit_method_call(node))
                     end
                 end
                 
                 node.get_type.expand_return_type(type)
-            end
-
-            def primitive_operator_type(selector, receiver_type, operand_type)
-                # receiver_type and operand_type are singleton types, return value is union type
-
-                arg_types = [receiver_type, operand_type]
-                
-                if ArithOperators.include?(selector)
-                    type_mapping = {[Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_int,
-                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_float,
-                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_float}
-                    
-                    if type_mapping.has_key?(arg_types)
-                        return type_mapping[arg_types]
-                    elsif type_mapping.has_key?(arg_types.reverse)
-                        return type_mapping[arg_types.reverse]
-                    else
-                        raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
-                    end
-                elsif CompareOperators.include?(selector)
-                    type_mapping = {[Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_bool,
-                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_bool,
-                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_bool}
-                    
-                    if type_mapping.has_key?(arg_types)
-                        return type_mapping[arg_types]
-                    elsif type_mapping.has_key?(arg_types.reverse)
-                        return type_mapping[arg_types.reverse]
-                    else
-                        raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
-                    end
-                elsif EqualityOperators.include?(selector)
-                    type_mapping = {[Types::PrimitiveType::Bool, Types::PrimitiveType::Bool] => Types::UnionType.create_bool,
-                        [Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_bool,
-                        [Types::PrimitiveType::Int, Types::PrimitiveType::Float] => Types::UnionType.create_bool,
-                        [Types::PrimitiveType::Float, Types::PrimitiveType::Float] => Types::UnionType.create_bool}
-                        
-                    if type_mapping.has_key?(arg_types)
-                        return type_mapping[arg_types]
-                    elsif type_mapping.has_key?(arg_types.reverse)
-                        return type_mapping[arg_types.reverse]
-                    elsif not arg_types.include?(Types::PrimitiveType::Void) and receiver.type.is_primitive? and operand.type.is_primitive?
-                        # TODO: this should also return a translation result: selector == :== ? "false" : "true"
-                        return Types::UnionType.create_bool
-                    else
-                        raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
-                    end
-                elsif LogicOperators.include?(selector)
-                    # TODO: need proper implementation
-                    int_float = [Types::PrimitiveType::Int, Types::PrimitiveType::Float].to_set
-                    if selector == :'&&'
-                        if (int_float + arg_types).size == 2
-                            # Both are int/float
-                            # TODO: this should return the operand
-                            return Types::UnionType.new(operand_type)
-                        elsif operand_type == PrimitiveType::Bool and receiver_type == Types::PrimitiveType::Bool
-                            return Types::UnionType.create_bool
-                        else
-                            raise "Cannot handle types #{receiver_type} and #{operand_type} for primitive operator #{selector.to_s}"
-                        end
-                    elsif selector == :'||'
-                        if (int_float + arg_types).size == 2
-                            # Both are int/float
-                            # TODO: this should return the receiver
-                            return Types::UnionType.new(receiver_type)
-                        elsif operand_type == Types::PrimitiveType::Bool and receiver_type == Types::PrimitiveType::Bool
-                            return Types::UnionType.create_bool
-                        else
-                            raise "Cannot handle types #{receiver_type} and #{operand_type} for primitive operator #{selector.to_s}"
-                        end
-                    elsif selector == :& or selector == :| or selector == :^
-                        type_mapping = {[Types::PrimitiveType::Bool, Types::PrimitiveType::Bool] => Types::UnionType.create_bool,
-                            [Types::PrimitiveType::Int, Types::PrimitiveType::Int] => Types::UnionType.create_int}
-                            
-                        if type_mapping.has_key?(arg_types)
-                            return type_mapping[arg_types]
-                        else
-                            raise "Types #{receiver_type} and #{operand_type} not applicable for primitive operator #{selector.to_s}"
-                        end
-                    end
-                end
             end
         end
     end

@@ -222,38 +222,52 @@ module Ikra
         end
         
         class SendNode
-            BinarySelectors = [:+, :-, :*, :/, :%, :<, :<=, :>, :>=, :==, :!=, :&, :'&&', :|, :'||', :^]
-            
             def translate_expression
-                if BinarySelectors.include?(selector)
-                    if arguments.size != 1
-                        raise "Expected 1 argument for binary selector (#{arguments.size} given)"
+                if receiver.get_type.is_singleton? &&
+                        RubyIntegration.has_implementation?(receiver.get_type.singleton_type.to_ruby_type, selector)
+
+                    ruby_recv_type = receiver.get_type.singleton_type.to_ruby_type
+
+                    # TODO: support multiple types for receiver
+                    args = []
+                    if RubyIntegration.should_pass_self?(ruby_recv_type, selector)
+                        args.push(receiver.translate_expression)
                     end
-                    
-                    "(#{receiver.translate_expression} #{selector.to_s} #{arguments.first.translate_expression})"
+
+                    # Add regular arguments
+                    args.push(*arguments.map do |arg| arg.translate_expression end)
+
+                    RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
                 else
-                    if receiver.get_type.is_singleton? and
-                            RubyIntegration.has_implementation?(receiver.get_type.singleton_type.to_ruby_type, selector)
+                    # TODO: generate argument code only once
 
-                        ruby_recv_type = receiver.get_type.singleton_type.to_ruby_type
-
-                        # TODO: support multiple types for receiver
-                        args = []
-                        if RubyIntegration.should_pass_self?(ruby_recv_type, selector)
-                            args.push(receiver.translate_expression)
+                    if receiver.get_type.is_singleton?
+                        self_argument = []
+                        if receiver.get_type.singleton_type.should_generate_self_arg?
+                            self_argument = [receiver.translate_expression]
+                        else
+                            self_argument = ["NULL"]
                         end
 
-                        # Add regular arguments
-                        args.push(*arguments.map do |arg| arg.translate_expression end)
+                        args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
+                            arguments.map do |arg| arg.translate_expression end
+                        args_string = args.join(", ")
 
-                        RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
+                        "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
                     else
-                        # TODO: generate argument code only once
+                        # Polymorphic case
+                        # TODO: This is not an expression anymore!
+                        poly_id = temp_identifier_id
+                        receiver_identifier = "_polytemp_recv_#{poly_id}"
+                        result_identifier = "_polytemp_result_#{poly_id}"
+                        header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
+                        case_statements = []
 
-                        if receiver.get_type.is_singleton?
+                        receiver.get_type.types.each do |type|
                             self_argument = []
-                            if receiver.get_type.singleton_type.should_generate_self_arg?
-                                self_argument = [receiver.translate_expression]
+                            if type.should_generate_self_arg?
+                                # No need to pass type as subtypes are regarded as entirely new types
+                                self_argument = ["#{receiver_identifier}.object_id"]
                             else
                                 self_argument = ["NULL"]
                             end
@@ -261,36 +275,12 @@ module Ikra
                             args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
                                 arguments.map do |arg| arg.translate_expression end
                             args_string = args.join(", ")
-
-                            "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
-                        else
-                            # Polymorphic case
-                            # TODO: This is not an expression anymore!
-                            poly_id = temp_identifier_id
-                            receiver_identifier = "_polytemp_recv_#{poly_id}"
-                            result_identifier = "_polytemp_result_#{poly_id}"
-                            header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
-                            case_statements = []
-
-                            receiver.get_type.types.each do |type|
-                                self_argument = []
-                                if type.should_generate_self_arg?
-                                    # No need to pass type as subtypes are regarded as entirely new types
-                                    self_argument = ["#{receiver_identifier}.object_id"]
-                                else
-                                    self_argument = ["NULL"]
-                                end
-
-                                args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
-                                    arguments.map do |arg| arg.translate_expression end
-                                args_string = args.join(", ")
-                                
-                                case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args_string}); break;")
-                            end
-
-                            # TODO: compound statements only work with the GNU C++ compiler
-                            "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
+                            
+                            case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args_string}); break;")
                         end
+
+                        # TODO: compound statements only work with the GNU C++ compiler
+                        "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
                     end
                 end
             end
