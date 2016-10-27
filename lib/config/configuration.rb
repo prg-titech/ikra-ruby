@@ -1,3 +1,5 @@
+require 'fileutils'
+
 require_relative "../symbolic/symbolic"
 
 module Ikra
@@ -10,10 +12,14 @@ module Ikra
         end
 
         def self.codegen_expect_file_name_for(file_name)
+            FileUtils.mkdir_p(File.expand_path("gen/codegen_expect", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))))
+            
             File.expand_path("gen/codegen_expect/#{file_name}", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))))
         end
 
         def self.log_file_name_for(test_case_name)
+            FileUtils.mkdir_p(File.expand_path("gen/log", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))))
+
             File.expand_path("gen/log/#{test_case_name}.log", File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__)))))
         end
 
