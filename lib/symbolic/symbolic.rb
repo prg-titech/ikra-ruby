@@ -184,6 +184,27 @@ module Ikra
             attr_reader :block
         end
 
+        def ArrayStencilCommand
+            include ArrayCommand
+
+            attr_reader :target
+            attr_reader :offsets
+            attr_reader :out_of_range_value
+
+            def initialize(target, offsets, out_of_range_value, block)
+                super
+
+                @target = target
+                @offsets = offsets
+                @out_of_range_value = out_of_range_value
+                @block = block
+            end
+
+            protected
+
+            attr_reader :block
+        end
+
         class ArraySelectCommand
             include ArrayCommand
 
@@ -263,7 +284,11 @@ class Array
     def pmap(&block)
         Ikra::Symbolic::ArrayMapCommand.new(to_command, block)
     end
-    
+
+    def pstencil(offsets, out_of_range_value, &block)
+        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block)
+    end
+
     def to_command
         Ikra::Symbolic::ArrayIdentityCommand.new(self)
     end

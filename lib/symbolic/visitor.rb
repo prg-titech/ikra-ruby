@@ -12,6 +12,12 @@ module Ikra
             end
         end
 
+        class ArrayStencilCommand
+            def accept(visitor)
+                visitor.visit_array_stencil_command(self)
+            end
+        end
+
         class ArraySelectCommand
             def accept(visitor)
                 visitor.visit_array_select_command(self)
@@ -34,6 +40,11 @@ module Ikra
             end
 
             def visit_array_map_command(command)
+                visit_array_command(command)
+                command.target.accept(self)
+            end
+
+            def visit_array_stencil_command(command)
                 visit_array_command(command)
                 command.target.accept(self)
             end
