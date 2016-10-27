@@ -29,6 +29,21 @@ class ControlFlowTest < UnitTestCase
         end
     end
 
+    def test_for_excluding
+        sum = Array.pnew(100) do |j|
+            result = 0
+            for i in 1...j
+                result += i
+            end
+
+            result
+        end
+
+        for k in 0..99
+            assert_equal(k*(k-1) / 2, sum[k])
+        end   
+    end
+
     def test_while
         sum = Array.pnew(100) do |j|
             result = 0

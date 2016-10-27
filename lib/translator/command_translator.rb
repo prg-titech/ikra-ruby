@@ -263,6 +263,7 @@ module Ikra
                 Log.info("Done, took #{Time.now - time_before} s")
 
                 if $? != 0
+                    Log.fatal("nvcc failed: #{compile_status}")
                     raise "nvcc failed: #{compile_status}"
                 else
                     Log.info("nvcc successful: #{compile_status}")

@@ -76,6 +76,19 @@ module Ikra
                             range_from: translate_node(range.children[0]),
                             range_to: translate_node(range.children[1]),
                             body_stmts: translate_node(node.children[2]))
+                    elsif node.children[0].type == :lvasgn and extract_begin_single_statement(node.children[1]).type == :erange
+                        # Convert exclusive range to inclusive range
+                        range = extract_begin_single_statement(node.children[1])
+                        range_to = translate_node(range.children[1])
+                        range_to_inclusive = SendNode.new(
+                            receiver: range_to,
+                            selector: :-,
+                            arguments: [IntNode.new(value: 1)])
+
+                        ForNode.new(iterator_identifier: node.children[0].children[0],
+                            range_from: translate_node(range.children[0]),
+                            range_to: range_to_inclusive,
+                            body_stmts: translate_node(node.children[2]))
                     else
                         raise "Can only handle simple For loops at the moment"
                     end
