@@ -109,7 +109,17 @@ module Ikra
                 end
 
                 def translate_send(node)
-                    SendNode.new(receiver: translate_node(node.children[0]),
+                    receiver = nil
+
+                    if node.children[0] == nil
+                        # Implicit receiver
+                        # TODO: Assuming Object for now, but this is not always correct
+                        receiver = ConstNode.new(identifier: :Object)
+                    else
+                        receiver = translate_node(node.children[0])
+                    end
+
+                    SendNode.new(receiver: receiver,
                         selector: node.children[1],
                         arguments: node.children[2..-1].map do |arg|
                             translate_node(arg) end)
