@@ -59,7 +59,7 @@ module Ikra
             # @return [RubyType] Inner type
             def singleton_type
                 if @types.size != 1
-                    raise "Union type is not singleton"
+                    raise "Union type is not singleton (found #{@types.size} types)"
                 end
 
                 @types.first

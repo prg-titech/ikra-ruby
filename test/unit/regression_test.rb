@@ -19,4 +19,13 @@ class RegressionTest < UnitTestCase
 
         assert_equal(100, id_kernel.reduce(:+))
     end
+
+    def test_modulus_float_int
+        array = Array.pnew(100) do |var|
+            4.0 % 3
+        end
+
+        assert_in_delta(100.0, array.reduce(:+), 0.01)
+    end
+
 end

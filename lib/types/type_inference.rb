@@ -225,7 +225,7 @@ module Ikra
 
                 recv_type.types.each do |recv_singleton_type|
                     if recv_singleton_type.is_primitive?
-                        raise "Assertion failed: PrimitiveType #{recv_singleton_type} found as recv in visit_method_call"
+                        raise NotImplementedError.new("#{recv_singleton_type}.#{selector} not implemented")
                     end
 
                     parameter_names = recv_singleton_type.method_parameters(selector)
@@ -239,7 +239,7 @@ module Ikra
                             name: selector,
                             body: ast,
                             parameters_names_and_types: Hash[*parameter_names.zip(
-                                Array.new(arg_types.size) do 
+                                Array.new(arg_types.size) do |arg_index|
                                     Types::UnionType.new
                                 end).flatten],
                             ruby_method: nil,
@@ -251,10 +251,14 @@ module Ikra
                     end
 
                     method_def_node = @classes[recv_singleton_type].instance_method(selector)
-                    # Method needs processing if any parameter is expanded (or method was never visited before)
-                    needs_processing = !method_visited_before or parameter_names.map.with_index do |name, index|
-                        method_def_node.parameters_names_and_types[name].expand(arg_types[index])   # returns true if expanded 
+
+                    parameter_types_expanded = parameter_names.map.with_index do |name, index|
+                        # returns true if expanded 
+                        method_def_node.parameters_names_and_types[name].expand(arg_types[index])
                     end.reduce(:|)
+
+                    # Method needs processing if any parameter is expanded (or method was never visited before)
+                    needs_processing = !method_visited_before or parameter_types_expanded
 
                     # Return value type from the last pass
                     # TODO: Have to make a copy here?

@@ -79,7 +79,7 @@ def mandelbrot_cpu(size)
         hx = j % hx_res
         hy = j / hx_res
         
-        (hx % 256) * 0xffff00 + (hy % 256)
+        encodeHSBcolor(hx.to_f / hx_res, 1, 0.5)
     end
 
     return mandel_basic
@@ -89,11 +89,11 @@ def mandelbrot_gpu(size)
     hx_res = size
     hy_res = size
 
-    mandel_basic = (0...1000000).to_a.pmap do |j|
+    mandel_basic = Array.pnew(hx_res * hy_res) do |j|
         hx = j % hx_res
         hy = j / hx_res
         
-        (hx % 256) * 0xffff00 + (hy % 256)
+        encodeHSBcolor(hx.to_f / hx_res, 1, 0.5)
     end
 
     return mandel_basic

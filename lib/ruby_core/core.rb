@@ -36,6 +36,7 @@ module Ikra
             end
         end
 
+        # TODO: fix int % float
         implement Fixnum, :%, PROMOTE_TO_FIXNUM_FLOAT, 1, "(#1 % #2)"
         implement Fixnum, :&, ASSERT_AND_RETURN_FIXNUM, 1, "(#1 & #2)"
         implement Fixnum, :*, PROMOTE_TO_FIXNUM_FLOAT, 1, "(#1 * #2)"
@@ -59,7 +60,7 @@ module Ikra
         implement Fixnum, :to_f, FLOAT, 1, "(float) #1"
         implement Fixnum, :to_i, INT, 1, "#1"
 
-        implement Float, :%, FLOAT, 1, "(#1 % #2)"
+        implement Float, :%, FLOAT, 1, "fmodf(#1, ((float) #2))"
         implement Float, :*, FLOAT, 1, "(#1 * #2)"
         implement Float, :**, FLOAT, 1, "powf(#1, (float) #2)"
         implement Float, :+, FLOAT, 1, "(#1 + #2)"
@@ -74,6 +75,8 @@ module Ikra
         implement Float, :>, ASSERT_NUMERIC_RETURN_BOOL, 1, "(#1 > #2)"
         implement Float, :>=, ASSERT_NUMERIC_RETURN_BOOL, 1, "(#1 >= #2)"
 
+        implement Float, :abs, FLOAT, 1, "fabsf(#1)"
+        implement Float, :floor, FLOAT, 1, "floorf(#1)"
         implement Float, :to_f, FLOAT, 1, "#1"
         implement Float, :to_i, INT, 1, "(int) #1"
 
