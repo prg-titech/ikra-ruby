@@ -2,6 +2,7 @@ require "test/unit"
 require "ikra"
 require_relative "codegen/mandelbrot"
 require_relative "codegen/square"
+require_relative "codegen/union_type_float_int_benchmark"
 
 class CodegenTest < Test::Unit::TestCase
     def setup
@@ -21,5 +22,10 @@ class CodegenTest < Test::Unit::TestCase
     def test_square
         Ikra::Configuration.codegen_expect_file_name = "square"
         run_square
+    end
+
+    def test_union_singleton_benchmark
+        Ikra::Configuration.codegen_expect_file_name = "union_type_float_int_benchmark"
+        run_gradient_benchmark
     end
 end
