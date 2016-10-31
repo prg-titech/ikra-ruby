@@ -25,15 +25,15 @@ module Ikra
 
             def to_c_type
                 if @types.size == 1
-                    @types.first.to_c_type
+                    return @types.first.to_c_type
                 else
-                    "union_t"
+                    return "union_t"
                 end
             end
 
             def to_ruby_type
                 if @types.size == 1
-                    @types.first.to_ruby_type
+                    return @types.first.to_ruby_type
                 else
                     raise "Not implemented yet"
                 end
@@ -41,18 +41,18 @@ module Ikra
 
             def is_primitive?
                 if @types.size == 1
-                    @types.first.is_primitive?
+                    return @types.first.is_primitive?
                 else
-                    false
+                    return false
                 end
             end
 
             def is_union_type?
-                true
+                return true
             end
 
             def is_singleton?
-                @types.size == 1
+                return @types.size == 1
             end
 
             # Returns the single inner type or raises an error if this union type contains more than one inner type.
@@ -62,7 +62,7 @@ module Ikra
                     raise "Union type is not singleton (found #{@types.size} types)"
                 end
 
-                @types.first
+                return @types.first
             end
 
             # Merges all inner types of the argument into this union type.
@@ -75,7 +75,7 @@ module Ikra
 
                 is_expanded = (union_type.types - @types).size > 0
                 @types.merge(union_type.types)
-                is_expanded
+                return is_expanded
             end
 
             # Merges all inner types of the argument into this union type.
@@ -83,7 +83,7 @@ module Ikra
             # @return [UnionType] self
             def expand_return_type(union_type)
                 expand(union_type)
-                self
+                return self
             end
 
             def expand_with_singleton_type(singleton_type)
@@ -93,7 +93,7 @@ module Ikra
 
                 is_expanded = !@types.include?(singleton_type)
                 @types.add(singleton_type)
-                is_expanded
+                return is_expanded
             end
 
             # Determines if this union type contains a specific singleton type.
@@ -112,41 +112,41 @@ module Ikra
                     raise "Union type expected"
                 end
 
-                (union_type.types - @types).size == 0
+                return (union_type.types - @types).size == 0
             end
 
             # Alias for {#include_all?}
             def <=(union_type)
-                union_type.include_all?(self)
+                return union_type.include_all?(self)
             end
 
             def to_s
-                "{#{@types.to_a.join(", ")}}"
+                return "{#{@types.to_a.join(", ")}}"
             end
 
             class << self
                 def create_int
-                    new(PrimitiveType::Int)
+                    return new(PrimitiveType::Int)
                 end
 
                 def create_float
-                    new(PrimitiveType::Float)
+                    return new(PrimitiveType::Float)
                 end
 
                 def create_bool
-                    new(PrimitiveType::Bool)
+                    return new(PrimitiveType::Bool)
                 end
 
                 def create_void
-                    new(PrimitiveType::Void)
+                    return new(PrimitiveType::Void)
                 end
 
                 def create_unknown
-                    new(UnknownType::Instance)
+                    return new(UnknownType::Instance)
                 end
 
                 def parameter_hash_to_s(hash)
-                    hash.map do |name, type|
+                    return hash.map do |name, type|
                         name.to_s + ": " + type.to_s
                     end.join(", ")
                 end

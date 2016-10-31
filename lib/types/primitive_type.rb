@@ -6,18 +6,20 @@ module Ikra
             include RubyType
             
             attr_reader :c_size
+            attr_reader :class_id
             
-            def initialize(c_type, ruby_type, c_size, ffi_type)
+            def initialize(c_type, ruby_type, c_size, ffi_type, class_id)
                 @c_type = c_type
                 @ruby_type = ruby_type
                 @c_size = c_size
                 @ffi_type = ffi_type
+                @class_id = class_id
             end
             
-            Int = self.new("int", Fixnum, 4, :int)
-            Float = self.new("float", Float, 4, :float)
-            Bool = self.new("bool", TrueClass, 1, :bool)
-            Void = self.new("void", nil, 0, :void)
+            Int = self.new("int", Fixnum, 4, :int, 1)
+            Float = self.new("float", Float, 4, :float, 2)
+            Bool = self.new("bool", TrueClass, 1, :bool, 3)
+            Void = self.new("void", nil, 0, :void, 4)
             
             def ==(other)
                 return other.is_a?(PrimitiveType) && other.to_c_type == to_c_type

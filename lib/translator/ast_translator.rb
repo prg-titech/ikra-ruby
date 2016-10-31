@@ -61,6 +61,20 @@ module Ikra
                 type = node.get_type.to_c_type
                 "#{type} #{name} = #{node.translate_expression};"
             end
+
+            def wrap_in_union_type(str, type)
+                if type == Types::PrimitiveType::Int
+                    return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
+                elsif type == Types::PrimitiveType::Float
+                    return "((union_t) {#{type.class_id}, {.float_ = #{str}}})"
+                elsif type == Types::PrimitiveType::Bool
+                    return "((union_t) {#{type.class_id}, {.bool_ = #{str}}})"
+                elsif !type.is_a?(Types::UnionType)
+                    return "((union_t) {#{type.class_id}, {.object_id = #{str}}})"
+                else
+                    raise "UnionType found but singleton type expected"
+                end
+            end
         end
         
         class BlockDefNode
@@ -120,7 +134,14 @@ module Ikra
         
         class LVarWriteNode
             def translate_expression
-                "#{mangled_identifier.to_s} = #{value.translate_expression}"
+                if value.get_type.is_singleton? and !symbol_table[identifier].is_singleton?
+                    # The assigned value is singleton, but the variable is not
+                    singleton_assignment = wrap_in_union_type(
+                        value.translate_expression, value.get_type.singleton_type)
+                    return "#{mangled_identifier.to_s} = #{singleton_assignment}"
+                else
+                    return "#{mangled_identifier.to_s} = #{value.translate_expression}"
+                end
             end
         end
         
@@ -223,65 +244,82 @@ module Ikra
         
         class SendNode
             def translate_expression
-                if receiver.get_type.is_singleton? &&
-                        RubyIntegration.has_implementation?(receiver.get_type.singleton_type.to_ruby_type, selector)
+                if receiver.get_type.is_singleton?
+                    return generate_send_for_singleton(receiver.get_type.singleton_type)
+                else
+                    # Polymorphic case
+                    # TODO: This is not an expression anymore!
+                    poly_id = temp_identifier_id
+                    receiver_identifier = "_polytemp_recv_#{poly_id}"
+                    result_identifier = "_polytemp_result_#{poly_id}"
+                    header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
+                    case_statements = []
 
-                    ruby_recv_type = receiver.get_type.singleton_type.to_ruby_type
+                    for type in receiver.get_type.types
+                        object_id = nil
 
-                    # TODO: support multiple types for receiver
+                        if type == Types::PrimitiveType::Int
+                            object_id = "#{receiver_identifier}.value.int_"
+                        elsif type == Types::PrimitiveType::Float
+                            object_id = "#{receiver_identifier}.value.float_"
+                        elsif type == Types::PrimitiveType::Bool
+                            object_id = "#{receiver_identifier}.value.bool_"
+                        else
+                            object_id = "#{receiver_identifier}.value.object_id"
+                        end
+
+                        singleton_invocation = generate_send_for_singleton(type, self_argument: object_id)
+                        singleton_return_value = return_type_by_recv_type[type]
+
+                        if singleton_return_value.is_singleton? and !get_type.is_singleton?
+                            # The return value of this particular invocation (singleton type recv)
+                            # is singleton, but in general this send can return many types
+                            singleton_invocation = wrap_in_union_type(singleton_invocation, singleton_return_value.singleton_type)
+                        end
+
+                        case_statements.push("case #{type.class_id}: #{result_identifier} = #{singleton_invocation}; break;")
+                    end
+
+                    # TODO: compound statements only work with the GNU C++ compiler
+                    "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
+                end
+            end
+
+            def generate_send_for_singleton(recv_type, self_argument: nil)
+                ruby_recv_type = recv_type.to_ruby_type
+
+                if RubyIntegration.has_implementation?(ruby_recv_type, selector)
                     args = []
+
                     if RubyIntegration.should_pass_self?(ruby_recv_type, selector)
-                        args.push(receiver.translate_expression)
+                        if self_argument != nil
+                            args.push(self_argument)
+                        else
+                            args.push(receiver.translate_expression)
+                        end
                     end
 
                     # Add regular arguments
                     args.push(*arguments.map do |arg| arg.translate_expression end)
 
-                    RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
+                    return RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
                 else
-                    # TODO: generate argument code only once
+                    args = [Translator::Constants::ENV_IDENTIFIER]
 
-                    if receiver.get_type.is_singleton?
-                        self_argument = []
-                        if receiver.get_type.singleton_type.should_generate_self_arg?
-                            self_argument = [receiver.translate_expression]
+                    if recv_type.should_generate_self_arg?
+                        if self_argument != nil
+                            args.push(self_argument) 
                         else
-                            self_argument = ["NULL"]
+                            args.push(receiver.translate_expression)
                         end
-
-                        args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
-                            arguments.map do |arg| arg.translate_expression end
-                        args_string = args.join(", ")
-
-                        "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
                     else
-                        # Polymorphic case
-                        # TODO: This is not an expression anymore!
-                        poly_id = temp_identifier_id
-                        receiver_identifier = "_polytemp_recv_#{poly_id}"
-                        result_identifier = "_polytemp_result_#{poly_id}"
-                        header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
-                        case_statements = []
-
-                        receiver.get_type.types.each do |type|
-                            self_argument = []
-                            if type.should_generate_self_arg?
-                                # No need to pass type as subtypes are regarded as entirely new types
-                                self_argument = ["#{receiver_identifier}.object_id"]
-                            else
-                                self_argument = ["NULL"]
-                            end
-
-                            args = ([Translator::Constants::ENV_IDENTIFIER] + self_argument) +
-                                arguments.map do |arg| arg.translate_expression end
-                            args_string = args.join(", ")
-                            
-                            case_statements.push("case #{type.class_id}: #{result_identifier} = #{type.mangled_method_name(selector)}(#{args_string}); break;")
-                        end
-
-                        # TODO: compound statements only work with the GNU C++ compiler
-                        "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
+                        args.push("NULL")
                     end
+
+                    args.push(*(arguments.map do |arg| arg.translate_expression end))
+                    args_string = args.join(", ")
+
+                    return "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
                 end
             end
         end

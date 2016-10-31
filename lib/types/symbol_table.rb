@@ -82,7 +82,7 @@ module Ikra
                         + " symbol table"
                 end
 
-                @symbols[variable_name].expand(type)
+                @symbols[variable_name].type.expand(type)
             end
 
             def expand_return_type(type)
@@ -95,16 +95,20 @@ module Ikra
 
             # Declares a local variable. This method should be used only for regular local
             # variables (not parameters). Does not shadow lexical variables.
-            def ensure_variable_declared(variable_name, type: UnionType.new, kind: :local)
+            def ensure_variable_declared(variable_name, type: Types::UnionType.new, kind: :local)
                 if !has_variable?(variable_name)
                     declare_variable(variable_name, type: type, kind: kind)
+                else
+                    # Extend type of variable
+                    expand_type(variable_name, type)
                 end
             end
 
             # Declares a local variable and overwrites (shadows) existing variables
             # (lexical variables). Use this method for method/block parameters.
-            def declare_variable(variable_name, type: UnionType.new, kind: :local)
-                @symbols[variable_name] = Variable.new(type: type, kind: kind)
+            def declare_variable(variable_name, type: Types::UnionType.new, kind: :local)
+                @symbols[variable_name] = Variable.new(type: Types::UnionType.new, kind: kind)
+                expand_type(variable_name, type)
             end
 
             private

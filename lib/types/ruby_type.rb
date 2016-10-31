@@ -6,7 +6,7 @@ module Ikra
 
         # Defines the minimal interface for Ikra types. Instances of {UnionType} are expected in most cases.
         module RubyType
-            @@next_class_id = 0
+            @@next_class_id = 10
 
             def to_ruby_type
                 raise NotImplementedError
@@ -22,6 +22,10 @@ module Ikra
 
             def is_union_type?
                 false
+            end
+
+            def should_generate_self_arg?
+                return true
             end
 
             def class_id

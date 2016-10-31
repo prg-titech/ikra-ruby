@@ -12,7 +12,18 @@ module Ikra
     module AST
         class Node
             def get_type
-                return @type ||= Types::UnionType.new
+                @type ||= Types::UnionType.new
+            end
+
+            def merge_union_type(union_type)
+                type = @type ||= Types::UnionType.new
+                type.expand_return_type(union_type)
+            end
+        end
+
+        class TreeNode
+            def symbol_table
+                return parent.symbol_table
             end
         end
 
@@ -20,10 +31,6 @@ module Ikra
             def get_type
                 return ruby_class.to_ikra_type
             end
-        end
-
-        class LVarReadNode
-            attr_accessor :variable_type
         end
 
         class LVarWriteNode
@@ -83,6 +90,13 @@ module Ikra
 
             def symbol_table
                 @symbol_table ||= TypeInference::SymbolTable.new
+            end
+        end
+
+        class SendNode
+            # Mapping: Receiver type --> Return value of send
+            def return_type_by_recv_type
+                @return_type_by_recv_type ||= {}
             end
         end
     end
@@ -166,7 +180,7 @@ module Ikra
 
                 @work_stack.pop
 
-                block_def_node.get_type.expand_return_type(return_value_type)
+                block_def_node.merge_union_type(return_value_type)
             end
 
             # This is used as an entry point for the visitor
@@ -214,73 +228,67 @@ module Ikra
 
                 @work_stack.pop
 
-                method_def_node.get_type.expand_return_type(return_value_type)
+                method_def_node.merge_union_type(return_value_type)
             end
 
             # This is not an actual Visitor method. It is called from visit_send_node.
-            def visit_method_call(send_node)
-                recv_type = send_node.receiver.get_type
+            def visit_method_call(send_node, recv_singleton_type)
                 selector = send_node.selector
-                return_type = Types::UnionType.new
 
-                recv_type.types.each do |recv_singleton_type|
-                    if recv_singleton_type.is_primitive?
-                        raise NotImplementedError.new("#{recv_singleton_type}.#{selector} not implemented")
-                    end
-
-                    parameter_names = recv_singleton_type.method_parameters(selector)
-                    arg_types = send_node.arguments.map do |arg| arg.get_type end
-                    ast = recv_singleton_type.method_ast(selector)
-                    method_visited_before = nil
-
-                    if not @classes[recv_singleton_type].has_instance_method?(selector)
-                        # This method was never visited before
-                        method_def_node = AST::MethDefNode.new_with_types(
-                            name: selector,
-                            body: ast,
-                            parameters_names_and_types: Hash[*parameter_names.zip(
-                                Array.new(arg_types.size) do |arg_index|
-                                    Types::UnionType.new
-                                end).flatten],
-                            ruby_method: nil,
-                            receiver_type: recv_singleton_type)
-                        @classes[recv_singleton_type].add_instance_method(method_def_node)
-                        method_visited_before = false
-                    else
-                        method_visited_before = true
-                    end
-
-                    method_def_node = @classes[recv_singleton_type].instance_method(selector)
-
-                    parameter_types_expanded = parameter_names.map.with_index do |name, index|
-                        # returns true if expanded 
-                        method_def_node.parameters_names_and_types[name].expand(arg_types[index])
-                    end.reduce(:|)
-
-                    # Method needs processing if any parameter is expanded (or method was never visited before)
-                    needs_processing = !method_visited_before or parameter_types_expanded
-
-                    # Return value type from the last pass
-                    # TODO: Have to make a copy here?
-                    last_return_type = method_def_node.get_type
-                    
-                    if needs_processing
-                        process_method(method_def_node)
-                    end
-
-                    if not last_return_type.include_all?(method_def_node.get_type)
-                        # Return type was expanded during this pass, reprocess all callers (except for current method)
-                        @worklist += (method_def_node.callers - [current_method_or_block])
-                    end
-
-                    method_def_node.callers.push(current_method_or_block)
-
-                    # Return value of all visit methods should be the type
-                    return_type.expand(method_def_node.get_type)
+                if recv_singleton_type.is_primitive?
+                    raise NotImplementedError.new("#{recv_singleton_type}.#{selector} not implemented")
                 end
 
-                send_node.get_type.expand(return_type)
-                return_type
+                parameter_names = recv_singleton_type.method_parameters(selector)
+                arg_types = send_node.arguments.map do |arg| arg.get_type end
+                ast = recv_singleton_type.method_ast(selector)
+                method_visited_before = nil
+
+                if not @classes[recv_singleton_type].has_instance_method?(selector)
+                    # This method was never visited before
+                    method_def_node = AST::MethDefNode.new_with_types(
+                        name: selector,
+                        body: ast,
+                        parameters_names_and_types: Hash[*parameter_names.zip(
+                            Array.new(arg_types.size) do |arg_index|
+                                Types::UnionType.new
+                            end).flatten],
+                        ruby_method: nil,
+                        receiver_type: recv_singleton_type)
+                    @classes[recv_singleton_type].add_instance_method(method_def_node)
+                    method_visited_before = false
+                else
+                    method_visited_before = true
+                end
+
+                method_def_node = @classes[recv_singleton_type].instance_method(selector)
+
+                parameter_types_expanded = parameter_names.map.with_index do |name, index|
+                    # returns true if expanded 
+                    method_def_node.parameters_names_and_types[name].expand(arg_types[index])
+                end.reduce(:|)
+
+                # Method needs processing if any parameter is expanded (or method was never visited before)
+                needs_processing = !method_visited_before or parameter_types_expanded
+
+                # Return value type from the last pass
+                # TODO: Have to make a copy here?
+                last_return_type = method_def_node.get_type
+                
+                if needs_processing
+                    process_method(method_def_node)
+                end
+
+                if not last_return_type.include_all?(method_def_node.get_type)
+                    # Return type was expanded during this pass, reprocess all callers (except for current method)
+                    @worklist += (method_def_node.callers - [current_method_or_block])
+                end
+
+                method_def_node.callers.push(current_method_or_block)
+
+                send_node.return_type_by_recv_type[recv_singleton_type] = method_def_node.get_type
+                send_node.merge_union_type(method_def_node.get_type)
+                return method_def_node.get_type
             end
 
             def assert_singleton_type(union_type, expected_type)
@@ -303,18 +311,18 @@ module Ikra
                     constant_class = constant.class
                 end
 
-                node.get_type.expand_return_type(Types::UnionType.new(constant_class.to_ikra_type))
+                node.merge_union_type(Types::UnionType.new(constant_class.to_ikra_type))
             end
 
             def visit_root_node(node)
-                node.get_type.expand_return_type(node.single_child.accept(self))
+                node.merge_union_type(node.single_child.accept(self))
             end
 
             def visit_lvar_read_node(node)
                 symbol_table.read!(node.identifier)
 
                 # Extend type of variable
-                return node.get_type.expand_return_type(symbol_table[node.identifier])
+                return node.merge_union_type(symbol_table[node.identifier])
             end
 
             def visit_lvar_write_node(node)
@@ -324,8 +332,11 @@ module Ikra
                 symbol_table.ensure_variable_declared(node.identifier, type: type)
                 symbol_table.written!(node.identifier)
 
+                node.variable_type = symbol_table[node.identifier]
+
                 # Extend type of variable
-                return node.get_type.expand_return_type(type)
+                # Note: Return value of this expression != type of the variable
+                node.merge_union_type(type)
             end
             
             def visit_ivar_read_node(node)
@@ -335,15 +346,15 @@ module Ikra
             end
 
             def visit_int_node(node)
-                node.get_type.expand_return_type(Types::UnionType.create_int)
+                node.merge_union_type(Types::UnionType.create_int)
             end
             
             def visit_float_node(node)
-                node.get_type.expand_return_type(Types::UnionType.create_float)
+                node.merge_union_type(Types::UnionType.create_float)
             end
             
             def visit_bool_node(node)
-                node.get_type.expand_return_type(Types::UnionType.create_bool)
+                node.merge_union_type(Types::UnionType.create_bool)
             end
             
             def visit_for_node(node)
@@ -356,7 +367,7 @@ module Ikra
                 
                 # TODO: Should return range
 
-                node.get_type.expand_return_type(Types::UnionType.create_int)
+                node.merge_union_type(Types::UnionType.create_int)
             end
             
             def visit_break_node(node)
@@ -375,7 +386,7 @@ module Ikra
                     type.expand(node.false_body_stmts.accept(self))
                 end
 
-                node.get_type.expand_return_type(type)
+                node.merge_union_type(type)
             end
             
             def visit_begin_node(node)
@@ -385,13 +396,13 @@ module Ikra
                 
                 # TODO: need to handle empty BeginNode?
                 type = node.body_stmts.last.accept(self)
-                node.get_type.expand_return_type(type)
+                node.merge_union_type(type)
             end
             
             def visit_return_node(node)
                 type = node.value.accept(self)
                 symbol_table.expand_return_type(type)
-                node.get_type.expand_return_type(type)
+                node.merge_union_type(type)
             end
                 
             def visit_send_node(node)
@@ -414,13 +425,16 @@ module Ikra
                 for recv_type in receiver_type.types
                     if RubyIntegration.has_implementation?(recv_type.to_ruby_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
-                        type.expand(RubyIntegration.get_return_type(recv_type.to_ruby_type, node.selector, *arg_types))
+                        return_type = RubyIntegration.get_return_type(recv_type.to_ruby_type, node.selector, *arg_types)
+                        type.expand(return_type)
+
+                        node.return_type_by_recv_type[recv_type] = return_type
                     else
-                        type.expand(visit_method_call(node))
+                        type.expand(visit_method_call(node, recv_type))
                     end
                 end
                 
-                node.get_type.expand_return_type(type)
+                node.merge_union_type(type)
             end
         end
     end

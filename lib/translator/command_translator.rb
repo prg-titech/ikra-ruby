@@ -288,12 +288,33 @@ module Ikra
                 result = ffi_interface.launch_kernel(environment_object)
                 Log.info("Kernel time: #{Time.now - time_before} s")
 
-                if return_type.singleton_type == Types::PrimitiveType::Int
-                    result.read_array_of_int(result_size)
-                elsif return_type.singleton_type == Types::PrimitiveType::Float
-                    result.read_array_of_float(result_size)
+                if return_type.is_singleton?
+                    # Read in entire array
+                    if return_type.singleton_type == Types::PrimitiveType::Int
+                        return result.read_array_of_int(result_size)
+                    elsif return_type.singleton_type == Types::PrimitiveType::Float
+                        return result.read_array_of_float(result_size)
+                    else
+                        raise NotImplementedError.new("Implement bool")
+                    end
                 else
-                    raise NotImplementedError
+                    # Read union type struct
+                    # Have to read one by one and assemble object
+                    result_values = Array.new(result_size)
+
+                    for index in 0...result_size
+                        next_type = (result + (8 * index)).read_int
+
+                        if next_type == Types::PrimitiveType::Int.class_id
+                            result_values[index] = (result + 8 * index + 4).read_int
+                        elsif next_type == Types::PrimitiveType::Float.class_id
+                            result_values[index] = (result + 8 * index + 4).read_float
+                        else
+                            raise NotImplementedError.new("Implement bool and class objs")
+                        end
+                    end
+
+                    return result_values
                 end
             end
         end

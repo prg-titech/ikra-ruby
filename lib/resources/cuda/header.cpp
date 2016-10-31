@@ -31,10 +31,17 @@ typedef int class_id_t;
 /* ----- END Class Type ----- */
 
 /* ----- BEGIN Union Type ----- */
+typedef union union_type_value {
+    obj_id_t object_id;
+    int int_;
+    float float_;
+    bool bool_;
+} union_v_t;
+
 typedef struct union_type_struct
 {
     class_id_t class_id;
-    obj_id_t object_id;
+    union_v_t value;
 } union_t;
 /* ----- END Union Type ----- */
 
