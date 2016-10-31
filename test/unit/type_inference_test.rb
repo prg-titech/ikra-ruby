@@ -66,4 +66,24 @@ class TypeInferenceTest < UnitTestCase
             assert_equal(array[index].class, expected_type)
         end
     end
+
+    def test_type_inference_multiple_passes
+        array = Array.pnew(100) do |j|
+            x = 0
+
+            for i in 0..10
+                x = x + 2.01
+                x = x.to_f
+
+                if i == 5
+                    # Floor
+                    x = x.to_i
+                end
+            end
+
+            x
+        end
+
+        assert_in_delta(2205, array.reduce(:+), 0.001)
+    end
 end

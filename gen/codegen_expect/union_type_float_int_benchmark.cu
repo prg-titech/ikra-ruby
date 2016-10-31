@@ -146,18 +146,18 @@ extern "C" EXPORT int *launch_kernel(environment_t *host_env)
     checkCudaErrors(cudaMalloc(&dev_env, sizeof(environment_t)));
     checkCudaErrors(cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-    int *host_result = (int *) malloc(sizeof(int) * 110250000);
+    int *host_result = (int *) malloc(sizeof(int) * 56250000);
     int *device_result;
-    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 110250000));
+    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 56250000));
     
-    dim3 dim_grid(441000, 1, 1);
+    dim3 dim_grid(225000, 1, 1);
     dim3 dim_block(250, 1, 1);
     
     kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
 
     checkCudaErrors(cudaThreadSynchronize());
 
-    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 110250000, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 56250000, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(dev_env));
 
     return host_result;

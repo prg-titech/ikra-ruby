@@ -66,7 +66,7 @@ def gradient_singleton(size)
 end
 
 def run_gradient_benchmark
-    size = 10500
+    size = 7500
     gradient_union(size)
     gradient_singleton(size)
 end

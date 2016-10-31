@@ -10,20 +10,27 @@ require_relative "ruby_extension"
 
 module Ikra
     module AST
-        class Node
+        class TreeNode
             def get_type
                 @type ||= Types::UnionType.new
             end
 
             def merge_union_type(union_type)
                 type = @type ||= Types::UnionType.new
+
+                if not @type.include_all?(union_type)
+                    register_type_change
+                end
+
                 type.expand_return_type(union_type)
             end
-        end
 
-        class TreeNode
             def symbol_table
                 return parent.symbol_table
+            end
+
+            def register_type_change
+                parent.register_type_change
             end
         end
 
@@ -65,6 +72,20 @@ module Ikra
         end
 
         class BehaviorNode
+            def get_type
+                @type ||= Types::UnionType.new
+            end
+
+            def merge_union_type(union_type)
+                type = @type ||= Types::UnionType.new
+
+                if not @type.include_all?(union_type)
+                    register_type_change
+                end
+                
+                type.expand_return_type(union_type)
+            end
+
             # Mapping: parameter name -> UnionType
             def parameters_names_and_types
                 @parameters_names_and_types ||= {}
@@ -90,6 +111,18 @@ module Ikra
 
             def symbol_table
                 @symbol_table ||= TypeInference::SymbolTable.new
+            end
+
+            def types_changed?
+                return @types_changed ||= false
+            end
+
+            def reset_types_changed
+                @types_changed = false
+            end
+
+            def register_type_change
+                @types_changed = true
             end
         end
 
@@ -180,7 +213,16 @@ module Ikra
 
                 @work_stack.pop
 
-                block_def_node.merge_union_type(return_value_type)
+                return_type = block_def_node.merge_union_type(return_value_type)
+
+                if block_def_node.types_changed?
+                    # Types changed, do another pass. This is not efficient and there are better
+                    # ways to do type inference (e.g., constraint solving), but it works for now.
+                    block_def_node.reset_types_changed
+                    return process_block(block_def_node)
+                else
+                    return return_type
+                end
             end
 
             # This is used as an entry point for the visitor
@@ -228,7 +270,16 @@ module Ikra
 
                 @work_stack.pop
 
-                method_def_node.merge_union_type(return_value_type)
+                return_type = method_def_node.merge_union_type(return_value_type)
+
+                if method_def_node.types_changed?
+                    # Types changed, do another pass. This is not efficient and there are better
+                    # ways to do type inference (e.g., constraint solving), but it works for now.
+                    method_def_node.reset_types_changed
+                    return process_method(method_def_node)
+                else
+                    return return_type
+                end
             end
 
             # This is not an actual Visitor method. It is called from visit_send_node.
