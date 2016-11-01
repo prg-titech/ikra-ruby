@@ -74,23 +74,23 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
     float lex_magnify = _env_->l1_magnify;
     int lex_hx_res = _env_->l1_hx_res;
     {
-        hx = ((j % lex_hx_res));
-        hy = ((j / lex_hx_res));
-        cx = (((((((((((float) hx / (float) lex_hx_res)) - 0.5)) / lex_magnify)) * 3.0)) - 0.7));
-        cy = (((((((((float) hy / (float) lex_hy_res)) - 0.5)) / lex_magnify)) * 3.0));
+        hx = (((j) % (lex_hx_res)));
+        hy = (((j) / (lex_hx_res)));
+        cx = (((((((((((((((((float) (hx))) / (((float) (lex_hx_res)))))) - (0.5)))) / (lex_magnify)))) * (3.0)))) - (0.7)));
+        cy = ((((((((((((((float) (hy))) / (((float) (lex_hy_res)))))) - (0.5)))) / (lex_magnify)))) * (3.0)));
         x = 0.0;
         y = 0.0;
         for (iter = 0; iter <= lex_iter_max; iter++)
         {
-            xx = ((((((x * x)) - ((y * y)))) + cx));
-            y = ((((((2.0 * x)) * y)) + cy));
+            xx = (((((((((x) * (x)))) - ((((y) * (y))))))) + (cx)));
+            y = (((((((((2.0) * (x)))) * (y)))) + (cy)));
             x = xx;
-            if (((((((x * x)) + ((y * y)))) > 100)))
+            if ((((((((((x) * (x)))) + ((((y) * (y))))))) > (100))))
             break;
         }
         iter--;
         {
-            return (iter % 256);
+            return ((iter) % (256));
         }
     }
 }
@@ -99,10 +99,10 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
 __device__ int _block_k_2_(environment_t *_env_, int color)
 {
     int lex_inverted = _env_->l2_inverted;
-    if (((lex_inverted == 1)))
+    if ((((lex_inverted) == (1))))
     {
         {
-            return (255 - color);
+            return ((255) - (color));
         }
     }
     else
