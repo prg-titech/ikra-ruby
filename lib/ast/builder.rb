@@ -37,6 +37,26 @@ module Ikra
                     BoolNode.new(value: node.children[0])
                 end
                 
+                def translate_true(node)
+                    BoolNode.new(value: true)
+                end
+                
+                def translate_false(node)
+                    BoolNode.new(value: false)
+                end
+                
+                def translate_and(node)
+                    SendNode.new(receiver: translate_node(node.children[0]),
+                        selector: :"&&",
+                        arguments: [translate_node(node.children[1])])
+                end
+                
+                def translate_or(node)
+                    SendNode.new(receiver: translate_node(node.children[0]),
+                        selector: :"||",
+                        arguments: [translate_node(node.children[1])])
+                end
+                
                 def translate_lvar(node)
                     LVarReadNode.new(identifier: node.children[0])
                 end

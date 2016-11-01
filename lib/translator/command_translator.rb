@@ -294,8 +294,12 @@ module Ikra
                         return result.read_array_of_int(result_size)
                     elsif return_type.singleton_type == Types::PrimitiveType::Float
                         return result.read_array_of_float(result_size)
+                    elsif return_type.singleton_type == Types::PrimitiveType::Bool
+                        return result.read_array_of_uint8(result_size).map do |v|
+                            v == 1
+                        end
                     else
-                        raise NotImplementedError.new("Implement bool")
+                        raise NotImplementedError.new("Type not implemented")
                     end
                 else
                     # Read union type struct
@@ -309,8 +313,10 @@ module Ikra
                             result_values[index] = (result + 8 * index + 4).read_int
                         elsif next_type == Types::PrimitiveType::Float.class_id
                             result_values[index] = (result + 8 * index + 4).read_float
+                        elsif next_type == Types::PrimitiveType::Bool.class_id
+                            result_values[index] = (result + 8 * index + 4).read_uint8 == 1
                         else
-                            raise NotImplementedError.new("Implement bool and class objs")
+                            raise NotImplementedError.new("Implement class objs")
                         end
                     end
 
