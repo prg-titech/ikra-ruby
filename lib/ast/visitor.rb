@@ -88,6 +88,12 @@ module Ikra
             end
         end
         
+        class NilNode
+            def accept(visitor)
+                visitor.visit_nil_node(self)
+            end
+        end
+        
         class ForNode
             def accept(visitor)
                 visitor.visit_for_node(self)
@@ -196,6 +202,10 @@ module Ikra
             end
             
             def visit_bool_node(node)
+            
+            end
+            
+            def visit_nil_node(node)
             
             end
             

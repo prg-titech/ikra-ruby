@@ -94,12 +94,14 @@ module Ikra
         implement Float, :to_i, INT, 1, "((int) (#1))"
 
         implement TrueClass, :&, ASSERT_AND_RETURN_BOOL, 1, "((#1) & (#2))"
+        implement TrueClass, :"!", BOOL, 1, "(!(#1))"
         implement TrueClass, :"&&", ASSERT_AND_RETURN_BOOL, 1, "((#1) && (#2))"
         implement TrueClass, :"^", ASSERT_AND_RETURN_BOOL, 1, "((#1) ^ (#2))"
         implement TrueClass, :|, ASSERT_AND_RETURN_BOOL, 1, "((#1) | (#2))"
         implement TrueClass, :"||", ASSERT_AND_RETURN_BOOL, 1, "((#1) || (#2))"
 
         implement FalseClass, :&, ASSERT_AND_RETURN_BOOL, 1, "((#1) & (#2))"
+        implement FalseClass, :"!", BOOL, 1, "(!(#1))"
         implement FalseClass, :"&&", ASSERT_AND_RETURN_BOOL, 1, "((#1) && (#2))"
         implement FalseClass, :"^", ASSERT_AND_RETURN_BOOL, 1, "((#1) ^ (#2))"
         implement FalseClass, :|, ASSERT_AND_RETURN_BOOL, 1, "((#1) | (#2))"

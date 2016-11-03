@@ -78,6 +78,12 @@ module Ikra
             end
         end
 
+        class NilNode
+            def to_s
+                "<nil>"
+            end
+        end
+
         class ForNode
             def to_s
                 "[ForNode: #{iterator_identifier.to_s} := #{range_from.to_s}...#{range_to.to_s}, #{body_stmts.to_s}]"

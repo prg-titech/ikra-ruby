@@ -141,6 +141,10 @@ module Ikra
                     return new(PrimitiveType::Void)
                 end
 
+                def create_nil
+                    return new(PrimitiveType::Nil)
+                end
+
                 def create_unknown
                     return new(UnknownType::Instance)
                 end

@@ -44,6 +44,10 @@ module Ikra
                 def translate_false(node)
                     BoolNode.new(value: false)
                 end
+
+                def translate_nil(node)
+                    NilNode.new
+                end
                 
                 def translate_and(node)
                     SendNode.new(receiver: translate_node(node.children[0]),

@@ -298,6 +298,8 @@ module Ikra
                         return result.read_array_of_uint8(result_size).map do |v|
                             v == 1
                         end
+                    elsif return_type.singleton_type == Types::PrimitiveType::Nil
+                        return [nil] * result_size
                     else
                         raise NotImplementedError.new("Type not implemented")
                     end
@@ -315,8 +317,10 @@ module Ikra
                             result_values[index] = (result + 8 * index + 4).read_float
                         elsif next_type == Types::PrimitiveType::Bool.class_id
                             result_values[index] = (result + 8 * index + 4).read_uint8 == 1
+                        elsif next_type == Types::PrimitiveType::Nil.class_id
+                            result_values[index] = nil
                         else
-                            raise NotImplementedError.new("Implement class objs")
+                            raise NotImplementedError.new("Implement class objs (#{next_type})")
                         end
                     end
 

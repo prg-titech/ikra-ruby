@@ -69,6 +69,8 @@ module Ikra
                     return "((union_t) {#{type.class_id}, {.float_ = #{str}}})"
                 elsif type == Types::PrimitiveType::Bool
                     return "((union_t) {#{type.class_id}, {.bool_ = #{str}}})"
+                elsif type == Types::PrimitiveType::Nil
+                    return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
                 elsif !type.is_a?(Types::UnionType)
                     return "((union_t) {#{type.class_id}, {.object_id = #{str}}})"
                 else
@@ -155,6 +157,12 @@ module Ikra
         class IntNode
             def translate_expression
                 value.to_s
+            end
+        end
+
+        class NilNode
+            def translate_expression
+                "0"
             end
         end
         
@@ -264,6 +272,8 @@ module Ikra
                             object_id = "#{receiver_identifier}.value.float_"
                         elsif type == Types::PrimitiveType::Bool
                             object_id = "#{receiver_identifier}.value.bool_"
+                        elsif type == Types::PrimitiveType::Nil
+                            object_id = "#{receiver_identifier}.value.int_"
                         else
                             object_id = "#{receiver_identifier}.value.object_id"
                         end
