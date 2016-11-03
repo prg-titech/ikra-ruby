@@ -1,7 +1,6 @@
 require_relative "../ast/nodes.rb"
 require_relative "../ast/builder.rb"
-require_relative "../types/type_inference"
-require_relative "../types/primitive_type"
+require_relative "../types/types"
 require_relative "../parsing"
 require_relative "../ast/printer"
 require_relative "variable_classifier_visitor"
@@ -57,7 +56,7 @@ module Ikra
 
                 # Lexical variables
                 lexical_variables.each do |name, value|
-                    block_def_node.lexical_variables_names_and_types[name] = Types::UnionType.new(value.class.to_ikra_type)
+                    block_def_node.lexical_variables_names_and_types[name] = Types::UnionType.new(value.class.to_ikra_type_obj(value))
                 end
 
                 # Type inference
@@ -76,7 +75,7 @@ module Ikra
 
                 # Load environment variables
                 lexical_variables.each do |name, value|
-                    type = value.class.to_ikra_type
+                    type = value.class.to_ikra_type_obj(value)
                     mangled_name = environment_builder.add_object(name, value)
                     translation_result.prepend("#{type.to_c_type} #{Constants::LEXICAL_VAR_PREFIX}#{name} = #{Constants::ENV_IDENTIFIER}->#{mangled_name};\n")
                 end

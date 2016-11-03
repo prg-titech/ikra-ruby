@@ -1,12 +1,9 @@
+# No explicit `require`s. This file should be includes via types.rb
+
 require "set"
 
 require_relative "../ast/nodes.rb"
 require_relative "../ast/visitor.rb"
-
-require_relative "primitive_type"
-require_relative "symbol_table"
-require_relative "union_type"
-require_relative "ruby_extension"
 
 module Ikra
     module AST
@@ -362,7 +359,7 @@ module Ikra
                     constant_class = constant.class
                 end
 
-                node.merge_union_type(Types::UnionType.new(constant_class.to_ikra_type))
+                node.merge_union_type(Types::UnionType.new(constant_class.to_ikra_type_obj(constant)))
             end
 
             def visit_root_node(node)
@@ -474,9 +471,9 @@ module Ikra
                 type = Types::UnionType.new
                 
                 for recv_type in receiver_type.types
-                    if RubyIntegration.has_implementation?(recv_type.to_ruby_type, node.selector)
+                    if RubyIntegration.has_implementation?(recv_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
-                        return_type = RubyIntegration.get_return_type(recv_type.to_ruby_type, node.selector, *arg_types)
+                        return_type = RubyIntegration.get_return_type(recv_type, node.selector, *arg_types)
                         type.expand(return_type)
 
                         node.return_type_by_recv_type[recv_type] = return_type

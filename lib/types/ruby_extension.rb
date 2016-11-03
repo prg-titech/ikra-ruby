@@ -1,6 +1,6 @@
+# No explicit `require`s. This file should be includes via types.rb
+
 require "set"
-require_relative "primitive_type"
-require_relative "union_type"
 
 class Fixnum
     class << self

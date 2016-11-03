@@ -3,6 +3,7 @@ require "ikra"
 require_relative "codegen/mandelbrot"
 require_relative "codegen/square"
 require_relative "codegen/union_type_float_int_benchmark"
+require_relative "codegen/matrix_matrix_multiply"
 
 class CodegenTest < Test::Unit::TestCase
     def setup
@@ -27,5 +28,15 @@ class CodegenTest < Test::Unit::TestCase
     def test_union_singleton_benchmark
         Ikra::Configuration.codegen_expect_file_name = "union_type_float_int_benchmark"
         run_gradient_benchmark
+    end
+
+    def test_matrix_matrix_multiply
+        matrix_sanity_check_cpu
+
+        Ikra::Configuration.codegen_expect_file_name = "matrix_matrix_multiply_identity"
+        matrix_sanity_check_gpu
+
+        Ikra::Configuration.codegen_expect_file_name = "matrix_matrix_multiply"
+        matrix_gpu
     end
 end

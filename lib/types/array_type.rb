@@ -1,4 +1,4 @@
-require_relative "ruby_type"
+# No explicit `require`s. This file should be includes via types.rb
 
 module Ikra
     module Types
@@ -19,6 +19,8 @@ module Ikra
                 end
             end
 
+            attr_reader :inner_type
+            
             def initialize(inner_type)
                 if not inner_type.is_union_type?
                     raise "Union type expected"
@@ -34,6 +36,10 @@ module Ikra
             def to_ffi_type
                 :pointer
             end
+
+            def to_ruby_type
+                ::Array
+            end
         end
     end
 end
@@ -43,7 +49,7 @@ class Array
         inner_type = Ikra::Types::UnionType.new
 
         object.each do |element|
-            inner_type.expand_with_singleton_type(element.class.to_ikra_type)
+            inner_type.expand_with_singleton_type(element.class.to_ikra_type_obj(element))
         end
 
         Ikra::Types::ArrayType.new(inner_type)

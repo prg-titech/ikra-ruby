@@ -1,7 +1,6 @@
 require "set"
 require "ffi"
 require_relative "../entity"
-require_relative "class_type"
 require_relative "../symbolic/symbolic"
 require_relative "../translator/command_translator"
 
@@ -48,10 +47,10 @@ module Ikra
 
                         object.instance_variables.each do |inst_var_name|
                             value = object.instance_variable_get(inst_var_name)
-                            value_type = value.class.to_ikra_type
+                            value_type = value.class.to_ikra_type_obj(value)
 
                             # Gather type information
-                            object.class.to_ikra_type.inst_vars_types[inst_var_name].expand_with_singleton_type(value_type)
+                            object.class.to_ikra_type_obj(object).inst_vars_types[inst_var_name].expand_with_singleton_type(value_type)
 
                             if value.class.include?(Entity)
                                 # Keep tracing this object

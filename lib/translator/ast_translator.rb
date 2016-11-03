@@ -109,7 +109,7 @@ module Ikra
                 raise "Methods/blocks cannot be translated as a statement"
             end
 
-            def translate_expresion
+            def translate_expression
                 raise "Methods/blocks cannot be translated as an expression"
             end
         end
@@ -286,12 +286,10 @@ module Ikra
             end
 
             def generate_send_for_singleton(recv_type, self_argument: nil)
-                ruby_recv_type = recv_type.to_ruby_type
-
-                if RubyIntegration.has_implementation?(ruby_recv_type, selector)
+                if RubyIntegration.has_implementation?(recv_type, selector)
                     args = []
 
-                    if RubyIntegration.should_pass_self?(ruby_recv_type, selector)
+                    if RubyIntegration.should_pass_self?(recv_type, selector)
                         if self_argument != nil
                             args.push(self_argument)
                         else
@@ -302,7 +300,7 @@ module Ikra
                     # Add regular arguments
                     args.push(*arguments.map do |arg| arg.translate_expression end)
 
-                    return RubyIntegration.get_implementation(ruby_recv_type, selector, *args)
+                    return RubyIntegration.get_implementation(recv_type, selector, *args)
                 else
                     args = [Translator::Constants::ENV_IDENTIFIER]
 

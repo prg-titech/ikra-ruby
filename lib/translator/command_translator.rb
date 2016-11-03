@@ -5,7 +5,7 @@ require_relative "block_translator"
 require_relative "../config/os_configuration"
 require_relative "../symbolic/symbolic"
 require_relative "../symbolic/visitor"
-require_relative "../types/object_tracer"
+require_relative "../types/types"
 require_relative "../config/configuration"
 
 module Ikra
