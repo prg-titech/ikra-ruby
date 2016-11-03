@@ -245,6 +245,45 @@ module Ikra
                 body_stmts.parent = self
             end
         end
+        
+        class WhilePostNode < TreeNode
+            attr_reader :condition
+            attr_reader :body_stmts
+
+            def initialize(condition:, body_stmts:)
+                @condition = condition
+                @body_stmts = body_stmts
+
+                condition.parent = self
+                body_stmts.parent = self
+            end
+        end
+        
+        class UntilNode < TreeNode
+            attr_reader :condition
+            attr_reader :body_stmts
+
+            def initialize(condition:, body_stmts:)
+                @condition = condition
+                @body_stmts = body_stmts
+
+                condition.parent = self
+                body_stmts.parent = self
+            end
+        end
+        
+        class UntilPostNode < TreeNode
+            attr_reader :condition
+            attr_reader :body_stmts
+
+            def initialize(condition:, body_stmts:)
+                @condition = condition
+                @body_stmts = body_stmts
+
+                condition.parent = self
+                body_stmts.parent = self
+            end
+        end
 
         class BreakNode < TreeNode
         

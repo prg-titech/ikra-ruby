@@ -182,6 +182,24 @@ module Ikra
                 "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
             end
         end
+        
+        class WhilePostNode
+            def translate_statement
+                "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
+            end
+        end
+        
+        class UntilNode
+            def translate_statement
+                "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
+            end
+        end
+        
+        class UntilPostNode
+            def translate_statement
+                "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
+            end
+        end
 
         class BreakNode
             def translate_expression

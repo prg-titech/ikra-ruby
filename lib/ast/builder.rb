@@ -16,7 +16,7 @@ module Ikra
                     if node == nil
                         nil
                     else
-                        send("translate_#{node.type.to_s}".to_sym, node)
+                        send("translate_#{node.type.to_s.gsub("-", "_")}".to_sym, node)
                     end
                 end
                 
@@ -119,6 +119,28 @@ module Ikra
                         condition: translate_node(node.children[0]),
                         body_stmts: translate_node(node.children[1]))
                 end
+                
+                def translate_while_post(node)
+                    WhilePostNode.new(
+                        condition: translate_node(node.children[0]),
+                        body_stmts: translate_node(node.children[1]))
+                end
+                
+                def translate_until(node)
+                    UntilNode.new(
+                        condition: (SendNode.new(receiver: translate_node(node.children[0]),
+                            selector: :^,
+                            arguments: [BoolNode.new(value: true)])),
+                        body_stmts: translate_node(node.children[1]))
+                end
+                
+                def translate_until_post(node)
+                    UntilPostNode.new(
+                        condition: (SendNode.new(receiver: translate_node(node.children[0]),
+                            selector: :^,
+                            arguments: [BoolNode.new(value: true)])),
+                        body_stmts: translate_node(node.children[1]))
+                end
 
                 def translate_break(node)
                     BreakNode.new
@@ -146,6 +168,11 @@ module Ikra
                 end
                 
                 def translate_begin(node)
+                    BeginNode.new(body_stmts: node.children.map do |stmt|
+                        translate_node(stmt) end)
+                end
+                
+                def translate_kwbegin(node)
                     BeginNode.new(body_stmts: node.children.map do |stmt|
                         translate_node(stmt) end)
                 end
