@@ -62,7 +62,7 @@ module Ikra
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 return_type = type_inference_visitor.process_block(block_def_node)
-
+                
                 # Auxiliary methods are instance methods that are called by the block
                 aux_methods = type_inference_visitor.all_methods
 

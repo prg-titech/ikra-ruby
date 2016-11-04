@@ -214,6 +214,10 @@ module Ikra
                 @value = value
             end
         end
+
+        class NilNode < TreeNode
+            
+        end
         
         class ForNode < TreeNode
             attr_reader :iterator_identifier

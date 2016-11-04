@@ -396,6 +396,10 @@ module Ikra
             def visit_int_node(node)
                 node.merge_union_type(Types::UnionType.create_int)
             end
+
+            def visit_nil_node(node)
+                node.merge_union_type(Types::UnionType.create_nil)
+            end
             
             def visit_float_node(node)
                 node.merge_union_type(Types::UnionType.create_float)

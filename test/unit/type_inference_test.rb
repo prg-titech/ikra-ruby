@@ -86,4 +86,37 @@ class TypeInferenceTest < UnitTestCase
 
         assert_in_delta(2205, array.reduce(:+), 0.001)
     end
+
+
+    def test_nil
+        array = Array.pnew(100) do |j|
+            nil
+        end
+
+        assert_equal(nil, array[0])
+    end
+
+
+    def test_type_inference_assign_int_nil
+        # Only one (linear) pass required
+        array = Array.pnew(100) do |j|
+            x1 = j
+
+            if j%2 == 0
+                x1 = nil
+            end
+
+            x1
+        end
+
+        for index in 0...100
+            if index % 2 == 0
+                expected_type = ::NilClass
+            else
+                expected_type = ::Fixnum
+            end
+
+            assert_equal(array[index].class, expected_type)
+        end
+    end
 end

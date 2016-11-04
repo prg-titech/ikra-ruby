@@ -20,9 +20,10 @@ module Ikra
             Float = self.new("float", Float, 4, :float, 2)
             Bool = self.new("bool", TrueClass, 1, :bool, 3)
             Void = self.new("void", nil, 0, :void, 4)
+            Nil = self.new("int", NilClass, 4, :int, 5)
             
             def ==(other)
-                return other.is_a?(PrimitiveType) && other.to_c_type == to_c_type
+                return other.is_a?(PrimitiveType) && other.class_id == class_id
             end
 
             def to_ruby_type
@@ -75,5 +76,11 @@ end
 class FalseClass
     def self.to_ikra_type
         Ikra::Types::PrimitiveType::Bool
+    end
+end
+
+class NilClass
+    def self.to_ikra_type
+        Ikra::Types::PrimitiveType::Nil
     end
 end

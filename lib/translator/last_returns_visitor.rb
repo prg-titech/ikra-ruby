@@ -29,6 +29,10 @@ module Ikra
                 node.parent.replace_child(node, AST::ReturnNode.new(value: node))
             end
             
+            def visit_nil_node(node)
+                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+            end
+            
             def visit_for_node(node)
                 raise "Cannot handle for loop as return value"
             end
