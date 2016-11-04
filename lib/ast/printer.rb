@@ -90,6 +90,24 @@ module Ikra
             end
         end
 
+        class WhilePostNode
+            def to_s
+                "[WhilePostNode: #{condition.to_s}, #{body_stmts.to_s}]"
+            end
+        end
+
+        class UntilNode
+            def to_s
+                "[UntilNode: #{condition.to_s}, #{body_stmts.to_s}]"
+            end
+        end
+
+        class UntilPostNode
+            def to_s
+                "[UntilPostNode: #{condition.to_s}, #{body_stmts.to_s}]"
+            end
+        end
+
         class BreakNode
             def to_s
                 "[BreakNode]"
