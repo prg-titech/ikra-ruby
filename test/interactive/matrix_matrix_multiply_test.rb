@@ -16,7 +16,7 @@ end
 
 # Transposed `matrix` with dimensions size x size
 def transposed(matrix, size)
-    # TODO: Implement
+    # TODO (Step 2): Implement on CPU
     return [1.0, 2.0, 3.0, 4.0]
 end
 
@@ -40,7 +40,7 @@ def matrix_multiplication_cpu(a, b, size)
         x = index % size
         y = index / size
 
-        # TODO: Implement
+        # TODO (Step 1): Implement
 
         123.4
     end
@@ -48,38 +48,46 @@ end
 
 # GPU-based implementation
 def matrix_multiplication_gpu(a, b, size)
+    # Same as: (0...(size*size)).to_a.pmap do |index|
     return Array.pnew(size * size) do |index|
         x = index % size
         y = index / size
 
-        # TODO: Implement
+        # TODO (Step 3): Implement
+        # Try with arguments GPU 150
+        # If it works: try with arguments GPU 3000 and compare with CPU
 
         123.4
     end
 end
 
 # GPU-based implementation with blocking
+# Step 6
 def matrix_multiplication_gpu_blocked(a, b, size)
     block_size_x = 15
     block_size_y = 15
 
+    # Get it running with GPU_BLOCK 150 first
+    # Then measure runtime with GPU_BLOCK 3000
+    
     # Create blocked indices
+    # For example (2x2): [0, 1, 4, 5, 2, 3, 6, 7 , ...]
     indices = Array.new(size * size)
 
-    # TODO: Generate block indices
+    # TODO (Step 6.1): Generate block indices
 
     unordered_result = indices.pmap do |index|
         x = index % size
         y = index / size
 
-        # TODO: Implement
+        # TODO (Step 6.2): Implement (same as Step 3)
 
         123.4
     end
 
     correct_order_result = Array.new(size*size)
 
-    # TODO: Restore correct order
+    # TODO (Step 6.3): Restore correct order
 
     return correct_order_result
 end
@@ -92,7 +100,9 @@ def matrix_multiplication_gpu_transposed_b(a, b, size)
         x = index % size
         y = index / size
 
-        # TODO: Implement
+        # TODO(5): Implement
+        # Try with GPU_T_B 150
+        # If correct, run with GPU_T_B 3000 and compare runtime with GPU 3000
 
         123.4
     end
@@ -106,7 +116,9 @@ def matrix_multiplication_gpu_transposed_a(a, b, size)
         x = index % size
         y = index / size
 
-        # TODO: Implement
+        # TODO(4): Implement
+        # Try with GPU_T_A 150
+        # If correct, run with GPU_T_A 3000 and compare runtime with GPU 3000
 
         123.4
     end
@@ -115,7 +127,7 @@ end
 mode = ARGV[0]
 size = ARGV[1].to_i
 
-if size % 150 != 0
+if size % 150 != 0 or size == 0
     # This limitation is due to current implementation issues in Ikra
     raise "Size must be a multiple of 150"
 end
@@ -132,9 +144,8 @@ if mode == "CHECK"
     c = matrix_multiplication_cpu(a, b, size)
     assert_same_values(c, a)
 
-    a = transposed(transposed(a, size), size)
-    c = matrix_multiplication_cpu(a, b, size)
-    assert_same_values(c, a) 
+    a_transposed_transposed = transposed(transposed(a, size), size)
+    assert_same_values(a_transposed_transposed, a) 
 elsif mode == "CPU"
     puts "CPU Computation, wait..."
     c = matrix_multiplication_cpu(a, b, size)
