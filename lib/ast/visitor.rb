@@ -105,6 +105,24 @@ module Ikra
                 visitor.visit_while_node(self)
             end
         end
+        
+        class WhilePostNode
+            def accept(visitor)
+                visitor.visit_while_post_node(self)
+            end
+        end
+        
+        class UntilNode
+            def accept(visitor)
+                visitor.visit_until_node(self)
+            end
+        end
+        
+        class UntilPostNode
+            def accept(visitor)
+                visitor.visit_until_post_node(self)
+            end
+        end
 
         class BreakNode
             def accept(visitor)
@@ -216,6 +234,21 @@ module Ikra
             end
             
             def visit_while_node(node)
+                node.condition.accept(self)
+                node.body_stmts.accept(self)
+            end
+            
+            def visit_while_post_node(node)
+                node.condition.accept(self)
+                node.body_stmts.accept(self)
+            end
+            
+            def visit_until_node(node)
+                node.condition.accept(self)
+                node.body_stmts.accept(self)
+            end
+            
+            def visit_until_post_node(node)
                 node.condition.accept(self)
                 node.body_stmts.accept(self)
             end

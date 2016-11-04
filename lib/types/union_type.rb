@@ -1,5 +1,5 @@
-require_relative "ruby_type"
-require_relative "primitive_type"
+# No explicit `require`s. This file should be includes via types.rb
+
 require "set"
 
 module Ikra

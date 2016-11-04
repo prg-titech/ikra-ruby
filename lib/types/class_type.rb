@@ -1,6 +1,6 @@
+# No explicit `require`s. This file should be includes via types.rb
+
 require "set"
-require_relative "ruby_type"
-require_relative "union_type"
 require_relative "../sourcify/lib/sourcify"
 require_relative "../parsing"
 require_relative "../ast/builder"

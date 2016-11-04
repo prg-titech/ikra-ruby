@@ -1,4 +1,4 @@
-require_relative "ruby_type"
+# No explicit `require`s. This file should be includes via types.rb
 
 module Ikra
     module Types

@@ -1,6 +1,6 @@
 require_relative "../ast/nodes"
 require_relative "../ast/visitor"
-require_relative "../types/type_inference"
+require_relative "../types/types"
 
 module Ikra
     module AST
