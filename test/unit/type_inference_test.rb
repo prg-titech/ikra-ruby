@@ -44,6 +44,34 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_union_type_primitive_invocation
+        # Receiver is union type
+
+        array = Array.pnew(100) do |j|
+            x1 = j
+
+            if j%2 == 0
+                x1 = 2 * j.to_f + 0.1
+            end
+
+            x1 * 2
+        end
+
+        assert_in_delta(14810.0, array.reduce(:+), 0.001)
+
+        for index in 0...100
+            if index % 2 == 0
+                expected_type = ::Float
+            else
+                expected_type = ::Fixnum
+            end
+
+            assert_equal(array[index].class, expected_type)
+        end
+    end
+
+    def test_union_type_primitive_invocation_2
+        # Operand is union type
+
         array = Array.pnew(100) do |j|
             x1 = j
 
@@ -51,7 +79,8 @@ class TypeInferenceTest < UnitTestCase
                 x1 = 2 * j.to_f
             end
 
-            x1 * 2
+            # Inversed
+            2 * x1
         end
 
         assert_in_delta(7400 * 2, array.reduce(:+), 0.001)
@@ -61,6 +90,148 @@ class TypeInferenceTest < UnitTestCase
                 expected_type = ::Float
             else
                 expected_type = ::Fixnum
+            end
+
+            assert_equal(array[index].class, expected_type)
+        end
+    end
+
+    def test_union_type_primitive_invocation_3
+        # Operand is union type (only Int allowed)
+
+        array = Array.pnew(100) do |j|
+            x1 = 0.0
+
+            if j%2 == 0
+                x1 = 1
+            else
+                x1 = 0
+            end
+
+            # Inversed
+            2 >> x1
+        end
+
+        assert_in_delta(150, array.reduce(:+), 0.001)
+
+        for index in 0...100
+            assert_equal(array[index].class, ::Fixnum)
+        end
+    end
+
+    def test_union_type_primitive_invocation_4
+        # Operand is union type and receiver is float
+
+        array = Array.pnew(100) do |j|
+            x1 = j
+
+            if j%2 == 0
+                x1 = 2 * j.to_f
+            end
+
+            # Inversed
+            2.1 * x1
+        end
+
+        assert_in_delta(15540.0, array.reduce(:+), 0.001)
+
+        for index in 0...100
+            assert_equal(array[index].class, ::Float)
+        end
+    end
+
+    def test_union_type_primitive_invocation_5
+        # Receiver is union type and operand is int, return value is always Bool
+
+        array = Array.pnew(100) do |j|
+            x1 = 2 * j
+
+            if j%2 == 0
+                x1 = 2 * j.to_f
+            end
+
+            result = 0
+            if x1 >= j
+                result = result + 1
+            end
+
+            result
+        end
+
+        assert_equal(100, array.reduce(:+))
+    end
+
+    def test_union_type_primitive_invocation_6
+        # Receiver is int and operand is union type, return value is always Bool
+
+        array = Array.pnew(100) do |j|
+            x1 = 2 * j
+
+            if j%2 == 0
+                x1 = 2 * j.to_f
+            end
+
+            result = 0
+            if j <= x1
+                result = result + 1
+            end
+
+            result
+        end
+
+        assert_equal(100, array.reduce(:+))
+    end
+
+    def test_union_type_primitive_invocation_7
+        # Receiver is float and operand is union type, return value is always Bool
+
+        array = Array.pnew(100) do |j|
+            x1 = 2 * j
+
+            if j%2 == 0
+                x1 = 2 * j.to_f
+            end
+
+            result = 0
+            if j.to_f <= x1
+                result = result + 1
+            end
+
+            result
+        end
+
+        assert_equal(100, array.reduce(:+))
+    end
+
+    def test_union_type_primitive_invocation_8
+        # Union types everywhere
+
+        array = Array.pnew(100) do |j|
+            x1 = j
+            x2 = j
+
+            if j % 4 == 0
+               # INT x INT
+            elsif j % 4 == 1
+                x1 = j.to_f + 0.1
+            elsif j % 4 == 2
+                x2 = j.to_f + 0.2
+            elsif j % 4 == 3
+                x1 = j.to_f + 0.3
+                x2 = j.to_f + 0.4
+            end
+
+            # Inversed
+            x1 * x2
+        end
+
+        assert_in_delta(329618.0, array.reduce(:+), 0.001)
+
+        for index in 0...100
+            if index % 4 == 0
+                expected_type = ::Fixnum
+            else
+                expected_type = ::Float
             end
 
             assert_equal(array[index].class, expected_type)

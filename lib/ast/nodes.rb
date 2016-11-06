@@ -299,12 +299,18 @@ module Ikra
             attr_reader :false_body_stmts
             
             def initialize(condition:, true_body_stmts:, false_body_stmts: nil)
+                if true_body_stmts == nil
+                    # Handle empty `if` statements
+                    true_body_stmts = BeginNode.new
+                end
+
                 @condition = condition
                 @true_body_stmts = true_body_stmts
                 @false_body_stmts = false_body_stmts
 
                 condition.parent = self
-                true_body_stmts.parent = self
+                
+                true_body_stmts.parent = self 
 
                 if false_body_stmts != nil
                     false_body_stmts.parent = self

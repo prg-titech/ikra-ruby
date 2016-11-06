@@ -242,7 +242,7 @@ module Ikra
         class BeginNode
             def translate_statement
                 if body_stmts.size == 0
-                    return ""
+                    return wrap_in_c_block("")
                 end
                 
                 body_translated = body_stmts.map do |stmt|
@@ -315,20 +315,27 @@ module Ikra
 
             def generate_send_for_singleton(recv_type, self_argument: nil)
                 if RubyIntegration.has_implementation?(recv_type, selector)
-                    args = []
+                    args_code = []
+                    args_types = []
 
                     if RubyIntegration.should_pass_self?(recv_type, selector)
                         if self_argument != nil
-                            args.push(self_argument)
+                            args_code.push(self_argument)
                         else
-                            args.push(receiver.translate_expression)
+                            args_code.push(receiver.translate_expression)
                         end
+                    else
+                        # This value is actually never read
+                        args_code.push(nil)
                     end
 
-                    # Add regular arguments
-                    args.push(*arguments.map do |arg| arg.translate_expression end)
+                    args_types.push(recv_type)
 
-                    return RubyIntegration.get_implementation(recv_type, selector, *args)
+                    # Add regular arguments
+                    args_code.push(*arguments.map do |arg| arg.translate_expression end)
+                    args_types.push(*arguments.map do |arg| arg.get_type end)
+
+                    return RubyIntegration.get_implementation(selector, args_types, args_code)
                 else
                     args = [Translator::Constants::ENV_IDENTIFIER]
 

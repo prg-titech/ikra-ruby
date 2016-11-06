@@ -12,6 +12,14 @@ module Ikra
 
                 private
 
+                def wrap_in_begin(translated_node)
+                    if translated_node != nil
+                        BeginNode.new(body_stmts: [translated_node])
+                    else
+                        nil
+                    end
+                end
+
                 def translate_node(node)
                     if node == nil
                         nil
@@ -75,8 +83,8 @@ module Ikra
 
                 def translate_if(node)
                     IfNode.new(condition: translate_node(node.children[0]),
-                        true_body_stmts: translate_node(node.children[1]),
-                        false_body_stmts: translate_node(node.children[2]))
+                        true_body_stmts: wrap_in_begin(translate_node(node.children[1])),
+                        false_body_stmts: wrap_in_begin(translate_node(node.children[2])))
                 end
                 
                 def extract_begin_single_statement(node, should_return = false)
@@ -99,7 +107,7 @@ module Ikra
                         ForNode.new(iterator_identifier: node.children[0].children[0],
                             range_from: translate_node(range.children[0]),
                             range_to: translate_node(range.children[1]),
-                            body_stmts: translate_node(node.children[2]))
+                            body_stmts: wrap_in_begin(translate_node(node.children[2])))
                     elsif node.children[0].type == :lvasgn and extract_begin_single_statement(node.children[1]).type == :erange
                         # Convert exclusive range to inclusive range
                         range = extract_begin_single_statement(node.children[1])
@@ -112,7 +120,7 @@ module Ikra
                         ForNode.new(iterator_identifier: node.children[0].children[0],
                             range_from: translate_node(range.children[0]),
                             range_to: range_to_inclusive,
-                            body_stmts: translate_node(node.children[2]))
+                            body_stmts: wrap_in_begin(translate_node(node.children[2])))
                     else
                         raise "Can only handle simple For loops at the moment"
                     end
@@ -121,13 +129,13 @@ module Ikra
                 def translate_while(node)
                     WhileNode.new(
                         condition: translate_node(node.children[0]),
-                        body_stmts: translate_node(node.children[1]))
+                        body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_while_post(node)
                     WhilePostNode.new(
                         condition: translate_node(node.children[0]),
-                        body_stmts: translate_node(node.children[1]))
+                        body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_until(node)
@@ -135,7 +143,7 @@ module Ikra
                         condition: (SendNode.new(receiver: translate_node(node.children[0]),
                             selector: :^,
                             arguments: [BoolNode.new(value: true)])),
-                        body_stmts: translate_node(node.children[1]))
+                        body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_until_post(node)
@@ -143,7 +151,7 @@ module Ikra
                         condition: (SendNode.new(receiver: translate_node(node.children[0]),
                             selector: :^,
                             arguments: [BoolNode.new(value: true)])),
-                        body_stmts: translate_node(node.children[1]))
+                        body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
 
                 def translate_break(node)

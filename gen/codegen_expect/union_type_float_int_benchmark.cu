@@ -72,43 +72,63 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
         x = ((c) * ((((1) - ((fabsf(((((fmodf((h_), ((float) (2)))) - (1)))))))))));
         if (((h_) < (1)))
         {
-            r1 = c;
-            g1 = x;
-            b1 = 0.0;
-        }
-        else
-        if (((h_) < (2)))
-        {
-            r1 = x;
-            g1 = c;
-            b1 = 0.0;
-        }
-        else
-        if (((h_) < (3)))
-        {
-            r1 = 0.0;
-            g1 = c;
-            b1 = x;
-        }
-        else
-        if (((h_) < (4)))
-        {
-            r1 = 0.0;
-            g1 = x;
-            b1 = c;
-        }
-        else
-        if (((h_) < (5)))
-        {
-            r1 = x;
-            g1 = 0.0;
-            b1 = c;
+            {
+                r1 = c;
+                g1 = x;
+                b1 = 0.0;
+            }
         }
         else
         {
-            r1 = c;
-            g1 = 0.0;
-            b1 = x;
+            if (((h_) < (2)))
+            {
+                {
+                    r1 = x;
+                    g1 = c;
+                    b1 = 0.0;
+                }
+            }
+            else
+            {
+                if (((h_) < (3)))
+                {
+                    {
+                        r1 = 0.0;
+                        g1 = c;
+                        b1 = x;
+                    }
+                }
+                else
+                {
+                    if (((h_) < (4)))
+                    {
+                        {
+                            r1 = 0.0;
+                            g1 = x;
+                            b1 = c;
+                        }
+                    }
+                    else
+                    {
+                        if (((h_) < (5)))
+                        {
+                            {
+                                r1 = x;
+                                g1 = 0.0;
+                                b1 = c;
+                            }
+                        }
+                        else
+                        {
+                            {
+                                r1 = c;
+                                g1 = 0.0;
+                                b1 = x;
+                            }
+                        }
+                    }
+                }
+            }
         }
         m = ((b) - (((c) / (2))));
         r = ((r1) + (m));

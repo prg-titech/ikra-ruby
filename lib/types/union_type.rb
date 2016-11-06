@@ -1,5 +1,6 @@
 # No explicit `require`s. This file should be includes via types.rb
 
+require "forwardable"
 require "set"
 
 module Ikra
@@ -8,6 +9,10 @@ module Ikra
         # Represents a possibly polymorphic type consisting of 0..* instances of {RubyType}. Only primitive types or class types are allowed for these inner types, but not union types.
         class UnionType
             include RubyType
+            include Enumerable
+            extend Forwardable
+
+            def_delegator :@types, :each
 
             # @return [Set<RubyType>] Inner types
             attr_reader :types
@@ -21,6 +26,14 @@ module Ikra
                 end
 
                 @types = Set.new(types)
+            end
+
+            def empty?
+                return @types.empty?
+            end
+
+            def size
+                return @types.size
             end
 
             def to_c_type

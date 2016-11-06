@@ -445,9 +445,13 @@ module Ikra
                 node.body_stmts[0...-1].each do |stmt|
                     stmt.accept(self)
                 end
-                
-                # TODO: need to handle empty BeginNode?
-                type = node.body_stmts.last.accept(self)
+
+                if node.body_stmts.empty?
+                    type = Types::UnionType.new
+                else
+                    type = node.body_stmts.last.accept(self)
+                end
+
                 node.merge_union_type(type)
             end
             

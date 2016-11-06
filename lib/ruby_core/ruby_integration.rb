@@ -41,10 +41,26 @@ module Ikra
             return find_impl(rcvr_type, method_name).pass_self
         end
 
-        def self.get_implementation(rcvr_type, method_name, *args)
-            source = find_impl(rcvr_type, method_name).implementation
+        # Returns the implementation (CUDA source code snippet) for a method with name 
+        # [method_name] defined on [rcvr_type]. Arguments in [arg] is the code snippet
+        # for the receiver followed by type-snippet pairs for additional arguments.
+        def self.get_implementation(method_name, args_types, args_code)
+            rcvr_type = args_types.first
+            impl = find_impl(rcvr_type, method_name)
+            source = impl.implementation
 
-            args.each_with_index do |arg, index|
+            if source.is_a?(Proc)
+                source = source.call(args_types, args_code)
+            end
+
+            if impl.pass_self
+                substitution_args = args_code
+            else
+                # Do not pass `self`: Omit first argument
+                substitution_args = args_code[1..-1]
+            end
+
+            substitution_args.each_with_index do |arg, index|
                 source = source.gsub("\##{index + 1}", arg)
             end
             
