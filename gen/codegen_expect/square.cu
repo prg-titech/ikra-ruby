@@ -63,7 +63,7 @@ struct environment_struct
 __device__ int _block_k_2_(environment_t *_env_, int value)
 {
     {
-        return ((value) * (value));
+        return (value * value);
     }
 }
 

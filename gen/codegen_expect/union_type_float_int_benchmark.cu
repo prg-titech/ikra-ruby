@@ -67,10 +67,10 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
     float r;
     float g;
     {
-        c = (((((1) - ((fabsf(((((((2) * (b))) - (1)))))))))) * (s));
-        h_ = (((((((h) - ((floorf((h))))))) * (360))) / (60));
-        x = ((c) * ((((1) - ((fabsf(((((fmodf((h_), ((float) (2)))) - (1)))))))))));
-        if (((h_) < (1)))
+        c = (((1 - fabsf((((2 * b) - 1))))) * s);
+        h_ = ((((h - floorf(h))) * 360) / 60);
+        x = (c * ((1 - fabsf(((fmodf(h_, ((float) 2)) - 1))))));
+        if ((h_ < 1))
         {
             {
                 r1 = c;
@@ -80,7 +80,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
         }
         else
         {
-            if (((h_) < (2)))
+            if ((h_ < 2))
             {
                 {
                     r1 = x;
@@ -90,7 +90,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
             }
             else
             {
-                if (((h_) < (3)))
+                if ((h_ < 3))
                 {
                     {
                         r1 = 0.0;
@@ -100,7 +100,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                 }
                 else
                 {
-                    if (((h_) < (4)))
+                    if ((h_ < 4))
                     {
                         {
                             r1 = 0.0;
@@ -110,7 +110,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                     }
                     else
                     {
-                        if (((h_) < (5)))
+                        if ((h_ < 5))
                         {
                             {
                                 r1 = x;
@@ -130,11 +130,11 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                 }
             }
         }
-        m = ((b) - (((c) / (2))));
-        r = ((r1) + (m));
-        g = ((g1) + (m));
-        b = ((b1) + (m));
-        return ((((((((int) ((((r) * (255)))))) * (65536))) + (((((int) ((((g) * (255)))))) * (256))))) + (((int) ((((b) * (255)))))));
+        m = (b - (c / 2));
+        r = (r1 + m);
+        g = (g1 + m);
+        b = (b1 + m);
+        return (((((int) ((r * 255))) * 65536) + (((int) ((g * 255))) * 256)) + ((int) ((b * 255))));
     }
 }
 __device__ int _block_k_2_(environment_t *_env_, int j)
@@ -143,9 +143,9 @@ __device__ int _block_k_2_(environment_t *_env_, int j)
     int hx;
     int lex_hx_res = _env_->l2_hx_res;
     {
-        hx = (((j) % (lex_hx_res)));
-        hy = (((j) / (lex_hx_res)));
-        return _method_singleton_Object_encodeHSBcolorSingleton_(_env_, NULL, (((((float) (hx))) / (lex_hx_res))), 1, 0.5);
+        hx = ((j % lex_hx_res));
+        hy = ((j / lex_hx_res));
+        return _method_singleton_Object_encodeHSBcolorSingleton_(_env_, NULL, ((((float) hx) / lex_hx_res)), 1, 0.5);
     }
 }
 

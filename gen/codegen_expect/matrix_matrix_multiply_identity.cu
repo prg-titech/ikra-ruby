@@ -67,12 +67,12 @@ __device__ int _block_k_1_(environment_t *_env_, int index)
     int * lex_a = _env_->l1_a;
     int lex_size = _env_->l1_size;
     {
-        x = (((index) % (lex_size)));
-        y = (((index) / (lex_size)));
+        x = ((index % lex_size));
+        y = ((index / lex_size));
         result = 0;
-        for (i = 0; i <= ((lex_size) - (1)); i++)
+        for (i = 0; i <= (lex_size - 1); i++)
         {
-            result = (((result) + (((((lex_a)[((((((y) * (lex_size)))) + (i)))]) * ((lex_b)[((((((i) * (lex_size)))) + (x)))]))))));
+            result = ((result + ((lex_a[((((y * lex_size)) + i))] * lex_b[((((i * lex_size)) + x))]))));
         }
         i--;
         return result;

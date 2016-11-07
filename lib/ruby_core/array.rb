@@ -8,6 +8,6 @@ module Ikra
             rcvr.inner_type
         end
 
-        implement ALL_ARRAY_TYPES, :[], INNER_TYPE, 1, "(#1)[#2]"
+        implement ALL_ARRAY_TYPES, :[], INNER_TYPE, 1, "#0[#I1]"
     end
 end

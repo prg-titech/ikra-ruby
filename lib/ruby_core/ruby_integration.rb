@@ -6,6 +6,10 @@ module Ikra
         FLOAT = Types::UnionType.create_float
         BOOL = Types::UnionType.create_bool
 
+        INT_S = INT.singleton_type
+        FLOAT_S = FLOAT.singleton_type
+        BOOL_S = BOOL.singleton_type
+
         class Implementation
             attr_reader :num_params
             attr_reader :implementation
@@ -54,14 +58,61 @@ module Ikra
             end
 
             if impl.pass_self
-                substitution_args = args_code
+                sub_code = args_code
+                sub_types = args_types
             else
                 # Do not pass `self`: Omit first argument
-                substitution_args = args_code[1..-1]
+                sub_code = args_code[1..-1]
+                sub_types = args_types[1..-1]
             end
 
-            substitution_args.each_with_index do |arg, index|
-                source = source.gsub("\##{index + 1}", arg)
+            sub_indices = (0...source.length).find_all do |index| 
+                source[index] == "#" 
+            end
+            substitutions = {}
+            sub_indices.each do |index|
+                if source[index + 1] == "F"
+                    # Insert float
+                    arg_index = source[index + 2].to_i
+
+                    if arg_index >= sub_code.size
+                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                    end
+
+                    substitutions["\#F#{arg_index}"] = code_argument(FLOAT_S, sub_types[arg_index], sub_code[arg_index])
+                elsif source[index + 1] == "I"
+                    # Insert integer
+                    arg_index = source[index + 2].to_i
+
+                    if arg_index >= sub_code.size
+                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                    end
+
+                    substitutions["\#I#{arg_index}"] = code_argument(INT_S, sub_types[arg_index], sub_code[arg_index])
+                elsif source[index + 1] == "B"
+                    # Insert integer
+                    arg_index = source[index + 2].to_i
+
+                    if arg_index >= sub_code.size
+                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                    end
+
+                    substitutions["\#B#{arg_index}"] = code_argument(BOOL_S, sub_types[arg_index], sub_code[arg_index])
+                else
+                    Log.warn("Expected type information for argument substition.")
+                    arg_index = source[index + 1].to_i
+
+                    if arg_index >= sub_code.size
+                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                    end
+
+                    substitutions["\##{arg_index}"] = sub_code[arg_index]
+                end
+            end
+
+            substitutions.each do |key, value|
+                # Do not use `gsub!` here!
+                source = source.gsub(key, value)
             end
             
             return source
@@ -84,6 +135,40 @@ module Ikra
         end
 
         private
+
+        def self.code_argument(expected_type, arg_type, code)
+            if arg_type.is_singleton?
+                if expected_type != arg_type.singleton_type
+                    # Try to cast
+                    return "((#{expected_type.to_c_type}) #{code})"
+                else
+                    return code
+                end
+            else
+                # Extract from union type
+                result = StringIO.new
+
+                result << "({ union_t arg = #{code};\n"
+                result << "    #{expected_type.to_c_type} result;\n"
+                result << "    switch (arg.class_id) {\n"
+
+                for type in arg_type
+                    c_type = expected_type.to_c_type
+                    result << "        case #{type.class_id}:\n"
+                    # TODO: This works only for primitive types
+                    result << "            result = (#{c_type}) arg.value.#{type.to_c_type}_;\n"
+                    result << "            break;\n"
+                end
+
+                result << "        default:\n"
+                result << "            // TODO: throw exception\n"
+                result << "    }\n"
+                result << "    result;\n"
+                result << "})"
+
+                return result.string
+            end
+        end
 
         def self.find_impl(rcvr_type, method_name)
             if @@impls.include?(rcvr_type) && @@impls[rcvr_type].include?(method_name)

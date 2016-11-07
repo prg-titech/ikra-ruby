@@ -238,6 +238,40 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
+    def test_union_type_primitive_invocation_9
+        # Invoke method
+
+        array = Array.pnew(100) do |j|
+            x1 = 3
+
+            if j%2 == 0
+                x1 = 3.0
+            end
+
+            Math.ldexp(x1, 4.5)
+        end
+
+        assert_in_delta(48.0 * 100, array.reduce(:+), 0.001)
+    end
+
+    def test_union_type_primitive_invocation_10
+        # Invoke method, two union types
+
+        array = Array.pnew(100) do |j|
+            x1 = j
+            x2 = 4.5
+
+            if j%2 == 0
+                x1 = j.to_f + 0.1
+                x2 = 4
+            end
+
+            Math.ldexp(x1, x2)
+        end
+
+        assert_in_delta(79280.0, array.reduce(:+), 0.001)
+    end
+
     def test_type_inference_multiple_passes
         array = Array.pnew(100) do |j|
             x = 0
