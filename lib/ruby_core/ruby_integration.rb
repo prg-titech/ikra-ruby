@@ -98,8 +98,22 @@ module Ikra
                     end
 
                     substitutions["\#B#{arg_index}"] = code_argument(BOOL_S, sub_types[arg_index], sub_code[arg_index])
+                elsif source[index + 1] == "N"
+                    # Numeric, coerce integer to float
+                    arg_index = source[index + 2].to_i
+
+                    if arg_index >= sub_code.size
+                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                    end
+
+                    if sub_types[arg_index].include?(FLOAT_S)
+                        expected_type = FLOAT_S
+                    else
+                        expected_type = INT_S
+                    end
+
+                    substitutions["\#N#{arg_index}"] = code_argument(expected_type, sub_types[arg_index], sub_code[arg_index])
                 else
-                    Log.warn("Expected type information for argument substition.")
                     arg_index = source[index + 1].to_i
 
                     if arg_index >= sub_code.size

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -53,9 +54,9 @@ typedef struct environment_struct environment_t;
 
 struct environment_struct
 {
-    int l2_hx_res;
+    int l1_hx_res;
 };
-__device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t * _env_, obj_id_t _self_, float h, int s, float b)
+__device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, obj_id_t _self_, float h, int s, float b)
 {
     float c;
     float h_;
@@ -75,7 +76,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
             {
                 r1 = c;
                 g1 = x;
-                b1 = 0.0;
+                b1 = 0;
             }
         }
         else
@@ -85,7 +86,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                 {
                     r1 = x;
                     g1 = c;
-                    b1 = 0.0;
+                    b1 = 0;
                 }
             }
             else
@@ -93,7 +94,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                 if ((h_ < 3))
                 {
                     {
-                        r1 = 0.0;
+                        r1 = 0;
                         g1 = c;
                         b1 = x;
                     }
@@ -103,7 +104,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                     if ((h_ < 4))
                     {
                         {
-                            r1 = 0.0;
+                            r1 = 0;
                             g1 = x;
                             b1 = c;
                         }
@@ -114,7 +115,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                         {
                             {
                                 r1 = x;
-                                g1 = 0.0;
+                                g1 = 0;
                                 b1 = c;
                             }
                         }
@@ -122,7 +123,7 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
                         {
                             {
                                 r1 = c;
-                                g1 = 0.0;
+                                g1 = 0;
                                 b1 = x;
                             }
                         }
@@ -137,48 +138,77 @@ __device__ int _method_singleton_Object_encodeHSBcolorSingleton_(environment_t *
         return (((((int) ((r * 255))) * 65536) + (((int) ((g * 255))) * 256)) + ((int) ((b * 255))));
     }
 }
-__device__ int _block_k_2_(environment_t *_env_, int j)
+__device__ int _block_k_1_(environment_t *_env_, int j)
 {
     int hy;
     int hx;
-    int lex_hx_res = _env_->l2_hx_res;
+    int lex_hx_res = _env_->l1_hx_res;
     {
         hx = ((j % lex_hx_res));
         hy = ((j / lex_hx_res));
-        return _method_singleton_Object_encodeHSBcolorSingleton_(_env_, NULL, ((((float) hx) / lex_hx_res)), 1, 0.5);
+        return _method_singleton_Object_encodeHSBcolor_(_env_, NULL, ((((float) hx) / lex_hx_res)), 1, 0.5);
     }
 }
 
 
 __global__ void kernel(environment_t *_env_, int *_result_)
 {
-    _result_[threadIdx.x + blockIdx.x * blockDim.x] = _block_k_2_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
+    _result_[threadIdx.x + blockIdx.x * blockDim.x] = _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
 }
 
 
-extern "C" EXPORT int *launch_kernel(environment_t *host_env)
+typedef struct result_t {
+    int *result;
+    int last_error;
+} result_t;
+
+#define checkErrorReturn(result_var, expr) \
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
+
+extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
+    // CUDA Initialization
+    result_t *kernel_result = (result_t *) malloc(sizeof(result_t));
+
+    cudaError_t cudaStatus = cudaSetDevice(0);
+
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?\n");
+        kernel_result->last_error = -1;
+        return kernel_result;
+    }
+
+    checkErrorReturn(kernel_result, cudaFree(0));
+
     /* Modify host environment to contain device pointers addresses */
     
 
     /* Allocate device environment and copy over struct */
     environment_t *dev_env;
-    checkCudaErrors(cudaMalloc(&dev_env, sizeof(environment_t)));
-    checkCudaErrors(cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
+    checkErrorReturn(kernel_result, cudaMalloc(&dev_env, sizeof(environment_t)));
+    checkErrorReturn(kernel_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-    int *host_result = (int *) malloc(sizeof(int) * 56250000);
+    int *host_result = (int *) malloc(sizeof(int) * 16000000);
     int *device_result;
-    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 56250000));
+    checkErrorReturn(kernel_result, cudaMalloc(&device_result, sizeof(int) * 16000000));
     
-    dim3 dim_grid(225000, 1, 1);
+    dim3 dim_grid(64000, 1, 1);
     dim3 dim_block(250, 1, 1);
-    
+
     kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
 
-    checkCudaErrors(cudaThreadSynchronize());
+    checkErrorReturn(kernel_result, cudaPeekAtLastError());
+    checkErrorReturn(kernel_result, cudaThreadSynchronize());
 
-    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 56250000, cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaFree(dev_env));
+    checkErrorReturn(kernel_result, cudaMemcpy(host_result, device_result, sizeof(int) * 16000000, cudaMemcpyDeviceToHost));
+    checkErrorReturn(kernel_result, cudaFree(dev_env));
 
-    return host_result;
+    kernel_result->result = host_result;
+    return kernel_result;
 }

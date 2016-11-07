@@ -2,7 +2,7 @@ require "test/unit"
 require "ikra"
 require_relative "codegen/mandelbrot"
 require_relative "codegen/square"
-require_relative "codegen/union_type_float_int_benchmark"
+require_relative "codegen/gradient_benchmark"
 require_relative "codegen/matrix_matrix_multiply"
 
 class CodegenTest < Test::Unit::TestCase
