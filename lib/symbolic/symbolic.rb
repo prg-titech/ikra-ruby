@@ -256,7 +256,7 @@ module Ikra
                 type = Types::UnionType.new
 
                 @target.each do |element|
-                    type.expand_with_singleton_type(element.class.to_ikra_type)
+                    type.add(element.class.to_ikra_type)
                 end
 
                 type

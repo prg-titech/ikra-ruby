@@ -6,11 +6,11 @@ module Ikra
             return_type = Types::UnionType.new
 
             if other.include?(INT_S) 
-                return_type.expand_with_singleton_type(INT_S)
+                return_type.add(INT_S)
             end
 
             if other.include?(FLOAT_S)
-                return_type.expand_with_singleton_type(FLOAT_S)
+                return_type.add(FLOAT_S)
             end
 
             if return_type.empty?
@@ -106,7 +106,7 @@ module Ikra
         end
 
         TYPE_INT_RETURN_INT = proc do |recv, other|
-            if !other.types.include?(INT_S)
+            if !other.include?(INT_S)
                 raise "Operation defined Int values only (found #{other})"
             end
 

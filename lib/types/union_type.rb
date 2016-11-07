@@ -99,7 +99,9 @@ module Ikra
                 return self
             end
 
-            def expand_with_singleton_type(singleton_type)
+            # Adds a singleton type to this union type.
+            # @return True if the type was extended
+            def add(singleton_type)
                 if singleton_type.is_union_type?
                     raise "Singleton type expected"
                 end

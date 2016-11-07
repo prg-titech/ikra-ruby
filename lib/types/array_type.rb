@@ -49,7 +49,7 @@ class Array
         inner_type = Ikra::Types::UnionType.new
 
         object.each do |element|
-            inner_type.expand_with_singleton_type(element.class.to_ikra_type_obj(element))
+            inner_type.add(element.class.to_ikra_type_obj(element))
         end
 
         Ikra::Types::ArrayType.new(inner_type)

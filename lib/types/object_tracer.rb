@@ -50,7 +50,7 @@ module Ikra
                             value_type = value.class.to_ikra_type_obj(value)
 
                             # Gather type information
-                            object.class.to_ikra_type_obj(object).inst_vars_types[inst_var_name].expand_with_singleton_type(value_type)
+                            object.class.to_ikra_type_obj(object).inst_vars_types[inst_var_name].add(value_type)
 
                             if value.class.include?(Entity)
                                 # Keep tracing this object

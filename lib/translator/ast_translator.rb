@@ -281,7 +281,7 @@ module Ikra
                     header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
                     case_statements = []
 
-                    for type in receiver.get_type.types
+                    for type in receiver.get_type
                         object_id = nil
 
                         if type == Types::PrimitiveType::Int

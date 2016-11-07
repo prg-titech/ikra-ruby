@@ -478,15 +478,15 @@ module Ikra
 
                 type = Types::UnionType.new
                 
-                for recv_type in receiver_type.types
-                    if RubyIntegration.has_implementation?(recv_type, node.selector)
+                for sing_type in receiver_type
+                    if RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
-                        return_type = RubyIntegration.get_return_type(recv_type, node.selector, *arg_types)
+                        return_type = RubyIntegration.get_return_type(sing_type, node.selector, *arg_types)
                         type.expand(return_type)
 
-                        node.return_type_by_recv_type[recv_type] = return_type
+                        node.return_type_by_recv_type[sing_type] = return_type
                     else
-                        type.expand(visit_method_call(node, recv_type))
+                        type.expand(visit_method_call(node, sing_type))
                     end
                 end
                 
