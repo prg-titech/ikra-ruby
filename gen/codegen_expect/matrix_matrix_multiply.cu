@@ -82,7 +82,12 @@ __device__ int _block_k_2_(environment_t *_env_, int index)
 
 __global__ void kernel(environment_t *_env_, int *_result_)
 {
-    _result_[threadIdx.x + blockIdx.x * blockDim.x] = _block_k_2_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
+    int t_id = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (t_id < 5625)
+    {
+        _result_[t_id] = _block_k_2_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
+    }
 }
 
 
@@ -91,12 +96,12 @@ extern "C" EXPORT int *launch_kernel(environment_t *host_env)
     /* Modify host environment to contain device pointers addresses */
     
     void * temp_ptr_l2_a = host_env->l2_a;
-    checkCudaErrors(cudaMalloc((void **) &host_env->l2_a, 90000));
-    checkCudaErrors(cudaMemcpy(host_env->l2_a, temp_ptr_l2_a, 90000, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMalloc((void **) &host_env->l2_a, 22500));
+    checkCudaErrors(cudaMemcpy(host_env->l2_a, temp_ptr_l2_a, 22500, cudaMemcpyHostToDevice));
 
     void * temp_ptr_l2_b = host_env->l2_b;
-    checkCudaErrors(cudaMalloc((void **) &host_env->l2_b, 90000));
-    checkCudaErrors(cudaMemcpy(host_env->l2_b, temp_ptr_l2_b, 90000, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMalloc((void **) &host_env->l2_b, 22500));
+    checkCudaErrors(cudaMemcpy(host_env->l2_b, temp_ptr_l2_b, 22500, cudaMemcpyHostToDevice));
 
 
     /* Allocate device environment and copy over struct */
@@ -104,18 +109,18 @@ extern "C" EXPORT int *launch_kernel(environment_t *host_env)
     checkCudaErrors(cudaMalloc(&dev_env, sizeof(environment_t)));
     checkCudaErrors(cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-    int *host_result = (int *) malloc(sizeof(int) * 22500);
+    int *host_result = (int *) malloc(sizeof(int) * 5625);
     int *device_result;
-    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 22500));
+    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 5625));
     
-    dim3 dim_grid(90, 1, 1);
-    dim3 dim_block(250, 1, 1);
+    dim3 dim_grid(11, 1, 1);
+    dim3 dim_block(512, 1, 1);
     
     kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
 
     checkCudaErrors(cudaThreadSynchronize());
 
-    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 22500, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 5625, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(dev_env));
 
     return host_result;

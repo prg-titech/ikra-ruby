@@ -82,7 +82,12 @@ __device__ int _block_k_1_(environment_t *_env_, int index)
 
 __global__ void kernel(environment_t *_env_, int *_result_)
 {
-    _result_[threadIdx.x + blockIdx.x * blockDim.x] = _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
+    int t_id = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (t_id < 100)
+    {
+        _result_[t_id] = _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
+    }
 }
 
 

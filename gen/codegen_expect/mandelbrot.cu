@@ -122,7 +122,12 @@ __device__ int _block_k_2_(environment_t *_env_, int color)
 
 __global__ void kernel(environment_t *_env_, int *_result_)
 {
-    _result_[threadIdx.x + blockIdx.x * blockDim.x] = _block_k_2_(_env_, _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x));
+    int t_id = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (t_id < 40000)
+    {
+        _result_[t_id] = _block_k_2_(_env_, _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x));
+    }
 }
 
 
@@ -140,8 +145,8 @@ extern "C" EXPORT int *launch_kernel(environment_t *host_env)
     int *device_result;
     checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 40000));
     
-    dim3 dim_grid(160, 1, 1);
-    dim3 dim_block(250, 1, 1);
+    dim3 dim_grid(157, 1, 1);
+    dim3 dim_block(256, 1, 1);
     
     kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
 

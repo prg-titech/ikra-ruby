@@ -11,6 +11,8 @@ Ikra::Configuration.check_software_configuration
 
 module Ikra
     module Symbolic
+        DEFAULT_BLOCK_SIZE = 256
+
         class BlockParameter
             Normal = 0
             Index = 1
@@ -30,7 +32,11 @@ module Ikra
         module ArrayCommand
             include Enumerable
 
-            attr_reader :unique_id                  # [Fixnum] Returns a unique ID for this command. It is used during name mangling in the code generator to determine the name of array identifiers (and do other stuff?).
+            attr_reader :block_size
+
+            # [Fixnum] Returns a unique ID for this command. It is used during name mangling in
+            # the code generator to determine the name of array identifiers (and do other stuff?).
+            attr_reader :unique_id
 
             @@unique_id  = 1
 
@@ -79,8 +85,8 @@ module Ikra
                 self
             end
             
-            def pmap(&block)
-                ArrayMapCommand.new(self, block)
+            def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+                ArrayMapCommand.new(self, block, block_size: block_size)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -91,7 +97,8 @@ module Ikra
                 end
             end
 
-            # Returns the size (number of elements) of the result, after executing the parallel section.
+            # Returns the size (number of elements) of the result, after executing the parallel 
+            # section.
             # @return [Fixnum] size
             def size
                 raise NotImplementedError
@@ -111,7 +118,8 @@ module Ikra
                     body: AST::Builder.from_parser_ast(source))
             end
 
-            # Returns a collection of lexical variables that are accessed within a parallel section.
+            # Returns a collection of lexical variables that are accessed within a parallel 
+            # section.
             # @return [Hash{Symbol => Object}]
             def lexical_externals
                 all_lexical_vars = block.binding.local_variables
@@ -144,11 +152,12 @@ module Ikra
         class ArrayNewCommand
             include ArrayCommand
             
-            def initialize(size, block)
+            def initialize(size, block, block_size: DEFAULT_BLOCK_SIZE)
                 super()
 
                 @size = size
                 @block = block
+                @block_size = block_size
             end
             
             def size
@@ -165,11 +174,12 @@ module Ikra
             
             attr_reader :target
 
-            def initialize(target, block)
+            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
                 super()
 
                 @target = target
                 @block = block
+                @block_size = block_size
             end
             
             def size
@@ -188,13 +198,14 @@ module Ikra
             attr_reader :offsets
             attr_reader :out_of_range_value
 
-            def initialize(target, offsets, out_of_range_value, block)
+            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE)
                 super
 
                 @target = target
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
                 @block = block
+                @block_size = block_size
             end
 
             protected
@@ -273,17 +284,17 @@ end
 
 class Array
     class << self
-        def pnew(size, &block)
-            Ikra::Symbolic::ArrayNewCommand.new(size, block)
+        def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+            Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size)
         end
     end
     
-    def pmap(&block)
-        Ikra::Symbolic::ArrayMapCommand.new(to_command, block)
+    def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+        Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size)
     end
 
-    def pstencil(offsets, out_of_range_value, &block)
-        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block)
+    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block, block_size: block_size)
     end
 
     def to_command

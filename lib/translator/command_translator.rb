@@ -189,11 +189,25 @@ module Ikra
 
         # Result of translating a {Ikra::Symbolic::ArrayCommand}.
         class CommandTranslationResult
-            attr_accessor :environment_builder                          # @return [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
-            attr_accessor :generated_source                             # @return [String] containing the currently generated source code.
-            attr_accessor :invocation                                   # @return [String] source code used for invoking the block function.
-            attr_accessor :size                                         # @return [Fixnum] number of elements in base array 
-            attr_accessor :return_type                                  # @return [Types::UnionType] return type of the block.
+
+            # @return [EnvironmentBuilder] instance that generates the struct containing accessed 
+            # lexical variables.
+            attr_accessor :environment_builder
+
+            # @return [String] The currently generated source code.
+            attr_accessor :generated_source
+
+            # @return [String] Source code used for invoking the block function.
+            attr_accessor :invocation
+
+            # @return [Fixnum] The number of elements in the base array.
+            attr_accessor :size
+
+            # @return [Types::UnionType] The return type of the block.
+            attr_accessor :return_type
+
+            # @return [Fixnum] The size of a block (1D).
+            attr_accessor :block_size
 
             def initialize(environment_builder)
                 @environment_builder = environment_builder
@@ -211,12 +225,15 @@ module Ikra
 
             # Compiles CUDA source code and generates a shared library.
             def compile
+                grid_dim = [size.fdiv(@block_size).ceil, 1].max
+                block_dim = size >= @block_size ? @block_size : size
+
                 # Prepare file replacements
                 file_replacements = {}                                  # [Hash{String => String}] contains strings that should be replaced when reading a file 
-                file_replacements["grid_dim[0]"] = "#{[size / 250, 1].max}"
+                file_replacements["grid_dim[0]"] = "#{grid_dim}"
                 file_replacements["grid_dim[1]"] = "1"
                 file_replacements["grid_dim[2]"] = "1"
-                file_replacements["block_dim[0]"] = "#{size >= 250 ? 250 : size}"
+                file_replacements["block_dim[0]"] = "#{block_dim}"
                 file_replacements["block_dim[1]"] = "1"
                 file_replacements["block_dim[2]"] = "1"
                 file_replacements["result_type"] = @return_type.to_c_type
@@ -354,6 +371,7 @@ module Ikra
                 command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{tid})"
                 command_translation_result.size = command.size
                 command_translation_result.return_type = block_translation_result.result_type
+                command_translation_result.block_size = command.block_size
 
                 command_translation_result
             end
@@ -397,6 +415,7 @@ module Ikra
                 
                 command_translation_result.size = command.size
                 command_translation_result.return_type = command.base_type
+                command_translation_result.block_size = command.block_size
 
                 command_translation_result
             end
@@ -419,6 +438,7 @@ module Ikra
                 command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
                 command_translation_result.size = dependent_result.size
                 command_translation_result.return_type = block_translation_result.result_type
+                command_translation_result.block_size = command.block_size
 
                 command_translation_result
             end
@@ -446,6 +466,7 @@ module Ikra
                 command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
                 command_translation_result.size = dependent_result.size
                 command_translation_result.return_type = block_translation_result.result_type
+                command_translation_result.block_size = command.block_size
 
                 command_translation_result
             end
