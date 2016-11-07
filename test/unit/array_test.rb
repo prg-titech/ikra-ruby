@@ -35,7 +35,6 @@ class ArrayTest < UnitTestCase
     end
 
     # TODO: Fix polymorphic arguments
-    """
     def test_lexical_union_array
         lex_array = (1..100).map do |i|
             if (i % 2 == 0)
@@ -57,5 +56,4 @@ class ArrayTest < UnitTestCase
 
         assert_in_delta(167145.0, partial_sums.reduce(:+), 0.1)
     end
-    """
 end

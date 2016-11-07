@@ -2,6 +2,7 @@ require "tempfile"
 require "ffi"
 require_relative "translator"
 require_relative "block_translator"
+require_relative "cuda_errors"
 require_relative "../config/os_configuration"
 require_relative "../symbolic/symbolic"
 require_relative "../symbolic/visitor"
@@ -189,6 +190,11 @@ module Ikra
 
         # Result of translating a {Ikra::Symbolic::ArrayCommand}.
         class CommandTranslationResult
+            class KernelResultStruct < FFI::Struct
+                layout :result, :pointer,
+                    :error_code, :int32
+            end
+
             attr_accessor :environment_builder                          # @return [EnvironmentBuilder] instance that generates the struct containing accessed lexical variables.
             attr_accessor :generated_source                             # @return [String] containing the currently generated source code.
             attr_accessor :invocation                                   # @return [String] source code used for invoking the block function.
@@ -285,8 +291,19 @@ module Ikra
                 Log.info("FFI transfer time: #{Time.now - time_before} s")
 
                 time_before = Time.now
-                result = ffi_interface.launch_kernel(environment_object)
+                kernel_result = ffi_interface.launch_kernel(environment_object)
                 Log.info("Kernel time: #{Time.now - time_before} s")
+
+                # Extract error code and return value
+                result_t_struct = KernelResultStruct.new(kernel_result)
+                error_code = result_t_struct[:error_code]
+
+                if error_code != 0
+                    # Kernel failed
+                    Errors.raiseCudaError(error_code)
+                end
+
+                result = result_t_struct[:result]
 
                 if return_type.is_singleton?
                     # Read in entire array
@@ -320,7 +337,7 @@ module Ikra
                         elsif next_type == Types::PrimitiveType::Nil.class_id
                             result_values[index] = nil
                         else
-                            raise NotImplementedError.new("Implement class objs (#{next_type})")
+                            raise NotImplementedError.new("Implement class objs for \##{index}: #{next_type}")
                         end
                     end
 

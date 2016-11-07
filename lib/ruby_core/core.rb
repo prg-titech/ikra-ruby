@@ -21,6 +21,10 @@ module Ikra
             return_type
         end
 
+        def self.int_to_num_code_operator(operator)
+            return code_operator(operator, TYPE_INT_RETURN_ALL_NUMERIC)
+        end
+
         # Generates code for a numeric operator where:
         # 1. Receiver is of type [recv_type]
         # 2. Operand is either an Int or a Float, or a union type of both (if [allow_float])
@@ -28,24 +32,27 @@ module Ikra
         # 4. Return value is a union type if [allow_float] and [recv_type] is Int
         # 5. The runtime return value is determined/promoted by runtime type of operand if 
         #    the receiver type is Int
-        def self.code_operator(recv_type, operator, allow_float: true, return_type: nil)
+        def self.code_operator(operator, return_type)
             # Receiver is guaranteed to be a singleton Int, but other can be any type
 
             return proc do |args_types, args_code|
+                recv_type = args_types[0]
                 other_type = args_types[1]
 
+                if return_type.is_a?(Proc)
+                    return_type = return_type.call(args_types[0], other_type)
+                end
+
+                puts return_type
+                
                 if other_type.is_singleton?
-                    # Type is guaranteed to be Int or Float (otherwise type inference would have 
-                    # failed earlier)
+                    # Type is guaranteed to be (either) Int or Float (otherwise type inference 
+                    # would have failed earlier)
                     "(#0 #{operator} #1)"
                 else
                     # Perform a type check, then generate union type value
 
-                    if recv_type == FLOAT_S && !allow_float
-                        raise "Invalid operator configuration: Expected that Float is allowed"
-                    end
-
-                    return_value_is_union_type = allow_float && recv_type == INT_S && return_type == nil
+                    return_value_is_union_type = !return_type.is_singleton?
 
                     result = StringIO.new
                     result << "({ #{recv_type.to_c_type} _op1 = #0;\n"
@@ -55,15 +62,14 @@ module Ikra
                         # In this case, the type of the operand determines the return type
                         # at runtime. We cannot determine the type statically.
                         result << "union_t _result;\n"
-                    elsif return_type != nil
+                    else
                         # Explicitly specified return type
                         result << "#{return_type.to_c_type} _result;\n"
-                    else
-                        result << "#{recv_type.to_c_type} _result;\n"
                     end
 
                     result << "switch (_op2.class_id) {\n"
 
+                    # ---- OPERAND IS INT ----
                     result << "    case #{INT_S.class_id}:\n"
 
                     if return_value_is_union_type
@@ -80,7 +86,8 @@ module Ikra
 
                     result << "        break;\n"
 
-                    if allow_float
+                    if other_type.include?(FLOAT_S)
+                        # ---- OPERAND IS FLOAT ----
                         result << "    case #{FLOAT_S.class_id}:\n"
 
                         if return_value_is_union_type
@@ -88,9 +95,9 @@ module Ikra
                         else
                             result << "        _result = _op1 #{operator} _op2.value.float_;\n"
                         end
-
-                        result << "        break;\n"
                     end
+
+                    result << "        break;\n"
 
                     result << "    default:\n"
                     # TODO: Set error state
@@ -130,26 +137,26 @@ module Ikra
         end
 
         # TODO: fix int % float
-        implement INT_S, :%, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "%")
-        implement INT_S, :&, TYPE_INT_RETURN_INT, 1, code_operator(INT_S, "&", allow_float: false)
-        implement INT_S, :|, TYPE_INT_RETURN_INT, 1, code_operator(INT_S, "|", allow_float: false)
-        implement INT_S, :*, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "*")
+        implement INT_S, :%, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("%")
+        implement INT_S, :&, TYPE_INT_RETURN_INT, 1, code_operator("&", INT)
+        implement INT_S, :|, TYPE_INT_RETURN_INT, 1, code_operator("|", INT)
+        implement INT_S, :*, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("*")
         # TODO: Find better implementation for Int pow
         implement INT_S, :**, INT, 1, "((int) pow((double) #0, (double) #F1))"
-        implement INT_S, :+, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "+")
-        implement INT_S, :-, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "-")
+        implement INT_S, :+, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("+")
+        implement INT_S, :-, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("-")
         # TODO: Implement unary -
-        implement INT_S, :/, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "/")
-        implement INT_S, :<, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, "<", return_type: BOOL_S)
-        implement INT_S, :<<, TYPE_INT_RETURN_INT, 1, code_operator(INT_S, "<<", allow_float: false)
-        implement INT_S, :<=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, "<=", return_type: BOOL_S)
+        implement INT_S, :/, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("/")
+        implement INT_S, :<, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("<", BOOL)
+        implement INT_S, :<<, TYPE_INT_RETURN_INT, 1, code_operator("<<", INT)
+        implement INT_S, :<=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("<=", BOOL)
         # TODO: Implement <=>
-        implement INT_S, :==, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, "==", return_type: BOOL_S)
-        implement INT_S, :"!=", TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, "!=", return_type: BOOL_S)
-        implement INT_S, :>, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, ">", return_type: BOOL_S)
-        implement INT_S, :>=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(INT_S, ">=", return_type: BOOL_S)
-        implement INT_S, :>>, TYPE_INT_RETURN_INT, 1, code_operator(INT_S, ">>", allow_float: false)
-        implement INT_S, :"^", TYPE_INT_RETURN_INT, 1, code_operator(INT_S, "^", allow_float: false)
+        implement INT_S, :==, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("==", BOOL)
+        implement INT_S, :"!=", TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("!=", BOOL)
+        implement INT_S, :>, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(">", BOOL)
+        implement INT_S, :>=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(">=", BOOL)
+        implement INT_S, :>>, TYPE_INT_RETURN_INT, 1, code_operator(">>", INT)
+        implement INT_S, :"^", TYPE_INT_RETURN_INT, 1, code_operator("^", INT)
 
         implement INT_S, :abs, INT, 0, "({ int value = #0; value < 0 ? -value : value; })"
         implement INT_S, :bit_length, INT, 1, "({ int value = #0; (int) ceil(log2f(value < 0 ? -value : value + 1)); })"
@@ -157,7 +164,7 @@ module Ikra
         implement INT_S, :even?, BOOL, 0, "(#0 % 2 == 0)"
         implement INT_S, :fdiv, FLOAT, 1, "(#0 / #F1)"
         implement INT_S, :magnitude, INT, 0, "({ int value = #0; value < 0 ? -value : value; })"
-        implement INT_S, :modulo, TYPE_INT_RETURN_ALL_NUMERIC, 1, code_operator(INT_S, "%")
+        implement INT_S, :modulo, TYPE_INT_RETURN_ALL_NUMERIC, 1, int_to_num_code_operator("%")
         implement INT_S, :odd?, BOOL, 0, "(#0 % 2 != 0)"
         implement INT_S, :size, INT, 0, "sizeof(int)"
         implement INT_S, :next, INT, 0, "(#0 + 1)"
@@ -167,19 +174,19 @@ module Ikra
         implement INT_S, :to_i, INT, 1, "#0"
 
         implement FLOAT_S, :%, FLOAT, 1, "fmodf(#0, #F1)"
-        implement FLOAT_S, :*, FLOAT, 1, code_operator(FLOAT_S, "*")
+        implement FLOAT_S, :*, FLOAT, 1, code_operator("*", FLOAT)
         implement FLOAT_S, :**, FLOAT, 1, "powf(#0, #F1)"
-        implement FLOAT_S, :+, FLOAT, 1, code_operator(FLOAT_S, "+")
-        implement FLOAT_S, :-, FLOAT, 1, code_operator(FLOAT_S, "-")
+        implement FLOAT_S, :+, FLOAT, 1, code_operator("+", FLOAT)
+        implement FLOAT_S, :-, FLOAT, 1, code_operator("-", FLOAT)
         # TODO: Implement unary -
-        implement FLOAT_S, :/, FLOAT, 1, code_operator(FLOAT_S, "/")
-        implement FLOAT_S, :<, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, "<", return_type: BOOL_S)
-        implement FLOAT_S, :<=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, "<=", return_type: BOOL_S)
+        implement FLOAT_S, :/, FLOAT, 1, code_operator("/", FLOAT)
+        implement FLOAT_S, :<, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("<", BOOL)
+        implement FLOAT_S, :<=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("<=", BOOL)
         # TODO: Implement <=>
-        implement FLOAT_S, :==, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, "==", return_type: BOOL_S)
-        implement FLOAT_S, :"!=", TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, "!=", return_type: BOOL_S)
-        implement FLOAT_S, :>, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, ">", return_type: BOOL_S)
-        implement FLOAT_S, :>=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(FLOAT_S, ">=", return_type: BOOL_S)
+        implement FLOAT_S, :==, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("==", BOOL)
+        implement FLOAT_S, :"!=", TYPE_NUMERIC_RETURN_BOOL, 1, code_operator("!=", BOOL)
+        implement FLOAT_S, :>, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(">", BOOL)
+        implement FLOAT_S, :>=, TYPE_NUMERIC_RETURN_BOOL, 1, code_operator(">=", BOOL)
 
         implement FLOAT_S, :abs, FLOAT, 1, "fabsf(#0)"
         implement FLOAT_S, :floor, FLOAT, 1, "floorf(#0)"
