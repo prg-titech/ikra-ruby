@@ -66,17 +66,17 @@ def encodeHSBcolor(h, s, b)
   # h - the hue component, where (h - floor(h))*360 produce the hue angle
   # s - the saturation of the color     (0.0 <= s <= 1.0)
   # b - the brightness of the color     (0.0 <= b <= 1.0)
-  c = (1 - (2*b - 1).abs)*s
-  h_ = (h - h.floor)*360/60
-  x = c * (1 - (h_ % 2 - 1).abs)
-  if    h_ < 1 then r1 = c; g1 = x; b1 = 0
-  elsif h_ < 2 then r1 = x; g1 = c; b1 = 0
-  elsif h_ < 3 then r1 = 0; g1 = c; b1 = x
-  elsif h_ < 4 then r1 = 0; g1 = x; b1 = c
-  elsif h_ < 5 then r1 = x; g1 = 0; b1 = c
-  else              r1 = c; g1 = 0; b1 = x
+  c = (1.0 - (2.0*b - 1.0).abs)*s
+  h_ = (h - h.floor)*360.0/60
+  x = c * (1.0 - (h_ % 2 - 1.0).abs)
+  if    h_ < 1 then r1 = c; g1 = x; b1 = 0.0
+  elsif h_ < 2 then r1 = x; g1 = c; b1 = 0.0
+  elsif h_ < 3 then r1 = 0.0; g1 = c; b1 = x
+  elsif h_ < 4 then r1 = 0.0; g1 = x; b1 = c
+  elsif h_ < 5 then r1 = x; g1 = 0.0; b1 = c
+  else              r1 = c; g1 = 0.0; b1 = x
   end
-  m = b - c/2
+  m = b - c/2.0
   r = r1 + m; g = g1 + m; b = b1 + m
   (r*255).to_i * 0x10000 + (g*255).to_i * 0x100 + (b*255).to_i
 end
@@ -88,7 +88,7 @@ def fusion_gpu_ikra_1
   hy_res = 4000
 
   base1 = Array.pnew(hx_res * hy_res) do |index|
-    0x000000ff - index % 32
+    0x000000ff #- index % 32
   end
 
   result = base1.pmap_with_index do |value, index|
@@ -98,9 +98,7 @@ def fusion_gpu_ikra_1
     delta_x = hx_res/2 - x
     delta_y = hy_res/2 - y
 
-    smaller_dim = hx_res < hy_res ? hx_res : hy_res
-
-    if delta_x*delta_x + delta_y*delta_y < smaller_dim*smaller_dim/5
+    if delta_x*delta_x + delta_y*delta_y < hy_res*hy_res/5
       value
     else
       0x00ff0000
@@ -109,41 +107,6 @@ def fusion_gpu_ikra_1
 
   show(hx_res, hy_res, result.pack("I!*"))
 end
-
-def fusion_gpu_ikra_2
-  Ikra::Configuration.kernel_iterations = 100
-
-  hx_res = 4000
-  hy_res = 4000
-
-  base1 = Array.pnew(hx_res * hy_res) do |index|
-    0x000000ff - index % 32
-  end
-
-  base2 = Array.pnew(hx_res * hy_res) do |index|
-    x = index%hx_res
-    encodeHSBcolor(x.to_f / hx_res, 1.0, 0.5)
-  end.to_a
-
-  result = base1.pmap_with_index do |value, index|
-    x = index%hx_res
-    y = index/hx_res
-
-    delta_x = hx_res/2 - x
-    delta_y = hy_res/2 - y
-
-    smaller_dim = hx_res < hy_res ? hx_res : hy_res
-
-    if delta_x*delta_x + delta_y*delta_y < smaller_dim*smaller_dim/5
-      value
-    else
-      base2[index]
-    end
-  end
-
-  show(hx_res, hy_res, result.pack("I!*"))
-end
-
 
 def custom_cuda_1
   Ikra::Configuration.override_cuda_file = "fusion_custom_1.cu"
@@ -174,41 +137,40 @@ def custom_cuda_1
   show(hx_res, hy_res, result.pack("I!*"))
 end
 
+def fusion_gpu_ikra_2
+  # Let the kernel run 100 times to isolate the effect of global memory access
+  # You can reduce this number or use a different (smaller) picture to speedup rendering
+  Ikra::Configuration.kernel_iterations = 100
+  Ikra::Configuration.codegen_expect_file_name = "fusion"
+
+  # Load the picture
+  # Try with input2.png first, then input4.png
+  image = ChunkyPNG::Image.from_file('input4.png')
+  hx_res = image.width
+  hy_res = image.height
+
+  picture = image.pixels.map do |value|
+    (value % 0xffffff00) >> 8
+  end
+
+  # Convert to grayscale
+  grayscale = picture.pmap do |value|
+    # TODO: Convert value to grayscale
+  end
+
+  # Overlay gradient
+  with_gradient = grayscale.pmap_with_index do |value, index|
+    # TODO: Reuse value or draw gradient outside of circle
+  end
+
+  # Show the picture
+  show(hx_res, hy_res, with_gradient.pack("I!*"))
+end
+
 def custom_cuda_2
   Ikra::Configuration.override_cuda_file = "fusion_custom_2.cu"
 
-  hx_res = 4000
-  hy_res = 4000
-
-  base1 = Array.pnew(hx_res * hy_res) do |index|
-    0x000000ff - index % 32
-  end
-
-  base2 = Array.pnew(hx_res * hy_res) do |index|
-    x = index%hx_res
-    encodeHSBcolor(x.to_f / hx_res, 1.0, 0.5)
-  end
-  base2 = [1]
-
-  Ikra::Configuration.kernel_iterations = 100
-
-  result = base1.pmap_with_index do |value, index|
-    x = index%hx_res
-    y = index/hx_res
-
-    delta_x = hx_res/2 - x
-    delta_y = hy_res/2 - y
-
-    smaller_dim = hx_res < hy_res ? hx_res : hy_res
-
-    if delta_x*delta_x + delta_y*delta_y < smaller_dim*smaller_dim/5
-      value
-    else
-      base2[index]
-    end
-  end
-
-  show(hx_res, hy_res, result.pack("I!*"))
+  # TODO: Copy entire function body from fusion_gpu_ikra_2 here
 end
 
 # Program entry point

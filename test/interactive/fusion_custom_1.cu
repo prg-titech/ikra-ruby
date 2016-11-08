@@ -75,22 +75,9 @@ __device__ int _block_k_3_unfused(environment_t *_env_, int *dependent_computati
         y = ((index / lex_hx_res));
         delta_x = ((((lex_hx_res / 2)) - x));
         delta_y = ((((lex_hy_res / 2)) - y));
-        smaller_dim = [&]{
-            if (((lex_hx_res < lex_hy_res)))
-            {
-                {
-                    return lex_hx_res;
-                }
-            }
-            else
-            {
-                {
-                    return lex_hy_res;
-                }
-            }
-        }();
-        if (((((((delta_x * delta_x)) + ((delta_y * delta_y)))) < ((((smaller_dim * smaller_dim)) / 5)))))
+        if (((((((delta_x * delta_x)) + ((delta_y * delta_y)))) < ((((lex_hy_res * lex_hy_res)) / 5)))))
         {
+            // Use temporary array here instead of "value"
             return dependent_computation[index];
         }
         else
