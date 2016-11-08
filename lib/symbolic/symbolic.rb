@@ -77,6 +77,14 @@ module Ikra
                 @result.pack(fmt)
             end
 
+            def to_a
+                if @result == nil
+                    execute
+                end
+
+                @result
+            end
+
             def execute
                 @result = Translator.translate_command(self).execute
             end
@@ -87,6 +95,10 @@ module Ikra
             
             def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
                 ArrayMapCommand.new(self, block, block_size: block_size)
+            end
+
+            def pmap_with_index(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+                ArrayMapCommand.new(self, block, block_size: block_size, with_index: true)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -174,14 +186,19 @@ module Ikra
             
             attr_reader :target
 
-            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE, with_index: false)
                 super()
 
                 @target = target
                 @block = block
                 @block_size = block_size
+                @with_index = with_index
             end
             
+            def with_index?
+                @with_index
+            end
+
             def size
                 @target.size
             end
@@ -291,6 +308,10 @@ class Array
     
     def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
         Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size)
+    end
+
+    def pmap_with_index(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+        Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size, with_index: true)
     end
 
     def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)

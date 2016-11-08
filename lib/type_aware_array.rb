@@ -1,5 +1,6 @@
 class Array
-
+    attr_accessor :type_counter
+    
     # TODO: probably do not need this anymore
     def common_superclass
         class_counter = {}

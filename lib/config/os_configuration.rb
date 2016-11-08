@@ -1,5 +1,6 @@
 require "rbconfig"
 require "logger"
+require_relative "configuration"
 
 module Ikra
     module Configuration
@@ -53,6 +54,10 @@ module Ikra
             end
 
             def nvcc_invocation_string(in_file, out_file)
+                if Configuration.override_cuda_file != nil
+                    in_file = Configuration.override_cuda_file
+                end
+
                 "#{@@cuda_nvcc} -o #{out_file} -I#{@@cuda_common_include} -I#{@@cuda_cupti_include} --shared -Xcompiler -fPIC #{in_file} 2>&1"
             end
 

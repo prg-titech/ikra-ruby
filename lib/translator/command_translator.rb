@@ -237,6 +237,7 @@ module Ikra
                 file_replacements["block_dim[1]"] = "1"
                 file_replacements["block_dim[2]"] = "1"
                 file_replacements["result_type"] = @return_type.to_c_type
+                file_replacements["debug_iterations"] = Configuration.kernel_iterations == nil ? "1" : Configuration.kernel_iterations.to_s
                 file_replacements["result_size"] = "#{result_size}"
                 file_replacements["block_invocation"] = @invocation
                 file_replacements["env_identifier"] = Constants::ENV_IDENTIFIER
@@ -425,17 +426,32 @@ module Ikra
                 dependent_result = super
 
                 command_translation_result = CommandTranslationResult.new(@environment_builder)
+                
+                # Parameters for block
+                parameter_names = command.block_parameter_names
+                block_parameter_types = {}
+                block_parameter_types[parameter_names[0]] = dependent_result.return_type
+
+                if command.with_index?
+                    block_parameter_types[parameter_names[1]] = Types::UnionType.create_int
+                end
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameter_types: {command.block_parameter_names.first => dependent_result.return_type},
+                    block_parameter_types: block_parameter_types,
                     environment_builder: @environment_builder[command.unique_id],
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id)
 
                 command_translation_result.generated_source = dependent_result.generated_source + "\n\n" + block_translation_result.generated_source
 
-                command_translation_result.invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
+                if command.with_index?
+                    invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation}, threadIdx.x + blockIdx.x * blockDim.x)"
+                else
+                    invocation = "#{block_translation_result.function_name}(#{Constants::ENV_IDENTIFIER}, #{dependent_result.invocation})"
+                end
+                command_translation_result.invocation = invocation
+
                 command_translation_result.size = dependent_result.size
                 command_translation_result.return_type = block_translation_result.result_type
                 command_translation_result.block_size = command.block_size

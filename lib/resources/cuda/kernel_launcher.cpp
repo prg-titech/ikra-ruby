@@ -14,8 +14,10 @@ extern "C" EXPORT /*{result_type}*/ *launch_kernel(environment_t */*{host_env}*/
     
     dim3 dim_grid(/*{grid_dim[0]}*/, /*{grid_dim[1]}*/, /*{grid_dim[2]}*/);
     dim3 dim_block(/*{block_dim[0]}*/, /*{block_dim[1]}*/, /*{block_dim[2]}*/);
-    
-    kernel<<<dim_grid, dim_block>>>(/*{dev_env}*/, device_result);
+
+    for (int i = 0; i < /*{debug_iterations}*/; i++) {
+        kernel<<<dim_grid, dim_block>>>(/*{dev_env}*/, device_result);
+    }
 
     checkCudaErrors(cudaThreadSynchronize());
 
