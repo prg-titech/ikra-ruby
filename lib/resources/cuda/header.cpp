@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>

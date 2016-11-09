@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -91,37 +92,66 @@ __global__ void kernel(environment_t *_env_, int *_result_)
 }
 
 
-extern "C" EXPORT int *launch_kernel(environment_t *host_env)
+typedef struct result_t {
+    int *result;
+    int last_error;
+} result_t;
+
+#define checkErrorReturn(result_var, expr) \
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
+
+extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
+    // CUDA Initialization
+    result_t *kernel_result = (result_t *) malloc(sizeof(result_t));
+
+    cudaError_t cudaStatus = cudaSetDevice(0);
+
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaSetDevice failed! Do you have a CUDA-capable GPU installed?\n");
+        kernel_result->last_error = -1;
+        return kernel_result;
+    }
+
+    checkErrorReturn(kernel_result, cudaFree(0));
+
     /* Modify host environment to contain device pointers addresses */
     
     void * temp_ptr_l2_a = host_env->l2_a;
-    checkCudaErrors(cudaMalloc((void **) &host_env->l2_a, 22500));
-    checkCudaErrors(cudaMemcpy(host_env->l2_a, temp_ptr_l2_a, 22500, cudaMemcpyHostToDevice));
+    checkErrorReturn(kernel_result, cudaMalloc((void **) &host_env->l2_a, 22500));
+    checkErrorReturn(kernel_result, cudaMemcpy(host_env->l2_a, temp_ptr_l2_a, 22500, cudaMemcpyHostToDevice));
 
     void * temp_ptr_l2_b = host_env->l2_b;
-    checkCudaErrors(cudaMalloc((void **) &host_env->l2_b, 22500));
-    checkCudaErrors(cudaMemcpy(host_env->l2_b, temp_ptr_l2_b, 22500, cudaMemcpyHostToDevice));
+    checkErrorReturn(kernel_result, cudaMalloc((void **) &host_env->l2_b, 22500));
+    checkErrorReturn(kernel_result, cudaMemcpy(host_env->l2_b, temp_ptr_l2_b, 22500, cudaMemcpyHostToDevice));
 
 
     /* Allocate device environment and copy over struct */
     environment_t *dev_env;
-    checkCudaErrors(cudaMalloc(&dev_env, sizeof(environment_t)));
-    checkCudaErrors(cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
+    checkErrorReturn(kernel_result, cudaMalloc(&dev_env, sizeof(environment_t)));
+    checkErrorReturn(kernel_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
     int *host_result = (int *) malloc(sizeof(int) * 5625);
     int *device_result;
-    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 5625));
+    checkErrorReturn(kernel_result, cudaMalloc(&device_result, sizeof(int) * 5625));
     
     dim3 dim_grid(11, 1, 1);
     dim3 dim_block(512, 1, 1);
-    
+
     kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
 
-    checkCudaErrors(cudaThreadSynchronize());
+    checkErrorReturn(kernel_result, cudaPeekAtLastError());
+    checkErrorReturn(kernel_result, cudaThreadSynchronize());
 
-    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 5625, cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaFree(dev_env));
+    checkErrorReturn(kernel_result, cudaMemcpy(host_result, device_result, sizeof(int) * 5625, cudaMemcpyDeviceToHost));
+    checkErrorReturn(kernel_result, cudaFree(dev_env));
 
-    return host_result;
+    kernel_result->result = host_result;
+    return kernel_result;
 }

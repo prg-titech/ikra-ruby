@@ -86,8 +86,12 @@ module Ikra
                     raise "Cannot expand with non-union type"
                 end
 
-                is_expanded = (union_type.types - @types).size > 0
-                @types.merge(union_type.types)
+                is_expanded = false
+
+                for type in union_type
+                    is_expanded = is_expanded | add(type)
+                end
+
                 return is_expanded
             end
 
@@ -106,9 +110,19 @@ module Ikra
                     raise "Singleton type expected"
                 end
 
-                is_expanded = !@types.include?(singleton_type)
-                @types.add(singleton_type)
-                return is_expanded
+                if singleton_type == PrimitiveType::Int && include?(PrimitiveType::Float)
+                    # Special rule: Coerce int to float
+                    return false
+                elsif singleton_type == PrimitiveType::Float && include?(PrimitiveType::Int)
+                    # Special rule: Coerce int to float
+                    @types.delete(PrimitiveType::Int)
+                    @types.add(singleton_type)
+                    return true
+                else
+                    is_expanded = !@types.include?(singleton_type)
+                    @types.add(singleton_type)
+                    return is_expanded
+                end
             end
 
             # Determines if this union type contains a specific singleton type.

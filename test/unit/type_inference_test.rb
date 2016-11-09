@@ -33,13 +33,7 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(4950, array.reduce(:+), 0.001)
 
         for index in 0...100
-            if index % 2 == 0
-                expected_type = ::Float
-            else
-                expected_type = ::Fixnum
-            end
-
-            assert_equal(array[index].class, expected_type)
+            assert_equal(array[index].class, ::Float)
         end
     end
 
@@ -59,13 +53,7 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(14810.0, array.reduce(:+), 0.001)
 
         for index in 0...100
-            if index % 2 == 0
-                expected_type = ::Float
-            else
-                expected_type = ::Fixnum
-            end
-
-            assert_equal(array[index].class, expected_type)
+            assert_equal(array[index].class, ::Float)
         end
     end
 
@@ -86,21 +74,13 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(7400 * 2, array.reduce(:+), 0.001)
 
         for index in 0...100
-            if index % 2 == 0
-                expected_type = ::Float
-            else
-                expected_type = ::Fixnum
-            end
-
-            assert_equal(array[index].class, expected_type)
+            assert_equal(array[index].class, ::Float)
         end
     end
 
     def test_union_type_primitive_invocation_3
-        # Operand is union type (only Int allowed)
-
         array = Array.pnew(100) do |j|
-            x1 = 0.0
+            x1 = 0
 
             if j%2 == 0
                 x1 = 1
@@ -228,13 +208,7 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(329618.0, array.reduce(:+), 0.001)
 
         for index in 0...100
-            if index % 4 == 0
-                expected_type = ::Fixnum
-            else
-                expected_type = ::Float
-            end
-
-            assert_equal(array[index].class, expected_type)
+            assert_equal(array[index].class, ::Float)
         end
     end
 
