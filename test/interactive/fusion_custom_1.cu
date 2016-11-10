@@ -53,51 +53,28 @@ typedef struct environment_struct environment_t;
 
 struct environment_struct
 {
-    int l3_hx_res;
-    int l3_hy_res;
+    int * b1j_base;
+    int b1j_size;
+    int * b1_base;
+    int b1_size;
 };
-__device__ int _block_k_1_(environment_t *_env_, int tid)
+
+
+__device__ int block(environment_t *_env_, int value, int index)
 {
-    return 255 - tid % 32;
+    // TODO: Your implementation here
+    // Image resolution is 1024x683 pixels
+    return value;
 }
 
-__device__ int _block_k_3_unfused(environment_t *_env_, int *dependent_computation, int index)
-{
-    int smaller_dim;
-    int delta_y;
-    int delta_x;
-    int y;
-    int x;
-    int lex_hy_res = _env_->l3_hy_res;
-    int lex_hx_res = _env_->l3_hx_res;
-    {
-        x = ((index % lex_hx_res));
-        y = ((index / lex_hx_res));
-        delta_x = ((((lex_hx_res / 2)) - x));
-        delta_y = ((((lex_hy_res / 2)) - y));
-        if (((((((delta_x * delta_x)) + ((delta_y * delta_y)))) < ((((lex_hy_res * lex_hy_res)) / 5)))))
-        {
-            // Use temporary array here instead of "value"
-            return dependent_computation[index];
-        }
-        else
-        {
-            return 0x00ff0000;
-        }
-    }
-}
 
-__global__ void kernel(environment_t *_env_, int *_result_, int * temp_result_)
+__global__ void kernel(environment_t *_env_, int *_result_)
 {
     int t_id = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (t_id < 16000000)
+    if (t_id < 699392)
     {
-        // First block
-        temp_result_[t_id] = _block_k_1_(_env_, threadIdx.x + blockIdx.x * blockDim.x);
-
-        // Second block
-        _result_[t_id] = _block_k_3_unfused(_env_, temp_result_, threadIdx.x + blockIdx.x * blockDim.x);
+        _result_[t_id] = block(_env_, _env_->b1_base[t_id], t_id);
     }
 }
 
@@ -105,6 +82,10 @@ __global__ void kernel(environment_t *_env_, int *_result_, int * temp_result_)
 extern "C" EXPORT int *launch_kernel(environment_t *host_env)
 {
     /* Modify host environment to contain device pointers addresses */
+    
+    void * temp_ptr_b1_base = host_env->b1_base;
+    checkCudaErrors(cudaMalloc((void **) &host_env->b1_base, 2797568));
+    checkCudaErrors(cudaMemcpy(host_env->b1_base, temp_ptr_b1_base, 2797568, cudaMemcpyHostToDevice));
 
 
     /* Allocate device environment and copy over struct */
@@ -112,23 +93,20 @@ extern "C" EXPORT int *launch_kernel(environment_t *host_env)
     checkCudaErrors(cudaMalloc(&dev_env, sizeof(environment_t)));
     checkCudaErrors(cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-    int *host_result = (int *) malloc(sizeof(int) * 16000000);
+    int *host_result = (int *) malloc(sizeof(int) * 699392);
     int *device_result;
-    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 16000000));
-
-    int *device_temp_result;
-    checkCudaErrors(cudaMalloc(&device_temp_result, sizeof(int) * 16000000));
+    checkCudaErrors(cudaMalloc(&device_result, sizeof(int) * 699392));
     
-    dim3 dim_grid(62500, 1, 1);
+    dim3 dim_grid(2732, 1, 1);
     dim3 dim_block(256, 1, 1);
-    
+
     for (int i = 0; i < 100; i++) {
-        kernel<<<dim_grid, dim_block>>>(dev_env, device_result, device_temp_result);
+        kernel<<<dim_grid, dim_block>>>(dev_env, device_result);
     }
-    
+
     checkCudaErrors(cudaThreadSynchronize());
 
-    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 16000000, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(host_result, device_result, sizeof(int) * 699392, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaFree(dev_env));
 
     return host_result;

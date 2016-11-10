@@ -1,176 +1,140 @@
-# Rendering setup
-require 'sdl'
-require 'chunky_png'
+require_relative "fusion_setup"
 
-require_relative '../../lib/ikra'
 
-SCALE=0.2
+# AcmeImgLib: A modular image manipulation library.
+module AcmeImgLib
 
-def setup(w,h)
-  SDL.init(SDL::INIT_VIDEO)
-  $screen = SDL::Screen.open(w*SCALE,h*SCALE,32,SDL::SWSURFACE)
-end
+  class << self
+    # Loads a PNG file from the file system.
+    def load_image(filename)
+      # Load the picture
+      image = ChunkyPNG::Image.from_file(filename)
+      hx_res = image.width
+      hy_res = image.height
 
-def get_screen(w,h)
-  $screen ||= setup(w,h)
-end
+      return image.pixels.map do |value|
+        (value % 0xffffff00) >> 8
+      end, hx_res, hy_res
+    end
 
-def show(w,h,str)
-  # to show a x*y pixels image constructed from str
-  # w : width of the image, must be the multiple of 32
-  # h : height of the image
-  # str : a string of w*h characters, whose i'th character represents
-  #       the color at (i%w, i/w).
-  depth = 32
-  pitch = w * 4
-  surface = SDL::Surface.new_from(str, w, h, depth, pitch, 0,0,0,0)
-  screen = get_screen(w,h)
-#  screen.put(surface,0,0)
-  SDL::Surface.transform_draw(surface,screen,
-                              0,       # angle
-                              SCALE,SCALE,     # scale
-                              0,0,0,0, # px,py, qx,qy
-                              0)       # flags
-  screen.flip
-end
+    # Converts all pixels to grayscale
+    def grayscale_filter
+      return proc do |value, index|
+        r = (value & 0x00ff0000) >> 16
+        g = (value & 0x0000ff00) >> 8
+        b = value & 0x000000ff
 
-def check_key
-    while event = SDL::Event.poll
-      case event
-      when SDL::Event::Quit, SDL::Event::KeyDown
-        exit
+        average = (r + g + b) / 3
+
+        (average << 16) + (average << 8) + average
       end
     end
-end
 
-def check(wait=true)
-  while true
-    check_key
-    if wait
-      sleep 0.1
-    else
-      return
+    # Adds another image on top of the manipulated image (outside of the area of a circle).
+    def overlay_outside_circle(overlay, hx_res, hy_res, padding: 0)
+      overlay_array = overlay.to_a
+
+      return proc do |value, index|
+        x = index%hx_res
+        y = index/hx_res
+
+        delta_x = hx_res/2 - x
+        delta_y = hy_res/2 - y
+
+        if hx_res < hy_res
+          smaller_dim = hx_res
+        else
+          smaller_dim = hy_res
+        end
+
+        if delta_x*delta_x + delta_y*delta_y < smaller_dim*smaller_dim/(4 + padding)
+          value
+        else
+          overlay_array[index]
+        end
+      end
+    end
+
+    # Blend with another image, i.e., for every pixel, take the average values of red, green, and blue.
+    def blend(image)
+      image_array = image.to_a
+
+      return proc do |value, index|
+        # TODO: Your implementation here
+        # Blend `image_array[index]` with `value`
+
+        # Remove the following code, this is just here for demonstration purposes
+        img_width = 1024  # Image width hard-coded
+        y = index/img_width
+        block_height = 50
+
+        if (y/50) % 2 == 0
+          value
+        else
+          image_array[index]
+        end
+      end
+    end
+
+    # Generates a horizontal gradient.
+    def horizontal_gradient(hx_res, hy_res)
+      return Array.pnew(hx_res * hy_res) do |index|
+        x = index%hx_res
+        encodeHSBcolor(x.to_f / hx_res, 1.0, 0.5)
+      end
+    end
+
+    # Generates a vertical gradient.
+    def vertical_gradient(hx_res, hy_res)
+      return Array.pnew(hx_res * hy_res) do |index|
+        y = index/hx_res
+        encodeHSBcolor(y.to_f / hy_res, 1.0, 0.5)
+      end
     end
   end
-end
 
-#  image = ChunkyPNG::Image.from_file('input2.png')
-#  hx_res = image.width
-#  hy_res = image.height
-#
-#  image_array = image.pixels.map do |value|
-#    (value % 0xffffff00) >> 8
-#  end
-
-def encodeHSBcolor(h, s, b)
-  # h - the hue component, where (h - floor(h))*360 produce the hue angle
-  # s - the saturation of the color     (0.0 <= s <= 1.0)
-  # b - the brightness of the color     (0.0 <= b <= 1.0)
-  c = (1.0 - (2.0*b - 1.0).abs)*s
-  h_ = (h - h.floor)*360.0/60
-  x = c * (1.0 - (h_ % 2 - 1.0).abs)
-  if    h_ < 1 then r1 = c; g1 = x; b1 = 0.0
-  elsif h_ < 2 then r1 = x; g1 = c; b1 = 0.0
-  elsif h_ < 3 then r1 = 0.0; g1 = c; b1 = x
-  elsif h_ < 4 then r1 = 0.0; g1 = x; b1 = c
-  elsif h_ < 5 then r1 = x; g1 = 0.0; b1 = c
-  else              r1 = c; g1 = 0.0; b1 = x
-  end
-  m = b - c/2.0
-  r = r1 + m; g = g1 + m; b = b1 + m
-  (r*255).to_i * 0x10000 + (g*255).to_i * 0x100 + (b*255).to_i
 end
 
 def fusion_gpu_ikra_1
+  # Let the kernel run 100 times to isolate the effect of global memory access
+  # You can reduce this number or use a different (smaller) picture to speedup rendering
   Ikra::Configuration.kernel_iterations = 100
 
-  hx_res = 4000
-  hy_res = 4000
+  # Load the picture
+  image, hx_res, hy_res = AcmeImgLib.load_image('input2.png')
 
-  base1 = Array.pnew(hx_res * hy_res) do |index|
-    0x000000ff #- index % 32
-  end
+  # Convert to grayscale
+  image = image.apply(AcmeImgLib.grayscale_filter)
 
-  result = base1.pmap_with_index do |value, index|
-    x = index%hx_res
-    y = index/hx_res
+  # Generate gradients
+  h_gradient = AcmeImgLib.horizontal_gradient(hx_res, hy_res)
+  v_gradient = AcmeImgLib.vertical_gradient(hx_res, hy_res)
 
-    delta_x = hx_res/2 - x
-    delta_y = hy_res/2 - y
+  # Blend picture with gradient
+  filter_blend = AcmeImgLib.blend(v_gradient)
+  image = image.apply(filter_blend)
 
-    if delta_x*delta_x + delta_y*delta_y < hy_res*hy_res/5
-      value
-    else
-      0x00ff0000
-    end
-  end
+  # Overlay outer gradient
+  filter_outer_gradient = AcmeImgLib.overlay_outside_circle(h_gradient, hx_res, hy_res)
+  image = image.apply(filter_outer_gradient)
 
-  show(hx_res, hy_res, result.pack("I!*"))
+  # Show the picture
+  show(hx_res, hy_res, image.pack("I!*"))
 end
+
 
 def custom_cuda_1
   Ikra::Configuration.override_cuda_file = "fusion_custom_1.cu"
 
-  hx_res = 4000
-  hy_res = 4000
+  # Load the picture
+  image, hx_res, hy_res = AcmeImgLib.load_image('input2.png')
 
-  base1 = Array.pnew(hx_res * hy_res) do
-    0x000000ff
-  end
-
-  result = base1.pmap_with_index do |value, index|
-    x = index%hx_res
-    y = index/hx_res
-
-    delta_x = hx_res/2 - x
-    delta_y = hy_res/2 - y
-
-    smaller_dim = hx_res < hy_res ? hx_res : hy_res
-
-    if delta_x*delta_x + delta_y*delta_y < smaller_dim*smaller_dim/5
-      value
-    else
-      0
-    end
+  # Convert to grayscale
+  result = image.pmap_with_index do |value, index|
+    1 # DUMMY -- Actual source code read from file
   end
 
   show(hx_res, hy_res, result.pack("I!*"))
-end
-
-def fusion_gpu_ikra_2
-  # Let the kernel run 100 times to isolate the effect of global memory access
-  # You can reduce this number or use a different (smaller) picture to speedup rendering
-  Ikra::Configuration.kernel_iterations = 100
-  Ikra::Configuration.codegen_expect_file_name = "fusion"
-
-  # Load the picture
-  # Try with input2.png first, then input4.png
-  image = ChunkyPNG::Image.from_file('input4.png')
-  hx_res = image.width
-  hy_res = image.height
-
-  picture = image.pixels.map do |value|
-    (value % 0xffffff00) >> 8
-  end
-
-  # Convert to grayscale
-  grayscale = picture.pmap do |value|
-    # TODO: Convert value to grayscale
-  end
-
-  # Overlay gradient
-  with_gradient = grayscale.pmap_with_index do |value, index|
-    # TODO: Reuse value or draw gradient outside of circle
-  end
-
-  # Show the picture
-  show(hx_res, hy_res, with_gradient.pack("I!*"))
-end
-
-def custom_cuda_2
-  Ikra::Configuration.override_cuda_file = "fusion_custom_2.cu"
-
-  # TODO: Copy entire function body from fusion_gpu_ikra_2 here
 end
 
 # Program entry point
@@ -178,19 +142,12 @@ mode = ARGV[0]
 if mode == "GPU_1"
   puts "GPU Rendering, wait..."
   fusion_gpu_ikra_1
-elsif mode == "GPU_2"
-  puts "GPU Rendering, wait..."
-  fusion_gpu_ikra_2
 elsif mode == "CUSTOM_1"
   puts "Compile custom file ID: 1"
   custom_cuda_1
-elsif mode == "CUSTOM_2"
-  puts "Compile custom file ID: 2"
-  custom_cuda_2
 else
     puts "Invalid rendering mode"
 end
 
 puts "Press RETURN to continue"
 STDIN.getc
-
