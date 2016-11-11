@@ -13,19 +13,18 @@ module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
 
-        class BlockParameter
-            Normal = 0
-            Index = 1
-            PreviousFusion = 2
-            
-            attr_accessor :name
-            attr_accessor :type
-            attr_accessor :source_type
+        class Input
+            attr_reader :command
 
-            def initialize(name:, type:, source_type: Normal)
-                @name = name
-                @type = type
-                @source_type = source_type
+            # Returns the access pattern of this input, e.g., `:tid` (single element, identified
+            # by thread ID) or `:entire` (access to entire array is necessary).
+            attr_reader :pattern
+
+            def initialize(command:, pattern:)
+                @command = command
+
+                # Currently supported: :tid, :entire
+                @pattern = pattern
             end
         end
 
@@ -37,6 +36,10 @@ module Ikra
             # [Fixnum] Returns a unique ID for this command. It is used during name mangling in
             # the code generator to determine the name of array identifiers (and do other stuff?).
             attr_reader :unique_id
+
+            # An array of commands that serve as input to this command. The number of input
+            # commands depends on the type of the command.
+            attr_reader :input
 
             @@unique_id  = 1
 
@@ -78,7 +81,7 @@ module Ikra
             end
 
             def execute
-                @result = Translator.translate_command(self).execute
+                @result = Translator::CommandTranslator.translate_command(self).execute
             end
             
             def to_command
@@ -158,6 +161,9 @@ module Ikra
                 @size = size
                 @block = block
                 @block_size = block_size
+
+                # No input
+                @input = []
             end
             
             def size
@@ -171,19 +177,19 @@ module Ikra
 
         class ArrayMapCommand
             include ArrayCommand
-            
-            attr_reader :target
 
             def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
                 super()
 
-                @target = target
                 @block = block
                 @block_size = block_size
+
+                # Read array at position `tid`
+                @input = [Input.new(command: target, pattern: :tid)]
             end
             
             def size
-                @target.size
+                input.first.command.size
             end
             
             protected
@@ -194,18 +200,19 @@ module Ikra
         def ArrayStencilCommand
             include ArrayCommand
 
-            attr_reader :target
             attr_reader :offsets
             attr_reader :out_of_range_value
 
             def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE)
                 super
 
-                @target = target
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
                 @block = block
                 @block_size = block_size
+
+                # Read more than just one element, fall back to `:entire` for now
+                @input = [Input.new(command: target, pattern: :entire)]
             end
 
             protected
@@ -216,13 +223,13 @@ module Ikra
         class ArraySelectCommand
             include ArrayCommand
 
-            attr_reader :target
-
             def initialize(target, block)
                 super
 
-                @target = target
                 @block = block
+
+                # One element per thread
+                @input = [Input.new(command: target, pattern: :tid)]
             end
             
             # how to implement SELECT?
@@ -234,7 +241,7 @@ module Ikra
             
             attr_reader :target
 
-            Block = Proc.new do |element|
+            DUMMY_BLOCK = Proc.new do |element|
                 element
             end
 
@@ -243,30 +250,31 @@ module Ikra
             def initialize(target)
                 super()
 
-                @target = target
-
                 # Ensure that base array cannot be modified
                 target.freeze
+
+                # One thread per array element
+                @input = [Input.new(command: target, pattern: :tid)]
             end
             
             def execute
-                @target
+                input.first.command
             end
             
             def size
-                @target.size
+                input.first.command.size
             end
 
             # Returns a collection of external objects that are accessed within a parallel section. This includes all elements of the base array.
             def externals
-                lexical_externals.keys + @target
+                lexical_externals.keys + input.first.command
             end
 
             def base_type
-                # TODO: add caching (@target is frozen)
+                # TODO: add caching (`input` is frozen)
                 type = Types::UnionType.new
 
-                @target.each do |element|
+                input.first.command.each do |element|
                     type.add(element.class.to_ikra_type)
                 end
 
@@ -276,7 +284,7 @@ module Ikra
             protected
 
             def block
-                Block
+                DUMMY_BLOCK
             end
         end
     end

@@ -32,7 +32,9 @@ module Ikra
 
         class Visitor
             def visit_array_command(command)
-
+                for input in command.input
+                    input.command.accept(self)
+                end
             end
 
             def visit_array_new_command(command)
@@ -41,17 +43,14 @@ module Ikra
 
             def visit_array_map_command(command)
                 visit_array_command(command)
-                command.target.accept(self)
             end
 
             def visit_array_stencil_command(command)
                 visit_array_command(command)
-                command.target.accept(self)
             end
 
             def visit_array_select_command(command)
                 visit_array_command(command)
-                command.target.accept(self)
             end
 
             def visit_array_identity_command(command)

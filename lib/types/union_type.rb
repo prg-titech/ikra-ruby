@@ -44,6 +44,14 @@ module Ikra
                 end
             end
 
+            def c_size
+                if @types.size == 1
+                    return @types.first.c_size
+                else
+                    return "sizeof(union_t)"
+                end
+            end
+
             def to_ruby_type
                 if @types.size == 1
                     return @types.first.to_ruby_type
