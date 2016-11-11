@@ -17,10 +17,11 @@ module Ikra
             # @return [UnionType] Return value type of method/block
             attr_accessor :result_type
 
-            # @return [String] Name of function in CUDA source code
+            # @return [String] Name of function of block in CUDA source code
             attr_accessor :function_name
 
-            # @return [Array<Ikra::AST::MethDefNode>] Auxiliary methods that are called by this block (including transitive method calls)
+            # @return [String] Auxiliary methods that are called by this block 
+            # (including transitive method calls)
             attr_accessor :aux_methods
 
             def initialize(c_source:, result_type:, function_name:, aux_methods: [])
@@ -28,12 +29,6 @@ module Ikra
                 @result_type = result_type
                 @function_name = function_name
                 @aux_methods = aux_methods
-            end
-
-            def generated_source
-                @aux_methods.map do |meth|
-                    meth.translate_method
-                end.join("\n\n") + @block_source
             end
         end
 
@@ -64,7 +59,9 @@ module Ikra
                 return_type = type_inference_visitor.process_block(block_def_node)
                 
                 # Auxiliary methods are instance methods that are called by the block
-                aux_methods = type_inference_visitor.all_methods
+                aux_methods = type_inference_visitor.all_methods.map do |method|
+                    method.translate_method
+                end
 
                 # Classify variables (lexical or local)
                 block_def_node.accept(VariableClassifier.new(

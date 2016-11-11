@@ -2,6 +2,8 @@ require_relative "../config/configuration"
 
 require_relative "ast_translator"
 require_relative "block_translator"
+require_relative "cuda_errors"
+require_relative "environment_builder"
 require_relative "command_translator"
 require_relative "last_returns_visitor"
 
@@ -10,10 +12,12 @@ module Ikra
     # This module contains functionality for translating Ruby code to CUDA (C++) code.
     module Translator
         module Constants
+            ENV_TYPE = "environment_t"
             ENV_IDENTIFIER = "_env_"
             ENV_DEVICE_IDENTIFIER = "dev_env"
             ENV_HOST_IDENTIFIER = "host_env"
             LEXICAL_VAR_PREFIX = "lex_"
+            RESULT_IDENTIFIER = "_result_"
         end
 
         class << self

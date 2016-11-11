@@ -1,12 +1,12 @@
 
 
-__global__ void kernel(environment_t */*{env_identifier}*/, /*{result_type}*/ *_result_)
+__global__ void /*{kernel_name}*/(/*{parameters}*/)
 {
-    int t_id = threadIdx.x + blockIdx.x * blockDim.x;
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (t_id < /*{result_size}*/)
+    if (_tid_ < /*{num_threads}*/)
     {
-        _result_[t_id] = /*{block_invocation}*/;
+        _result_[_tid_] = /*{block_invocation}*/;
     }
 }
 
