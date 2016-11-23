@@ -88,8 +88,12 @@ module Ikra
                 self
             end
             
-            def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+            def pmap(block_size: DEFAULT_BLOCK_SIZE, &block)
                 ArrayMapCommand.new(self, block, block_size: block_size)
+            end
+
+            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, &block)
+                ArrayStencilCommand.new(self, offsets, out_of_range_value, block, block_size: block_size)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -197,14 +201,14 @@ module Ikra
             attr_reader :block
         end
 
-        def ArrayStencilCommand
+        class ArrayStencilCommand
             include ArrayCommand
 
             attr_reader :offsets
             attr_reader :out_of_range_value
 
             def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE)
-                super
+                super()
 
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
@@ -213,6 +217,18 @@ module Ikra
 
                 # Read more than just one element, fall back to `:entire` for now
                 @input = [Input.new(command: target, pattern: :entire)]
+            end
+
+            def size
+                return input.first.command.size
+            end
+
+            def min_offset
+                return offsets.min
+            end
+
+            def max_offset
+                return offsets.max
             end
 
             protected

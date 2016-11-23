@@ -31,6 +31,9 @@ module Ikra
                 # A string returning the result of this kernel for one thread
                 attr_accessor :block_invocation
 
+                # A string containing the statements that execute the body of the kernel
+                attr_accessor :execution
+
                 # The result type of this kernel
                 attr_accessor :result_type
 
@@ -57,6 +60,13 @@ module Ikra
                     @kernel_result_var_name = "_kernel_result_" + CommandTranslator.next_unique_id.to_s
                 end
 
+                # Configures grid size and block size. Also sets number of threads.
+                def configure_grid(size)
+                    @grid_dim = [size.fdiv(250).ceil, 1].max.to_s
+                    @block_dim = (size >= 250 ? 250 : size).to_s
+                    @num_threads = size
+                end
+
                 def write_back_to_host!
                     @write_back_to_host = true
                     @host_result_var_name = @kernel_result_var_name + "_host"
@@ -80,7 +90,7 @@ module Ikra
                 end
 
                 def add_previous_kernel_parameter(parameter)
-                    @previous_kernel_input.add(parameter)
+                    @previous_kernel_input.push(parameter)
                 end
 
                 def assert_ready_to_build
@@ -114,7 +124,7 @@ module Ikra
 
                     previous_kernel_params = []
                     for var in previous_kernel_input
-                        previous_kernel_params.push(var.type.to_c_type + " *" + var.type.name.to_s)
+                        previous_kernel_params.push(var.type.to_c_type + " *" + var.name.to_s)
                     end
 
                     parameters = ([p_env, p_result] + previous_kernel_params).join(", ")
@@ -122,6 +132,7 @@ module Ikra
                     # Build kernel
                     return Translator.read_file(file_name: "kernel.cpp", replacements: {
                         "block_invocation" => block_invocation,
+                        "execution" => execution,
                         "kernel_name" => kernel_name,
                         "num_threads" => num_threads.to_s,
                         "parameters" => parameters})
@@ -162,7 +173,7 @@ module Ikra
 
                     previous_kernel_args = []
                     for var in previous_kernel_input
-                        previous_kernel_args.push(var.type.name.to_s)
+                        previous_kernel_args.push(var.name.to_s)
                     end
 
                     arguments = ([a_env, a_result] + previous_kernel_args).join(", ")

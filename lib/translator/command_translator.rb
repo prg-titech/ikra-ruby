@@ -11,17 +11,26 @@ module Ikra
             @@unique_id = 0
 
             def self.next_unique_id
-                @@unique_id + @@unique_id + 1
+                @@unique_id = @@unique_id + 1
                 return @@unique_id
             end
 
             class CommandTranslationResult
-                attr_reader :command_invocation
+                # Source code that performs the computation of this command for one thread. May 
+                # consist of multiple statement. Optional.
+                attr_reader :execution
+
+                # Source code that returns the result of the computation. If the computation can
+                # be expressed in a single expression, this string can contain the entire
+                # computation and `execution` should then be empty.
+                attr_reader :result
+
                 attr_reader :return_type
 
-                def initialize(command_invocation:, return_type:)
-                    @command_invocation = command_invocation
+                def initialize(execution: "", result:, return_type:)
+                    @execution = execution
                     @return_type = return_type
+                    @result = result;
                 end
             end
 
@@ -85,11 +94,7 @@ module Ikra
                 Log.info("Translating ArrayNewCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                grid_dim = [command.size.fdiv(250).ceil, 1].max
-                block_dim = command.size >= 250 ? 250 : command.size
-                kernel_builder.grid_dim = grid_dim.to_s
-                kernel_builder.block_dim = block_dim.to_s
-                kernel_builder.num_threads = command.size
+                kernel_builder.configure_grid(command.size)
 
                 # Thread ID is always int
                 parameter_types = {command.block_parameter_names.first => Types::UnionType.create_int}
@@ -109,7 +114,7 @@ module Ikra
                 kernel_builder.add_block(block_translation_result.block_source)
 
                 command_translation = CommandTranslationResult.new(
-                    command_invocation: block_translation_result.function_name + "(_env_, _tid_)",
+                    result: block_translation_result.function_name + "(_env_, _tid_)",
                     return_type: block_translation_result.result_type)
                 
                 Log.info("DONE translating ArrayNewCommand [#{command.unique_id}]")
@@ -141,7 +146,8 @@ module Ikra
                 kernel_builder.add_block(block_translation_result.block_source)
 
                 command_translation = CommandTranslationResult.new(
-                    command_invocation: block_translation_result.function_name + "(_env_, #{input_translated.command_invocation})",
+                    execution: input_translated.execution,
+                    result: block_translation_result.function_name + "(_env_, #{input_translated.result})",
                     return_type: block_translation_result.result_type)
 
 
@@ -154,11 +160,7 @@ module Ikra
                 Log.info("Translating ArrayIdentityCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                grid_dim = [command.size.fdiv(250).ceil, 1].max
-                block_dim = command.size >= 250 ? 250 : command.size
-                kernel_builder.grid_dim = grid_dim.to_s
-                kernel_builder.block_dim = block_dim.to_s
-                kernel_builder.num_threads = command.size
+                kernel_builder.configure_grid(command.size)
 
                 # Add base array to environment
                 need_union_type = !command.base_type.is_singleton?
@@ -167,10 +169,74 @@ module Ikra
                 environment_builder.add_base_array(command.unique_id, transformed_base_array)
 
                 command_translation = CommandTranslationResult.new(
-                    command_invocation:"#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]",
+                    result: "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]",
                     return_type: command.base_type)
 
                 Log.info("DONE translating ArrayIdentityCommand [#{command.unique_id}]")
+
+                return command_translation
+            end
+
+            def visit_array_stencil_command(command)
+                Log.info("Translating ArrayStencilCommand [#{command.unique_id}]")
+
+                # Process dependent computation (receiver), returns [CommandTranslationResult]
+                input_translated = translate_input(command.input.first)
+
+                # Take return type from previous computation
+                num_parameters = command.block_parameter_names.size
+
+                parameter_types = Hash[command.block_parameter_names.zip([input_translated.return_type] * num_parameters)]
+
+                # All variables accessed by this block should be prefixed with the unique ID
+                # of the command in the environment.
+                env_builder = @environment_builder[command.unique_id]
+
+                block_translation_result = Translator.translate_block(
+                    block_def_node: command.block_def_node,
+                    block_parameter_types: parameter_types,
+                    environment_builder: env_builder,
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
+
+                kernel_builder.add_methods(block_translation_result.aux_methods)
+                kernel_builder.add_block(block_translation_result.block_source)
+
+                # `previous_result` should be an expression returning the array containing the
+                # result of the previous computation.
+                previous_result = input_translated.result
+
+                arguments = ["_env_"]
+
+                # Pass values from previous computation that are required by this thread.
+                for i in 0...num_parameters
+                    arguments.push("#{previous_result}[_tid_ + #{command.offsets[i]}]")
+                end
+
+                argument_str = arguments.join(", ")
+                stencil_computation = block_translation_result.function_name + "(#{argument_str})"
+
+                temp_var_name = "temp_stencil_#{CommandTranslator.next_unique_id}"
+
+                # The following template checks if there is at least one index out of bounds. If
+                # so, the fallback value is used. Otherwise, the block is executed.
+                command_execution = Translator.read_file(file_name: "stencil_body.cpp", replacements: {
+                    "execution" => input_translated.execution,
+                    "temp_var" => temp_var_name,
+                    "result_type" => block_translation_result.result_type.to_c_type,
+                    "min_offset" => command.min_offset.to_s,
+                    "max_offset" => command.max_offset.to_s,
+                    "thread_id" => "_tid_",
+                    "input_size" => command.input.first.command.size.to_s,
+                    "out_of_bounds_fallback" => command.out_of_range_value.to_s,
+                    "stencil_computation" => stencil_computation})
+
+                command_translation = CommandTranslationResult.new(
+                    execution: command_execution,
+                    result: temp_var_name,
+                    return_type: block_translation_result.result_type)
+
+                Log.info("DONE translating ArrayStencilCommand [#{command.unique_id}]")
 
                 return command_translation
             end
@@ -184,7 +250,8 @@ module Ikra
             # is fully built.
             def pop_kernel_builder(command_translation_result)
                 previous_builder = kernel_builder_stack.pop
-                previous_builder.block_invocation = command_translation_result.command_invocation
+                previous_builder.block_invocation = command_translation_result.result
+                previous_builder.execution = command_translation_result.execution
                 previous_builder.result_type = command_translation_result.return_type
 
                 if previous_builder == nil
@@ -205,10 +272,25 @@ module Ikra
                 elsif input.pattern == :entire
                     # Create new kernel
                     push_kernel_builder
-                    result = input.command.accept(self)
-                    # TODO: Should return array for old kernel here
-                    pop_kernel_builder(result)
-                    return result
+
+                    previous_result = input.command.accept(self)
+                    previous_result_kernel_var = kernel_builder.kernel_result_var_name
+                    
+                    pop_kernel_builder(previous_result)
+
+                    # Add parameter for previous input to this kernel
+                    kernel_builder.add_previous_kernel_parameter(Variable.new(
+                        name: previous_result_kernel_var,
+                        type: previous_result.return_type))
+
+                    # This is a root command for this kernel, determine grid/block dimensions
+                    kernel_builder.configure_grid(input.command.size)
+
+                    kernel_translation = CommandTranslationResult.new(
+                        result: previous_result_kernel_var,
+                        return_type: previous_result.return_type)
+
+                    return kernel_translation
                 else
                     raise "Unknown input pattern: #{input.pattern}"
                 end
