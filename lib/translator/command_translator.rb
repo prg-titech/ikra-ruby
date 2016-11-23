@@ -183,10 +183,40 @@ module Ikra
                 # Process dependent computation (receiver), returns [CommandTranslationResult]
                 input_translated = translate_input(command.input.first)
 
-                # Take return type from previous computation
-                num_parameters = command.block_parameter_names.size
+                # Count number of parameters
+                num_parameters = command.offsets.size
 
-                parameter_types = Hash[command.block_parameter_names.zip([input_translated.return_type] * num_parameters)]
+                if command.use_parameter_array
+                    # Parameters are allocated in a constant-sized array
+
+                    first_param = command.block_parameter_names.first
+
+                    # Take return type from previous computation
+                    parameter_types = {first_param => Types::UnionType.new(Types::ArrayType.new(input_translated.return_type))}
+
+                    # Allocate and fill array of parameters
+                    actual_parameter_names = (0...num_parameters).map do |param_index| 
+                        "_#{first_param}_#{param_index}"
+                    end
+
+                    param_array_init = actual_parameter_names.join(", ")
+
+                    pre_execution = "#{input_translated.return_type.to_c_type} #{first_param}[] = {#{param_array_init}};"
+
+                    # Pass multiple single values instead of array
+                    override_parameter_decl = actual_parameter_names.map do |param_name|
+                        input_translated.return_type.to_c_type + " " + param_name
+                    end
+
+                else
+                    # Pass separate parameters
+
+                    # Take return type from previous computation
+                    parameter_types = Hash[command.block_parameter_names.zip([input_translated.return_type] * num_parameters)]
+
+                    pre_execution = ""
+                    override_parameter_decl = nil
+                end
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -197,7 +227,9 @@ module Ikra
                     block_parameter_types: parameter_types,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
-                    command_id: command.unique_id)
+                    command_id: command.unique_id,
+                    pre_execution: pre_execution,
+                    override_parameter_decl: override_parameter_decl)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)

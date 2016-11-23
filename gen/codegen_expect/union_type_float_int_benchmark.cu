@@ -140,6 +140,7 @@ __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, o
 }
 __device__ int _block_k_1_(environment_t *_env_, int j)
 {
+    
     int hy;
     int hx;
     int lex_hx_res = _env_->l1_hx_res;
@@ -151,12 +152,14 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
 }
 
 
-__global__ void kernel_0(environment_t *_env_, int *_result_)
+__global__ void kernel_9(environment_t *_env_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < 16000000)
     {
+        
+        
         _result_[_tid_] = _block_k_1_(_env_, _tid_);
     }
 }
@@ -200,16 +203,16 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Launch all kernels */
-    int * _kernel_result_0;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_0, (4 * 16000000)));
-    int * _kernel_result_0_host = (int *) malloc((4 * 16000000));
-    kernel_0<<<64000, 250>>>(dev_env, _kernel_result_0);
+    int * _kernel_result_10;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (4 * 16000000)));
+    int * _kernel_result_10_host = (int *) malloc((4 * 16000000));
+    kernel_9<<<64000, 250>>>(dev_env, _kernel_result_10);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_0_host, _kernel_result_0, (4 * 16000000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_10_host, _kernel_result_10, (4 * 16000000), cudaMemcpyDeviceToHost));
 
 
-    program_result->result = _kernel_result_0_host;
+    program_result->result = _kernel_result_10_host;
     return program_result;
 }

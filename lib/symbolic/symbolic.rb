@@ -92,8 +92,8 @@ module Ikra
                 ArrayMapCommand.new(self, block, block_size: block_size)
             end
 
-            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, &block)
-                ArrayStencilCommand.new(self, offsets, out_of_range_value, block, block_size: block_size)
+            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
+                ArrayStencilCommand.new(self, offsets, out_of_range_value, block, block_size: block_size, use_parameter_array: use_parameter_array)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -206,14 +206,16 @@ module Ikra
 
             attr_reader :offsets
             attr_reader :out_of_range_value
+            attr_reader :use_parameter_array
 
-            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true)
                 super()
 
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
                 @block = block
                 @block_size = block_size
+                @use_parameter_array = use_parameter_array
 
                 # Read more than just one element, fall back to `:entire` for now
                 @input = [Input.new(command: target, pattern: :entire)]
@@ -317,8 +319,8 @@ class Array
         Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size)
     end
 
-    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block, block_size: block_size)
+    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
+        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block, block_size: block_size, use_parameter_array: use_parameter_array)
     end
 
     def to_command
