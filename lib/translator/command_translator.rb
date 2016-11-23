@@ -145,6 +145,54 @@ module Ikra
                     return_type: block_translation_result.result_type)
 
 
+                Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
+
+                return command_translation
+            end
+
+            def visit_array_combine_command(command)
+                Log.info("Translating ArrayCombineCommand [#{command.unique_id}]")
+
+                # Process dependent computation (receiver), returns [CommandTranslationResult]
+                input_translated = command.input.map do |input|
+                    translate_input(input)
+                end
+                # Map translated input on return types to prepare hashing of parameter_types
+                return_types = input_translated.map do |input|
+                    input.return_type
+                end
+
+                # Take return types from previous computation
+                parameter_types = Hash[command.block_parameter_names.zip(return_types)]
+
+                # All variables accessed by this block should be prefixed with the unique ID
+                # of the command in the environment.
+                env_builder = @environment_builder[command.unique_id]
+
+                block_translation_result = Translator.translate_block(
+                    block_def_node: command.block_def_node,
+                    block_parameter_types: parameter_types,
+                    environment_builder: env_builder,
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
+
+                kernel_builder.add_methods(block_translation_result.aux_methods)
+                kernel_builder.add_block(block_translation_result.block_source)
+
+                # Build command invocation string
+                command_invocation = block_translation_result.function_name + "(_env_"
+
+                input_translated.each do |input| 
+                    command_invocation <<  ", #{input.command_invocation}"
+                end
+
+                command_invocation << ")"
+
+                command_translation = CommandTranslationResult.new(
+                    command_invocation: command_invocation,
+                    return_type: block_translation_result.result_type)
+
+
                 Log.info("DONE translating ArrayMapCommand [#{command.unique_id}]")
 
                 return command_translation
