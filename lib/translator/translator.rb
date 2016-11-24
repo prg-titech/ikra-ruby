@@ -20,6 +20,16 @@ module Ikra
             RESULT_IDENTIFIER = "_result_"
         end
 
+        class Variable
+            attr_reader :type
+            attr_reader :name
+
+            def initialize(name:, type:)
+                @name = name
+                @type = type
+            end
+        end
+
         class << self
             def wrap_in_c_block(str)
                 "{\n" + str.split("\n").map do |line| "    " + line end.join("\n") + "\n}\n"

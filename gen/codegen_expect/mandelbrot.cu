@@ -64,6 +64,7 @@ struct environment_struct
 
 __device__ int _block_k_1_(environment_t *_env_, int j)
 {
+    
     float xx;
     int iter;
     float y;
@@ -105,6 +106,7 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
 
 __device__ int _block_k_2_(environment_t *_env_, int color)
 {
+    
     int lex_inverted = _env_->l2_inverted;
     if (((lex_inverted == 1)))
     {
@@ -123,12 +125,14 @@ __device__ int _block_k_2_(environment_t *_env_, int color)
 }
 
 
-__global__ void kernel_0(environment_t *_env_, int *_result_)
+__global__ void kernel_1(environment_t *_env_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < 40000)
     {
+        
+        
         _result_[_tid_] = _block_k_2_(_env_, _block_k_1_(_env_, _tid_));
     }
 }
@@ -172,16 +176,16 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Launch all kernels */
-    int * _kernel_result_0;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_0, (4 * 40000)));
-    int * _kernel_result_0_host = (int *) malloc((4 * 40000));
-    kernel_0<<<160, 250>>>(dev_env, _kernel_result_0);
+    int * _kernel_result_2;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (4 * 40000)));
+    int * _kernel_result_2_host = (int *) malloc((4 * 40000));
+    kernel_1<<<160, 250>>>(dev_env, _kernel_result_2);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_0_host, _kernel_result_0, (4 * 40000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (4 * 40000), cudaMemcpyDeviceToHost));
 
 
-    program_result->result = _kernel_result_0_host;
+    program_result->result = _kernel_result_2_host;
     return program_result;
 }

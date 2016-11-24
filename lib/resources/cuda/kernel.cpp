@@ -6,6 +6,8 @@ __global__ void /*{kernel_name}*/(/*{parameters}*/)
 
     if (_tid_ < /*{num_threads}*/)
     {
+        /*{execution}*/
+        
         _result_[_tid_] = /*{block_invocation}*/;
     }
 }

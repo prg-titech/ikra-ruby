@@ -60,6 +60,7 @@ struct environment_struct
 };
 __device__ int _block_k_1_(environment_t *_env_, int index)
 {
+    
     int i;
     int result;
     int y;
@@ -81,12 +82,14 @@ __device__ int _block_k_1_(environment_t *_env_, int index)
 }
 
 
-__global__ void kernel_0(environment_t *_env_, int *_result_)
+__global__ void kernel_3(environment_t *_env_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < 100)
     {
+        
+        
         _result_[_tid_] = _block_k_1_(_env_, _tid_);
     }
 }
@@ -138,16 +141,16 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Launch all kernels */
-    int * _kernel_result_0;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_0, (4 * 100)));
-    int * _kernel_result_0_host = (int *) malloc((4 * 100));
-    kernel_0<<<1, 100>>>(dev_env, _kernel_result_0);
+    int * _kernel_result_4;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (4 * 100)));
+    int * _kernel_result_4_host = (int *) malloc((4 * 100));
+    kernel_3<<<1, 100>>>(dev_env, _kernel_result_4);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_0_host, _kernel_result_0, (4 * 100), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_4_host, _kernel_result_4, (4 * 100), cudaMemcpyDeviceToHost));
 
 
-    program_result->result = _kernel_result_0_host;
+    program_result->result = _kernel_result_4_host;
     return program_result;
 }
