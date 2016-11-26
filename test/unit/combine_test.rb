@@ -22,7 +22,7 @@ class CombineTest < UnitTestCase
         assert_equal(15655, arrayA.reduce(:+))
     end
 
-""
+
     def test_combine_no_arg
         arrayA = Array.pnew(101) do |j|
             j

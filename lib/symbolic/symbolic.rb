@@ -60,7 +60,7 @@ module Ikra
                     execute
                 end
                 
-                @result[index]
+                return @result[index]
             end
 
             def each(&block)
@@ -77,7 +77,7 @@ module Ikra
                     execute
                 end
 
-                @result.pack(fmt)
+                return @result.pack(fmt)
             end
 
             def execute
@@ -85,11 +85,11 @@ module Ikra
             end
             
             def to_command
-                self
+                return self
             end
             
             def pmap(block_size: DEFAULT_BLOCK_SIZE, &block)
-                ArrayMapCommand.new(self, block, block_size: block_size)
+                return pcombine(block_size: block_size, &block)
             end
 
             def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
@@ -139,13 +139,19 @@ module Ikra
             end
 
             def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
-                ArrayStencilCommand.new(self, offsets, out_of_range_value, block, block_size: block_size, use_parameter_array: use_parameter_array)
+                return ArrayStencilCommand.new(
+                    self, 
+                    offsets, 
+                    out_of_range_value, 
+                    block, 
+                    block_size: block_size, 
+                    use_parameter_array: use_parameter_array)
             end
 
             # Returns a collection of the names of all block parameters.
             # @return [Array(Symbol)] list of block parameters
             def block_parameter_names
-                block.parameters.map do |param|
+                return block.parameters.map do |param|
                     param[1]
                 end
             end
@@ -166,7 +172,7 @@ module Ikra
                 # TODO: add caching for AST here
                 parser_local_vars = block.binding.local_variables + block_parameter_names
                 source = Parsing.parse_block(block, parser_local_vars)
-                AST::BlockDefNode.new(
+                return AST::BlockDefNode.new(
                     ruby_block: block,
                     body: AST::Builder.from_parser_ast(source))
             end
@@ -185,12 +191,12 @@ module Ikra
                     result[var_name] = block.binding.local_variable_get(var_name)
                 end
 
-                result
+                return result
             end
 
             # Returns a collection of external objects that are accessed within a parallel section.
             def externals
-                lexical_externals.keys
+                return lexical_externals.keys
             end
 
             protected
@@ -217,31 +223,9 @@ module Ikra
             end
             
             def size
-                @size
+                return @size
             end
 
-            protected
-
-            attr_reader :block
-        end
-
-        class ArrayMapCommand
-            include ArrayCommand
-
-            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
-                super()
-
-                @block = block
-                @block_size = block_size
-
-                # Read array at position `tid`
-                @input = [Input.new(command: target, pattern: :tid)]
-            end
-            
-            def size
-                input.first.command.size
-            end
-            
             protected
 
             attr_reader :block
@@ -263,7 +247,7 @@ module Ikra
             end
             
             def size
-                input.first.command.size
+                return input.first.command.size
             end
             
             protected
@@ -346,11 +330,11 @@ module Ikra
             end
             
             def execute
-                input.first.command
+                return input.first.command
             end
             
             def size
-                input.first.command.size
+                return input.first.command.size
             end
 
             # Returns a collection of external objects that are accessed within a parallel section. This includes all elements of the base array.
@@ -366,13 +350,13 @@ module Ikra
                     type.add(element.class.to_ikra_type)
                 end
 
-                type
+                return type
             end
 
             protected
 
             def block
-                DUMMY_BLOCK
+                return DUMMY_BLOCK
             end
         end
     end
@@ -381,12 +365,12 @@ end
 class Array
     class << self
         def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-            Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size)
+            return Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size)
         end
     end
     
     def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-        Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size)
+        return pcombine(block_size: block_size, &block)
     end
     
 
@@ -463,11 +447,17 @@ class Array
     end
 
     def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
-        Ikra::Symbolic::ArrayStencilCommand.new(to_command, offsets, out_of_range_value, block, block_size: block_size, use_parameter_array: use_parameter_array)
+        return Ikra::Symbolic::ArrayStencilCommand.new(
+            to_command, 
+            offsets, 
+            out_of_range_value, 
+            block, 
+            block_size: block_size, 
+            use_parameter_array: use_parameter_array)
     end
 
     def to_command
-        Ikra::Symbolic::ArrayIdentityCommand.new(self)
+        return Ikra::Symbolic::ArrayIdentityCommand.new(self)
     end
 end
 

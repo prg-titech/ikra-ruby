@@ -122,40 +122,6 @@ module Ikra
                 return command_translation
             end
 
-            def visit_array_map_command(command)
-                Log.info("Translating ArrayMapCommand [#{command.unique_id}]")
-
-                # Process dependent computation (receiver), returns [CommandTranslationResult]
-                input_translated = translate_input(command.input.first)
-
-                # Take return type from previous computation
-                parameter_types = {command.block_parameter_names.first => input_translated.return_type}
-
-                # All variables accessed by this block should be prefixed with the unique ID
-                # of the command in the environment.
-                env_builder = @environment_builder[command.unique_id]
-
-                block_translation_result = Translator.translate_block(
-                    block_def_node: command.block_def_node,
-                    block_parameter_types: parameter_types,
-                    environment_builder: env_builder,
-                    lexical_variables: command.lexical_externals,
-                    command_id: command.unique_id)
-
-                kernel_builder.add_methods(block_translation_result.aux_methods)
-                kernel_builder.add_block(block_translation_result.block_source)
-
-                command_translation = CommandTranslationResult.new(
-                    execution: input_translated.execution,
-                    result: block_translation_result.function_name + "(_env_, #{input_translated.result})",
-                    return_type: block_translation_result.result_type)
-
-
-                Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
-
-                return command_translation
-            end
-
             def visit_array_combine_command(command)
                 Log.info("Translating ArrayCombineCommand [#{command.unique_id}]")
 
@@ -202,7 +168,7 @@ module Ikra
                     return_type: block_translation_result.result_type)
 
 
-                Log.info("DONE translating ArrayMapCommand [#{command.unique_id}]")
+                Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
 
                 return command_translation
             end

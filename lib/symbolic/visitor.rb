@@ -6,12 +6,6 @@ module Ikra
             end
         end
 
-        class ArrayMapCommand
-            def accept(visitor)
-                visitor.visit_array_map_command(self)
-            end
-        end
-
         class ArrayCombineCommand
             def accept(visitor)
                 visitor.visit_array_combine_command(self)
@@ -44,10 +38,6 @@ module Ikra
             end
 
             def visit_array_new_command(command)
-                visit_array_command(command)
-            end
-
-            def visit_array_map_command(command)
                 visit_array_command(command)
             end
 
