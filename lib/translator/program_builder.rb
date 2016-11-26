@@ -75,11 +75,19 @@ module Ikra
                         kernel_launchers = kernel_launchers + kernel_builder.build_kernel_lauchner
                     end
 
+                    # Free device memory
+                    free_device_memory = ""
+
+                    for kernel_builder in kernels
+                        free_device_memory = free_device_memory + kernel_builder.build_device_memory_free
+                    end
+
                     # Build program entry point
                     result = result + Translator.read_file(file_name: "entry_point.cpp", replacements: {
                         "prepare_environment" => environment_builder.build_environment_variable,
                         "result_type" => final_kernel_result_type,
                         "launch_all_kernels" => kernel_launchers,
+                        "free_device_memory" => free_device_memory,
                         "host_env_var_name" => Constants::ENV_HOST_IDENTIFIER,
                         "host_result_var_name" => final_kernel_result_var})
 

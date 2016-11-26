@@ -34,6 +34,9 @@ extern "C" EXPORT result_t *launch_kernel(environment_t */*{host_env_var_name}*/
     /* Launch all kernels */
 /*{launch_all_kernels}*/
 
+    /* Free device memory */
+/*{free_device_memory}*/
+    
     program_result->result = /*{host_result_var_name}*/;
     return program_result;
 }

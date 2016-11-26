@@ -213,6 +213,10 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     checkErrorReturn(program_result, cudaMemcpy(_kernel_result_10_host, _kernel_result_10, (4 * 16000000), cudaMemcpyDeviceToHost));
 
 
+    /* Free device memory */
+    checkErrorReturn(program_result, cudaFree(_kernel_result_10));
+
+    
     program_result->result = _kernel_result_10_host;
     return program_result;
 }
