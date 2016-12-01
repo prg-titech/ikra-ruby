@@ -18,4 +18,16 @@ class Array
             end
         end
     end
+
+    def combine(*others, &block)
+        return Array.new(self.size) do |index|
+            other_elements = others.map do |other|
+                other[index]
+            end
+
+            block.call(self[index], *other_elements)
+        end
+
+
+    end
 end
