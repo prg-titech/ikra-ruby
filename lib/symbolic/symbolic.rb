@@ -271,7 +271,7 @@ module Ikra
             end
 
             def execute
-                if @input.first.command.size == 0
+                if input.first.command.size == 0
                     @result = [nil]
                 elsif @input.first.command.size == 1
                     @result = [input.first.command[0]]

@@ -151,7 +151,15 @@ module Ikra
 
                     return result
                 end
+                
+                def build_device_memory_free
+                    Log.info("Building kernel post-launch CUDA free")
 
+                    assert_ready_to_build
+
+                    return Translator.read_file(file_name: "free_device_memory.cpp", replacements: {
+                        "name" => kernel_result_var_name})
+                end
             end
         end
     end
