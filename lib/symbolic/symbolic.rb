@@ -92,6 +92,10 @@ module Ikra
                 ArrayMapCommand.new(self, block, block_size: block_size)
             end
 
+            def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
+                ArrayReduceCommand.new(self, block, block_size: block_size)
+            end
+
             def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
                 ArrayStencilCommand.new(self, offsets, out_of_range_value, block, block_size: block_size, use_parameter_array: use_parameter_array)
             end
@@ -190,6 +194,36 @@ module Ikra
 
                 # Read array at position `tid`
                 @input = [Input.new(command: target, pattern: :tid)]
+            end
+            
+            def size
+                input.first.command.size
+            end
+            
+            protected
+
+            attr_reader :block
+        end
+
+        class ArrayReduceCommand
+            include ArrayCommand
+
+            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
+                super()
+
+                @block = block
+                @block_size = block_size
+                @input = [Input.new(command: target, pattern: :entire)]
+            end
+
+            def execute
+                if @input.first.command.size == 0
+                    @result = [nil]
+                elsif @input.first.command.size == 1
+                    @result = [input.first.command[0]]
+                else
+                    @result = super
+                end
             end
             
             def size
@@ -317,6 +351,10 @@ class Array
     
     def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
         Ikra::Symbolic::ArrayMapCommand.new(to_command, block, block_size: block_size)
+    end
+    
+    def preduce(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+        Ikra::Symbolic::ArrayReduceCommand.new(to_command, block, block_size: block_size)
     end
 
     def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)

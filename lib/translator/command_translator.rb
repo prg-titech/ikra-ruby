@@ -43,12 +43,12 @@ module Ikra
             end
 
             attr_reader :environment_builder
-            attr_reader :kernel_builder_stack
+            attr_reader :kernel_launcher_stack
             attr_reader :program_builder
             attr_reader :object_tracer
 
             def initialize
-                @kernel_builder_stack = []
+                @kernel_launcher_stack = []
                 @environment_builder = EnvironmentBuilder.new
                 @program_builder = ProgramBuilder.new(environment_builder: environment_builder)
             end
@@ -63,17 +63,17 @@ module Ikra
 
                 # --- Translate ---
 
-                # Create new kernel builder
-                push_kernel_builder
+                # Create new kernel launcher
+                push_kernel_launcher
 
                 # Result of this kernel should be written back to the host
-                kernel_builder.write_back_to_host!
+                kernel_launcher.write_back_to_host!
 
                 # Translate the command (might create additional kernels)
                 result = command.accept(self)
 
                 # Add kernel builder to ProgramBuilder
-                pop_kernel_builder(result)
+                pop_kernel_launcher(result)
 
                 # --- End of Translation ---
 
@@ -82,8 +82,12 @@ module Ikra
                 object_tracer.register_soa_arrays(environment_builder)
             end
 
+            def kernel_launcher
+                return kernel_launcher_stack.last
+            end
+
             def kernel_builder
-                return kernel_builder_stack.last
+                return kernel_launcher_stack.last.kernel_builder
             end
 
 
@@ -94,7 +98,7 @@ module Ikra
                 Log.info("Translating ArrayNewCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                kernel_builder.configure_grid(command.size)
+                kernel_launcher.configure_grid(command.size)
 
                 # Thread ID is always int
                 parameter_types = {command.block_parameter_names.first => Types::UnionType.create_int}
@@ -156,11 +160,100 @@ module Ikra
                 return command_translation
             end
 
+            def visit_array_reduce_command(command)
+                Log.info("Translating ArrayReduceCommand [#{command.unique_id}]")
+
+                # Process dependent computation (receiver), returns [CommandTranslationResult]
+                input_translated = translate_input(command.input.first)
+                block_size = command.block_size
+
+                # Take return type from previous computation
+                parameter_types = Hash[command.block_parameter_names.zip([input_translated.return_type] * 2)]
+
+                # All variables accessed by this block should be prefixed with the unique ID
+                # of the command in the environment.
+                env_builder = @environment_builder[command.unique_id]
+
+                block_translation_result = Translator.translate_block(
+                    block_def_node: command.block_def_node,
+                    block_parameter_types: parameter_types,
+                    environment_builder: env_builder,
+                    lexical_variables: command.lexical_externals,
+                    command_id: command.unique_id)
+
+                kernel_builder.add_methods(block_translation_result.aux_methods)
+                kernel_builder.add_block(block_translation_result.block_source)
+
+                # Add "odd" parameter to the kernel which is needed for reduction
+                kernel_builder.add_additional_parameters(Constants::ODD_TYPE + " " + Constants::ODD_IDENTIFIER)
+
+                # Number of elements that will be reduced
+                num_threads = command.size
+                odd = num_threads % 2 == 1
+                # Number of threads needed for reduction
+                num_threads = num_threads.fdiv(2).ceil
+
+                previous_result_kernel_var = input_translated.result
+                first_launch = true
+                
+                # While more kernel launches than one are needed to finish reduction
+                while num_threads >= block_size + 1
+                    # Launch new kernel (with same kernel builder)
+                    push_kernel_launcher(kernel_builder)
+                    # Configure kernel with correct arguments and grid
+                    kernel_launcher.add_additional_arguments(odd)
+                    kernel_launcher.configure_grid(num_threads)
+                    
+                    # First launch of kernel is supposed to allocate new memory, so only reuse memory after first launch 
+                    if first_launch
+                        first_launch = false
+                    else
+                        kernel_launcher.reuse_memory!(previous_result_kernel_var)
+                    end
+
+                    previous_result_kernel_var = kernel_launcher.kernel_result_var_name
+
+                    pop_kernel_launcher(input_translated)
+
+                    # Update number of threads needed
+                    num_threads = num_threads.fdiv(block_size).ceil
+                    odd = num_threads % 2 == 1
+                    num_threads = num_threads.fdiv(2).ceil
+                end
+
+                # Configuration for last launch of kernel
+                kernel_launcher.add_additional_arguments(odd)
+                kernel_launcher.configure_grid(num_threads)
+
+                if !first_launch
+                    kernel_launcher.reuse_memory!(previous_result_kernel_var)
+                end
+
+                command_execution = Translator.read_file(file_name: "reduce_body.cpp", replacements: {
+                    "previous_result" => input_translated.result,
+                    "block_name" => block_translation_result.function_name,
+                    "arguments" => Constants::ENV_IDENTIFIER,
+                    "block_size" => block_size.to_s,
+                    "temp_result" => Constants::TEMP_RESULT_IDENTIFIER,
+                    "odd" => Constants::ODD_IDENTIFIER,
+                    "type" => block_translation_result.result_type.to_c_type,
+                    "num_threads" => Constants::NUM_THREADS_IDENTIFIER})
+
+                command_translation = CommandTranslationResult.new(
+                    execution: command_execution,
+                    result:  Constants::TEMP_RESULT_IDENTIFIER,
+                    return_type: block_translation_result.result_type)
+
+                Log.info("DONE translating ArrayReduceCommand [#{command.unique_id}]")
+
+                return command_translation
+            end
+
             def visit_array_identity_command(command)
                 Log.info("Translating ArrayIdentityCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                kernel_builder.configure_grid(command.size)
+                kernel_launcher.configure_grid(command.size)
 
                 # Add base array to environment
                 need_union_type = !command.base_type.is_singleton?
@@ -273,24 +366,24 @@ module Ikra
                 return command_translation
             end
 
-            def push_kernel_builder
-                @kernel_builder_stack.push(KernelBuilder.new)
+            def push_kernel_launcher(kernel_builder = KernelBuilder.new)
+                @kernel_launcher_stack.push(KernelLauncher.new(kernel_builder))
             end
 
             # Pops a KernelBuilder from the kernel builder stack. This method is called when all
             # blocks (parallel sections) for that kernel have been translated, i.e., the kernel
             # is fully built.
-            def pop_kernel_builder(command_translation_result)
-                previous_builder = kernel_builder_stack.pop
-                previous_builder.block_invocation = command_translation_result.result
-                previous_builder.execution = command_translation_result.execution
-                previous_builder.result_type = command_translation_result.return_type
+            def pop_kernel_launcher(command_translation_result)
+                previous_launcher = kernel_launcher_stack.pop
+                previous_launcher.kernel_builder.block_invocation = command_translation_result.result
+                previous_launcher.kernel_builder.execution = command_translation_result.execution
+                previous_launcher.kernel_builder.result_type = command_translation_result.return_type
 
-                if previous_builder == nil
-                    raise "Attempt to pop kernel builder, but stack is empty"
+                if previous_launcher == nil
+                    raise "Attempt to pop kernel launcher, but stack is empty"
                 end
 
-                program_builder.add_kernel(previous_builder)
+                program_builder.add_kernel_launcher(previous_launcher)
             end
 
             # Processes a [Symbolic::Input] objects, which contains a reference to a command
@@ -303,20 +396,20 @@ module Ikra
                     return input.command.accept(self)
                 elsif input.pattern == :entire
                     # Create new kernel
-                    push_kernel_builder
+                    push_kernel_launcher
 
                     previous_result = input.command.accept(self)
-                    previous_result_kernel_var = kernel_builder.kernel_result_var_name
+                    previous_result_kernel_var = kernel_launcher.kernel_result_var_name
                     
-                    pop_kernel_builder(previous_result)
+                    pop_kernel_launcher(previous_result)
 
                     # Add parameter for previous input to this kernel
-                    kernel_builder.add_previous_kernel_parameter(Variable.new(
+                    kernel_launcher.add_previous_kernel_parameter(Variable.new(
                         name: previous_result_kernel_var,
                         type: previous_result.return_type))
 
                     # This is a root command for this kernel, determine grid/block dimensions
-                    kernel_builder.configure_grid(input.command.size)
+                    kernel_launcher.configure_grid(input.command.size)
 
                     kernel_translation = CommandTranslationResult.new(
                         result: previous_result_kernel_var,
@@ -332,4 +425,4 @@ module Ikra
 end
 
 require_relative "program_builder"
-require_relative "kernel_builder"
+require_relative "kernel_launcher"
