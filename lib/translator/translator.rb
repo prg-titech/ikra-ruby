@@ -18,6 +18,11 @@ module Ikra
             ENV_HOST_IDENTIFIER = "host_env"
             LEXICAL_VAR_PREFIX = "lex_"
             RESULT_IDENTIFIER = "_result_"
+            NUM_THREADS_TYPE = "int"
+            NUM_THREADS_IDENTIFIER = "_num_threads_"
+            TEMP_RESULT_IDENTIFIER = "_temp_result_"
+            ODD_TYPE = "bool"
+            ODD_IDENTIFIER = "_odd_"
         end
 
         class Variable

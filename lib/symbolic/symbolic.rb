@@ -138,6 +138,10 @@ module Ikra
                 end
             end
 
+            def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
+                ArrayReduceCommand.new(self, block, block_size: block_size)
+            end
+
             def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
                 return ArrayStencilCommand.new(
                     self, 
@@ -248,6 +252,36 @@ module Ikra
             
             def size
                 return input.first.command.size
+            end
+            
+            protected
+
+            attr_reader :block
+        end
+
+        class ArrayReduceCommand
+            include ArrayCommand
+
+            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
+                super()
+
+                @block = block
+                @block_size = block_size
+                @input = [Input.new(command: target, pattern: :entire)]
+            end
+
+            def execute
+                if @input.first.command.size == 0
+                    @result = [nil]
+                elsif @input.first.command.size == 1
+                    @result = [input.first.command[0]]
+                else
+                    @result = super
+                end
+            end
+            
+            def size
+                input.first.command.size
             end
             
             protected
@@ -444,6 +478,10 @@ class Array
         return pcombine(other) do |a, b|
             a ^ b
         end
+    end
+    
+    def preduce(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
+        Ikra::Symbolic::ArrayReduceCommand.new(to_command, block, block_size: block_size)
     end
 
     def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)

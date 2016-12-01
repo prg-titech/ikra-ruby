@@ -1,4 +1,5 @@
 require "tempfile"
+require "set"
 
 module Ikra
     module Translator
@@ -12,20 +13,22 @@ module Ikra
             # 3. Build the program entry point (including kernel launchers).
             class ProgramBuilder
                 attr_reader :environment_builder
+                attr_reader :kernel_launch_configurations
                 attr_reader :kernels
 
                 def initialize(environment_builder:)
-                    @kernels = []
+                    @kernel_launch_configurations = []
+                    @kernels = Set.new([])
                     @environment_builder = environment_builder
                 end
 
-                def add_kernel(kernel)
-                    @kernels.push(kernel)
+                def add_kernel_launcher(launch_configuration)
+                    @kernel_launch_configurations.push(launch_configuration)
                 end
 
                 def assert_ready_to_build
-                    if kernels.size == 0
-                        raise "Not ready to build (ProgramBuilder): No kernels defined"
+                    if kernel_launch_configurations.size == 0
+                        raise "Not ready to build (ProgramBuilder): No kernel launch configurations defined"
                     end
                 end
 
@@ -36,8 +39,8 @@ module Ikra
                     launcher = Launcher.new(
                         source: source,
                         environment_builder: environment_builder,
-                        return_type: kernels.last.result_type,
-                        result_size: kernels.last.num_threads)
+                        return_type: kernel_launch_configurations.last.kernel_builder.result_type,
+                        result_size: kernel_launch_configurations.last.num_threads)
 
                     launcher.compile
                     return launcher.execute
@@ -54,25 +57,32 @@ module Ikra
                     result = result + environment_builder.build_environment_struct
 
                     # Build methods, blocks and kernels
-                    for kernel_builder in kernels
-                        result = result + kernel_builder.build_methods
-                        result = result + kernel_builder.build_blocks
-                        result = result + kernel_builder.build_kernel
+                    for configuration in kernel_launch_configurations
+                        # Check whether kernel was already build before
+                        if kernels.include?(configuration.kernel_builder)
+                            next
+                        else
+                            kernels.add(configuration.kernel_builder)
+                        end
+
+                        result = result + configuration.kernel_builder.build_methods
+                        result = result + configuration.kernel_builder.build_blocks
+                        result = result + configuration.kernel_builder.build_kernel
                     end
 
-                    # Read some fields from last kernel
-                    final_kernel_result_var = kernels.last.host_result_var_name
+                    # Read some fields from last kernel launch configuration
+                    final_kernel_result_var = kernel_launch_configurations.last.host_result_var_name
                     if final_kernel_result_var == nil
-                        raise "Result variable name of final kernel not set"
+                        raise "Result variable name of final kernel launch configuration not set"
                     end
 
-                    final_kernel_result_type = kernels.last.result_type.to_c_type
+                    final_kernel_result_type = kernel_launch_configurations.last.kernel_builder.result_type.to_c_type
 
                     # Build kernel invocations
                     kernel_launchers = ""
 
-                    for kernel_builder in kernels
-                        kernel_launchers = kernel_launchers + kernel_builder.build_kernel_lauchner
+                    for configuration in kernel_launch_configurations
+                        kernel_launchers = kernel_launchers + configuration.build_kernel_launcher
                     end
 
                     # Free device memory
