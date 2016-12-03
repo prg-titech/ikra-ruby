@@ -4,6 +4,7 @@ require_relative "../config/os_configuration"
 require_relative "../symbolic/symbolic"
 require_relative "../symbolic/visitor"
 require_relative "../types/types"
+require_relative "input_translator"
 
 module Ikra
     module Translator
@@ -97,7 +98,9 @@ module Ikra
                 kernel_builder.configure_grid(command.size)
 
                 # Thread ID is always int
-                parameter_types = {command.block_parameter_names.first => Types::UnionType.create_int}
+                parameters = [Variable.new(
+                    name: command.block_parameter_names.first,
+                    type: Types::UnionType.create_int)]
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -105,7 +108,7 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameter_types: parameter_types,
+                    block_parameters: parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id)
@@ -125,17 +128,23 @@ module Ikra
             def visit_array_combine_command(command)
                 Log.info("Translating ArrayCombineCommand [#{command.unique_id}]")
 
-                # Process dependent computation (receiver), returns [CommandTranslationResult]
-                input_translated = command.input.map do |input|
-                    translate_input(input)
-                end
-                # Map translated input on return types to prepare hashing of parameter_types
-                return_types = input_translated.map do |input|
-                    input.return_type
+                # Process dependent computation (receiver), returns [InputTranslationResult]
+                input_translated = command.input.each_with_index.map do |input, index|
+                    input.translate_input(
+                        command: command,
+                        command_translator: self,
+                        start_eat_params_offset: index)
                 end
 
-                # Take return types from previous computation
-                parameter_types = Hash[command.block_parameter_names.zip(return_types)]
+                # Get all parameters
+                block_parameters = input_translated.map do |input|
+                    input.parameters
+                end.reduce(:+)
+
+                # Ger all pre-execution statements
+                pre_execution = input_translated.map do |input|
+                    input.pre_execution
+                end.reduce(:+)
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -143,9 +152,10 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameter_types: parameter_types,
+                    block_parameters: block_parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
+                    pre_execution: pre_execution,
                     command_id: command.unique_id)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
@@ -153,13 +163,13 @@ module Ikra
 
                 # Build command invocation string
                 command_args = (["_env_"] + input_translated.map do |input|
-                    input.result
+                    input.command_translation_result.result
                 end).join(", ")
 
                 command_result = block_translation_result.function_name + "(" + command_args + ")"
 
                 input_execution = input_translated.map do |input|
-                    input.execution
+                    input.command_translation_result.execution
                 end.join("\n\n")
 
                 command_translation = CommandTranslationResult.new(
@@ -197,43 +207,13 @@ module Ikra
             def visit_array_stencil_command(command)
                 Log.info("Translating ArrayStencilCommand [#{command.unique_id}]")
 
-                # Process dependent computation (receiver), returns [CommandTranslationResult]
-                input_translated = translate_input(command.input.first)
+                # Process dependent computation (receiver), returns [InputTranslationResult]
+                input_translated = command.input.first.translate_input(
+                    command: command,
+                    command_translator: self)
 
                 # Count number of parameters
                 num_parameters = command.offsets.size
-
-                if command.use_parameter_array
-                    # Parameters are allocated in a constant-sized array
-
-                    first_param = command.block_parameter_names.first
-
-                    # Take return type from previous computation
-                    parameter_types = {first_param => Types::UnionType.new(Types::ArrayType.new(input_translated.return_type))}
-
-                    # Allocate and fill array of parameters
-                    actual_parameter_names = (0...num_parameters).map do |param_index| 
-                        "_#{first_param}_#{param_index}"
-                    end
-
-                    param_array_init = actual_parameter_names.join(", ")
-
-                    pre_execution = "#{input_translated.return_type.to_c_type} #{first_param}[] = {#{param_array_init}};"
-
-                    # Pass multiple single values instead of array
-                    override_parameter_decl = actual_parameter_names.map do |param_name|
-                        input_translated.return_type.to_c_type + " " + param_name
-                    end
-
-                else
-                    # Pass separate parameters
-
-                    # Take return type from previous computation
-                    parameter_types = Hash[command.block_parameter_names.zip([input_translated.return_type] * num_parameters)]
-
-                    pre_execution = ""
-                    override_parameter_decl = nil
-                end
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -241,19 +221,19 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameter_types: parameter_types,
+                    block_parameters: input_translated.parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id,
-                    pre_execution: pre_execution,
-                    override_parameter_decl: override_parameter_decl)
+                    pre_execution: input_translated.pre_execution,
+                    override_block_parameters: input_translated.override_block_parameters)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 
                 # `previous_result` should be an expression returning the array containing the
                 # result of the previous computation.
-                previous_result = input_translated.result
+                previous_result = input_translated.command_translation_result.result
 
                 arguments = ["_env_"]
 
@@ -270,7 +250,7 @@ module Ikra
                 # The following template checks if there is at least one index out of bounds. If
                 # so, the fallback value is used. Otherwise, the block is executed.
                 command_execution = Translator.read_file(file_name: "stencil_body.cpp", replacements: {
-                    "execution" => input_translated.execution,
+                    "execution" => input_translated.command_translation_result.execution,
                     "temp_var" => temp_var_name,
                     "result_type" => block_translation_result.result_type.to_c_type,
                     "min_offset" => command.min_offset.to_s,

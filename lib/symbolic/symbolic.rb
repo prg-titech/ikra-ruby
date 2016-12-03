@@ -1,4 +1,5 @@
 require "set"
+require_relative "input"
 require_relative "../translator/command_translator"
 require_relative "../types/types"
 require_relative "../type_aware_array"
@@ -12,21 +13,6 @@ Ikra::Configuration.check_software_configuration
 module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
-
-        class Input
-            attr_reader :command
-
-            # Returns the access pattern of this input, e.g., `:tid` (single element, identified
-            # by thread ID) or `:entire` (access to entire array is necessary).
-            attr_reader :pattern
-
-            def initialize(command:, pattern:)
-                @command = command
-
-                # Currently supported: :tid, :entire
-                @pattern = pattern
-            end
-        end
 
         module ArrayCommand
             include Enumerable
@@ -241,8 +227,8 @@ module Ikra
                 @block_size = block_size
 
                 # Read array at position `tid`
-                @input = [Input.new(command: target, pattern: :tid)] + others.map do |other|
-                    Input.new(command: other, pattern: :tid)
+                @input = [SingleInput.new(command: target, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other, pattern: :tid)
                 end
             end
             
@@ -265,14 +251,27 @@ module Ikra
             def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true)
                 super()
 
+                # Read more than just one element, fall back to `:entire` for now
+
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
                 @block = block
                 @block_size = block_size
                 @use_parameter_array = use_parameter_array
 
-                # Read more than just one element, fall back to `:entire` for now
-                @input = [Input.new(command: target, pattern: :entire)]
+                if use_parameter_array
+                    @input = [StencilArrayInput.new(
+                        command: target,
+                        pattern: :entire,
+                        offsets: offsets,
+                        out_of_bounds_value: out_of_range_value)]
+                else
+                    @input = [StencilSingleInput.new(
+                        command: target,
+                        pattern: :entire,
+                        offsets: offsets,
+                        out_of_bounds_value: out_of_range_value)]
+                end
             end
 
             def size
@@ -301,7 +300,7 @@ module Ikra
                 @block = block
 
                 # One element per thread
-                @input = [Input.new(command: target, pattern: :tid)]
+                @input = [SingleInput.new(command: target, pattern: :tid)]
             end
             
             # how to implement SELECT?
@@ -326,7 +325,7 @@ module Ikra
                 target.freeze
 
                 # One thread per array element
-                @input = [Input.new(command: target, pattern: :tid)]
+                @input = [SingleInput.new(command: target, pattern: :tid)]
             end
             
             def execute
