@@ -178,7 +178,7 @@ class ReduceTest < UnitTestCase
         assert_in_delta(result2 , result1[0], 0.00001)
     end
 
-"""
+
     def test_reduce_after_combine
         array1 = Array.pnew(2577) do |j|
             (j+1)%200
@@ -215,5 +215,5 @@ class ReduceTest < UnitTestCase
 
         assert_equal(result_cpu , result[0])
     end
-"""
+
 end

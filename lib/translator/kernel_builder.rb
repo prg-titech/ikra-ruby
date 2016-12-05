@@ -89,7 +89,7 @@ module Ikra
                     return @blocks.join("\n\n")
                 end
 
-                def build_kernel()
+                def build_kernel
                     Log.info("Building kernel (num_blocks=#{@blocks.size})")
                     assert_ready_to_build
 
@@ -112,15 +112,6 @@ module Ikra
                         "kernel_name" => kernel_name,
                         "parameters" => parameters,
                         "num_threads" => Constants::NUM_THREADS_IDENTIFIER})
-                end
-
-                def build_device_memory_free
-                    Log.info("Building kernel post-launch CUDA free")
-
-                    assert_ready_to_build
-
-                    return Translator.read_file(file_name: "free_device_memory.cpp", replacements: {
-                        "name" => kernel_result_var_name})
                 end
             end
         end
