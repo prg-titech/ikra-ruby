@@ -221,7 +221,7 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, others, block, block_size: DEFAULT_BLOCK_SIZE)
-                super()
+                super
 
                 @block = block
                 @block_size = block_size
@@ -239,6 +239,19 @@ module Ikra
             protected
 
             attr_reader :block
+        end
+
+        class ArrayZipCommand
+            include ArrayCommand
+
+            def initialize(target, others)
+                super
+
+                # Construct ZipInput from [target] and [others]
+                @input = [ZipInput.new(command: target, pattern: :tid)] + others.map do |other|
+                    ZipInput.new(command: target, pattern: :tid)
+                end
+            end
         end
 
         class ArrayStencilCommand
