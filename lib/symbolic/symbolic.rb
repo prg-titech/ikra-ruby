@@ -34,7 +34,7 @@ module Ikra
             end
 
             def initialize
-                super
+                super()
 
                 # Generate unique ID
                 @unique_id = @@unique_id
@@ -80,6 +80,10 @@ module Ikra
 
             def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
                 return ArrayCombineCommand.new(self, others, block, block_size: block_size)
+            end
+
+            def pzip(*others)
+                return ArrayZipCommand.new(self, others)
             end
 
             def +(other)
@@ -137,8 +141,12 @@ module Ikra
             # Returns a collection of the names of all block parameters.
             # @return [Array(Symbol)] list of block parameters
             def block_parameter_names
-                return block.parameters.map do |param|
-                    param[1]
+                if block != nil
+                    return block.parameters.map do |param|
+                        param[1]
+                    end
+                else
+                    return []
                 end
             end
 
@@ -221,7 +229,7 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, others, block, block_size: DEFAULT_BLOCK_SIZE)
-                super
+                super()
 
                 @block = block
                 @block_size = block_size
@@ -245,12 +253,19 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, others)
-                super
+                super()
 
-                # Construct ZipInput from [target] and [others]
-                @input = [ZipInput.new(command: target, pattern: :tid)] + others.map do |other|
-                    ZipInput.new(command: target, pattern: :tid)
+                @input = [SingleInput.new(command: target, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other, pattern: :tid)
                 end
+            end
+
+            def size
+                return input.first.command.size
+            end
+
+            def block
+                return nil
             end
         end
 
@@ -308,7 +323,7 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, block)
-                super
+                super()
 
                 @block = block
 
@@ -324,10 +339,6 @@ module Ikra
             include ArrayCommand
             
             attr_reader :target
-
-            DUMMY_BLOCK = Proc.new do |element|
-                element
-            end
 
             @@unique_id = 1
 
@@ -368,7 +379,7 @@ module Ikra
             protected
 
             def block
-                return DUMMY_BLOCK
+                return nil
             end
         end
     end
@@ -388,6 +399,10 @@ class Array
 
     def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
         return Ikra::Symbolic::ArrayCombineCommand.new(to_command, others, block, block_size: block_size)
+    end
+
+    def pzip(*others)
+        return Ikra::Symbolic::ArrayZipCommand.new(self, others)
     end
 
     alias_method :old_plus, :+

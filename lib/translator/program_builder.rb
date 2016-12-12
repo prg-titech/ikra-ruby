@@ -1,4 +1,5 @@
 require "tempfile"
+require "set"
 
 module Ikra
     module Translator
@@ -14,9 +15,17 @@ module Ikra
                 attr_reader :environment_builder
                 attr_reader :kernels
 
+                # An array of structs definitions ([Types::StructType] instances) that should be 
+                # generated for this program.
+                attr_reader :structs
+
                 def initialize(environment_builder:)
                     @kernels = []
                     @environment_builder = environment_builder
+
+                    # The collection of structs is a [Set]. Struct types are unique, i.e., there
+                    # are never two equal struct types with different object identity.  
+                    @structs = Set.new
                 end
 
                 def add_kernel(kernel)
@@ -52,6 +61,11 @@ module Ikra
 
                     # Build environment struct definition
                     result = result + environment_builder.build_environment_struct
+
+                    # Generate all struct types
+                    for struct_type in structs
+                        result = result + struct_type.generate_definition + "\n"
+                    end
 
                     # Build methods, blocks and kernels
                     for kernel_builder in kernels

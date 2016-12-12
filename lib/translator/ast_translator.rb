@@ -336,6 +336,9 @@ module Ikra
                     args_types.push(*arguments.map do |arg| arg.get_type end)
 
                     return RubyIntegration.get_implementation(selector, args_types, args_code)
+                elsif recv_type.is_a?(Types::StructType)
+                    return recv_type.generate_read(
+                        receiver.translate_expression, selector, *arguments)
                 else
                     args = [Translator::Constants::ENV_IDENTIFIER]
 

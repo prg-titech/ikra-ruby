@@ -110,6 +110,10 @@ module Ikra
                 @override_block_parameters = override_block_parameters
                 @command_translation_result = command_translation_result
             end
+
+            def return_type
+                return command_translation_result.return_type
+            end
         end
     end
 end

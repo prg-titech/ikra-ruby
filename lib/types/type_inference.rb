@@ -482,8 +482,14 @@ module Ikra
                     if RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
                         return_type = RubyIntegration.get_return_type(sing_type, node.selector, *arg_types)
+                        
                         type.expand(return_type)
+                        node.return_type_by_recv_type[sing_type] = return_type
+                    elsif sing_type.is_a?(Types::StructType)
+                        # This is a struct type, special type inference rules apply
+                        return_type = sing_type.get_return_type(node.selector, *node.arguments)
 
+                        type.expand(return_type)
                         node.return_type_by_recv_type[sing_type] = return_type
                     else
                         type.expand(visit_method_call(node, sing_type))
