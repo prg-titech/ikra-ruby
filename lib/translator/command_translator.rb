@@ -37,8 +37,8 @@ module Ikra
             # Entry point for translator. Returns a [ProgramBuilder], which contains all
             # required information for compiling and executing the CUDA program.
             def self.translate_command(command)
-                command_translator = self.new
-                command_translator.translate_command(command)
+                command_translator = self.new(root_command: command)
+                command_translator.start_translation
                 return command_translator.program_builder
             end
 
@@ -46,18 +46,20 @@ module Ikra
             attr_reader :kernel_launcher_stack
             attr_reader :program_builder
             attr_reader :object_tracer
+            attr_reader :root_command
 
-            def initialize
+            def initialize(root_command:)
                 @kernel_launcher_stack = []
                 @environment_builder = EnvironmentBuilder.new
-                @program_builder = ProgramBuilder.new(environment_builder: environment_builder)
+                @program_builder = ProgramBuilder.new(environment_builder: environment_builder, root_command: root_command)
+                @root_command = root_command
             end
 
-            def translate_command(command)
+            def start_translation
                 Log.info("CommandTranslator: Starting translation...")
 
                 # Trace all objects
-                @object_tracer = TypeInference::ObjectTracer.new(command)
+                @object_tracer = TypeInference::ObjectTracer.new(root_command)
                 all_objects = object_tracer.trace_all
 
 
@@ -70,7 +72,7 @@ module Ikra
                 kernel_launcher.write_back_to_host!
 
                 # Translate the command (might create additional kernels)
-                result = command.accept(self)
+                result = root_command.accept(self)
 
                 # Add kernel builder to ProgramBuilder
                 pop_kernel_launcher(result)
@@ -93,9 +95,18 @@ module Ikra
 
             # --- Actual Visitor parts stars here ---
 
+            def visit_array_command(command)
+                if command.keep && command.gpu_result_pointer.nil?
+                    # Create slot for result pointer on GPU in env
+                    environment_builder.add_previous_result(command.unique_id, 0)
+                end
+            end
+
             # Translate the block of an `Array.pnew` section.
             def visit_array_new_command(command)
                 Log.info("Translating ArrayNewCommand [#{command.unique_id}]")
+
+                super
 
                 # This is a root command, determine grid/block dimensions
                 kernel_launcher.configure_grid(command.size)
@@ -117,8 +128,21 @@ module Ikra
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 
+                if command.keep
+                    command_result = Constants::TEMP_RESULT_IDENTIFIER + command.unique_id.to_s
+                    command_execution = "\n        " + block_translation_result.result_type.to_c_type + " " + command_result + " = " + block_translation_result.function_name + "(_env_, _tid_);"
+                    kernel_builder.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    kernel_launcher.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    command.gpu_result_pointer = Symbolic::GPUResultPointer.new(return_type: block_translation_result.result_type)
+                    environment_builder.add_previous_result_type(command.unique_id, block_translation_result.result_type)
+                else
+                    command_result = block_translation_result.function_name + "(_env_, _tid_)"
+                    command_execution = ""
+                end
+
                 command_translation = CommandTranslationResult.new(
-                    result: block_translation_result.function_name + "(_env_, _tid_)",
+                    execution: command_execution,
+                    result: command_result,
                     return_type: block_translation_result.result_type)
                 
                 Log.info("DONE translating ArrayNewCommand [#{command.unique_id}]")
@@ -160,17 +184,29 @@ module Ikra
                     input.result
                 end).join(", ")
 
-                command_result = block_translation_result.function_name + "(" + command_args + ")"
 
                 input_execution = input_translated.map do |input|
                     input.execution
                 end.join("\n\n")
 
+                if command.keep
+                    command_result = Constants::TEMP_RESULT_IDENTIFIER + command.unique_id.to_s
+                    command_execution = "\n        " + block_translation_result.result_type.to_c_type + " " + command_result + " = " + block_translation_result.function_name + "(" + command_args + ");"
+                    kernel_builder.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    kernel_launcher.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    command.gpu_result_pointer = Symbolic::GPUResultPointer.new(return_type: block_translation_result.result_type)
+                    environment_builder.add_previous_result_type(command.unique_id, block_translation_result.result_type)
+                else
+                    command_result = block_translation_result.function_name + "(" + command_args + ")"
+                    command_execution = ""
+                end
+
                 command_translation = CommandTranslationResult.new(
-                    execution: input_execution,
+                    execution: input_execution + command_execution,
                     result: command_result,
                     return_type: block_translation_result.result_type)
 
+                kernel_launcher.update_result_name(command.unique_id.to_s)
 
                 Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
 
@@ -278,9 +314,24 @@ module Ikra
                     command.input.first.command, need_union_type)
                 environment_builder.add_base_array(command.unique_id, transformed_base_array)
 
+                if command.keep
+                    command_result = Constants::TEMP_RESULT_IDENTIFIER + command.unique_id.to_s
+                    command_execution = "\n        " + block_translation_result.result_type.to_c_type + " " + command_result + " = " + "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_];"
+                    kernel_builder.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    kernel_launcher.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    command.gpu_result_pointer = Symbolic::GPUResultPointer.new(return_type: command.base_type)
+                    environment_builder.add_previous_result_type(command.unique_id, command.base_type)
+                else
+                    command_result = "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]"
+                    command_execution = ""
+                end
+
                 command_translation = CommandTranslationResult.new(
-                    result: "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]",
+                    execution: command_execution,
+                    result: command_result,
                     return_type: command.base_type)
+
+                kernel_launcher.update_result_name(command.unique_id.to_s)
 
                 Log.info("DONE translating ArrayIdentityCommand [#{command.unique_id}]")
 
@@ -358,7 +409,14 @@ module Ikra
                 argument_str = arguments.join(", ")
                 stencil_computation = block_translation_result.function_name + "(#{argument_str})"
 
-                temp_var_name = "temp_stencil_#{CommandTranslator.next_unique_id}"
+                temp_var_name = Constants::TEMP_RESULT_IDENTIFIER + command.unique_id.to_s
+
+                if command.keep
+                    kernel_builder.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    kernel_launcher.add_cached_result(block_translation_result.result_type, command.unique_id.to_s)
+                    command.gpu_result_pointer = Symbolic::GPUResultPointer.new(return_type: block_translation_result.result_type)
+                    environment_builder.add_previous_result_type(command.unique_id, block_translation_result.result_type)
+                end
 
                 # The following template checks if there is at least one index out of bounds. If
                 # so, the fallback value is used. Otherwise, the block is executed.
@@ -377,6 +435,8 @@ module Ikra
                     execution: command_execution,
                     result: temp_var_name,
                     return_type: block_translation_result.result_type)
+
+                kernel_launcher.update_result_name(command.unique_id.to_s)
 
                 Log.info("DONE translating ArrayStencilCommand [#{command.unique_id}]")
 
@@ -409,16 +469,40 @@ module Ikra
             # a new kernel will be built.
             def translate_input(input)
                 if input.pattern == :tid
-                    # Stay in current kernel
-                    return input.command.accept(self)
+                    # Stay in current kernel                    
+                    if input.command.gpu_result_pointer.nil? || input.command.gpu_result_pointer.device_pointer == 0
+                        result = input.command.accept(self)
+                    else
+                        environment_builder.add_previous_result(input.command.unique_id, input.command.gpu_result_pointer.device_pointer)
+                        environment_builder.add_previous_result_type(input.command.unique_id, input.command.gpu_result_pointer.return_type)
+                        kernel_launcher.configure_grid(input.command.size)
+                        result = CommandTranslationResult.new(
+                            execution: "",
+                            result: "((#{input.command.gpu_result_pointer.return_type.to_c_type} *)(_env_->" + "prev_" + input.command.unique_id.to_s + "))[_tid_]",
+                            #return_type: environment_builder.ffi_struct[("prev_" + input.command.unique_id.to_s).to_sym])
+                            return_type: input.command.gpu_result_pointer.return_type)
+                    end
+                    return result
                 elsif input.pattern == :entire
-                    # Create new kernel
-                    push_kernel_launcher
+                    if input.command.gpu_result_pointer.nil? || input.command.gpu_result_pointer.device_pointer == 0
+                        # Create new kernel
+                        push_kernel_launcher
 
-                    previous_result = input.command.accept(self)
-                    previous_result_kernel_var = kernel_launcher.kernel_result_var_name
-                    
-                    pop_kernel_launcher(previous_result)
+                        previous_result = input.command.accept(self)
+                        previous_result_kernel_var = kernel_launcher.kernel_result_var_name
+                        
+                        pop_kernel_launcher(previous_result)
+                    else
+                        environment_builder.add_previous_result(input.command.unique_id, input.command.gpu_result_pointer.device_pointer)
+                        environment_builder.add_previous_result_type(input.command.unique_id, input.command.gpu_result_pointer.return_type)
+                        kernel_launcher.use_cached_result(input.command.gpu_result_pointer.return_type, input.command.unique_id)
+                        previous_result = CommandTranslationResult.new(
+                            execution: "",
+                            result: "((#{input.command.gpu_result_pointer.return_type.to_c_type} *)(_env_->" + "prev_" + input.command.unique_id.to_s + "))",
+                            #return_type: environment_builder.ffi_struct[("prev_" + input.command.unique_id.to_s).to_sym])
+                            return_type: input.command.gpu_result_pointer.return_type)
+                        previous_result_kernel_var = "prev_" + input.command.unique_id.to_s
+                    end
 
                     # Add parameter for previous input to this kernel
                     kernel_launcher.add_previous_kernel_parameter(Variable.new(

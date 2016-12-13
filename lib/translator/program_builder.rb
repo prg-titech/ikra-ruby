@@ -15,11 +15,13 @@ module Ikra
                 attr_reader :environment_builder
                 attr_reader :kernel_launchers
                 attr_reader :kernels
+                attr_reader :root_command
 
-                def initialize(environment_builder:)
+                def initialize(environment_builder:, root_command:)
                     @kernel_launchers = []
                     @kernels = Set.new([])
                     @environment_builder = environment_builder
+                    @root_command = root_command
                 end
 
                 def add_kernel_launcher(launcher)
@@ -40,7 +42,8 @@ module Ikra
                         source: source,
                         environment_builder: environment_builder,
                         return_type: kernel_launchers.last.kernel_builder.result_type,
-                        result_size: kernel_launchers.last.num_threads)
+                        result_size: kernel_launchers.last.num_threads,
+                        root_command: root_command)
 
                     launcher.compile
                     return launcher.execute

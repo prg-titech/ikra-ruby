@@ -5,21 +5,36 @@ module Ikra
         class CommandTranslator
             class ProgramBuilder
                 class Launcher
+                    class CommandNotifier < Symbolic::Visitor
+                        attr_reader :environment
+
+                        def initialize(environment)
+                            @environment = environment
+                        end
+
+                        def visit_array_command(command)
+                            super(command)
+                            command.post_execute(environment)
+                        end
+                    end
+
                     class KernelResultStruct < FFI::Struct
                         layout :result, :pointer,
                             :error_code, :int32
                     end
 
+                    attr_reader :root_command
                     attr_reader :source
                     attr_reader :environment_builder
                     attr_reader :return_type
                     attr_reader :result_size
 
-                    def initialize(source:, environment_builder:, return_type:, result_size:)
+                    def initialize(source:, environment_builder:, return_type:, result_size:, root_command: )
                         @source = source
                         @environment_builder = environment_builder
                         @return_type = return_type
                         @result_size = result_size
+                        @root_command = root_command
                     end
 
                     def compile
@@ -78,6 +93,9 @@ module Ikra
                         time_before = Time.now
                         kernel_result = ffi_interface.launch_kernel(environment_object)
                         Log.info("Kernel time: #{Time.now - time_before} s")
+
+                        # Update command
+                        root_command.accept(CommandNotifier.new(environment_builder.ffi_struct))
 
                         # Extract error code and return value
                         result_t_struct = KernelResultStruct.new(kernel_result)
