@@ -52,6 +52,11 @@ module Ikra
                 @out_of_bounds_value = out_of_bounds_value
             end
         end
+
+        # Similar to [SingleInput], but two values are passed to the block.
+        class ReduceInput < SingleInput
+
+        end
     end
 end
 

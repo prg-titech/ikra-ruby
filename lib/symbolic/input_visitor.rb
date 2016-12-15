@@ -27,6 +27,12 @@ module Ikra
             end
         end
 
+        class ReduceInput
+            def accept(visitor)
+                visitor.visit_reduce_input(self, pattern: pattern)
+            end
+        end
+
         class InputVisitor < Visitor
             def visit_input(input, pattern:)
 
@@ -43,6 +49,11 @@ module Ikra
             end
 
             def visit_stencil_single_input(input, pattern:)
+                visit_input(input)
+                input.command.accept(self)
+            end
+
+            def visit_reduce_input(input, pattern:)
                 visit_input(input)
                 input.command.accept(self)
             end

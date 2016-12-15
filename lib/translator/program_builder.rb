@@ -13,6 +13,7 @@ module Ikra
             # 3. Build the program entry point (including kernel launchers).
             class ProgramBuilder
                 attr_reader :environment_builder
+                attr_reader :kernel_launchers
                 attr_reader :kernels
 
                 # An array of structs definitions ([Types::StructType] instances) that should be 
@@ -20,7 +21,8 @@ module Ikra
                 attr_reader :structs
 
                 def initialize(environment_builder:)
-                    @kernels = []
+                    @kernel_launchers = []
+                    @kernels = Set.new([])
                     @environment_builder = environment_builder
 
                     # The collection of structs is a [Set]. Struct types are unique, i.e., there
@@ -28,13 +30,13 @@ module Ikra
                     @structs = Set.new
                 end
 
-                def add_kernel(kernel)
-                    @kernels.push(kernel)
+                def add_kernel_launcher(launcher)
+                    @kernel_launchers.push(launcher)
                 end
 
                 def assert_ready_to_build
-                    if kernels.size == 0
-                        raise "Not ready to build (ProgramBuilder): No kernels defined"
+                    if kernel_launchers.size == 0
+                        raise "Not ready to build (ProgramBuilder): No kernel launcher defined"
                     end
                 end
 
@@ -45,8 +47,8 @@ module Ikra
                     launcher = Launcher.new(
                         source: source,
                         environment_builder: environment_builder,
-                        return_type: kernels.last.result_type,
-                        result_size: kernels.last.num_threads)
+                        return_type: kernel_launchers.last.kernel_builder.result_type,
+                        result_size: kernel_launchers.last.num_threads)
 
                     launcher.compile
                     return launcher.execute
@@ -68,39 +70,48 @@ module Ikra
                     end
 
                     # Build methods, blocks and kernels
-                    for kernel_builder in kernels
-                        result = result + kernel_builder.build_methods
-                        result = result + kernel_builder.build_blocks
-                        result = result + kernel_builder.build_kernel
+                    for launcher in kernel_launchers
+                        # Check whether kernel was already build before
+                        if kernels.include?(launcher.kernel_builder)
+                            next
+                        else
+                            kernels.add(launcher.kernel_builder)
+                        end
+
+                        result = result + launcher.kernel_builder.build_methods
+                        result = result + launcher.kernel_builder.build_blocks
+                        result = result + launcher.kernel_builder.build_kernel
                     end
 
-                    # Read some fields from last kernel
-                    final_kernel_result_var = kernels.last.host_result_var_name
+                    # Read some fields from last kernel launch configuration
+                    final_kernel_result_var = kernel_launchers.last.host_result_var_name
                     if final_kernel_result_var == nil
-                        raise "Result variable name of final kernel not set"
+                        raise "Result variable name of final kernel launcher not set"
                     end
 
-                    final_kernel_result_type = kernels.last.result_type.to_c_type
+                    final_kernel_result_type = kernel_launchers.last.kernel_builder.result_type.to_c_type
 
                     # Build kernel invocations
-                    kernel_launchers = ""
+                    program_launch = ""
 
-                    for kernel_builder in kernels
-                        kernel_launchers = kernel_launchers + kernel_builder.build_kernel_lauchner
+                    for launcher in kernel_launchers
+                        program_launch = program_launch + launcher.build_kernel_launcher
                     end
 
                     # Free device memory
                     free_device_memory = ""
 
-                    for kernel_builder in kernels
-                        free_device_memory = free_device_memory + kernel_builder.build_device_memory_free
+                    for launcher in kernel_launchers
+                        if !launcher.reuse_memory?
+                            free_device_memory = free_device_memory + launcher.build_device_memory_free
+                        end
                     end
 
                     # Build program entry point
                     result = result + Translator.read_file(file_name: "entry_point.cpp", replacements: {
                         "prepare_environment" => environment_builder.build_environment_variable,
                         "result_type" => final_kernel_result_type,
-                        "launch_all_kernels" => kernel_launchers,
+                        "launch_all_kernels" => program_launch,
                         "free_device_memory" => free_device_memory,
                         "host_env_var_name" => Constants::ENV_HOST_IDENTIFIER,
                         "host_result_var_name" => final_kernel_result_var})

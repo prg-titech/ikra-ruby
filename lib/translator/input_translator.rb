@@ -6,7 +6,7 @@ module Ikra
             end
         end
 
-        class SingleInput
+        class SingleInput < Input
             def translate_input(command:, command_translator:, start_eat_params_offset: 0)
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
@@ -21,7 +21,27 @@ module Ikra
             end
         end
 
-        class StencilArrayInput
+        class ReduceInput < SingleInput
+            def translate_input(command:, command_translator:, start_eat_params_offset: 0)
+                # Translate input using visitor
+                input_command_translation_result = command_translator.translate_input(self)
+
+                # TODO: Fix type inference (sometimes type has to be expanded)
+                parameters = [
+                    Translator::Variable.new(
+                        name: command.block_parameter_names[start_eat_params_offset],
+                        type: input_command_translation_result.return_type),
+                    Translator::Variable.new(
+                        name: command.block_parameter_names[start_eat_params_offset + 1],
+                        type: input_command_translation_result.return_type)]
+
+                return InputTranslationResult.new(
+                    parameters: parameters,
+                    command_translation_result: input_command_translation_result)
+            end
+        end
+
+        class StencilArrayInput < Input
             def translate_input(command:, command_translator:, start_eat_params_offset: 0)
                 # Parameters are allocated in a constant-sized array
 
@@ -67,7 +87,7 @@ module Ikra
             end
         end
 
-        class StencilSingleInput
+        class StencilSingleInput < Input
             def translate_input(command:, command_translator:, start_eat_params_offset: 0)
                 # Pass separate parameters
 
