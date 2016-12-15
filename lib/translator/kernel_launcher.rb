@@ -35,8 +35,10 @@ module Ikra
 
                 attr_reader :kernel_result_var_name
 
+                # IDs and types of commands whose results are kept on the GPU
                 attr_accessor :cached_results
 
+                # IDs and types of commands that were previously computed and shall now be used in this kernel as input
                 attr_reader :previously_cached_results
 
                 def initialize(kernel_builder)
@@ -56,11 +58,13 @@ module Ikra
                     @host_result_var_name = @kernel_result_var_name + "_host"
                 end
 
-                def add_cached_result(type, result_id)
+                # Adds command whose result will be kept on GPU
+                def add_cached_result(result_id, type)
                     @cached_results[result_id] = type
                 end
 
-                def use_cached_result(type, result_id)
+                # Adds a previously computed result which will be used in this launche as input
+                def use_cached_result(result_id, type)
                     @previously_cached_results[result_id] = type
                 end
 

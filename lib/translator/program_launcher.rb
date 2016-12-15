@@ -6,6 +6,9 @@ module Ikra
             class ProgramBuilder
                 class Launcher
                     class CommandNotifier < Symbolic::Visitor
+                        # This visitor executes the post_execute function on every Array Command
+                        # That way the responsible command node will recieve the adress of the computed result that will be kept on GPU
+
                         attr_reader :environment
 
                         def initialize(environment)

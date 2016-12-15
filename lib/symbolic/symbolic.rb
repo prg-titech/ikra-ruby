@@ -52,8 +52,10 @@ module Ikra
             # commands depends on the type of the command.
             attr_reader :input
 
+            # Indicates if result should be kept on the GPU for further processing.
             attr_reader :keep
 
+            # This field can only be used if keep is true
             attr_accessor :gpu_result_pointer
 
             @@unique_id  = 1
@@ -150,11 +152,13 @@ module Ikra
             end
 
             def post_execute(environment)
-                #gpu_result_pointer = environment.struct
-                #puts environment[unique_id.to_s]
                 if keep
                     @gpu_result_pointer.device_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i   
                 end
+            end
+
+            def has_previous_result?
+                return !gpu_result_pointer.nil? && gpu_result_pointer.device_pointer != 0
             end
 
             def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)

@@ -39,7 +39,9 @@ module Ikra
         class Visitor
             def visit_array_command(command)
                 for input in command.input
-                    input.command.accept(self)
+                    if input.command.is_a?(ArrayCommand)
+                        input.command.accept(self)
+                    end
                 end
             end
 

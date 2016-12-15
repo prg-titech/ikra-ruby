@@ -37,6 +37,7 @@ module Ikra
                 # Additional Parameters for certain commands that are attached to the kernel
                 attr_accessor :additional_parameters
 
+                # IDs of commands that whose results are kept on the GPU
                 attr_accessor :cached_results
 
                 def initialize
@@ -72,7 +73,8 @@ module Ikra
                     @additional_parameters.push(parameter)
                 end
 
-                def add_cached_result(type, result_id)
+                # Adds a result that has to be kept on GPU. Therefore additional memory allocations will be made
+                def add_cached_result(result_id, type)
                     @cached_results[result_id] = type
                 end
 

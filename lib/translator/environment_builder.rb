@@ -9,8 +9,13 @@ module Ikra
             end
 
             attr_accessor :objects
+
+            # Hash that maps the unique_id of a command on the adress of its result on the GPU 
             attr_accessor :previous_results
+
+            # Hash that maps the unique_id of a command on the type of its result
             attr_accessor :previous_results_types
+
             attr_accessor :device_struct_allocation
             attr_accessor :ffi_struct
 
@@ -32,6 +37,7 @@ module Ikra
                 cuda_id
             end
 
+            # Adds object to the ffi_struct which is of type unique_id => pointer in GPU
             def add_previous_result(previous_command_id, pointer_to_result)
                 cuda_id = "prev_#{previous_command_id}"
                 @previous_results[cuda_id] = pointer_to_result
@@ -41,6 +47,12 @@ module Ikra
                 cuda_id
             end
 
+            # Adds object to the ffi_struct which is of type unique_id => 0
+            def allocate_previous_pointer(previous_command_id)
+                add_previous_result(previous_command_id, 0)
+            end
+
+            # Adds object to the ffi_struct which is of type unique_id => type of command with unique_id
             def add_previous_result_type(previous_command_id, type)
                 cuda_id = "prev_#{previous_command_id}"
                 @previous_results_types[cuda_id] = type
