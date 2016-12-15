@@ -53,6 +53,7 @@ module Ikra
                     @previously_cached_results = {}
                 end
 
+                # Launcher gets updated so that it uses the right names for the result variables
                 def update_result_name(id)
                     @kernel_result_var_name = "_kernel_result_" + id
                     @host_result_var_name = @kernel_result_var_name + "_host"
