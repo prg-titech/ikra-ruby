@@ -82,13 +82,13 @@ __device__ int _block_k_2_(environment_t *_env_, int index)
 }
 
 
-__global__ void kernel_5(environment_t *_env_, int *_result_)
+__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (_tid_ < 5625)
+    if (_tid_ < _num_threads_)
     {
-        
+
         
         _result_[_tid_] = _block_k_2_(_env_, _tid_);
     }
@@ -144,7 +144,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     int * _kernel_result_6;
     checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (4 * 5625)));
     int * _kernel_result_6_host = (int *) malloc((4 * 5625));
-    kernel_5<<<23, 250>>>(dev_env, _kernel_result_6);
+    kernel_5<<<22, 256>>>(dev_env, 5625, _kernel_result_6);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
