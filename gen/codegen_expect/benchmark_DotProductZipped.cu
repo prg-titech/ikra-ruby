@@ -55,30 +55,38 @@ typedef struct environment_struct environment_t;
 
 struct environment_struct
 {
-    int l1_size;
-    int * l1_a;
-    int * l1_b;
 };
+struct indexed_struct_2_lt_int_int_gt_t
+{
+    int field_0;
+int field_1;
+};
+
+
+
+
+
 __device__ int _block_k_1_(environment_t *_env_, int index)
 {
     
-    int i;
-    int result;
-    int y;
-    int x;
-    int * lex_b = _env_->l1_b;
-    int * lex_a = _env_->l1_a;
-    int lex_size = _env_->l1_size;
+    return index;
+}
+
+
+__device__ int _block_k_2_(environment_t *_env_, int index)
+{
+    
     {
-        x = ((index % lex_size));
-        y = ((index / lex_size));
-        result = 0;
-        for (i = 0; i <= (lex_size - 1); i++)
-        {
-            result = ((result + ((lex_a[((((y * lex_size)) + i))] * lex_b[((((i * lex_size)) + x))]))));
-        }
-        i--;
-        return result;
+        return (index + 100);
+    }
+}
+
+
+__device__ int _block_k_4_(environment_t *_env_, indexed_struct_2_lt_int_int_gt_t zipped)
+{
+    
+    {
+        return (zipped.field_0 * zipped.field_1);
     }
 }
 
@@ -90,8 +98,10 @@ __global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
     if (_tid_ < _num_threads_)
     {
 
+
+
         
-        _result_[_tid_] = _block_k_1_(_env_, _tid_);
+        _result_[_tid_] = _block_k_4_(_env_, ((indexed_struct_2_lt_int_int_gt_t) {_block_k_1_(_env_, _tid_), _block_k_2_(_env_, _tid_)}));
     }
 }
 
@@ -147,14 +157,6 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Prepare environment */
 timeStartMeasure();
-
-    void * temp_ptr_l1_a = host_env->l1_a;
-    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l1_a, 400));
-    checkErrorReturn(program_result, cudaMemcpy(host_env->l1_a, temp_ptr_l1_a, 400, cudaMemcpyHostToDevice));
-
-    void * temp_ptr_l1_b = host_env->l1_b;
-    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l1_b, 400));
-    checkErrorReturn(program_result, cudaMemcpy(host_env->l1_b, temp_ptr_l1_b, 400, cudaMemcpyHostToDevice));
     /* Allocate device environment and copy over struct */
     environment_t *dev_env;
     checkErrorReturn(program_result, cudaMalloc(&dev_env, sizeof(environment_t)));
@@ -165,13 +167,13 @@ timeReportMeasure(program_result, prepare_env);
     /* Launch all kernels */
 timeStartMeasure();
     int * _kernel_result_4;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (4 * 100)));
-    int * _kernel_result_4_host = (int *) malloc((4 * 100));
-    kernel_3<<<1, 100>>>(dev_env, 100, _kernel_result_4);
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (4 * 25000)));
+    int * _kernel_result_4_host = (int *) malloc((4 * 25000));
+    kernel_3<<<98, 256>>>(dev_env, 25000, _kernel_result_4);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_4_host, _kernel_result_4, (4 * 100), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_4_host, _kernel_result_4, (4 * 25000), cudaMemcpyDeviceToHost));
 
 timeReportMeasure(program_result, kernel);
 

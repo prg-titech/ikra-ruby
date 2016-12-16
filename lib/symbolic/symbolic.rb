@@ -239,8 +239,8 @@ module Ikra
                 @block_size = block_size
 
                 # Read array at position `tid`
-                @input = [SingleInput.new(command: target, pattern: :tid)] + others.map do |other|
-                    SingleInput.new(command: other, pattern: :tid)
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_command, pattern: :tid)
                 end
             end
             
@@ -259,8 +259,8 @@ module Ikra
             def initialize(target, others)
                 super()
 
-                @input = [SingleInput.new(command: target, pattern: :tid)] + others.map do |other|
-                    SingleInput.new(command: other, pattern: :tid)
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_command, pattern: :tid)
                 end
             end
 
@@ -281,7 +281,7 @@ module Ikra
 
                 @block = block
                 @block_size = block_size
-                @input = [ReduceInput.new(command: target, pattern: :entire)]
+                @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
             end
 
             def execute
@@ -323,13 +323,13 @@ module Ikra
 
                 if use_parameter_array
                     @input = [StencilArrayInput.new(
-                        command: target,
+                        command: target.to_command,
                         pattern: :entire,
                         offsets: offsets,
                         out_of_bounds_value: out_of_range_value)]
                 else
                     @input = [StencilSingleInput.new(
-                        command: target,
+                        command: target.to_command,
                         pattern: :entire,
                         offsets: offsets,
                         out_of_bounds_value: out_of_range_value)]
@@ -362,7 +362,7 @@ module Ikra
                 @block = block
 
                 # One element per thread
-                @input = [SingleInput.new(command: target, pattern: :tid)]
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)]
             end
             
             # how to implement SELECT?

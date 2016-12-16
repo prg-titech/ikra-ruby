@@ -7,13 +7,27 @@ module Ikra
                 class Launcher
                     class KernelResultStruct < FFI::Struct
                         layout :result, :pointer,
-                            :error_code, :int32
+                            :error_code, :int32,
+                            :time_setup_cuda, :uint64,
+                            :time_prepare_env, :uint64,
+                            :time_kernel, :uint64,
+                            :time_free_memory, :uint64
                     end
 
                     attr_reader :source
                     attr_reader :environment_builder
                     attr_reader :return_type
                     attr_reader :result_size
+
+                    class << self
+                        attr_accessor :last_time_setup_cuda
+                        attr_accessor :last_time_prepare_env
+                        attr_accessor :last_time_kernel
+                        attr_accessor :last_time_free_memory
+                        attr_accessor :last_time_total_external
+                        attr_accessor :last_time_compiler
+                        attr_accessor :last_time_read_result_ffi
+                    end
 
                     def initialize(source:, environment_builder:, return_type:, result_size:)
                         @source = source
@@ -47,11 +61,11 @@ module Ikra
                         @so_filename = "#{file.path}.#{Configuration.so_suffix}"
                         nvcc_command = Configuration.nvcc_invocation_string(
                             file.path, @so_filename)
-
                         Log.info("Compiling kernel: #{nvcc_command}")
                         time_before = Time.now
                         compile_status = %x(#{nvcc_command})
                         Log.info("Done, took #{Time.now - time_before} s")
+                        self.class.last_time_compiler = Time.now - time_before
 
                         if $? != 0
                             Log.fatal("nvcc failed: #{compile_status}")
@@ -77,34 +91,47 @@ module Ikra
 
                         time_before = Time.now
                         kernel_result = ffi_interface.launch_kernel(environment_object)
-                        Log.info("Kernel time: #{Time.now - time_before} s")
+                        total_time_external = Time.now - time_before
+                        Log.info("Kernel time: #{total_time_external} s")
 
                         # Extract error code and return value
                         result_t_struct = KernelResultStruct.new(kernel_result)
                         error_code = result_t_struct[:error_code]
+
+                        # Extract time measurements
+                        self.class.last_time_setup_cuda = result_t_struct[:time_setup_cuda] * 0.000001
+                        self.class.last_time_prepare_env = result_t_struct[:time_prepare_env] * 0.000001
+                        self.class.last_time_kernel = result_t_struct[:time_kernel] * 0.000001
+                        self.class.last_time_free_memory = result_t_struct[:time_free_memory] * 0.000001
+                        self.class.last_time_total_external = total_time_external
 
                         if error_code != 0
                             # Kernel failed
                             Errors.raiseCudaError(error_code)
                         end
 
+                        time_before = Time.now
+
                         result = result_t_struct[:result]
 
                         if return_type.is_singleton?
                             # Read in entire array
                             if return_type.singleton_type == Types::PrimitiveType::Int
-                                return result.read_array_of_int(result_size)
+                                computation_result = result.read_array_of_int(result_size)
                             elsif return_type.singleton_type == Types::PrimitiveType::Float
-                                return result.read_array_of_float(result_size)
+                                computation_result = result.read_array_of_float(result_size)
                             elsif return_type.singleton_type == Types::PrimitiveType::Bool
-                                return result.read_array_of_uint8(result_size).map do |v|
+                                computation_result = result.read_array_of_uint8(result_size).map do |v|
                                     v == 1
                                 end
                             elsif return_type.singleton_type == Types::PrimitiveType::Nil
-                                return [nil] * result_size
+                                computation_result = [nil] * result_size
                             else
                                 raise NotImplementedError.new("Type not implemented")
                             end
+
+                            self.class.last_time_read_result_ffi = Time.now - time_before
+                            return computation_result
                         else
                             # Read union type struct
                             # Have to read one by one and assemble object
@@ -126,6 +153,7 @@ module Ikra
                                 end
                             end
 
+                            self.class.last_time_read_result_ffi = Time.now - time_before
                             return result_values
                         end
                     end
