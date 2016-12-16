@@ -62,6 +62,15 @@ module Ikra
                 "#{type} #{name} = #{node.translate_expression};"
             end
 
+            # Stores the evaluation of [node] in a temporary variable and returns the name of
+            # the temporary variable.
+            def let_expr(node)
+                type = node.get_type.to_c_type
+                id = temp_identifier_id
+                name = "_temp_var_#{id}"
+                return name, "#{type} #{name} = #{node.translate_expression};"
+            end
+
             def wrap_in_union_type(str, type)
                 if type == Types::PrimitiveType::Int
                     return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
@@ -337,8 +346,29 @@ module Ikra
 
                     return RubyIntegration.get_implementation(selector, args_types, args_code)
                 elsif recv_type.is_a?(Types::StructType)
-                    return recv_type.generate_read(
-                        receiver.translate_expression, selector, *arguments)
+                    first_arg = arguments.first
+
+                    if first_arg.is_a?(AST::IntNode)
+                        # Reading the struct at a constant position
+                        return recv_type.generate_read(
+                            receiver.translate_expression, 
+                            selector, 
+                            first_arg.translate_expression)
+                    else
+                        # Reading the struct at a non-constant position
+                        id = temp_identifier_id
+                        name = "_temp_var_#{id}"
+                        first_arg_eval = first_arg.translate_expression
+
+                        # Store index in local variable, then generate non-constant access
+                        # TODO: Statement expression is potentially inefficient
+                        return "({ int #{name} = #{first_arg_eval};\n" +
+                            recv_type.generate_non_constant_read(
+                                receiver.translate_expression,
+                                selector,
+                                first_arg_eval) + "; })"
+                        return 
+                    end
                 else
                     args = [Translator::Constants::ENV_IDENTIFIER]
 

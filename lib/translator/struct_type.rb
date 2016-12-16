@@ -27,11 +27,28 @@ module Ikra
             end
 
             # Generates a source code expression that reads a fields of this struct by index.
-            def generate_read(receiver, selector, *args)
+            def generate_read(receiver, selector, index)
                 # Type inference already ensured that there is exactly one parameter which is
                 # an IntLiteral.
 
-                return "#{receiver}.field_#{args.first.value}"
+                return "#{receiver}.field_#{index}"
+            end
+
+            def generate_non_constant_read(receiver, selector, index_expression_identifier)
+                expression = ""
+
+                for index in 0...@fields.size
+                    expression = expression + "(#{index_expression_identifier} == #{index} ? #{receiver}.field_#{index} : "
+                end
+
+                # Out of bounds case should throw and exception
+                expression = expression + "NULL"
+
+                for index in 0...@fields.size
+                    expression = expression + ")"
+                end
+
+                return expression
             end
         end
     end

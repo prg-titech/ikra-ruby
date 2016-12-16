@@ -18,7 +18,19 @@ Rake::TestTask.new("test:benchmark") do |t|
     t.warning = false
 end
 
-task :test do
+task :"test:unit" do
+    Rake::Task["test:unit"].invoke
+end
+
+task :"test:codegen" do
+    Rake::Task["test:codegen"].invoke
+end
+
+task :"test:benchmark" do
+    Rake::Task["test:benchmark"].invoke
+end
+
+task :"test" do
     Rake::Task["test:unit"].invoke
     Rake::Task["test:codegen"].invoke
     Rake::Task["test:benchmark"].invoke

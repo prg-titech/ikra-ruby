@@ -5,14 +5,17 @@ module Ikra
         class StructType
             include RubyType
 
+            attr_reader :fields
+
             class << self
                 # Ensure singleton per class
                 def new(fields)
                     if @cache == nil
-                        @cache = {}
-                        @cache.default_proc = Proc.new do |hash, key|
-                            hash[identifier_from_hash(fields)] = super(fields)
-                        end
+                        @cache = {} 
+                    end
+
+                    if not @cache.include?(identifier_from_hash(fields))
+                        @cache[identifier_from_hash(fields)] = super(fields)
                     end
 
                     @cache[identifier_from_hash(fields)]
@@ -80,11 +83,24 @@ module Ikra
                     raise "Expected exactly one argument"
                 end
 
-                if arg_nodes.first.class != AST::IntNode
-                    raise "Expected IntLiteral"
-                end
+                if arg_nodes.first.class == AST::IntNode
+                    if arg_nodes.first.value >= @fields.size
+                        raise "ZipStruct index out of bounds: #{arg_nodes.first.value}"
+                    end
 
-                return self[arg_nodes.first.value]
+                    return self[arg_nodes.first.value]
+                else
+                    return get_return_type_non_constant(selector)
+                end
+            end
+
+            # Performs type inference for the result of accessing this Zip "Array" by index.
+            def get_return_type_non_constant(selector)
+                # TODO: Can only handle single cases at the moment. This should eventually forward
+                # to Array integration code.
+
+                # TODO: This code assumes that the all struct elements have the same type
+                return self[0]
             end
 
             # Returns the type of the element at [index].
