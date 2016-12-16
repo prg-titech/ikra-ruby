@@ -376,7 +376,7 @@ module Ikra
 
             @@unique_id = 1
 
-            def initialize(target)
+            def initialize(target, block_size: DEFAULT_BLOCK_SIZE)
                 super()
 
                 # Ensure that base array cannot be modified
@@ -384,6 +384,8 @@ module Ikra
 
                 # One thread per array element
                 @input = [SingleInput.new(command: target, pattern: :tid)]
+
+                @block_size = block_size
             end
             
             def execute

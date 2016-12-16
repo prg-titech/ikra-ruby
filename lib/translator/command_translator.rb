@@ -99,7 +99,7 @@ module Ikra
                 Log.info("Translating ArrayNewCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                kernel_launcher.configure_grid(command.size)
+                kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
                 # Thread ID is always int
                 parameters = [Variable.new(
@@ -281,7 +281,7 @@ module Ikra
                 Log.info("Translating ArrayIdentityCommand [#{command.unique_id}]")
 
                 # This is a root command, determine grid/block dimensions
-                kernel_launcher.configure_grid(command.size)
+                kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
                 # Add base array to environment
                 need_union_type = !command.base_type.is_singleton?
@@ -450,7 +450,7 @@ module Ikra
                         type: previous_result.return_type))
 
                     # This is a root command for this kernel, determine grid/block dimensions
-                    kernel_launcher.configure_grid(input.command.size)
+                    kernel_launcher.configure_grid(input.command.size, block_size: input.command.block_size)
 
                     kernel_translation = CommandTranslationResult.new(
                         result: previous_result_kernel_var,
