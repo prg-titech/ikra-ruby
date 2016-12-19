@@ -69,6 +69,7 @@ module Ikra
                     @previous_kernel_input.push(parameter)
                 end
 
+                # Add additional parameters to the kernel function that might be needed for some computations
                 def add_additional_parameters(parameter)
                     @additional_parameters.push(parameter)
                 end

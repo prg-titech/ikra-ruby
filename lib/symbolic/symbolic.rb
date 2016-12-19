@@ -33,8 +33,7 @@ module Ikra
 
             attr_accessor :return_type
 
-            def initialize(device_pointer: 0, return_type:)
-                @device_pointer = device_pointer
+            def initialize(return_type:)
                 @return_type = return_type
             end
         end

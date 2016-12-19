@@ -92,6 +92,7 @@ module Ikra
                     kernel_builder.add_previous_kernel_parameter(parameter)
                 end
 
+                # Add additional arguments to the kernel function that might be needed for some computations
                 def add_additional_arguments(argument)
                     @additional_arguments.push(argument)
                 end
