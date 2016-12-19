@@ -53,7 +53,7 @@ module Ikra
             end
 
             def nvcc_invocation_string(in_file, out_file)
-                "#{@@cuda_nvcc} -o #{out_file} -I#{@@cuda_common_include} -I#{@@cuda_cupti_include} --shared -Xcompiler -fPIC #{in_file} 2>&1"
+                "#{@@cuda_nvcc} -o #{out_file} -I#{@@cuda_common_include} -I#{@@cuda_cupti_include} --shared -Xcompiler -fPIC -std=c++11 #{in_file} 2>&1"
             end
 
             def so_suffix

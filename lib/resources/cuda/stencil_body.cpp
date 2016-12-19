@@ -1,7 +1,7 @@
     /*{result_type}*/ /*{temp_var}*/;
 
     if (/*{min_offset}*/ + /*{thread_id}*/ >= 0 
-        && /*{max_offset}*/ + /*{thread_id}*/ <= /*{input_size}*/)
+        && /*{max_offset}*/ + /*{thread_id}*/ <= /*{input_size}*/ - 1)
     {
         // All value indices within bounds
         /*{execution}*/

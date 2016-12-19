@@ -10,9 +10,30 @@ Rake::TestTask.new("test:codegen") do |t|
     t.warning = false
 end
 
-task :test do
+Rake::TestTask.new("test:benchmark") do |t|
+    file_list = FileList['test/benchmarks/*.rb']
+    file_list.exclude("test/benchmarks/benchmark_base.rb")
+
+    t.test_files = file_list
+    t.warning = false
+end
+
+task :"test:unit" do
+    Rake::Task["test:unit"].invoke
+end
+
+task :"test:codegen" do
+    Rake::Task["test:codegen"].invoke
+end
+
+task :"test:benchmark" do
+    Rake::Task["test:benchmark"].invoke
+end
+
+task :"test" do
     Rake::Task["test:unit"].invoke
     Rake::Task["test:codegen"].invoke
+    Rake::Task["test:benchmark"].invoke
 end
 
 desc "Run tests"

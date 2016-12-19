@@ -39,18 +39,31 @@ module Ikra
             # @param [AST::BlockDefNode] block_def_node AST (abstract syntax tree) of the block
             # @param [EnvironmentBuilder] environment_builder environment builder instance 
             # collecting information about lexical variables (environment)
-            # @param [Hash{Symbol => UnionType}] block_parameter_types types of arguments passed 
+            # @param [Array{Variable}] block_parameters types and names of parameters 
             # to the block
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are 
             # accessed within the block
             # @param [Fixnum] command_id a unique identifier of the block
             # @param [String] pre_execution source code that should be run before executing the
             # block
-            # @param [Array{String}] override_parameter_decl overrides the the declaration of
-            # parameters that this block accepts. This parameter should be an array of C++
-            # parameter declarations (type-name pairs).
+            # @param [Array{Variable}] override_block_parameters overrides the the declaration of
+            # parameters that this block accepts.
             # @return [BlockTranslationResult]
-            def translate_block(block_def_node:, environment_builder:, command_id:, block_parameter_types: {}, lexical_variables: {}, pre_execution: "", override_parameter_decl: nil)
+            def translate_block(
+                block_def_node:, 
+                environment_builder:, 
+                command_id:, 
+                block_parameters: [], 
+                lexical_variables: {}, 
+                pre_execution: "", 
+                override_block_parameters: nil)
+
+                # Build hash of parameter name -> type mappings
+                block_parameter_types = {}
+                for variable in block_parameters
+                    block_parameter_types[variable.name] = variable.type
+                end
+
                 parameter_types_string = "[" + block_parameter_types.map do |id, type| "#{id}: #{type}" end.join(", ") + "]"
                 Log.info("Translating block with input types #{parameter_types_string}")
 
@@ -95,12 +108,16 @@ module Ikra
 
                 function_parameters = ["environment_t *#{Constants::ENV_IDENTIFIER}"]
 
-                if override_parameter_decl == nil
+                if override_block_parameters == nil
                     block_parameter_types.each do |param|
                         function_parameters.push("#{param[1].to_c_type} #{param[0].to_s}")
                     end
                 else
-                    function_parameters.push(*override_parameter_decl)
+                    parameter_decls = override_block_parameters.map do |variable|
+                        "#{variable.type.to_c_type} #{variable.name}"
+                    end
+
+                    function_parameters.push(*parameter_decls)
                 end
 
                 function_head = Translator.read_file(

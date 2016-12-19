@@ -3,18 +3,18 @@ class Array
         copy = self.dup
 
         return Array.new(size) do |index|
-            values = neighbors.map do |offset|
-                if index + offset < 0 or index + offset >= size
-                    out_of_range_value
-                else
+            if neighbors.min + index < 0 || neighbors.max + index > size - 1
+                out_of_range_value
+            else
+                values = neighbors.map do |offset|
                     copy[index + offset]
                 end
-            end
 
-            if use_parameter_array
-                block.call(values)
-            else
-                block.call(*values)
+                if use_parameter_array
+                    block.call(values)
+                else
+                    block.call(*values)
+                end
             end
         end
     end

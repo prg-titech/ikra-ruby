@@ -1,4 +1,5 @@
 require "set"
+require_relative "input"
 require_relative "../translator/command_translator"
 require_relative "../types/types"
 require_relative "../type_aware_array"
@@ -12,21 +13,6 @@ Ikra::Configuration.check_software_configuration
 module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
-
-        class Input
-            attr_reader :command
-
-            # Returns the access pattern of this input, e.g., `:tid` (single element, identified
-            # by thread ID) or `:entire` (access to entire array is necessary).
-            attr_reader :pattern
-
-            def initialize(command:, pattern:)
-                @command = command
-
-                # Currently supported: :tid, :entire
-                @pattern = pattern
-            end
-        end
 
         class GPUResultPointer
             attr_accessor :device_pointer
@@ -64,7 +50,7 @@ module Ikra
             end
 
             def initialize
-                super
+                super()
 
                 # Generate unique ID
                 @unique_id = @@unique_id
@@ -106,6 +92,10 @@ module Ikra
 
             def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
                 return ArrayCombineCommand.new(self, others, block, block_size: block_size, keep: keep)
+            end
+
+            def pzip(*others)
+                return ArrayZipCommand.new(self, others)
             end
 
             def +(other)
@@ -178,8 +168,12 @@ module Ikra
             # Returns a collection of the names of all block parameters.
             # @return [Array(Symbol)] list of block parameters
             def block_parameter_names
-                return block.parameters.map do |param|
-                    param[1]
+                if block != nil
+                    return block.parameters.map do |param|
+                        param[1]
+                    end
+                else
+                    return []
                 end
             end
 
@@ -270,8 +264,8 @@ module Ikra
                 @keep = keep
 
                 # Read array at position `tid`
-                @input = [Input.new(command: target, pattern: :tid)] + others.map do |other|
-                    Input.new(command: other, pattern: :tid)
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_command, pattern: :tid)
                 end
             end
             
@@ -284,6 +278,26 @@ module Ikra
             attr_reader :block
         end
 
+        class ArrayZipCommand
+            include ArrayCommand
+
+            def initialize(target, others)
+                super()
+
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_command, pattern: :tid)
+                end
+            end
+
+            def size
+                return input.first.command.size
+            end
+
+            def block
+                return nil
+            end
+        end
+
         class ArrayReduceCommand
             include ArrayCommand
 
@@ -292,7 +306,8 @@ module Ikra
 
                 @block = block
                 @block_size = block_size
-                @input = [Input.new(command: target, pattern: :entire)]
+
+                @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
                 @keep = keep
             end
 
@@ -325,6 +340,8 @@ module Ikra
             def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true)
                 super()
 
+                # Read more than just one element, fall back to `:entire` for now
+
                 @offsets = offsets
                 @out_of_range_value = out_of_range_value
                 @block = block
@@ -332,8 +349,19 @@ module Ikra
                 @use_parameter_array = use_parameter_array
                 @keep = keep
 
-                # Read more than just one element, fall back to `:entire` for now
-                @input = [Input.new(command: target, pattern: :entire)]
+                if use_parameter_array
+                    @input = [StencilArrayInput.new(
+                        command: target.to_command,
+                        pattern: :entire,
+                        offsets: offsets,
+                        out_of_bounds_value: out_of_range_value)]
+                else
+                    @input = [StencilSingleInput.new(
+                        command: target.to_command,
+                        pattern: :entire,
+                        offsets: offsets,
+                        out_of_bounds_value: out_of_range_value)]
+                end
             end
 
             def size
@@ -357,12 +385,12 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, block)
-                super
+                super()
 
                 @block = block
 
                 # One element per thread
-                @input = [Input.new(command: target, pattern: :tid)]
+                @input = [SingleInput.new(command: target.to_command, pattern: :tid)]
             end
             
             # how to implement SELECT?
@@ -374,20 +402,18 @@ module Ikra
             
             attr_reader :target
 
-            DUMMY_BLOCK = Proc.new do |element|
-                element
-            end
-
             @@unique_id = 1
 
-            def initialize(target)
+            def initialize(target, block_size: DEFAULT_BLOCK_SIZE)
                 super()
 
                 # Ensure that base array cannot be modified
                 target.freeze
 
                 # One thread per array element
-                @input = [Input.new(command: target, pattern: :tid)]
+                @input = [SingleInput.new(command: target, pattern: :tid)]
+
+                @block_size = block_size
             end
             
             def execute
@@ -417,7 +443,7 @@ module Ikra
             protected
 
             def block
-                return DUMMY_BLOCK
+                return nil
             end
         end
     end
@@ -437,6 +463,10 @@ class Array
 
     def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
         return Ikra::Symbolic::ArrayCombineCommand.new(to_command, others, block, block_size: block_size, keep: keep)
+    end
+
+    def pzip(*others)
+        return Ikra::Symbolic::ArrayZipCommand.new(self, others)
     end
 
     alias_method :old_plus, :+

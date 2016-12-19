@@ -36,6 +36,12 @@ module Ikra
             end
         end
 
+        class ArrayZipCommand
+            def accept(visitor)
+                visitor.visit_array_zip_command(self)
+            end
+        end
+
         class Visitor
             def visit_array_command(command)
                 for input in command.input
@@ -66,6 +72,10 @@ module Ikra
             end
 
             def visit_array_identity_command(command)
+                visit_array_command(command)
+            end
+
+            def visit_array_zip_command(command)
                 visit_array_command(command)
             end
         end

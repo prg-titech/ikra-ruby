@@ -27,6 +27,10 @@ module Ikra
                 return true
             end
 
+            def to_array_type
+                return UnionType.new(ArrayType.new(self))
+            end
+
             def class_id
                 if @class_id == nil
                     @class_id = @@next_class_id

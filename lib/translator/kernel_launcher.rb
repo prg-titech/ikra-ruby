@@ -98,9 +98,9 @@ module Ikra
                 end
 
                 # Configures grid size and block size. Also sets number of threads.
-                def configure_grid(size)
-                    @grid_dim = [size.fdiv(256).ceil, 1].max.to_s
-                    @block_dim = (size >= 256 ? 256 : size).to_s
+                def configure_grid(size, block_size: 256)
+                    @grid_dim = [size.fdiv(block_size).ceil, 1].max.to_s
+                    @block_dim = (size >= block_size ? block_size : size).to_s
                     @num_threads = size
                 end
 
@@ -133,7 +133,7 @@ module Ikra
                         # Allocate device memory for kernel result
                         result = result + Translator.read_file(file_name: "allocate_device_memory.cpp", replacements: {
                             "name" => kernel_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})",
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
                             "type" => kernel_builder.result_type.to_c_type})
                     end
 
@@ -141,7 +141,7 @@ module Ikra
                         # Allocate host memory for kernel result
                         result = result + Translator.read_file(file_name: "allocate_host_memory.cpp", replacements: {
                             "name" => @host_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})",
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
                             "type" => kernel_builder.result_type.to_c_type})
                     end
 
@@ -192,7 +192,7 @@ module Ikra
                         result = result + Translator.read_file(file_name: "memcpy_device_to_host.cpp", replacements: {
                             "host_name" => @host_result_var_name,
                             "device_name" => @kernel_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})"})
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})"})
                     end
 
                     return result

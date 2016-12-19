@@ -17,11 +17,19 @@ module Ikra
                 attr_reader :kernels
                 attr_reader :root_command
 
+                # An array of structs definitions ([Types::StructType] instances) that should be 
+                # generated for this program.
+                attr_reader :structs
+
                 def initialize(environment_builder:, root_command:)
                     @kernel_launchers = []
                     @kernels = Set.new([])
                     @environment_builder = environment_builder
                     @root_command = root_command
+
+                    # The collection of structs is a [Set]. Struct types are unique, i.e., there
+                    # are never two equal struct types with different object identity.  
+                    @structs = Set.new
                 end
 
                 def add_kernel_launcher(launcher)
@@ -58,6 +66,11 @@ module Ikra
 
                     # Build environment struct definition
                     result = result + environment_builder.build_environment_struct
+
+                    # Generate all struct types
+                    for struct_type in structs
+                        result = result + struct_type.generate_definition + "\n"
+                    end
 
                     # Build methods, blocks and kernels
                     for launcher in kernel_launchers

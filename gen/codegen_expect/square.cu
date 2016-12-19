@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <chrono>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -66,13 +67,13 @@ __device__ int _block_k_2_(environment_t *_env_, int value)
 }
 
 
-__global__ void kernel_7(environment_t *_env_, int *_result_)
+__global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (_tid_ < 10000)
+    if (_tid_ < _num_threads_)
     {
-        
+
         
         _result_[_tid_] = _block_k_2_(_env_, _env_->b1_base[_tid_]);
     }
@@ -82,6 +83,11 @@ __global__ void kernel_7(environment_t *_env_, int *_result_)
 typedef struct result_t {
     int *result;
     int last_error;
+
+    uint64_t time_setup_cuda;
+    uint64_t time_prepare_env;
+    uint64_t time_kernel;
+    uint64_t time_free_memory;
 } result_t;
 
 #define checkErrorReturn(result_var, expr) \
@@ -93,10 +99,22 @@ if (result_var->last_error = expr) \
     return result_var;\
 }
 
+#define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
+
+#define timeReportMeasure(result_var, variable_name) \
+end_time = chrono::high_resolution_clock::now(); \
+result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
+    // Variables for measuring time
+    chrono::high_resolution_clock::time_point start_time;
+    chrono::high_resolution_clock::time_point end_time;
+
     // CUDA Initialization
     result_t *program_result = (result_t *) malloc(sizeof(result_t));
+
+    timeStartMeasure();
 
     cudaError_t cudaStatus = cudaSetDevice(0);
 
@@ -108,7 +126,11 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     checkErrorReturn(program_result, cudaFree(0));
 
+    timeReportMeasure(program_result, setup_cuda);
+
+
     /* Prepare environment */
+timeStartMeasure();
 
     void * temp_ptr_b1_base = host_env->b1_base;
     checkErrorReturn(program_result, cudaMalloc((void **) &host_env->b1_base, 40000));
@@ -118,23 +140,27 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     checkErrorReturn(program_result, cudaMalloc(&dev_env, sizeof(environment_t)));
     checkErrorReturn(program_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-
+timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
-    int * _kernel_result_8;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (4 * 10000)));
-    int * _kernel_result_8_host = (int *) malloc((4 * 10000));
-    kernel_7<<<40, 250>>>(dev_env, _kernel_result_8);
+timeStartMeasure();
+    int * _kernel_result_2;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000)));
+    int * _kernel_result_2_host = (int *) malloc((sizeof(int) * 10000));
+    kernel_7<<<40, 256>>>(dev_env, 10000, _kernel_result_2);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_8_host, _kernel_result_8, (4 * 10000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (sizeof(int) * 10000), cudaMemcpyDeviceToHost));
 
+timeReportMeasure(program_result, kernel);
 
     /* Free device memory */
-    checkErrorReturn(program_result, cudaFree(_kernel_result_8));
+timeStartMeasure();
+    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
 
-    
-    program_result->result = _kernel_result_8_host;
+timeReportMeasure(program_result, free_memory);
+
+    program_result->result = _kernel_result_2_host;
     return program_result;
 }

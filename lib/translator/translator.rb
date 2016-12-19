@@ -6,6 +6,7 @@ require_relative "cuda_errors"
 require_relative "environment_builder"
 require_relative "command_translator"
 require_relative "last_returns_visitor"
+require_relative "struct_type"
 
 module Ikra
 

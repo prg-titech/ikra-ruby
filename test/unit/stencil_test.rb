@@ -28,7 +28,7 @@ class StencilTest < UnitTestCase
 
 
         # Compare results
-        assert_equal(aggregated_cpu, aggregated_cpu)
+        assert_equal(aggregated_cpu, aggregated_gpu)
     end
 
     def test_stencil_array_parameter
@@ -57,6 +57,6 @@ class StencilTest < UnitTestCase
 
 
         # Compare results
-        assert_equal(aggregated_cpu, aggregated_cpu)
+        assert_equal(aggregated_cpu, aggregated_gpu)
     end
 end
