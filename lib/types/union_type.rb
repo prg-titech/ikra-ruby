@@ -37,7 +37,7 @@ module Ikra
             end
 
             def to_c_type
-                if @types.size == 1
+                if is_singleton?
                     return @types.first.to_c_type
                 else
                     return "union_t"
@@ -45,7 +45,7 @@ module Ikra
             end
 
             def c_size
-                if @types.size == 1
+                if is_singleton?
                     return @types.first.c_size
                 else
                     return "sizeof(union_t)"
@@ -53,15 +53,23 @@ module Ikra
             end
 
             def to_ruby_type
-                if @types.size == 1
+                if is_singleton?
                     return @types.first.to_ruby_type
                 else
                     raise "Not implemented yet"
                 end
             end
 
+            def to_ffi_type
+                if is_singleton?
+                    return @types.first.to_ffi_type
+                else
+                    raise "Not implemented yet"
+                end
+            end
+
             def is_primitive?
-                if @types.size == 1
+                if is_singleton?
                     return @types.first.is_primitive?
                 else
                     return false
@@ -79,7 +87,7 @@ module Ikra
             # Returns the single inner type or raises an error if this union type contains more than one inner type.
             # @return [RubyType] Inner type
             def singleton_type
-                if @types.size != 1
+                if !is_singleton?
                     raise "Union type is not singleton (found #{@types.size} types)"
                 end
 

@@ -1,5 +1,7 @@
 # No explicit `require`s. This file should be includes via types.rb
 
+require "ffi"
+
 module Ikra
     module Types
         class StructType
@@ -63,7 +65,7 @@ module Ikra
             class << self
                 def new(*types)
                     identifiers = Array.new(types.size) do |index|
-                        "field_#{index}"
+                        :"field_#{index}"
                     end
 
                     super(Hash[identifiers.zip(types)])
@@ -105,12 +107,94 @@ module Ikra
 
             # Returns the type of the element at [index].
             def [](index)
-                return @fields["field_#{index}"]
+                return @fields[:"field_#{index}"]
+            end
+
+            # A module that provides array-like functionality for FFI Struct types.
+            module ZipStruct
+                def self.included(base)
+                    base.include(Enumerable)
+                end
+
+                def method_missing(name, *args, &block)
+                    # Call original method
+                    return _method_missing(name, *args, &block)
+                end
+
+                def [](index)
+                    # Out of bounds: returns nil
+                    return super(:"field_#{index}")
+                end
+
+                def []=(index, value)
+                    # Fill up missing slots with `nil`
+                    for id in (@fields.size)..index
+                        super(:"field_{id}", nil)
+                    end
+
+                    super(:"field_{index}", value)
+                    return value
+                end
+
+                def each(&block)
+                    for index in 0...(@fields.size)
+                        yield(self[index])
+                    end
+                end
+            end
+
+            def to_ruby_type
+                if @struct_type == nil
+                    # Create class
+                    @struct_type = Class.new(FFI::Struct)
+                    @struct_type.include(ZipStruct)
+
+                    # Define layout of struct
+                    var_names = Array.new(@fields.size) do |index|
+                        :"field_#{index}"
+                    end
+
+                    var_types = var_names.map do |name|
+                        @fields[name].to_ffi_type
+                    end
+
+                    layout = var_names.zip(var_types).flatten
+                    @struct_type.layout(*layout)
+                end
+
+                return @struct_type
             end
         end
     end
 
     class Struct
+        def initialize(fields:)
+            @fields = fields
+        end
+
+        alias_method :_method_missing, :method_missing
+
+        def method_missing(name, *args, &block)
+            if args.size == 0 && block == nil
+                # Read value
+
+                if @fields.include?(name)
+                    return @fields[name]
+                end
+            elsif args.size == 1 && block == nil
+                # Write value if last character of selector is `=`
+
+                if name[-1] == "="
+                    field_name = name[0...-1]
+                    @fields[field_name] = args.first
+                end
+            end
+
+            return super(name, *args, &block)
+        end
+    end
+
+    class ZipStruct < Struct
 
     end
 end

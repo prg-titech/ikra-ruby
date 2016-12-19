@@ -126,6 +126,11 @@ module Ikra
                                 end
                             elsif return_type.singleton_type == Types::PrimitiveType::Nil
                                 computation_result = [nil] * result_size
+                            elsif return_type.singleton_type.is_a?(Types::ZipStructType)
+                                result_struct_type = return_type.singleton_type.to_ruby_type
+                                computation_result = Array.new(result_size) do |index|
+                                    result_struct_type.new(result + index * result_struct_type.size)
+                                end
                             else
                                 raise NotImplementedError.new("Type not implemented")
                             end

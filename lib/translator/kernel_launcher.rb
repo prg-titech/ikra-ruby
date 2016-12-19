@@ -107,7 +107,7 @@ module Ikra
                         # Allocate device memory for kernel result
                         result = result + Translator.read_file(file_name: "allocate_device_memory.cpp", replacements: {
                             "name" => kernel_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})",
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
                             "type" => kernel_builder.result_type.to_c_type})
                     end
 
@@ -115,7 +115,7 @@ module Ikra
                         # Allocate host memory for kernel result
                         result = result + Translator.read_file(file_name: "allocate_host_memory.cpp", replacements: {
                             "name" => @host_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})",
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
                             "type" => kernel_builder.result_type.to_c_type})
                     end
 
@@ -146,7 +146,7 @@ module Ikra
                         result = result + Translator.read_file(file_name: "memcpy_device_to_host.cpp", replacements: {
                             "host_name" => @host_result_var_name,
                             "device_name" => @kernel_result_var_name,
-                            "bytes" => "(#{kernel_builder.result_type.c_size} * #{num_threads})"})
+                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})"})
                     end
 
                     return result

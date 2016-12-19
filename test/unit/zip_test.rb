@@ -15,7 +15,7 @@ class ZipTest < UnitTestCase
             zipped[0] + zipped[1]
         end
 
-        assert_in_delta(333300, result.reduce(:+), 1)
+        assert_equal(333300, result.reduce(:+))
     end
 
     def test_simple_zip_3
@@ -55,7 +55,7 @@ class ZipTest < UnitTestCase
         end
 
 
-        assert_in_delta(result_cpu.reduce(:+), result_gpu.reduce(:+), 1)
+        assert_equal(result_cpu.reduce(:+), result_gpu.reduce(:+))
     end
 
     def test_zip_indirect_access
@@ -75,6 +75,28 @@ class ZipTest < UnitTestCase
             zipped[zipped[2]]
         end
 
-        assert_in_delta(169100, result.reduce(:+), 1)
+        assert_equal(169100, result.reduce(:+))
+    end
+
+    def test_return_zip_struct
+        array_1 = Array.pnew(100) do |j|
+            j * j
+        end
+
+        array_2 = Array.pnew(100) do |j|
+            j + 0.1
+        end
+
+        result = array_1.pzip(array_2).pmap do |v|
+            v
+        end
+
+        # Reduce on CPU
+        expected_value = 0
+        result.each do |zipped|
+            expected_value = expected_value + zipped[0] + zipped[1] * 100
+        end
+
+        assert_in_delta(824350.0, expected_value, 0.01)
     end
 end
