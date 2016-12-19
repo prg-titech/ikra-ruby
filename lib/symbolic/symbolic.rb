@@ -24,8 +24,101 @@ module Ikra
             end
         end
 
+        module ParallelOperations
+            def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
+                return ArrayReduceCommand.new(
+                    to_command, 
+                    block, 
+                    block_size: block_size)
+            end
+
+            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
+                return ArrayStencilCommand.new(
+                    to_command, 
+                    offsets, 
+                    out_of_range_value, 
+                    block, 
+                    block_size: block_size,
+                    keep: keep,
+                    use_parameter_array: use_parameter_array)
+            end
+
+            def pmap(block_size: DEFAULT_BLOCK_SIZE, keep: false, &block)
+                return pcombine(
+                    block_size: block_size, 
+                    keep: keep, 
+                    &block)
+            end
+
+            def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
+                return ArrayCombineCommand.new(
+                    to_command, 
+                    wrap_in_command(*others), 
+                    block, 
+                    block_size: block_size, 
+                    keep: keep)
+            end
+
+            def pzip(*others)
+                return ArrayZipCommand.new(
+                    to_command, 
+                    wrap_in_command(*others))
+            end
+
+            def +(other)
+                return pcombine(other) do |a, b|
+                    a + b
+                end
+            end
+
+            def -(other)
+                return pcombine(other) do |a, b|
+                    a - b
+                end
+            end
+
+            def *(other)
+                return pcombine(other) do |a, b|
+                    a * b
+                end
+            end
+
+            def /(other)
+                return pcombine(other) do |a, b|
+                    a / b
+                end
+            end
+
+            def |(other)
+                return pcombine(other) do |a, b|
+                    a | b
+                end
+            end
+
+            def &(other)
+                return pcombine(other) do |a, b|
+                    a & b
+                end
+            end
+
+            def ^(other)
+                return pcombine(other) do |a, b|
+                    a ^ b
+                end
+            end
+
+            private
+
+            def wrap_in_command(*others)
+                return others.map do |other|
+                    other.to_command
+                end
+            end
+        end
+
         module ArrayCommand
             include Enumerable
+            include ParallelOperations
 
             attr_reader :block_size
 
@@ -85,60 +178,6 @@ module Ikra
             def to_command
                 return self
             end
-            
-            def pmap(block_size: DEFAULT_BLOCK_SIZE, keep: false, &block)
-                return pcombine(block_size: block_size, keep: keep, &block)
-            end
-
-            def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
-                return ArrayCombineCommand.new(self, others, block, block_size: block_size, keep: keep)
-            end
-
-            def pzip(*others)
-                return ArrayZipCommand.new(self, others)
-            end
-
-            def +(other)
-                return pcombine(other) do |a, b|
-                    a + b
-                end
-            end
-
-            def -(other)
-                return pcombine(other) do |a, b|
-                    a - b
-                end
-            end
-
-            def *(other)
-                return pcombine(other) do |a, b|
-                    a * b
-                end
-            end
-
-            def /(other)
-                return pcombine(other) do |a, b|
-                    a / b
-                end
-            end
-
-            def |(other)
-                return pcombine(other) do |a, b|
-                    a | b
-                end
-            end
-
-            def &(other)
-                return pcombine(other) do |a, b|
-                    a & b
-                end
-            end
-
-            def ^(other)
-                return pcombine(other) do |a, b|
-                    a ^ b
-                end
-            end
 
             def post_execute(environment)
                 if keep
@@ -148,21 +187,6 @@ module Ikra
 
             def has_previous_result?
                 return !gpu_result_pointer.nil? && gpu_result_pointer.device_pointer != 0
-            end
-
-            def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
-                ArrayReduceCommand.new(self, block, block_size: block_size)
-            end
-
-            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
-                return ArrayStencilCommand.new(
-                    self, 
-                    offsets, 
-                    out_of_range_value, 
-                    block, 
-                    block_size: block_size,
-                    keep: keep,
-                    use_parameter_array: use_parameter_array)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -450,25 +474,14 @@ module Ikra
 end
 
 class Array
+    include Ikra::Symbolic::ParallelOperations
+
     class << self
         def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
             return Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size, keep: keep)
         end
     end
     
-    def pmap(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-        return pcombine(block_size: block_size, &block)
-    end
-    
-
-    def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
-        return Ikra::Symbolic::ArrayCombineCommand.new(to_command, others, block, block_size: block_size, keep: keep)
-    end
-
-    def pzip(*others)
-        return Ikra::Symbolic::ArrayZipCommand.new(self, others)
-    end
-
     alias_method :old_plus, :+
     alias_method :old_minus, :-
     alias_method :old_mul, :*
@@ -477,9 +490,7 @@ class Array
 
     def +(other)
         if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            return pcombine(other) do |a, b|
-                a + b
-            end
+            super(other)
         else
             return self.old_plus(other)
         end
@@ -487,9 +498,7 @@ class Array
 
     def -(other)
         if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            return pcombine(other) do |a, b|
-                a - b
-            end
+            super(other)
         else
             return self.old_minus(other)
         end
@@ -497,25 +506,15 @@ class Array
     
     def *(other)
         if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            return pcombine(other) do |a, b|
-                a * b
-            end
+            super(other)
         else
             return self.old_mul(other)
         end
     end
 
-    def /(other)
-        return pcombine(other) do |a, b|
-            a / b
-        end
-    end
-
     def |(other)
         if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            return pcombine(other) do |a, b|
-                a | b
-            end
+            super(other)
         else
             return self.old_or(other)
         end
@@ -523,33 +522,10 @@ class Array
 
     def &(other)
         if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            return pcombine(other) do |a, b|
-                a & b
-            end
+            super(other)
         else
             return self.old_and(other)
         end
-    end
-
-    def ^(other)
-        return pcombine(other) do |a, b|
-            a ^ b
-        end
-    end
-    
-    def preduce(block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-        Ikra::Symbolic::ArrayReduceCommand.new(to_command, block, block_size: block_size)
-    end
-
-    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
-        return Ikra::Symbolic::ArrayStencilCommand.new(
-            to_command, 
-            offsets, 
-            out_of_range_value, 
-            block, 
-            block_size: block_size,
-            keep: keep,
-            use_parameter_array: use_parameter_array)
     end
 
     def to_command
