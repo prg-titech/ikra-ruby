@@ -18,6 +18,20 @@ class ReduceTest < UnitTestCase
         assert_equal(result2 , result1[0])
     end
 
+    def test_reduce_shortcut
+        array = Array.pnew(511) do |j|
+            j+1
+        end
+
+        result1 = array.preduce(:+)
+
+        result2 = array.reduce do |l, r| 
+            l + r
+        end
+
+        assert_equal(result2 , result1[0])
+    end
+
     def test_reduce2
         array = Array.pnew(4096) do |j|
             j+1

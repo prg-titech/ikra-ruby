@@ -25,17 +25,26 @@ module Ikra
         end
 
         module ParallelOperations
-            def preduce(symbol: nil, **options, &block)
+            def preduce(symbol = nil, **options, &block)
                 if symbol == nil && block != nil
                     return ArrayReduceCommand.new(
                         to_command, 
                         block, 
                         **options)
                 elsif symbol != nil && block == nil
-                    block_from_symbol = eval("proc do |a, b| a.#{symbol}(b) end")
+                    ast = AST::BlockDefNode.new(
+                        ruby_block: nil,
+                        body: AST::RootNode.new(single_child:
+                            AST::SendNode.new(
+                                receiver: AST::LVarReadNode.new(identifier: :a),
+                                selector: symbol,
+                                arguments: [AST::LVarReadNode.new(identifier: :b)])))
+
                     return ArrayReduceCommand.new(
                         to_command,
-                        block_from_symbol,
+                        nil,
+                        ast: ast,
+                        block_parameter_names: [:a, :b],
                         **options)
                 else
                     raise ArgumentError.new("Either block or symbol expected")
@@ -202,13 +211,13 @@ module Ikra
             # Returns a collection of the names of all block parameters.
             # @return [Array(Symbol)] list of block parameters
             def block_parameter_names
-                if block != nil
-                    return block.parameters.map do |param|
+                if @block_parameter_names == nil
+                    @block_parameter_names = block.parameters.map do |param|
                         param[1]
                     end
-                else
-                    return []
                 end
+
+                return @block_parameter_names
             end
 
             # Returns the size (number of elements) of the result, after executing the parallel 
@@ -218,35 +227,38 @@ module Ikra
                 raise NotImplementedError
             end
 
-            def target
-                raise NotImplementedError
-            end
-
             # Returns the abstract syntax tree for a parallel section.
             def block_def_node
-                # TODO: add caching for AST here
-                parser_local_vars = block.binding.local_variables + block_parameter_names
-                source = Parsing.parse_block(block, parser_local_vars)
-                return AST::BlockDefNode.new(
-                    ruby_block: block,      # necessary to get binding
-                    body: AST::Builder.from_parser_ast(source))
+                if @ast == nil
+                    parser_local_vars = block.binding.local_variables + block_parameter_names
+                    source = Parsing.parse_block(block, parser_local_vars)
+                    @ast = AST::BlockDefNode.new(
+                        ruby_block: block,      # necessary to get binding
+                        body: AST::Builder.from_parser_ast(source))
+                end
+
+                return @ast
             end
 
             # Returns a collection of lexical variables that are accessed within a parallel 
             # section.
             # @return [Hash{Symbol => Object}]
             def lexical_externals
-                all_lexical_vars = block.binding.local_variables
-                lexical_vars_enumerator = AST::LexicalVariablesEnumerator.new(all_lexical_vars)
-                block_def_node.accept(lexical_vars_enumerator)
-                accessed_variables = lexical_vars_enumerator.lexical_variables
+                if block != nil
+                    all_lexical_vars = block.binding.local_variables
+                    lexical_vars_enumerator = AST::LexicalVariablesEnumerator.new(all_lexical_vars)
+                    block_def_node.accept(lexical_vars_enumerator)
+                    accessed_variables = lexical_vars_enumerator.lexical_variables
 
-                result = Hash.new
-                for var_name in accessed_variables
-                    result[var_name] = block.binding.local_variable_get(var_name)
-                end
+                    result = Hash.new
+                    for var_name in accessed_variables
+                        result[var_name] = block.binding.local_variable_get(var_name)
+                    end
 
-                return result
+                    return result
+                else
+                    return {}
+                end 
             end
 
             # Returns a collection of external objects that are accessed within a parallel section.
@@ -309,6 +321,9 @@ module Ikra
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
                     SingleInput.new(command: other.to_command, pattern: :tid)
                 end
+
+                # Have to set block parameter names but names are never used
+                @block_parameter_names = [:irrelevant] * @input.size
             end
 
             def size
@@ -319,11 +334,16 @@ module Ikra
         class ArrayReduceCommand
             include ArrayCommand
 
-            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE, 
+                ast: nil, block_parameter_names: nil)
                 super()
 
                 @block = block
                 @block_size = block_size
+
+                # Used in case no block is given but an AST
+                @ast = ast
+                @block_parameter_names = block_parameter_names
 
                 @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
                 @keep = keep
