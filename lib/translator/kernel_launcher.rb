@@ -35,13 +35,38 @@ module Ikra
 
                 attr_reader :kernel_result_var_name
 
+                # IDs and types of commands whose results are kept on the GPU
+                attr_accessor :cached_results
+
+                # IDs and types of commands that were previously computed and shall now be used in this kernel as input
+                attr_reader :previously_cached_results
+
                 def initialize(kernel_builder)
+                    @used
                     @kernel_builder = kernel_builder
                     @additional_arguments = []
                     @previous_kernel_input = []
                     @write_back_to_host = false
                     @reuse_memory = false
                     @kernel_result_var_name = "_kernel_result_" + CommandTranslator.next_unique_id.to_s
+                    @cached_results = {}
+                    @previously_cached_results = {}
+                end
+
+                # Launcher gets updated so that it uses the right names for the result variables
+                def update_result_name(id)
+                    @kernel_result_var_name = "_kernel_result_" + id
+                    @host_result_var_name = @kernel_result_var_name + "_host"
+                end
+
+                # Adds command whose result will be kept on GPU
+                def add_cached_result(result_id, type)
+                    @cached_results[result_id] = type
+                end
+
+                # Adds a previously computed result which will be used in this launche as input
+                def use_cached_result(result_id, type)
+                    @previously_cached_results[result_id] = type
                 end
 
                 def write_back_to_host!
@@ -67,6 +92,7 @@ module Ikra
                     kernel_builder.add_previous_kernel_parameter(parameter)
                 end
 
+                # Add additional arguments to the kernel function that might be needed for some computations
                 def add_additional_arguments(argument)
                     @additional_arguments.push(argument)
                 end
@@ -119,6 +145,18 @@ module Ikra
                             "type" => kernel_builder.result_type.to_c_type})
                     end
 
+                    previously_cached_results.each do |result_id, type|
+                        result = result + "    #{type.to_c_type} *prev_" + result_id.to_s + " = (#{type.to_c_type} *) " + Constants::ENV_HOST_IDENTIFIER + "->prev_" + result_id.to_s + ";\n"
+                    end 
+
+                    # Allocate device memory for cached results
+                    cached_results.each do |result_id, type|
+                        result = result + Translator.read_file(file_name: "allocate_device_memory.cpp", replacements: {
+                            "name" => Constants::RESULT_IDENTIFIER + result_id,
+                            "bytes" => "(#{type.c_size} * #{num_threads})",
+                            "type" => type.to_c_type})
+                    end
+
                     # Build arguments
                     a_env = Constants::ENV_DEVICE_IDENTIFIER
                     a_result = kernel_result_var_name
@@ -128,11 +166,15 @@ module Ikra
                         previous_kernel_args.push(var.name.to_s)
                     end
 
+                    a_cached_results = cached_results.map do |result_id, type|
+                        Constants::RESULT_IDENTIFIER + result_id
+                    end
+
                     if reuse_memory
                         previous_kernel_args[0] = a_result
                     end
 
-                    arguments = ([a_env, num_threads, a_result] + previous_kernel_args + additional_arguments).join(", ")
+                    arguments = ([a_env, num_threads, a_result] + a_cached_results + previous_kernel_args + additional_arguments).join(", ")
 
                     # Launch kernel
                     result = result + Translator.read_file(file_name: "launch_kernel.cpp", replacements: {
@@ -140,6 +182,10 @@ module Ikra
                         "arguments" => arguments,
                         "grid_dim" => grid_dim,
                         "block_dim" => block_dim})
+
+                    cached_results.each do |result_id, type|
+                        result = result + "    " + Constants::ENV_HOST_IDENTIFIER + "->prev_" + result_id + " = " + Constants::RESULT_IDENTIFIER + result_id + ";\n"
+                    end
 
                     if write_back_to_host?
                         # Memcpy kernel result from device to host

@@ -200,13 +200,13 @@ timeReportMeasure(program_result, prepare_env);
     /* Launch all kernels */
 timeStartMeasure();
     int * _kernel_result_2;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (4 * 40000)));
-    int * _kernel_result_2_host = (int *) malloc((4 * 40000));
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 40000)));
+    int * _kernel_result_2_host = (int *) malloc((sizeof(int) * 40000));
     kernel_1<<<157, 256>>>(dev_env, 40000, _kernel_result_2);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (4 * 40000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (sizeof(int) * 40000), cudaMemcpyDeviceToHost));
 
 timeReportMeasure(program_result, kernel);
 

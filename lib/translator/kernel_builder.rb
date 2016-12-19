@@ -37,6 +37,9 @@ module Ikra
                 # Additional Parameters for certain commands that are attached to the kernel
                 attr_accessor :additional_parameters
 
+                # IDs of commands that whose results are kept on the GPU
+                attr_accessor :cached_results
+
                 def initialize
                     @methods = []
                     @blocks = []
@@ -46,6 +49,8 @@ module Ikra
                     @write_back_to_host = false
                     @additional_parameters = []
                     @kernel_name = "kernel_" + CommandTranslator.next_unique_id.to_s
+                    @cached_results = {}
+                    @execution = ""
                 end
                 
                 # --- Prepare kernel ---
@@ -64,8 +69,14 @@ module Ikra
                     @previous_kernel_input.push(parameter)
                 end
 
-                def add_additional_parameters(parameters)
-                    @additional_parameters.push(parameters)
+                # Add additional parameters to the kernel function that might be needed for some computations
+                def add_additional_parameters(parameter)
+                    @additional_parameters.push(parameter)
+                end
+
+                # Adds a result that has to be kept on GPU. Therefore additional memory allocations will be made
+                def add_cached_result(result_id, type)
+                    @cached_results[result_id] = type
                 end
 
                 def assert_ready_to_build
@@ -97,13 +108,20 @@ module Ikra
                     p_env = Constants::ENV_TYPE + " *" + Constants::ENV_IDENTIFIER
                     p_num_threads = Constants::NUM_THREADS_TYPE + " " + Constants::NUM_THREADS_IDENTIFIER
                     p_result = result_type.to_c_type + " *" + Constants::RESULT_IDENTIFIER
+                    p_cached_results = cached_results.map do |result_id, type|
+                        type.to_c_type + " *" + Constants::RESULT_IDENTIFIER + result_id
+                    end
+
+                    cached_results.each do |result_id, type|
+                        @execution = execution + "\n" + "        " + Constants::RESULT_IDENTIFIER + result_id + "[_tid_] = " + Constants::TEMP_RESULT_IDENTIFIER + result_id + ";"
+                    end
 
                     previous_kernel_params = []
                     for var in previous_kernel_input
                         previous_kernel_params.push(var.type.to_c_type + " *" + var.name.to_s)
                     end
 
-                    parameters = ([p_env, p_num_threads, p_result] + previous_kernel_params + additional_parameters).join(", ")
+                    parameters = ([p_env, p_num_threads, p_result] + p_cached_results + previous_kernel_params + additional_parameters).join(", ")
 
                     # Build kernel
                     return Translator.read_file(file_name: "kernel.cpp", replacements: {

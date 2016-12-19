@@ -14,6 +14,16 @@ module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
 
+        class GPUResultPointer
+            attr_accessor :device_pointer
+
+            attr_accessor :return_type
+
+            def initialize(return_type:)
+                @return_type = return_type
+            end
+        end
+
         module ArrayCommand
             include Enumerable
 
@@ -26,6 +36,12 @@ module Ikra
             # An array of commands that serve as input to this command. The number of input
             # commands depends on the type of the command.
             attr_reader :input
+
+            # Indicates if result should be kept on the GPU for further processing.
+            attr_reader :keep
+
+            # This field can only be used if keep is true
+            attr_accessor :gpu_result_pointer
 
             @@unique_id  = 1
 
@@ -42,10 +58,7 @@ module Ikra
             end
 
             def [](index)
-                if @result == nil
-                    execute
-                end
-                
+                execute
                 return @result[index]
             end
 
@@ -59,27 +72,26 @@ module Ikra
             end
 
             def pack(fmt)
-                if @result == nil
-                    execute
-                end
-
+                execute
                 return @result.pack(fmt)
             end
 
             def execute
-                @result = Translator::CommandTranslator.translate_command(self).execute
+                if @result == nil
+                    @result = Translator::CommandTranslator.translate_command(self).execute
+                end
             end
             
             def to_command
                 return self
             end
             
-            def pmap(block_size: DEFAULT_BLOCK_SIZE, &block)
-                return pcombine(block_size: block_size, &block)
+            def pmap(block_size: DEFAULT_BLOCK_SIZE, keep: false, &block)
+                return pcombine(block_size: block_size, keep: keep, &block)
             end
 
-            def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-                return ArrayCombineCommand.new(self, others, block, block_size: block_size)
+            def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
+                return ArrayCombineCommand.new(self, others, block, block_size: block_size, keep: keep)
             end
 
             def pzip(*others)
@@ -128,17 +140,28 @@ module Ikra
                 end
             end
 
+            def post_execute(environment)
+                if keep
+                    @gpu_result_pointer.device_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i   
+                end
+            end
+
+            def has_previous_result?
+                return !gpu_result_pointer.nil? && gpu_result_pointer.device_pointer != 0
+            end
+
             def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
                 ArrayReduceCommand.new(self, block, block_size: block_size)
             end
 
-            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
+            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
                 return ArrayStencilCommand.new(
                     self, 
                     offsets, 
                     out_of_range_value, 
                     block, 
-                    block_size: block_size, 
+                    block_size: block_size,
+                    keep: keep,
                     use_parameter_array: use_parameter_array)
             end
 
@@ -209,12 +232,13 @@ module Ikra
         class ArrayNewCommand
             include ArrayCommand
             
-            def initialize(size, block, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(size, block, block_size: DEFAULT_BLOCK_SIZE, keep: false)
                 super()
 
                 @size = size
                 @block = block
                 @block_size = block_size
+                @keep = keep
 
                 # No input
                 @input = []
@@ -232,11 +256,12 @@ module Ikra
         class ArrayCombineCommand
             include ArrayCommand
 
-            def initialize(target, others, block, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(target, others, block, block_size: DEFAULT_BLOCK_SIZE, keep: false)
                 super()
 
                 @block = block
                 @block_size = block_size
+                @keep = keep
 
                 # Read array at position `tid`
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
@@ -281,7 +306,9 @@ module Ikra
 
                 @block = block
                 @block_size = block_size
+
                 @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
+                @keep = keep
             end
 
             def execute
@@ -310,7 +337,7 @@ module Ikra
             attr_reader :out_of_range_value
             attr_reader :use_parameter_array
 
-            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, use_parameter_array: true)
+            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true)
                 super()
 
                 # Read more than just one element, fall back to `:entire` for now
@@ -320,6 +347,7 @@ module Ikra
                 @block = block
                 @block_size = block_size
                 @use_parameter_array = use_parameter_array
+                @keep = keep
 
                 if use_parameter_array
                     @input = [StencilArrayInput.new(
@@ -423,8 +451,8 @@ end
 
 class Array
     class << self
-        def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-            return Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size)
+        def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
+            return Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size, keep: keep)
         end
     end
     
@@ -433,8 +461,8 @@ class Array
     end
     
 
-    def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, &block)
-        return Ikra::Symbolic::ArrayCombineCommand.new(to_command, others, block, block_size: block_size)
+    def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
+        return Ikra::Symbolic::ArrayCombineCommand.new(to_command, others, block, block_size: block_size, keep: keep)
     end
 
     def pzip(*others)
@@ -513,13 +541,14 @@ class Array
         Ikra::Symbolic::ArrayReduceCommand.new(to_command, block, block_size: block_size)
     end
 
-    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, use_parameter_array: true, &block)
+    def pstencil(offsets, out_of_range_value, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
         return Ikra::Symbolic::ArrayStencilCommand.new(
             to_command, 
             offsets, 
             out_of_range_value, 
             block, 
-            block_size: block_size, 
+            block_size: block_size,
+            keep: keep,
             use_parameter_array: use_parameter_array)
     end
 

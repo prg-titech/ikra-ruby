@@ -9,11 +9,22 @@ module Ikra
             end
 
             attr_accessor :objects
+
+            # Hash that maps the unique_id of a command on the adress of its result on the GPU 
+            attr_accessor :previous_results
+
+            # Hash that maps the unique_id of a command on the type of its result
+            attr_accessor :previous_results_types
+
             attr_accessor :device_struct_allocation
+            attr_accessor :ffi_struct
 
             def initialize
                 @objects = {}
+                @previous_results = {}
+                @previous_results_types = {}
                 @device_struct_allocation = ""
+                @ffi_struct = {}
             end
 
             # Adds an objects as a lexical variable.
@@ -22,6 +33,29 @@ module Ikra
                 objects[cuda_id] = object
                 
                 update_dev_struct_allocation(cuda_id, object)
+
+                cuda_id
+            end
+
+            # Adds object to the ffi_struct which is of type unique_id => pointer in GPU
+            def add_previous_result(previous_command_id, pointer_to_result)
+                cuda_id = "prev_#{previous_command_id}"
+                @previous_results[cuda_id] = pointer_to_result
+                
+                update_dev_struct_allocation(cuda_id, pointer_to_result)
+
+                cuda_id
+            end
+
+            # Adds object to the ffi_struct which is of type unique_id => 0
+            def allocate_previous_pointer(previous_command_id)
+                add_previous_result(previous_command_id, 0)
+            end
+
+            # Adds object to the ffi_struct which is of type unique_id => type of command with unique_id
+            def add_previous_result_type(previous_command_id, type)
+                cuda_id = "prev_#{previous_command_id}"
+                @previous_results_types[cuda_id] = type
 
                 cuda_id
             end
@@ -108,6 +142,11 @@ module Ikra
                         struct_def += "    #{value.class.to_ikra_type_obj(value).to_c_type} #{key};\n"
                     end
                 end
+
+                @previous_results_types.each do |key, value|
+                    struct_def += "    #{value.to_c_type} *#{key};\n"
+                end
+
                 struct_def += "};\n"
 
                 return struct_def
@@ -122,6 +161,10 @@ module Ikra
                     else
                         struct_layout += [key.to_sym, value.class.to_ikra_type_obj(value).to_ffi_type]
                     end
+                end
+
+                @previous_results.each do |key, value|
+                    struct_layout += [key.to_sym, :pointer]
                 end
 
                 # Add dummy at the end of layout, because layouts cannot be empty
@@ -159,7 +202,13 @@ module Ikra
                     end
                 end
 
+                @previous_results.each do |key, value|
+                    struct[key.to_sym] = value
+                end
+
                 struct[:dummy] = 0
+                
+                @ffi_struct = struct
                 
                 struct.to_ptr
             end

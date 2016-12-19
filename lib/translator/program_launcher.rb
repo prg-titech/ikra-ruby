@@ -5,6 +5,22 @@ module Ikra
         class CommandTranslator
             class ProgramBuilder
                 class Launcher
+                    class CommandNotifier < Symbolic::Visitor
+                        # This visitor executes the post_execute function on every Array Command
+                        # That way the responsible command node will recieve the adress of the computed result that will be kept on GPU
+
+                        attr_reader :environment
+
+                        def initialize(environment)
+                            @environment = environment
+                        end
+
+                        def visit_array_command(command)
+                            super(command)
+                            command.post_execute(environment)
+                        end
+                    end
+
                     class KernelResultStruct < FFI::Struct
                         layout :result, :pointer,
                             :error_code, :int32,
@@ -14,6 +30,7 @@ module Ikra
                             :time_free_memory, :uint64
                     end
 
+                    attr_reader :root_command
                     attr_reader :source
                     attr_reader :environment_builder
                     attr_reader :return_type
@@ -29,11 +46,12 @@ module Ikra
                         attr_accessor :last_time_read_result_ffi
                     end
 
-                    def initialize(source:, environment_builder:, return_type:, result_size:)
+                    def initialize(source:, environment_builder:, return_type:, result_size:, root_command:)
                         @source = source
                         @environment_builder = environment_builder
                         @return_type = return_type
                         @result_size = result_size
+                        @root_command = root_command
                     end
 
                     def compile
@@ -93,6 +111,9 @@ module Ikra
                         kernel_result = ffi_interface.launch_kernel(environment_object)
                         total_time_external = Time.now - time_before
                         Log.info("Kernel time: #{total_time_external} s")
+
+                        # Update command
+                        root_command.accept(CommandNotifier.new(environment_builder.ffi_struct))
 
                         # Extract error code and return value
                         result_t_struct = KernelResultStruct.new(kernel_result)
