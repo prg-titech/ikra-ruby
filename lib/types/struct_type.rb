@@ -4,6 +4,8 @@ require "ffi"
 
 module Ikra
     module Types
+        # This type represents a C++ struct. It has fields, each of which has
+        # a type.
         class StructType
             include RubyType
 
@@ -53,14 +55,18 @@ module Ikra
 
             def to_ffi_type
                 # TODO: Support transfering zipped data back from GPU
-                return :pointer
+                return to_ruby_type
             end
 
             def to_ruby_type
-                return Struct
+                # TODO: general structs
+                raise NotImplementedError
             end
         end
 
+        # This type represents the type of an array that is the result of 
+        # zipping two arrays. [ZipStructType] is similar to [StructType] but
+        # can be accessed via indices.
         class ZipStructType < StructType
             class << self
                 def new(*types)
@@ -116,17 +122,14 @@ module Ikra
                     base.include(Enumerable)
                 end
 
-                def method_missing(name, *args, &block)
-                    # Call original method
-                    return _method_missing(name, *args, &block)
-                end
-
                 def [](index)
                     # Out of bounds: returns nil
                     return super(:"field_#{index}")
                 end
 
                 def []=(index, value)
+                    # TODO: What should we do if the type of a field changes?
+
                     # Fill up missing slots with `nil`
                     for id in (@fields.size)..index
                         super(:"field_{id}", nil)
@@ -144,6 +147,7 @@ module Ikra
             end
 
             def to_ruby_type
+                # Cache struct types
                 if @struct_type == nil
                     # Create class
                     @struct_type = Class.new(FFI::Struct)
@@ -165,36 +169,5 @@ module Ikra
                 return @struct_type
             end
         end
-    end
-
-    class Struct
-        def initialize(fields:)
-            @fields = fields
-        end
-
-        alias_method :_method_missing, :method_missing
-
-        def method_missing(name, *args, &block)
-            if args.size == 0 && block == nil
-                # Read value
-
-                if @fields.include?(name)
-                    return @fields[name]
-                end
-            elsif args.size == 1 && block == nil
-                # Write value if last character of selector is `=`
-
-                if name[-1] == "="
-                    field_name = name[0...-1]
-                    @fields[field_name] = args.first
-                end
-            end
-
-            return super(name, *args, &block)
-        end
-    end
-
-    class ZipStruct < Struct
-
     end
 end
