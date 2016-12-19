@@ -25,44 +25,51 @@ module Ikra
         end
 
         module ParallelOperations
-            def preduce(block_size: DEFAULT_BLOCK_SIZE, &block)
-                return ArrayReduceCommand.new(
-                    to_command, 
-                    block, 
-                    block_size: block_size)
+            def preduce(symbol: nil, **options, &block)
+                if symbol == nil && block != nil
+                    return ArrayReduceCommand.new(
+                        to_command, 
+                        block, 
+                        **options)
+                elsif symbol != nil && block == nil
+                    block_from_symbol = eval("proc do |a, b| a.#{symbol}(b) end")
+                    return ArrayReduceCommand.new(
+                        to_command,
+                        block_from_symbol,
+                        **options)
+                else
+                    raise ArgumentError.new("Either block or symbol expected")
+                end
             end
 
-            def pstencil(offsets, out_of_range_value, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true, &block)
+            def pstencil(offsets, out_of_range_value, **options, &block)
                 return ArrayStencilCommand.new(
                     to_command, 
                     offsets, 
                     out_of_range_value, 
                     block, 
-                    block_size: block_size,
-                    keep: keep,
-                    use_parameter_array: use_parameter_array)
+                    **options)
             end
 
-            def pmap(block_size: DEFAULT_BLOCK_SIZE, keep: false, &block)
+            def pmap(**options, &block)
                 return pcombine(
-                    block_size: block_size, 
-                    keep: keep, 
+                    **options,
                     &block)
             end
 
-            def pcombine(*others, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
+            def pcombine(*others, **options, &block)
                 return ArrayCombineCommand.new(
                     to_command, 
                     wrap_in_command(*others), 
                     block, 
-                    block_size: block_size, 
-                    keep: keep)
+                    **options)
             end
 
-            def pzip(*others)
+            def pzip(*others, **options)
                 return ArrayZipCommand.new(
                     to_command, 
-                    wrap_in_command(*others))
+                    wrap_in_command(*others),
+                    **options)
             end
 
             def +(other)
@@ -135,6 +142,9 @@ module Ikra
 
             # This field can only be used if keep is true
             attr_accessor :gpu_result_pointer
+
+            # Returns the block of the parallel section or [nil] if none.
+            attr_reader :block
 
             @@unique_id  = 1
 
@@ -218,7 +228,7 @@ module Ikra
                 parser_local_vars = block.binding.local_variables + block_parameter_names
                 source = Parsing.parse_block(block, parser_local_vars)
                 return AST::BlockDefNode.new(
-                    ruby_block: block,
+                    ruby_block: block,      # necessary to get binding
                     body: AST::Builder.from_parser_ast(source))
             end
 
@@ -243,14 +253,6 @@ module Ikra
             def externals
                 return lexical_externals.keys
             end
-
-            protected
-
-            # Returns the block of the parallel section.
-            # @return [Proc] block
-            def block
-                raise NotImplementedError
-            end
         end
 
         class ArrayNewCommand
@@ -271,10 +273,6 @@ module Ikra
             def size
                 return @size
             end
-
-            protected
-
-            attr_reader :block
         end
 
         class ArrayCombineCommand
@@ -296,17 +294,17 @@ module Ikra
             def size
                 return input.first.command.size
             end
-            
-            protected
-
-            attr_reader :block
         end
 
         class ArrayZipCommand
             include ArrayCommand
 
-            def initialize(target, others)
+            def initialize(target, others, **options)
                 super()
+
+                if options.size  > 0
+                    raise ArgumentError.new("Invalid options: #{options}")
+                end
 
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
                     SingleInput.new(command: other.to_command, pattern: :tid)
@@ -315,10 +313,6 @@ module Ikra
 
             def size
                 return input.first.command.size
-            end
-
-            def block
-                return nil
             end
         end
 
@@ -348,10 +342,6 @@ module Ikra
             def size
                 input.first.command.size
             end
-            
-            protected
-
-            attr_reader :block
         end
 
         class ArrayStencilCommand
@@ -399,10 +389,6 @@ module Ikra
             def max_offset
                 return offsets.max
             end
-
-            protected
-
-            attr_reader :block
         end
 
         class ArraySelectCommand
@@ -463,12 +449,6 @@ module Ikra
 
                 return type
             end
-
-            protected
-
-            def block
-                return nil
-            end
         end
     end
 end
@@ -477,11 +457,12 @@ class Array
     include Ikra::Symbolic::ParallelOperations
 
     class << self
-        def pnew(size, block_size: Ikra::Symbolic::DEFAULT_BLOCK_SIZE, keep: false, &block)
-            return Ikra::Symbolic::ArrayNewCommand.new(size, block, block_size: block_size, keep: keep)
+        def pnew(size, **options, &block)
+            return Ikra::Symbolic::ArrayNewCommand.new(size, block, **options)
         end
     end
     
+    # Have to keep the old methods around because sometimes we want to have the original code
     alias_method :old_plus, :+
     alias_method :old_minus, :-
     alias_method :old_mul, :*

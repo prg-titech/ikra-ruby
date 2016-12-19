@@ -28,4 +28,12 @@ class RegressionTest < UnitTestCase
         assert_in_delta(100.0, array.reduce(:+), 0.01)
     end
 
+    def test_basic_array_operations_without_ikra
+        a1 = [1, 2, 3]
+        a2 = ["a", "b", "c"]
+        r = a1 + a2
+
+        assert_equal(1, r[0])
+        assert_equal("a", r[3])
+    end
 end
