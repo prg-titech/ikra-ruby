@@ -270,10 +270,14 @@ module Ikra
         class ArrayNewCommand
             include ArrayCommand
             
-            def initialize(size, block, block_size: DEFAULT_BLOCK_SIZE, keep: false)
+            attr_reader :dimensions
+
+            def initialize(block, block_size: DEFAULT_BLOCK_SIZE, keep: false, dimensions: nil)
                 super()
 
-                @size = size
+                @dimensions = dimensions
+                @size = dimensions.reduce(:*)
+
                 @block = block
                 @block_size = block_size
                 @keep = keep
@@ -477,8 +481,14 @@ class Array
     include Ikra::Symbolic::ParallelOperations
 
     class << self
-        def pnew(size, **options, &block)
-            return Ikra::Symbolic::ArrayNewCommand.new(size, block, **options)
+        def pnew(size = nil, **options, &block)
+            new_options = options.dup
+
+            if size != nil
+                new_options[:dimensions] = [size]
+            end
+
+            return Ikra::Symbolic::ArrayNewCommand.new(block, **new_options)
         end
     end
     

@@ -112,10 +112,34 @@ module Ikra
                 # This is a root command, determine grid/block dimensions
                 kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
-                # Thread ID is always int
-                parameters = [Variable.new(
-                    name: command.block_parameter_names.first,
+                # Thread ID / dimensions indices are always int
+                parameters = command.block_parameter_names.map do |name|
+                    Variable.new(
+                        name: name,
+                        type: Types::UnionType.create_int)
+                end
+
+                # Pass only thread ID as argument
+                override_block_parameters = [Variable.new(
+                    name: "_tid_",
                     type: Types::UnionType.create_int)]
+
+                # Restore all parameters
+                pre_execution = ""
+
+                for dim_index in 0...(command.dimensions.size)
+                    index_div = command.dimensions.drop(dim_index + 1).reduce(1, :*)
+                    index_mod = command.dimensions[dim_index]
+
+                    if dim_index > 0
+                        index_expr = "(_tid_ / #{index_div}) % #{index_mod}"
+                    else
+                        # No modulo required for first dimension
+                        index_expr = "_tid_ / #{index_div}"
+                    end
+
+                    pre_execution = pre_execution + "int #{parameters[dim_index].name} = #{index_expr};\n"
+                end
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -126,7 +150,9 @@ module Ikra
                     block_parameters: parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
-                    command_id: command.unique_id)
+                    command_id: command.unique_id,
+                    pre_execution: pre_execution,
+                    override_block_parameters: override_block_parameters)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
