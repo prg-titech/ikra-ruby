@@ -1,8 +1,8 @@
 module Ikra
     module Symbolic
-        class ArrayNewCommand
+        class ArrayIndexCommand
             def accept(visitor)
-                visitor.visit_array_new_command(self)
+                visitor.visit_array_index_command(self)
             end
         end
 
@@ -51,7 +51,7 @@ module Ikra
                 end
             end
 
-            def visit_array_new_command(command)
+            def visit_array_index_command(command)
                 visit_array_command(command)
             end
 

@@ -267,27 +267,23 @@ module Ikra
             end
         end
 
-        class ArrayNewCommand
+        class ArrayIndexCommand
             include ArrayCommand
             
             attr_reader :dimensions
+            attr_reader :size
 
-            def initialize(block, block_size: DEFAULT_BLOCK_SIZE, keep: false, dimensions: nil)
+            def initialize(block_size: DEFAULT_BLOCK_SIZE, keep: false, dimensions: nil)
                 super()
 
                 @dimensions = dimensions
                 @size = dimensions.reduce(:*)
 
-                @block = block
                 @block_size = block_size
                 @keep = keep
 
                 # No input
                 @input = []
-            end
-            
-            def size
-                return @size
             end
         end
 
@@ -482,13 +478,17 @@ class Array
 
     class << self
         def pnew(size = nil, **options, &block)
-            new_options = options.dup
-
             if size != nil
-                new_options[:dimensions] = [size]
+                dimensions = [size]
+            else
+                dimensions = options[:dimensions]
             end
 
-            return Ikra::Symbolic::ArrayNewCommand.new(block, **new_options)
+            map_options = options.dup
+            map_options.delete(:dimensions)
+
+            return Ikra::Symbolic::ArrayIndexCommand.new(
+                dimensions: dimensions, block_size: options[:block_size]).pmap(**map_options, &block)
         end
     end
     

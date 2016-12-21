@@ -55,15 +55,15 @@ typedef struct environment_struct environment_t;
 
 struct environment_struct
 {
-    int l1_hx_res;
-    float l1_magnify;
-    int l1_hy_res;
-    int l1_iter_max;
-    int l2_inverted;
+    int l2_hx_res;
+    float l2_magnify;
+    int l2_hy_res;
+    int l2_iter_max;
+    int l3_inverted;
 };
 
 
-__device__ int _block_k_1_(environment_t *_env_, int j)
+__device__ int _block_k_2_(environment_t *_env_, int j)
 {
     
     float xx;
@@ -74,10 +74,10 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
     float cx;
     int hy;
     int hx;
-    int lex_iter_max = _env_->l1_iter_max;
-    int lex_hy_res = _env_->l1_hy_res;
-    float lex_magnify = _env_->l1_magnify;
-    int lex_hx_res = _env_->l1_hx_res;
+    int lex_iter_max = _env_->l2_iter_max;
+    int lex_hy_res = _env_->l2_hy_res;
+    float lex_magnify = _env_->l2_magnify;
+    int lex_hx_res = _env_->l2_hx_res;
     {
         hx = ((j % lex_hx_res));
         hy = ((j / lex_hx_res));
@@ -105,10 +105,10 @@ __device__ int _block_k_1_(environment_t *_env_, int j)
 }
 
 
-__device__ int _block_k_2_(environment_t *_env_, int color)
+__device__ int _block_k_3_(environment_t *_env_, int color)
 {
     
-    int lex_inverted = _env_->l2_inverted;
+    int lex_inverted = _env_->l3_inverted;
     if (((lex_inverted == 1)))
     {
         {
@@ -134,7 +134,7 @@ __global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, _block_k_1_(_env_, _tid_));
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
     }
 }
 
@@ -199,23 +199,23 @@ timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
 timeStartMeasure();
-    int * _kernel_result_2;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 40000)));
-    int * _kernel_result_2_host = (int *) malloc((sizeof(int) * 40000));
-    kernel_1<<<157, 256>>>(dev_env, 40000, _kernel_result_2);
+    int * _kernel_result_3;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_3, (sizeof(int) * 40000)));
+    int * _kernel_result_3_host = (int *) malloc((sizeof(int) * 40000));
+    kernel_1<<<157, 256>>>(dev_env, 40000, _kernel_result_3);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (sizeof(int) * 40000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_3_host, _kernel_result_3, (sizeof(int) * 40000), cudaMemcpyDeviceToHost));
 
 timeReportMeasure(program_result, kernel);
 
     /* Free device memory */
 timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_3));
 
 timeReportMeasure(program_result, free_memory);
 
-    program_result->result = _kernel_result_2_host;
+    program_result->result = _kernel_result_3_host;
     return program_result;
 }

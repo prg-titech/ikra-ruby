@@ -55,7 +55,7 @@ typedef struct environment_struct environment_t;
 
 struct environment_struct
 {
-    int l1_hx_res;
+    int l2_hx_res;
 };
 __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, obj_id_t _self_, float h, int s, float b)
 {
@@ -139,12 +139,12 @@ __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, o
         return (((((int) ((r * 255))) * 65536) + (((int) ((g * 255))) * 256)) + ((int) ((b * 255))));
     }
 }
-__device__ int _block_k_1_(environment_t *_env_, int j)
+__device__ int _block_k_2_(environment_t *_env_, int j)
 {
     
     int hy;
     int hx;
-    int lex_hx_res = _env_->l1_hx_res;
+    int lex_hx_res = _env_->l2_hx_res;
     {
         hx = ((j % lex_hx_res));
         hy = ((j / lex_hx_res));
@@ -161,7 +161,7 @@ __global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_)
     {
 
         
-        _result_[_tid_] = _block_k_1_(_env_, _tid_);
+        _result_[_tid_] = _block_k_2_(_env_, _tid_);
     }
 }
 
@@ -226,23 +226,23 @@ timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
 timeStartMeasure();
-    int * _kernel_result_10;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 16000000)));
-    int * _kernel_result_10_host = (int *) malloc((sizeof(int) * 16000000));
-    kernel_9<<<62500, 256>>>(dev_env, 16000000, _kernel_result_10);
+    int * _kernel_result_2;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 16000000)));
+    int * _kernel_result_2_host = (int *) malloc((sizeof(int) * 16000000));
+    kernel_9<<<62500, 256>>>(dev_env, 16000000, _kernel_result_2);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_10_host, _kernel_result_10, (sizeof(int) * 16000000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (sizeof(int) * 16000000), cudaMemcpyDeviceToHost));
 
 timeReportMeasure(program_result, kernel);
 
     /* Free device memory */
 timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_10));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
 
 timeReportMeasure(program_result, free_memory);
 
-    program_result->result = _kernel_result_10_host;
+    program_result->result = _kernel_result_2_host;
     return program_result;
 }

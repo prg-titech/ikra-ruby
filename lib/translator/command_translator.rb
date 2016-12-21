@@ -104,74 +104,58 @@ module Ikra
             end
 
             # Translate the block of an `Array.pnew` section.
-            def visit_array_new_command(command)
-                Log.info("Translating ArrayNewCommand [#{command.unique_id}]")
+            def visit_array_index_command(command)
+                Log.info("Translating ArrayIndexCommand [#{command.unique_id}]")
 
                 super
 
                 # This is a root command, determine grid/block dimensions
                 kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
-                # Thread ID / dimensions indices are always int
-                parameters = command.block_parameter_names.map do |name|
-                    Variable.new(
-                        name: name,
-                        type: Types::UnionType.create_int)
-                end
+                num_dims = command.dimensions.size
 
-                # Pass only thread ID as argument
-                override_block_parameters = [Variable.new(
-                    name: "_tid_",
-                    type: Types::UnionType.create_int)]
+                # This is a root command, determine grid/block dimensions
+                kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
-                # Restore all parameters
-                pre_execution = ""
-
-                for dim_index in 0...(command.dimensions.size)
+                index_generators = (0...num_dims).map do |dim_index|
                     index_div = command.dimensions.drop(dim_index + 1).reduce(1, :*)
                     index_mod = command.dimensions[dim_index]
 
                     if dim_index > 0
-                        index_expr = "(_tid_ / #{index_div}) % #{index_mod}"
+                         "(_tid_ / #{index_div}) % #{index_mod}"
                     else
                         # No modulo required for first dimension
-                        index_expr = "_tid_ / #{index_div}"
+                        "_tid_ / #{index_div}"
                     end
-
-                    pre_execution = pre_execution + "int #{parameters[dim_index].name} = #{index_expr};\n"
                 end
 
-                # All variables accessed by this block should be prefixed with the unique ID
-                # of the command in the environment.
-                env_builder = @environment_builder[command.unique_id]
+                if num_dims > 1
+                    # Build Ikra struct type
+                    zipped_type_singleton = Types::ZipStructType.new(*([Types::UnionType.create_int] * command.dimensions.size))
+                    result = zipped_type_singleton.generate_inline_initialization(index_generators)
+                    result_type = Types::UnionType.new(zipped_type_singleton)
 
-                block_translation_result = Translator.translate_block(
-                    block_def_node: command.block_def_node,
-                    block_parameters: parameters,
-                    environment_builder: env_builder,
-                    lexical_variables: command.lexical_externals,
-                    command_id: command.unique_id,
-                    pre_execution: pre_execution,
-                    override_block_parameters: override_block_parameters)
+                    # Add struct type to program builder, so that we can generate the source code
+                    # for its definition.
+                    program_builder.structs.add(zipped_type_singleton)
+                else
+                    result = "_tid_"
+                    result_type = Types::UnionType.create_int
+                end
 
-                kernel_builder.add_methods(block_translation_result.aux_methods)
-                kernel_builder.add_block(block_translation_result.block_source)
+                command_translation = CommandTranslationResult.new(
+                    result: result,
+                    return_type: result_type)
 
-                command_translation = build_command_translation_result(
-                    execution: "",
-                    result: block_translation_result.function_name + "(_env_, _tid_)",
-                    return_type: block_translation_result.result_type,
-                    keep: command.keep,
-                    unique_id: command.unique_id,
-                    command: command)
-                
-                Log.info("DONE translating ArrayNewCommand [#{command.unique_id}]")
+                Log.info("DONE translating ArrayIndexCommand [#{command.unique_id}]")
 
                 return command_translation
             end
 
             def visit_array_combine_command(command)
                 Log.info("Translating ArrayCombineCommand [#{command.unique_id}]")
+
+                super
 
                 # Process dependent computation (receiver), returns [InputTranslationResult]
                 input_translated = command.input.each_with_index.map do |input, index|
@@ -224,7 +208,7 @@ module Ikra
                     unique_id: command.unique_id,
                     command: command)
 
-                kernel_launcher.update_result_name(command.unique_id.to_s)
+                kernel_launcher.set_result_name(command.unique_id.to_s)
 
                 Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
 
@@ -233,6 +217,8 @@ module Ikra
 
             def visit_array_reduce_command(command)
                 Log.info("Translating ArrayReduceCommand [#{command.unique_id}]")
+
+                super
 
                 # Process dependent computation (receiver)
                 input_translated = command.input.first.translate_input(
@@ -324,6 +310,8 @@ module Ikra
             def visit_array_identity_command(command)
                 Log.info("Translating ArrayIdentityCommand [#{command.unique_id}]")
 
+                super
+
                 # This is a root command, determine grid/block dimensions
                 kernel_launcher.configure_grid(command.size, block_size: command.block_size)
 
@@ -341,8 +329,6 @@ module Ikra
                     unique_id: command.unique_id,
                     command: command)
 
-                kernel_launcher.update_result_name(command.unique_id.to_s)
-
                 Log.info("DONE translating ArrayIdentityCommand [#{command.unique_id}]")
 
                 return command_translation
@@ -351,6 +337,8 @@ module Ikra
             def visit_array_zip_command(command)
                 Log.info("Translating ArrayZipCommand [#{command.unique_id}]")
                 
+                super
+
                 # Process dependent computation (receiver), returns [InputTranslationResult]
                 input_translated = command.input.each_with_index.map do |input, index|
                     input.translate_input(
@@ -393,6 +381,8 @@ module Ikra
 
             def visit_array_stencil_command(command)
                 Log.info("Translating ArrayStencilCommand [#{command.unique_id}]")
+
+                super
 
                 # Process dependent computation (receiver), returns [InputTranslationResult]
                 input_translated = command.input.first.translate_input(
@@ -455,7 +445,7 @@ module Ikra
                     unique_id: command.unique_id,
                     command: command)
 
-                kernel_launcher.update_result_name(command.unique_id.to_s)
+                kernel_launcher.set_result_name(command.unique_id.to_s)
 
                 Log.info("DONE translating ArrayStencilCommand [#{command.unique_id}]")
 
@@ -545,7 +535,8 @@ module Ikra
                 end
             end
 
-            def build_command_translation_result(execution:, result:, return_type:, keep: false, unique_id: 0, command: nil)
+            def build_command_translation_result(
+                execution:, result:, return_type:, keep: false, unique_id: 0, command: nil)
                 if keep
                     command_result = Constants::TEMP_RESULT_IDENTIFIER + unique_id.to_s
                     command_execution = execution + "\n        " + return_type.to_c_type + " " + command_result + " = " + result + ";"
