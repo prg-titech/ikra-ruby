@@ -99,6 +99,10 @@ module Ikra
 
                 # Configures grid size and block size. Also sets number of threads.
                 def configure_grid(size, block_size: 256)
+                    if block_size == nil
+                        block_size = 256
+                    end
+                    
                     @grid_dim = [size.fdiv(block_size).ceil, 1].max.to_s
                     @block_dim = (size >= block_size ? block_size : size).to_s
                     @num_threads = size

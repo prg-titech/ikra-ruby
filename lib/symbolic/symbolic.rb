@@ -163,10 +163,7 @@ module Ikra
 
             def initialize
                 super()
-
-                # Generate unique ID
-                @unique_id = @@unique_id
-                @@unique_id += 1
+                set_unique_id
             end
 
             def [](index)
@@ -227,6 +224,12 @@ module Ikra
                 raise NotImplementedError
             end
 
+            def dimensions
+                # Dimensions are defined in a root command. First input currently determines the
+                # dimensions (even if there are multiple root commands).
+                return input.first.command.dimensions
+            end
+
             # Returns the abstract syntax tree for a parallel section.
             def block_def_node
                 if @ast == nil
@@ -264,6 +267,20 @@ module Ikra
             # Returns a collection of external objects that are accessed within a parallel section.
             def externals
                 return lexical_externals.keys
+            end
+
+            def set_unique_id
+                # Generate unique ID
+                @unique_id = @@unique_id
+                @@unique_id += 1
+            end
+
+            def with_index(&block)
+                @block = block
+                @input.push(SingleInput.new(
+                    command: ArrayIndexCommand.new(dimensions: dimensions),
+                    pattern: :tid))
+                return self
             end
         end
 
@@ -452,6 +469,11 @@ module Ikra
             
             def size
                 return input.first.command.size
+            end
+
+            def dimensions
+                # 1D by definition
+                return [size]
             end
 
             # Returns a collection of external objects that are accessed within a parallel section. This includes all elements of the base array.

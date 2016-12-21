@@ -167,7 +167,7 @@ timeStartMeasure();
     int * _kernel_result_4;
     checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (sizeof(int) * 5625)));
     int * _kernel_result_4_host = (int *) malloc((sizeof(int) * 5625));
-    kernel_5<<<22, 256>>>(dev_env, 5625, _kernel_result_4);
+    kernel_5<<<11, 512>>>(dev_env, 5625, _kernel_result_4);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 

@@ -7,6 +7,8 @@ module Ikra
             # by thread ID) or `:entire` (access to entire array is necessary).
             attr_reader :pattern
 
+            attr_reader :command
+
             def initialize(pattern:)
                 # Currently supported: :tid, :entire
                 @pattern = pattern
@@ -15,8 +17,6 @@ module Ikra
 
         # A single input value produced by one command.
         class SingleInput < Input
-            attr_reader :command
-
             def initialize(command:, pattern:)
                 super(pattern: pattern)
 
@@ -26,7 +26,6 @@ module Ikra
 
         # An array containing values produced by one previous command.
         class StencilArrayInput < Input
-            attr_reader :command
             attr_reader :offsets
             attr_reader :out_of_bounds_value
 
@@ -40,7 +39,6 @@ module Ikra
         end
 
         class StencilSingleInput < Input
-            attr_reader :command
             attr_reader :offsets
             attr_reader :out_of_bounds_value
 
