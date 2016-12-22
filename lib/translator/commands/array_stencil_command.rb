@@ -6,6 +6,8 @@ module Ikra
 
                 super
 
+                num_dims = command.dimensions.size
+
                 # Process dependent computation (receiver), returns [InputTranslationResult]
                 input_translated = command.input.first.translate_input(
                     command: command,
@@ -30,6 +32,40 @@ module Ikra
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 
+                # Compute indices in all dimensions
+                index_generators = (0...num_dims).map do |dim_index|
+                    index_div = command.dimensions.drop(dim_index + 1).reduce(1, :*)
+                    index_mod = command.dimensions[dim_index]
+
+                    if dim_index > 0
+                         "(_tid_ / #{index_div}) % #{index_mod}"
+                    else
+                        # No modulo required for first dimension
+                        "_tid_ / #{index_div}"
+                    end
+                end
+
+                compute_indices = index_generators.map.with_index do |gen, dim_index|
+                    "int temp_stencil_dim_#{dim_index} = #{gen};"
+                end.join("\n")
+
+                # Check if an index is out of bounds in any dimension
+                out_of_bounds_check = Array.new(num_dims) do |dim_index|
+                    if num_dims > 1
+                        min_in_dim = command.offsets.map do |offset|
+                            offset[dim_index]
+                        end.min
+                        max_in_dim = command.offsets.map do |offset|
+                            offset[dim_index]
+                        end.max
+                    else
+                        min_in_dim = command.offsets.min
+                        max_in_dim = command.offsets.max
+                    end
+
+                    "temp_stencil_dim_#{dim_index} + #{min_in_dim} >= 0 && temp_stencil_dim_#{dim_index} + #{max_in_dim} < #{command.dimensions[dim_index]}"
+                end.join(" && ")
+
                 # `previous_result` should be an expression returning the array containing the
                 # result of the previous computation.
                 previous_result = input_translated.command_translation_result.result
@@ -37,8 +73,21 @@ module Ikra
                 arguments = ["_env_"]
 
                 # Pass values from previous computation that are required by this thread.
+                # Reconstruct actual indices from indices for each dimension.
                 for i in 0...num_parameters
-                    arguments.push("#{previous_result}[_tid_ + #{command.offsets[i]}]")
+                    if num_dims > 1
+                        multiplier = 1
+                        global_index = []
+
+                        for dim_index in (num_dims - 1).downto(0)
+                            global_index.push("(temp_stencil_dim_#{dim_index} + #{command.offsets[i][dim_index]}) * #{multiplier}")
+                            multiplier = multiplier * command.dimensions[dim_index]
+                        end
+
+                        arguments.push("#{previous_result}[#{global_index.join(" + ")}]")
+                    else
+                        arguments.push("#{previous_result}[temp_stencil_dim_0 + #{command.offsets[i]}]")
+                    end
                 end
 
                 argument_str = arguments.join(", ")
@@ -52,10 +101,8 @@ module Ikra
                     "execution" => input_translated.command_translation_result.execution,
                     "temp_var" => temp_var_name,
                     "result_type" => block_translation_result.result_type.to_c_type,
-                    "min_offset" => command.min_offset.to_s,
-                    "max_offset" => command.max_offset.to_s,
-                    "thread_id" => "_tid_",
-                    "input_size" => command.input.first.command.size.to_s,
+                    "compute_indices" => compute_indices,
+                    "out_of_bounds_check" => out_of_bounds_check,
                     "out_of_bounds_fallback" => command.out_of_range_value.to_s,
                     "stencil_computation" => stencil_computation})
 

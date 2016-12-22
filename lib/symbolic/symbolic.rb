@@ -393,38 +393,6 @@ module Ikra
 
                 # Read more than just one element, fall back to `:entire` for now
 
-                if dimensions.size == 1
-                    # Use Fixnum offsets
-                    @offsets = offsets
-
-                    for offset in offsets
-                        if !offset.is_a?(Fixnum)
-                            raise ArgumentError.new("Fixnum expected but #{offset.class} found")
-                        end
-                    end
-                else
-                    # Every offset is an array
-                    @offsets = offset.map do |offset|
-                        if !offset.is_a?(Array)
-                            raise ArgumentError.new("Array expected but #{offset.class} found")
-                        end
-
-                        if offset.size != dimensions.size
-                            raise ArgumentError.new("#{dimensions.size} indices expected")
-                        end
-
-                        # Calculate 1D index
-                        multiplier = 1
-                        index = 0
-                        for dim_id in (offsets.size - 1).downto(0)
-                            index = index + multiplier * offsets[dim_id]
-                            multiplier = multiplier * dimensions[dim_id]
-                        end
-
-                        index
-                    end
-                end
-
                 @out_of_range_value = out_of_range_value
                 @block = block
                 @block_size = block_size
@@ -444,6 +412,29 @@ module Ikra
                         offsets: offsets,
                         out_of_bounds_value: out_of_range_value)]
                 end
+
+                # Check if offsets have the correct format
+                if dimensions.size == 1
+                    # Use Fixnum offsets
+                    for offset in offsets
+                        if !offset.is_a?(Fixnum)
+                            raise ArgumentError.new("Fixnum expected but #{offset.class} found")
+                        end
+                    end
+                else
+                    # Offsets should be arrays
+                    for offset in offsets
+                        if !offset.is_a?(Array)
+                            raise ArgumentError.new("Array expected but #{offset.class} found")
+                        end
+
+                        if offset.size != dimensions.size
+                            raise ArgumentError.new("#{dimensions.size} indices expected")
+                        end
+                    end
+                end
+                
+                @offsets = offsets
             end
 
             def size

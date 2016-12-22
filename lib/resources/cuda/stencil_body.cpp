@@ -1,7 +1,9 @@
     /*{result_type}*/ /*{temp_var}*/;
 
-    if (/*{min_offset}*/ + /*{thread_id}*/ >= 0 
-        && /*{max_offset}*/ + /*{thread_id}*/ <= /*{input_size}*/ - 1)
+    // Indices for all dimensions
+    /*{compute_indices}*/
+
+    if (/*{out_of_bounds_check}*/)
     {
         // All value indices within bounds
         /*{execution}*/

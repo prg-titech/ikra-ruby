@@ -59,4 +59,18 @@ class StencilTest < UnitTestCase
         # Compare results
         assert_equal(aggregated_cpu, aggregated_gpu)
     end
+
+    def test_2d_stencil
+        # GPU computation
+        base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|
+            10 * index[0] + index[1]
+        end
+
+        stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
+            values[0] + values[1] + values[2] + values[3]
+        end
+
+        # Compare results
+        assert_equal([10000, 10000, 10000, 10000, 10000, 10000, 33, 37, 41, 10000, 10000, 73, 77, 81, 10000, 10000, 113, 117, 121, 10000, 10000, 153, 157, 161, 10000, 10000, 193, 197, 201, 10000, 10000, 233, 237, 241, 10000], stencil_result_gpu.to_a)
+    end
 end
