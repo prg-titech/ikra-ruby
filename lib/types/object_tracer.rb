@@ -2,7 +2,7 @@ require "set"
 require "ffi"
 require_relative "../entity"
 require_relative "../symbolic/symbolic"
-require_relative "../translator/command_translator"
+require_relative "../translator/commands/command_translator"
 
 module Ikra
     module TypeInference
