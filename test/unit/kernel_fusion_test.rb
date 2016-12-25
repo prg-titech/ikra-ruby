@@ -35,6 +35,10 @@ class KernelFusionTest < UnitTestCase
     end
 
     def test_reuse_computation
+        # keep, cached, keep_previous, cache_previous, preserve_input
+        # base_array.keep.pmap
+        # Ikra.require(mapped_array1, mapped_array2)
+        
         base_array = Array.pnew(100, keep: true) do |j|
             j + 1
         end
