@@ -63,6 +63,7 @@ struct environment_struct
 __device__ int _block_k_2_(environment_t *_env_, int index)
 {
     
+    
     {
         return (index % 25000);
     }
@@ -72,6 +73,7 @@ __device__ int _block_k_2_(environment_t *_env_, int index)
 __device__ int _block_k_4_(environment_t *_env_, int index)
 {
     
+    
     {
         return (((index + 101)) % 25000);
     }
@@ -80,6 +82,8 @@ __device__ int _block_k_4_(environment_t *_env_, int index)
 
 __device__ int _block_k_5_(environment_t *_env_, int p1, int p2)
 {
+    
+    
     
     {
         return (p1 * p2);
@@ -93,8 +97,6 @@ __global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
 
     if (_tid_ < _num_threads_)
     {
-
-
 
         
         _result_[_tid_] = _block_k_5_(_env_, _block_k_2_(_env_, _tid_), _block_k_4_(_env_, _tid_));

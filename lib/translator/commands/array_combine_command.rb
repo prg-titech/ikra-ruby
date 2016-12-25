@@ -7,22 +7,7 @@ module Ikra
                 super
 
                 # Process dependent computation (receiver), returns [InputTranslationResult]
-                input_translated = command.input.each_with_index.map do |input, index|
-                    input.translate_input(
-                        command: command,
-                        command_translator: self,
-                        start_eat_params_offset: index)
-                end
-
-                # Get all parameters
-                block_parameters = input_translated.map do |input|
-                    input.parameters
-                end.reduce(:+)
-
-                # Get all pre-execution statements
-                pre_execution = input_translated.map do |input|
-                    input.pre_execution
-                end.reduce(:+)
+                input = translate_entire_input(command)
 
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
@@ -30,28 +15,21 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameters: block_parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
-                    pre_execution: pre_execution,
-                    command_id: command.unique_id)
+                    command_id: command.unique_id,
+                    entire_input_translation: input)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 
                 # Build command invocation string
-                command_args = (["_env_"] + input_translated.map do |input|
-                    input.command_translation_result.result
-                end).join(", ")
-
-
-                input_execution = input_translated.map do |input|
-                    input.command_translation_result.execution
-                end.join("\n\n")
+                result = block_translation_result.function_name + "(" + 
+                    (["_env_"] + input.result).join(", ") + ")"
 
                 command_translation = build_command_translation_result(
-                    execution: input_execution,
-                    result: block_translation_result.function_name + "(" + command_args + ")",
+                    execution: input.execution,
+                    result: result,
                     result_type: block_translation_result.result_type,
                     keep: command.keep,
                     unique_id: command.unique_id,

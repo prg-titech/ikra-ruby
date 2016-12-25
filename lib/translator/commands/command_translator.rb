@@ -123,6 +123,18 @@ module Ikra
                 program_builder.add_kernel_launcher(previous_launcher)
             end
 
+            def translate_entire_input(command)
+                input_translated = command.input.each_with_index.map do |input, index|
+                    input.translate_input(
+                        command: command,
+                        command_translator: self,
+                        # Assuming that every input consumes exactly one parameter
+                        start_eat_params_offset: index)
+                end
+
+                return EntireInputTranslationResult.new(input_translated)
+            end
+
             # Processes a [Symbolic::Input] objects, which contains a reference to a command
             # object and information about how elements are accessed. If elements are only
             # accessed according to the current thread ID, this input can be fused. Otherwise,

@@ -6,10 +6,12 @@ module Ikra
 
                 super
 
+                if command.input.size != 1
+                    raise "Expected exactly one input for ArrayReduceCommand"
+                end
+
                 # Process dependent computation (receiver)
-                input_translated = command.input.first.translate_input(
-                    command: command,
-                    command_translator: self)
+                input = translate_entire_input(command)
 
                 block_size = command.block_size
 
@@ -19,11 +21,10 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameters: input_translated.parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
-                    pre_execution: input_translated.pre_execution,
-                    command_id: command.unique_id)
+                    command_id: command.unique_id,
+                    entire_input_translation: input)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
@@ -37,7 +38,7 @@ module Ikra
                 # Number of threads needed for reduction
                 num_threads = num_threads.fdiv(2).ceil
 
-                previous_result_kernel_var = input_translated.command_translation_result.result
+                previous_result_kernel_var = input.result.first
                 first_launch = true
                 
                 # While more kernel launches than one are needed to finish reduction
@@ -57,7 +58,7 @@ module Ikra
 
                     previous_result_kernel_var = kernel_launcher.kernel_result_var_name
 
-                    pop_kernel_launcher(input_translated.command_translation_result)
+                    pop_kernel_launcher(input.command_translation_result(0))
 
                     # Update number of threads needed
                     num_threads = num_threads.fdiv(block_size).ceil
@@ -74,7 +75,7 @@ module Ikra
                 end
 
                 command_execution = Translator.read_file(file_name: "reduce_body.cpp", replacements: {
-                    "previous_result" => input_translated.command_translation_result.result,
+                    "previous_result" => input.result.first,
                     "block_name" => block_translation_result.function_name,
                     "arguments" => Constants::ENV_IDENTIFIER,
                     "block_size" => block_size.to_s,

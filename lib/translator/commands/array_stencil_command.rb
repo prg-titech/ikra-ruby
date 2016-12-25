@@ -9,31 +9,7 @@ module Ikra
                 num_dims = command.dimensions.size
 
                 # Process dependent computation (receiver), returns [InputTranslationResult]
-                input_translated = command.input.each_with_index.map do |input, index|
-                    input.translate_input(
-                        command: command,
-                        command_translator: self,
-                        start_eat_params_offset: index)
-                end
-
-                # Get all parameters
-                block_parameters = input_translated.map do |input|
-                    input.parameters
-                end.reduce(:+)
-
-                # Get all pre-execution statements
-                pre_execution = input_translated.map do |input|
-                    input.pre_execution
-                end.reduce(:+)
-
-                override_block_parameters = input_translated.map do |input|
-                    if input.override_block_parameters == nil
-                        # This input does not override parameter, use original ones
-                        input.parameters
-                    else
-                        input.override_block_parameters
-                    end
-                end.reduce(:+)
+                input = translate_entire_input(command)
 
                 # Count number of parameters
                 num_parameters = command.offsets.size
@@ -44,12 +20,10 @@ module Ikra
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,
-                    block_parameters: block_parameters,
                     environment_builder: env_builder,
                     lexical_variables: command.lexical_externals,
                     command_id: command.unique_id,
-                    pre_execution: pre_execution,
-                    override_block_parameters: override_block_parameters)
+                    entire_input_translation: input)
 
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
@@ -90,7 +64,7 @@ module Ikra
 
                 # `previous_result` should be an expression returning the array containing the
                 # result of the previous computation.
-                previous_result = input_translated.first.command_translation_result.result
+                previous_result = input.result(0)
 
                 arguments = ["_env_"]
 
@@ -113,15 +87,7 @@ module Ikra
                 end
 
                 # Push additional arguments (e.g., index)
-                arguments.push(*(input_translated[1..-1].map do |input|
-                    input.command_translation_result.result
-                end))
-
-                # Aggregate execution
-                execution = input_translated.map do |input|
-                    input.command_translation_result.execution
-                end.join("\n")
-
+                arguments.push(*input.result(1..-1))
                 argument_str = arguments.join(", ")
                 stencil_computation = block_translation_result.function_name + "(#{argument_str})"
 
@@ -130,7 +96,7 @@ module Ikra
                 # The following template checks if there is at least one index out of bounds. If
                 # so, the fallback value is used. Otherwise, the block is executed.
                 command_execution = Translator.read_file(file_name: "stencil_body.cpp", replacements: {
-                    "execution" => execution,
+                    "execution" => input.execution,
                     "temp_var" => temp_var_name,
                     "result_type" => block_translation_result.result_type.to_c_type,
                     "compute_indices" => compute_indices,

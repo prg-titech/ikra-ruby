@@ -142,6 +142,7 @@ __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, o
 __device__ int _block_k_2_(environment_t *_env_, int j)
 {
     
+    
     int hy;
     int hx;
     int lex_hx_res = _env_->l2_hx_res;

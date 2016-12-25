@@ -69,6 +69,7 @@ int field_1;
 __device__ int _block_k_2_(environment_t *_env_, int index)
 {
     
+    
     {
         return (index % 25000);
     }
@@ -78,6 +79,7 @@ __device__ int _block_k_2_(environment_t *_env_, int index)
 __device__ int _block_k_4_(environment_t *_env_, int index)
 {
     
+    
     {
         return (((index + 101)) % 25000);
     }
@@ -86,6 +88,7 @@ __device__ int _block_k_4_(environment_t *_env_, int index)
 
 __device__ int _block_k_6_(environment_t *_env_, indexed_struct_2_lt_int_int_gt_t zipped)
 {
+    
     
     {
         return (zipped.field_0 * zipped.field_1);
@@ -99,8 +102,6 @@ __global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
 
     if (_tid_ < _num_threads_)
     {
-
-
 
         
         _result_[_tid_] = _block_k_6_(_env_, ((indexed_struct_2_lt_int_int_gt_t) {_block_k_2_(_env_, _tid_), _block_k_4_(_env_, _tid_)}));

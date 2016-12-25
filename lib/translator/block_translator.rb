@@ -53,10 +53,42 @@ module Ikra
                 block_def_node:, 
                 environment_builder:, 
                 command_id:, 
-                block_parameters: [], 
                 lexical_variables: {}, 
-                pre_execution: "", 
-                override_block_parameters: nil)
+
+                # One one of the two following parameter configurations is valid:
+                # a) Either this parameter is given:
+                entire_input_translation: nil,
+
+                # b) or these parameters are given (some are optional):
+                pre_execution: nil, 
+                override_block_parameters: nil,
+                block_parameters: nil)
+
+                # Check and prepare arguments
+                if pre_execution != nil and entire_input_translation != nil
+                    raise ArgumentError.new("pre_execution and entire_input_translation given")
+                elsif entire_input_translation != nil
+                    pre_execution = entire_input_translation.pre_execution
+                elsif pre_execution == nil
+                    pre_execution = ""
+                end
+
+                if block_parameters != nil and entire_input_translation != nil
+                    raise ArgumentError.new("block_parameters and entire_input_translation given")
+                elsif entire_input_translation != nil
+                    block_parameters = entire_input_translation.block_parameters
+                elsif block_parameters == nil
+                    block_parameters = []
+                end
+
+                if override_block_parameters != nil and entire_input_translation != nil
+                    raise ArgumentError.new("override_block_parameters and entire_input_translation given")
+                elsif entire_input_translation != nil
+                    override_block_parameters = entire_input_translation.override_block_parameters
+                elsif override_block_parameters == nil
+                    override_block_parameters = block_parameters
+                end
+
 
                 # Build hash of parameter name -> type mappings
                 block_parameter_types = {}
@@ -108,17 +140,11 @@ module Ikra
 
                 function_parameters = ["environment_t *#{Constants::ENV_IDENTIFIER}"]
 
-                if override_block_parameters == nil
-                    block_parameter_types.each do |param|
-                        function_parameters.push("#{param[1].to_c_type} #{param[0].to_s}")
-                    end
-                else
-                    parameter_decls = override_block_parameters.map do |variable|
-                        "#{variable.type.to_c_type} #{variable.name}"
-                    end
-
-                    function_parameters.push(*parameter_decls)
+                parameter_decls = override_block_parameters.map do |variable|
+                    "#{variable.type.to_c_type} #{variable.name}"
                 end
+
+                function_parameters.push(*parameter_decls)
 
                 function_head = Translator.read_file(
                     file_name: "block_function_head.cpp",

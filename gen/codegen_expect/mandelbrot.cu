@@ -66,6 +66,7 @@ struct environment_struct
 __device__ int _block_k_2_(environment_t *_env_, int j)
 {
     
+    
     float xx;
     int iter;
     float y;
@@ -107,6 +108,7 @@ __device__ int _block_k_2_(environment_t *_env_, int j)
 
 __device__ int _block_k_3_(environment_t *_env_, int color)
 {
+    
     
     int lex_inverted = _env_->l3_inverted;
     if (((lex_inverted == 1)))

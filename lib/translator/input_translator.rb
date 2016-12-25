@@ -15,7 +15,7 @@ module Ikra
                     name: command.block_parameter_names[start_eat_params_offset],
                     type: input_command_translation_result.result_type)]
 
-                return InputTranslationResult.new(
+                return Translator::InputTranslationResult.new(
                     parameters: parameters,
                     command_translation_result: input_command_translation_result)
             end
@@ -35,7 +35,7 @@ module Ikra
                         name: command.block_parameter_names[start_eat_params_offset + 1],
                         type: input_command_translation_result.result_type)]
 
-                return InputTranslationResult.new(
+                return Translator::InputTranslationResult.new(
                     parameters: parameters,
                     command_translation_result: input_command_translation_result)
             end
@@ -79,7 +79,7 @@ module Ikra
                         type: input_command_translation_result.result_type)
                 end
 
-                return InputTranslationResult.new(
+                return Translator::InputTranslationResult.new(
                     pre_execution: pre_execution,
                     parameters: parameters,
                     override_block_parameters: override_block_parameters,
@@ -105,12 +105,14 @@ module Ikra
                         type: input_command_translation_result.result_type))
                 end
 
-                return InputTranslationResult.new(
+                return Translator::InputTranslationResult.new(
                     parameters: parameters,
                     command_translation_result: input_command_translation_result)
             end
         end
+    end
 
+    module Translator
         class InputTranslationResult
             # Code to be executed before the actual execution of the block begins (but inside the
             # block function)
@@ -119,20 +121,117 @@ module Ikra
             # Parameter names and types of the block (for type inference)
             attr_reader :parameters
 
-            # Change (override) parameters of the block (to actually pass different parameters)
+            # Change (override) parameters of the block (to actually pass different parameters).
+            # This does not affect type inference.
             attr_reader :override_block_parameters
 
             attr_reader :command_translation_result
 
-            def initialize(pre_execution: "", parameters:, override_block_parameters: nil, command_translation_result:)
+            def initialize(
+                pre_execution: "", 
+                parameters:, 
+                override_block_parameters: nil, 
+                command_translation_result:)
+            
                 @pre_execution = pre_execution
                 @parameters = parameters
                 @override_block_parameters = override_block_parameters
                 @command_translation_result = command_translation_result
             end
+        end
 
-            def result_type
-                return command_translation_result.result_type
+        # Instance of this class store the result of translation of multiple input commands.
+        # Instance methods can be used to access the values of the translated commands. Most
+        # methods support access by index and access by range, in which case values are 
+        # aggregated, if meaningful.
+        class EntireInputTranslationResult
+            def initialize(input_translation_results)
+                @input = input_translation_results
+            end
+
+            def block_parameters(index = 0..-1)
+                if index.is_a?(Fixnum)
+                    return @input[index].parameters
+                elsif index.is_a?(Range)
+                    return @input[index].reduce([]) do |acc, n|
+                        acc + n.parameters
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def pre_execution(index = 0..-1)
+                if index.is_a?(Fixnum)
+                    return @input[index].pre_execution
+                elsif index.is_a?(Range)
+                    return @input[index].reduce("") do |acc, n|
+                        acc + "\n" + n.pre_execution
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def override_block_parameters(index = 0..-1)
+                if index.is_a?(Fixnum)
+                    if @input[index].override_block_parameters == nil
+                        # No override specified
+                        return @input[index].parameters
+                    else
+                        return @input[index].override_block_parameters
+                    end
+                elsif index.is_a?(Range)
+                    return @input[index].reduce([]) do |acc, n|
+                        if n.override_block_parameters == nil
+                            acc + n.parameters
+                        else
+                            acc + n.override_block_parameters
+                        end
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def execution(index = 0..-1)
+                if index.is_a?(Fixnum)
+                     return @input[index].command_translation_result.execution
+                elsif index.is_a?(Range)
+                    return @input[index].reduce("") do |acc, n|
+                        acc + n.command_translation_result.execution
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def result(index = 0..-1)
+                if index.is_a?(Fixnum)
+                     return @input[index].command_translation_result.result
+                elsif index.is_a?(Range)
+                    return @input[index].map do |n|
+                        n.command_translation_result.result
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def result_type(index = 0..-1)
+                if index.is_a?(Fixnum)
+                     return @input[index].command_translation_result.result_type
+                elsif index.is_a?(Range)
+                    return @input[index].map do |n|
+                        n.command_translation_result.result_type
+                    end
+                else
+                    raise ArgumentError.new("Expected Fixnum or Range")
+                end
+            end
+
+            def command_translation_result(index)
+                return @input[index].command_translation_result
             end
         end
     end

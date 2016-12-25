@@ -62,6 +62,7 @@ struct environment_struct
 __device__ int _block_k_4_(environment_t *_env_, int index)
 {
     
+    
     int i;
     int result;
     int y;
