@@ -18,7 +18,7 @@ module Ikra
                 command_translation = build_command_translation_result(
                     execution: "",
                     result: "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]",
-                    return_type: command.base_type,
+                    result_type: command.base_type,
                     keep: command.keep,
                     unique_id: command.unique_id,
                     command: command)

@@ -118,7 +118,7 @@ module Ikra
                 end))
 
                 # Aggregate execution
-                execution = input_translated[1..-1].map do |input|
+                execution = input_translated.map do |input|
                     input.command_translation_result.execution
                 end.join("\n")
 
@@ -141,7 +141,7 @@ module Ikra
                 command_translation = build_command_translation_result(
                     execution: command_execution,
                     result: temp_var_name,
-                    return_type: block_translation_result.result_type,
+                    result_type: block_translation_result.result_type,
                     keep: command.keep,
                     unique_id: command.unique_id,
                     command: command)

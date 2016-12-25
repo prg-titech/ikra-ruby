@@ -86,7 +86,7 @@ module Ikra
                 command_translation = CommandTranslationResult.new(
                     execution: command_execution,
                     result:  Constants::TEMP_RESULT_IDENTIFIER,
-                    return_type: block_translation_result.result_type)
+                    result_type: block_translation_result.result_type)
 
                 Log.info("DONE translating ArrayReduceCommand [#{command.unique_id}]")
 

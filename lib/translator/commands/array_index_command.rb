@@ -43,7 +43,7 @@ module Ikra
 
                 command_translation = CommandTranslationResult.new(
                     result: result,
-                    return_type: result_type)
+                    result_type: result_type)
 
                 Log.info("DONE translating ArrayIndexCommand [#{command.unique_id}]")
 

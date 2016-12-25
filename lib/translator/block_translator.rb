@@ -124,7 +124,7 @@ module Ikra
                     file_name: "block_function_head.cpp",
                     replacements: { 
                         "name" => mangled_name, 
-                        "return_type" => return_type.to_c_type,
+                        "result_type" => return_type.to_c_type,
                         "parameters" => function_parameters.join(", ")})
 
                 translation_result = function_head + 

@@ -17,10 +17,10 @@ module Ikra
         class GPUResultPointer
             attr_accessor :device_pointer
 
-            attr_accessor :return_type
+            attr_accessor :result_type
 
-            def initialize(return_type:)
-                @return_type = return_type
+            def initialize(result_type:)
+                @result_type = result_type
             end
         end
 

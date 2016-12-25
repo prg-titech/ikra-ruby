@@ -13,7 +13,7 @@ module Ikra
 
                 parameters = [Translator::Variable.new(
                     name: command.block_parameter_names[start_eat_params_offset],
-                    type: input_command_translation_result.return_type)]
+                    type: input_command_translation_result.result_type)]
 
                 return InputTranslationResult.new(
                     parameters: parameters,
@@ -30,10 +30,10 @@ module Ikra
                 parameters = [
                     Translator::Variable.new(
                         name: command.block_parameter_names[start_eat_params_offset],
-                        type: input_command_translation_result.return_type),
+                        type: input_command_translation_result.result_type),
                     Translator::Variable.new(
                         name: command.block_parameter_names[start_eat_params_offset + 1],
-                        type: input_command_translation_result.return_type)]
+                        type: input_command_translation_result.result_type)]
 
                 return InputTranslationResult.new(
                     parameters: parameters,
@@ -57,7 +57,7 @@ module Ikra
                 # Take return type from previous computation
                 parameters = [Translator::Variable.new(
                     name: block_param_name,
-                    type: input_command_translation_result.return_type.to_array_type)]
+                    type: input_command_translation_result.result_type.to_array_type)]
 
 
                 # Allocate and fill array of parameters
@@ -68,7 +68,7 @@ module Ikra
                 param_array_init = "{ " + actual_parameter_names.join(", ") + " }"
 
                 pre_execution = Translator.read_file(file_name: "stencil_array_reconstruction.cpp", replacements: {
-                    "type" => input_command_translation_result.return_type.to_c_type,
+                    "type" => input_command_translation_result.result_type.to_c_type,
                     "name" => block_param_name.to_s,
                     "initializer" => param_array_init})
 
@@ -76,7 +76,7 @@ module Ikra
                 override_block_parameters  = actual_parameter_names.map do |param_name|
                     Translator::Variable.new(
                         name: param_name,
-                        type: input_command_translation_result.return_type)
+                        type: input_command_translation_result.result_type)
                 end
 
                 return InputTranslationResult.new(
@@ -102,7 +102,7 @@ module Ikra
                 for index in start_eat_params_offset...(start_eat_params_offset + num_parameters)
                     parameters.push(Translator::Variable.new(
                         name: command.block_parameter_names[index],
-                        type: input_command_translation_result.return_type))
+                        type: input_command_translation_result.result_type))
                 end
 
                 return InputTranslationResult.new(
@@ -131,8 +131,8 @@ module Ikra
                 @command_translation_result = command_translation_result
             end
 
-            def return_type
-                return command_translation_result.return_type
+            def result_type
+                return command_translation_result.result_type
             end
         end
     end

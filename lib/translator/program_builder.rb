@@ -49,7 +49,7 @@ module Ikra
                     launcher = Launcher.new(
                         source: source,
                         environment_builder: environment_builder,
-                        return_type: kernel_launchers.last.kernel_builder.result_type,
+                        result_type: kernel_launchers.last.kernel_builder.result_type,
                         result_size: kernel_launchers.last.num_threads,
                         root_command: root_command)
 

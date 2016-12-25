@@ -27,7 +27,7 @@ module Ikra
                 # Build Ikra struct type
                 zipped_type_singleton = Types::ZipStructType.new(*(
                         input_translated.map do |input| 
-                        input.return_type
+                        input.result_type
                     end))
 
                 zipped_type = Types::UnionType.new(zipped_type_singleton)
@@ -39,7 +39,7 @@ module Ikra
                 command_translation = CommandTranslationResult.new(
                     execution: input_execution,
                     result: zipped_type_singleton.generate_inline_initialization(input_result),
-                    return_type: zipped_type)
+                    result_type: zipped_type)
 
                 Log.info("DONE translating ArrayZipCommand [#{command.unique_id}]")
 

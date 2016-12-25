@@ -1,1 +1,1 @@
-__device__ /*{return_type}*/ /*{name}*/(/*{parameters}*/)
+__device__ /*{result_type}*/ /*{name}*/(/*{parameters}*/)

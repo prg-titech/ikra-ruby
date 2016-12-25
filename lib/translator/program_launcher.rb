@@ -33,7 +33,7 @@ module Ikra
                     attr_reader :root_command
                     attr_reader :source
                     attr_reader :environment_builder
-                    attr_reader :return_type
+                    attr_reader :result_type
                     attr_reader :result_size
 
                     class << self
@@ -46,10 +46,10 @@ module Ikra
                         attr_accessor :last_time_read_result_ffi
                     end
 
-                    def initialize(source:, environment_builder:, return_type:, result_size:, root_command:)
+                    def initialize(source:, environment_builder:, result_type:, result_size:, root_command:)
                         @source = source
                         @environment_builder = environment_builder
-                        @return_type = return_type
+                        @result_type = result_type
                         @result_size = result_size
                         @root_command = root_command
                     end
@@ -135,20 +135,20 @@ module Ikra
 
                         result = result_t_struct[:result]
 
-                        if return_type.is_singleton?
+                        if result_type.is_singleton?
                             # Read in entire array
-                            if return_type.singleton_type == Types::PrimitiveType::Int
+                            if result_type.singleton_type == Types::PrimitiveType::Int
                                 computation_result = result.read_array_of_int(result_size)
-                            elsif return_type.singleton_type == Types::PrimitiveType::Float
+                            elsif result_type.singleton_type == Types::PrimitiveType::Float
                                 computation_result = result.read_array_of_float(result_size)
-                            elsif return_type.singleton_type == Types::PrimitiveType::Bool
+                            elsif result_type.singleton_type == Types::PrimitiveType::Bool
                                 computation_result = result.read_array_of_uint8(result_size).map do |v|
                                     v == 1
                                 end
-                            elsif return_type.singleton_type == Types::PrimitiveType::Nil
+                            elsif result_type.singleton_type == Types::PrimitiveType::Nil
                                 computation_result = [nil] * result_size
-                            elsif return_type.singleton_type.is_a?(Types::ZipStructType)
-                                result_struct_type = return_type.singleton_type.to_ruby_type
+                            elsif result_type.singleton_type.is_a?(Types::ZipStructType)
+                                result_struct_type = result_type.singleton_type.to_ruby_type
                                 computation_result = Array.new(result_size) do |index|
                                     result_struct_type.new(result + index * result_struct_type.size)
                                 end

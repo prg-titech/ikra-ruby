@@ -52,7 +52,7 @@ module Ikra
                 command_translation = build_command_translation_result(
                     execution: input_execution,
                     result: block_translation_result.function_name + "(" + command_args + ")",
-                    return_type: block_translation_result.result_type,
+                    result_type: block_translation_result.result_type,
                     keep: command.keep,
                     unique_id: command.unique_id,
                     command: command)
