@@ -10,7 +10,7 @@ module Ikra
             @@next_temp_identifier_id = 0
 
             def translate_statement
-                translate_expression + ";\n"
+                return translate_expression + ";\n"
             end
             
             def translate_expression
@@ -24,21 +24,21 @@ module Ikra
                     inner_stmts = translate_statement
                 end
 
-                statements_as_expression(inner_stmts)
+                return statements_as_expression(inner_stmts)
             end
 
             protected
             
             def expression_return_value
-                "NULL"
+                return "NULL"
             end
 
             def statements_as_expression(str)
-                "[&]#{wrap_in_c_block(str, omit_newl: true)}()"
+                return "[&]#{wrap_in_c_block(str, omit_newl: true)}()"
             end
             
             def indent_block(str)
-                str.split("\n").map do |line| "    " + line end.join("\n")
+                return str.split("\n").map do |line| "    " + line end.join("\n")
             end
 
             def wrap_in_c_block(str, omit_newl: false)
@@ -59,7 +59,7 @@ module Ikra
             # Generates code that assigns the value of a node to a newly-defined variable.
             def define_assign_variable(name, node)
                 type = node.get_type.to_c_type
-                "#{type} #{name} = #{node.translate_expression};"
+                return "#{type} #{name} = #{node.translate_expression};"
             end
 
             # Stores the evaluation of [node] in a temporary variable and returns the name of
@@ -90,7 +90,7 @@ module Ikra
         
         class BlockDefNode
             def translate_block
-                body.translate_statement
+                return body.translate_statement
             end
         end
 
@@ -111,7 +111,9 @@ module Ikra
                 end
 
                 signature = "__device__ #{get_type.singleton_type.to_c_type} #{parent.get_type.mangled_method_name(name)}(#{method_params})"
-                signature + "\n" + Translator.wrap_in_c_block(local_variables_def + body.translate_statement)
+                return signature + 
+                    "\n" + 
+                    Translator.wrap_in_c_block(local_variables_def + body.translate_statement)
             end
         end
 
@@ -133,13 +135,13 @@ module Ikra
 
         class RootNode
             def translate_statement
-                single_child.translate_statement
+                return single_child.translate_statement
             end
         end
 
         class LVarReadNode
             def translate_expression
-                mangled_identifier.to_s
+                return mangled_identifier.to_s
             end
         end
         
@@ -159,62 +161,63 @@ module Ikra
         class IVarReadNode
             def translate_expression
                 array_identifier = enclosing_class.ruby_class.to_ikra_type.inst_var_array_name(identifier)
-                "#{Translator::Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
+                return "#{Translator::Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
             end
         end
 
-        class IntNode
+        class IntLiteralNode
             def translate_expression
-                value.to_s
+                return value.to_s
             end
         end
 
-        class NilNode
+        class NilLiteralNode
             def translate_expression
-                "0"
+                return "0"
             end
         end
         
-        class FloatNode
+        class FloatLiteralNode
             def translate_expression
-                value.to_s
+                return value.to_s
             end
         end
         
-        class BoolNode
+        class BoolLiteralNode
             def translate_expression
-                value.to_s
+                return value.to_s
             end
         end
         
         class ForNode
             def translate_statement
                 loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
-                loop_header + "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\n"
+                return loop_header + 
+                    "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\n"
             end
         end
         
         class WhileNode
             def translate_statement
-                "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
+                return "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
             end
         end
         
         class WhilePostNode
             def translate_statement
-                "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
+                return "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
             end
         end
         
         class UntilNode
             def translate_statement
-                "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
+                return "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
             end
         end
         
         class UntilPostNode
             def translate_statement
-                "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
+                return "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
             end
         end
 
@@ -224,7 +227,7 @@ module Ikra
             end
             
             def translate_statement
-                "break;\n"
+                return "break;\n"
             end
         end
         
@@ -233,9 +236,9 @@ module Ikra
                 header = "if (#{condition.translate_expression})\n"
 
                 if false_body_stmts == nil
-                    header + true_body_stmts.translate_statement
+                    return header + true_body_stmts.translate_statement
                 else
-                    header + true_body_stmts.translate_statement + "else\n" + false_body_stmts.translate_statement
+                    return header + true_body_stmts.translate_statement + "else\n" + false_body_stmts.translate_statement
                 end
             end
 
@@ -244,7 +247,7 @@ module Ikra
                 accept(Translator::LastStatementReturnsVisitor.new)
 
                 # Wrap in StatementExpression
-                statements_as_expression(translate_statement)
+                return statements_as_expression(translate_statement)
             end
         end
         
@@ -258,7 +261,7 @@ module Ikra
                     stmt.translate_statement
                 end.join("")
                 
-                wrap_in_c_block(body_translated)
+                return wrap_in_c_block(body_translated)
             end
 
             def translate_expression
@@ -266,12 +269,13 @@ module Ikra
                     raise "Empty BeginNode cannot be an expression"
                 elsif body_stmts.size == 1
                     # Preserve brackets
-                    "(#{body_stmts.first.translate_expression})"
+                    return "(#{body_stmts.first.translate_expression})"
                 else
                     # Wrap in lambda
-                    # Do not worry about scope of varibles, they will all be declared at the beginning of the function
+                    # Do not worry about scope of varibles, they will all be declared at the
+                    # beginning of the function
                     accept(Translator::LastStatementReturnsVisitor.new)
-                    statements_as_expression(translate_statement)
+                    return statements_as_expression(translate_statement)
                 end
 
             end
@@ -318,7 +322,7 @@ module Ikra
                     end
 
                     # TODO: compound statements only work with the GNU C++ compiler
-                    "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
+                    return "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
                 end
             end
 
@@ -348,7 +352,7 @@ module Ikra
                 elsif recv_type.is_a?(Types::StructType)
                     first_arg = arguments.first
 
-                    if first_arg.is_a?(AST::IntNode)
+                    if first_arg.is_a?(AST::IntLiteralNode)
                         # Reading the struct at a constant position
                         return recv_type.generate_read(
                             receiver.translate_expression, 
@@ -396,7 +400,7 @@ module Ikra
             end
 
             def translate_statement
-                "return #{value.translate_expression};\n"
+                return "return #{value.translate_expression};\n"
             end
         end
     end

@@ -7,82 +7,82 @@ module Ikra
         module Builder
             class << self
                 def from_parser_ast(node)
-                    RootNode.new(single_child: translate_node(node))
+                    return RootNode.new(single_child: translate_node(node))
                 end
 
                 private
 
                 def wrap_in_begin(translated_node)
                     if translated_node != nil
-                        BeginNode.new(body_stmts: [translated_node])
+                        return BeginNode.new(body_stmts: [translated_node])
                     else
-                        nil
+                        return nil
                     end
                 end
 
                 def translate_node(node)
                     if node == nil
-                        nil
+                        return nil
                     else
-                        send("translate_#{node.type.to_s.gsub("-", "_")}".to_sym, node)
+                        return send("translate_#{node.type.to_s.gsub("-", "_")}".to_sym, node)
                     end
                 end
                 
                 def translate_const(node)
                     # TODO(matthias): what is the meaning of the first child?
-                    ConstNode.new(identifier: node.children[1])
+                    return ConstNode.new(identifier: node.children[1])
                 end
 
                 def translate_int(node)
-                    IntNode.new(value: node.children[0])
+                    return IntLiteralNode.new(value: node.children[0])
                 end
                 
                 def translate_float(node)
-                    FloatNode.new(value: node.children[0])
+                    return FloatLiteralNode.new(value: node.children[0])
                 end
                 
                 def translate_bool(node)
-                    BoolNode.new(value: node.children[0])
+                    return BoolLiteralNode.new(value: node.children[0])
                 end
                 
                 def translate_true(node)
-                    BoolNode.new(value: true)
+                    return BoolLiteralNode.new(value: true)
                 end
                 
                 def translate_false(node)
-                    BoolNode.new(value: false)
+                    return BoolLiteralNode.new(value: false)
                 end
 
                 def translate_nil(node)
-                    NilNode.new
+                    return NilLiteralNode.new
                 end
                 
                 def translate_and(node)
-                    SendNode.new(receiver: translate_node(node.children[0]),
+                    return SendNode.new(receiver: translate_node(node.children[0]),
                         selector: :"&&",
                         arguments: [translate_node(node.children[1])])
                 end
                 
                 def translate_or(node)
-                    SendNode.new(receiver: translate_node(node.children[0]),
+                    return SendNode.new(receiver: translate_node(node.children[0]),
                         selector: :"||",
                         arguments: [translate_node(node.children[1])])
                 end
                 
                 def translate_lvar(node)
-                    LVarReadNode.new(identifier: node.children[0])
+                    return LVarReadNode.new(identifier: node.children[0])
                 end
                 
                 def translate_lvasgn(node)
-                    LVarWriteNode.new(identifier: node.children[0], value: translate_node(node.children[1]))
+                    return LVarWriteNode.new(identifier: node.children[0], value: translate_node(node.children[1]))
                 end
                 
                 def translate_ivar(node)
-                    IVarReadNode.new(identifier: node.children[0])
+                    return IVarReadNode.new(identifier: node.children[0])
                 end
 
                 def translate_if(node)
-                    IfNode.new(condition: translate_node(node.children[0]),
+                    return IfNode.new(condition: translate_node(node.children[0]),
                         true_body_stmts: wrap_in_begin(translate_node(node.children[1])),
                         false_body_stmts: wrap_in_begin(translate_node(node.children[2])))
                 end
@@ -97,14 +97,14 @@ module Ikra
                         next_node = next_node.children[0]
                     end
                     
-                    next_node
+                    return next_node
                 end
                 
                 def translate_for(node)
                     if node.children[0].type == :lvasgn and extract_begin_single_statement(node.children[1]).type == :irange
                         range = extract_begin_single_statement(node.children[1])
                         
-                        ForNode.new(iterator_identifier: node.children[0].children[0],
+                        return ForNode.new(iterator_identifier: node.children[0].children[0],
                             range_from: translate_node(range.children[0]),
                             range_to: translate_node(range.children[1]),
                             body_stmts: wrap_in_begin(translate_node(node.children[2])))
@@ -115,9 +115,9 @@ module Ikra
                         range_to_inclusive = SendNode.new(
                             receiver: range_to,
                             selector: :-,
-                            arguments: [IntNode.new(value: 1)])
+                            arguments: [IntLiteralNode.new(value: 1)])
 
-                        ForNode.new(iterator_identifier: node.children[0].children[0],
+                        return ForNode.new(iterator_identifier: node.children[0].children[0],
                             range_from: translate_node(range.children[0]),
                             range_to: range_to_inclusive,
                             body_stmts: wrap_in_begin(translate_node(node.children[2])))
@@ -127,39 +127,39 @@ module Ikra
                 end
                 
                 def translate_while(node)
-                    WhileNode.new(
+                    return WhileNode.new(
                         condition: translate_node(node.children[0]),
                         body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_while_post(node)
-                    WhilePostNode.new(
+                    return WhilePostNode.new(
                         condition: translate_node(node.children[0]),
                         body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_until(node)
-                    UntilNode.new(
+                    return UntilNode.new(
                         condition: (SendNode.new(receiver: translate_node(node.children[0]),
                             selector: :^,
-                            arguments: [BoolNode.new(value: true)])),
+                            arguments: [BoolLiteralNode.new(value: true)])),
                         body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
                 
                 def translate_until_post(node)
-                    UntilPostNode.new(
+                    return UntilPostNode.new(
                         condition: (SendNode.new(receiver: translate_node(node.children[0]),
                             selector: :^,
-                            arguments: [BoolNode.new(value: true)])),
+                            arguments: [BoolLiteralNode.new(value: true)])),
                         body_stmts: wrap_in_begin(translate_node(node.children[1])))
                 end
 
                 def translate_break(node)
-                    BreakNode.new
+                    return BreakNode.new
                 end
                 
                 def translate_return(node)
-                    ReturnNode.new(value: translate_node(node.children[0]))
+                    return ReturnNode.new(value: translate_node(node.children[0]))
                 end
 
                 def translate_send(node)
@@ -173,19 +173,19 @@ module Ikra
                         receiver = translate_node(node.children[0])
                     end
 
-                    SendNode.new(receiver: receiver,
+                    return SendNode.new(receiver: receiver,
                         selector: node.children[1],
                         arguments: node.children[2..-1].map do |arg|
                             translate_node(arg) end)
                 end
                 
                 def translate_begin(node)
-                    BeginNode.new(body_stmts: node.children.map do |stmt|
+                    return BeginNode.new(body_stmts: node.children.map do |stmt|
                         translate_node(stmt) end)
                 end
                 
                 def translate_kwbegin(node)
-                    BeginNode.new(body_stmts: node.children.map do |stmt|
+                    return BeginNode.new(body_stmts: node.children.map do |stmt|
                         translate_node(stmt) end)
                 end
             end

@@ -91,7 +91,7 @@ module Ikra
                     raise "Expected exactly one argument"
                 end
 
-                if arg_nodes.first.class == AST::IntNode
+                if arg_nodes.first.class == AST::IntLiteralNode
                     if arg_nodes.first.value >= @fields.size
                         raise "ZipStruct index out of bounds: #{arg_nodes.first.value}"
                     end

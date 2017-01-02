@@ -191,7 +191,7 @@ module Ikra
             end
         end
 
-        class IntNode < TreeNode
+        class IntLiteralNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -199,7 +199,7 @@ module Ikra
             end
         end
         
-        class FloatNode < TreeNode
+        class FloatLiteralNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -207,7 +207,7 @@ module Ikra
             end
         end
         
-        class BoolNode < TreeNode
+        class BoolLiteralNode < TreeNode
             attr_reader :value
             
             def initialize(value:)
@@ -215,7 +215,7 @@ module Ikra
             end
         end
 
-        class NilNode < TreeNode
+        class NilLiteralNode < TreeNode
             
         end
         

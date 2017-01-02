@@ -4,39 +4,39 @@ module Ikra
     module AST
         class Node
             def accept(visitor)
-                visitor.visit_node(self)
+                return visitor.visit_node(self)
             end
         end
         
         class ProgramNode
             def accept(visitor)
                 def accept(visitor)
-                    visitor.visit_program_node(self)
+                    return visitor.visit_program_node(self)
                 end
             end
         end
 
         class ClassDefNode
             def accept(visitor)
-                visitor.visit_class_def_node(self)
+                return visitor.visit_class_def_node(self)
             end
         end
 
         class VarDefNode
             def accept(visitor)
-                visitor.visit_var_def_node(self)
+                return visitor.visit_var_def_node(self)
             end
         end
 
         class MethDefNode
             def accept(visitor)
-                visitor.visit_meth_def_node(self)
+                return visitor.visit_meth_def_node(self)
             end
         end
 
         class BlockDefNode
             def accept(visitor)
-                visitor.visit_block_def_node(self)
+                return visitor.visit_block_def_node(self)
             end
         end
 
@@ -70,25 +70,25 @@ module Ikra
             end
         end
 
-        class IntNode
+        class IntLiteralNode
             def accept(visitor)
                 visitor.visit_int_node(self)
             end
         end
         
-        class FloatNode
+        class FloatLiteralNode
             def accept(visitor)
                 visitor.visit_float_node(self)
             end
         end
         
-        class BoolNode
+        class BoolLiteralNode
             def accept(visitor)
                 visitor.visit_bool_node(self)
             end
         end
         
-        class NilNode
+        class NilLiteralNode
             def accept(visitor)
                 visitor.visit_nil_node(self)
             end
@@ -102,55 +102,55 @@ module Ikra
         
         class WhileNode
             def accept(visitor)
-                visitor.visit_while_node(self)
+                return visitor.visit_while_node(self)
             end
         end
         
         class WhilePostNode
             def accept(visitor)
-                visitor.visit_while_post_node(self)
+                return visitor.visit_while_post_node(self)
             end
         end
         
         class UntilNode
             def accept(visitor)
-                visitor.visit_until_node(self)
+                return visitor.visit_until_node(self)
             end
         end
         
         class UntilPostNode
             def accept(visitor)
-                visitor.visit_until_post_node(self)
+                return visitor.visit_until_post_node(self)
             end
         end
 
         class BreakNode
             def accept(visitor)
-             visitor.visit_break_node(self)
+             return visitor.visit_break_node(self)
             end
         end
         
         class IfNode
             def accept(visitor)
-                visitor.visit_if_node(self)
+                return visitor.visit_if_node(self)
             end
         end
         
         class BeginNode
             def accept(visitor)
-                visitor.visit_begin_node(self)
+                return visitor.visit_begin_node(self)
             end
         end
         
         class SendNode
             def accept(visitor)
-                visitor.visit_send_node(self)
+                return visitor.visit_send_node(self)
             end
         end
         
         class ReturnNode
             def accept(visitor)
-                visitor.visit_return_node(self)
+                return visitor.visit_return_node(self)
             end
         end
 
