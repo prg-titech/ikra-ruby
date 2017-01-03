@@ -123,6 +123,33 @@ module Ikra
                 end
             end
 
+            def <(other)
+                return pcombine(other) do |a, b|
+                    a < b
+                end
+            end
+
+            def <=(other)
+                return pcombine(other) do |a, b|
+                    a <= b
+                end
+            end
+
+            def >(other)
+                return pcombine(other) do |a, b|
+                    a > b
+                end
+            end
+
+            def >=(other)
+                return pcombine(other) do |a, b|
+                    a >= b
+                end
+            end
+
+            # TODO(springerm): Should implement #== but this could cause trouble when using with
+            # hash maps etc.
+
             private
 
             def wrap_in_command(*others)
