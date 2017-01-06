@@ -1,3 +1,5 @@
+require 'set'
+
 module Ikra
     module Symbolic
         class ArrayIndexCommand
@@ -42,6 +44,24 @@ module Ikra
             end
         end
 
+        class IterativeComputation
+            def accept(visitor)
+                visitor.visit_iterative_computation(self)
+            end
+        end
+
+        class IterativeCommandWrapper
+            def accept(visitor)
+                visitor.visit_iterative_command_wrapper(self)
+            end
+        end
+
+        class IterativeComputationResultCommand
+            def accept(visitor)
+                visitor.visit_iterative_computation_result_command(self)
+            end
+        end
+
         class Visitor
             def visit_array_command(command)
                 for input in command.input
@@ -77,6 +97,22 @@ module Ikra
 
             def visit_array_zip_command(command)
                 visit_array_command(command)
+            end
+
+            def visit_iterative_computation(computation)
+                for update in computation.updates
+                    update.accept(self)
+                end
+
+                # TODO: should we also visit `until_condition`?
+            end
+
+            def visit_iterative_command_wrapper(wrapper)
+                wrapper.command.accept(self)
+            end
+
+            def visit_iterative_computation_result_command(command)
+                command.iterative_computation.accept(self)
             end
         end
     end

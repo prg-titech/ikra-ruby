@@ -228,5 +228,7 @@ require_relative "array_reduce_command"
 require_relative "array_stencil_command"
 require_relative "array_zip_command"
 
+require_relative "iterative"
+
 require_relative "../program_builder"
 require_relative "../kernel_launcher"
