@@ -25,6 +25,28 @@ module Ikra
                     command_id: command.unique_id,
                     entire_input_translation: input)
 
+                # Translate relative indices to 1D-indicies starting by 0
+                if command.use_parameter_array
+                    # Compute String of relative index
+                    string_offsets = command.offsets.map do |offset|
+                        if offset.is_a?(Array)
+                            command.block_parameter_names.first.to_s + "[" + offset.join("][") + "]"
+                        else
+                            command.block_parameter_names.first.to_s + "[" + offset.to_s + "]"
+                        end
+                    end
+
+                    # Substitute relative access by 1D index and add "_temp"-indicator to prevent further substitution
+                    for i in 0..command.offsets.size-1
+                        block_translation_result.block_source.gsub!(string_offsets[i], command.block_parameter_names.first.to_s + "_temp[" + i.to_s + "]")
+                    end
+
+                    # Erase "_temp"-indicator
+                    for i in 0..command.offsets.size-1
+                        block_translation_result.block_source.gsub!(command.block_parameter_names.first.to_s + "_temp[" + i.to_s + "]", command.block_parameter_names.first.to_s + "[" + i.to_s + "]")
+                    end
+                end
+
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 

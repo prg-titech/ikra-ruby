@@ -54,10 +54,17 @@ module Ikra
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
 
+                parameter_type = input_command_translation_result.result_type
+
+                # Set type to multidimensional array dependend on the dimensions of the given offset
+                for i in 1..command.dimensions.size
+                    parameter_type = parameter_type.to_array_type
+                end
+
                 # Take return type from previous computation
                 parameters = [Translator::Variable.new(
                     name: block_param_name,
-                    type: input_command_translation_result.result_type.to_array_type)]
+                    type: parameter_type)]
 
 
                 # Allocate and fill array of parameters

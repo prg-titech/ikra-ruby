@@ -50,7 +50,7 @@ class StencilTest < UnitTestCase
         end
 
         stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000) do |values|
-            values[0] + values[1] + values[2]
+            values[-1] + values[0] + values[1]
         end 
 
         aggregated_gpu = stencil_result_gpu.reduce(:+)
@@ -67,7 +67,7 @@ class StencilTest < UnitTestCase
         end
 
         stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
-            values[0] + values[1] + values[2] + values[3]
+            values[-1][-1] + values[0][-1] + values[0][1] + values[0][0]
         end
 
         # Compare results
