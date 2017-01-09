@@ -14,16 +14,6 @@ module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
 
-        class GPUResultPointer
-            attr_accessor :device_pointer
-
-            attr_accessor :result_type
-
-            def initialize(result_type:)
-                @result_type = result_type
-            end
-        end
-
         module ParallelOperations
             def preduce(symbol = nil, **options, &block)
                 if symbol == nil && block != nil
@@ -224,12 +214,14 @@ module Ikra
 
             def post_execute(environment)
                 if keep
-                    @gpu_result_pointer.device_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i   
+                    # The (temporary) result of this command should be kept on the GPU. Store a
+                    # pointer to the result in global memory in an instance variable.
+                    @gpu_result_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i   
                 end
             end
 
             def has_previous_result?
-                return !gpu_result_pointer.nil? && gpu_result_pointer.device_pointer != 0
+                return !gpu_result_pointer.nil?
             end
 
             # Returns a collection of the names of all block parameters.
@@ -615,3 +607,4 @@ class Array
     end
 end
 
+require_relative "host_section"

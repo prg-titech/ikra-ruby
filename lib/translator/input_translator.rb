@@ -7,12 +7,12 @@ module Ikra
         end
 
         class SingleInput < Input
-            def translate_input(command:, command_translator:, start_eat_params_offset: 0)
+            def translate_input(parent_command:, command_translator:, start_eat_params_offset: 0)
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
 
                 parameters = [Translator::Variable.new(
-                    name: command.block_parameter_names[start_eat_params_offset],
+                    name: parent_command.block_parameter_names[start_eat_params_offset],
                     type: input_command_translation_result.result_type)]
 
                 return Translator::InputTranslationResult.new(
@@ -22,17 +22,17 @@ module Ikra
         end
 
         class ReduceInput < SingleInput
-            def translate_input(command:, command_translator:, start_eat_params_offset: 0)
+            def translate_input(parent_command:, command_translator:, start_eat_params_offset: 0)
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
 
                 # TODO: Fix type inference (sometimes type has to be expanded)
                 parameters = [
                     Translator::Variable.new(
-                        name: command.block_parameter_names[start_eat_params_offset],
+                        name: parent_command.block_parameter_names[start_eat_params_offset],
                         type: input_command_translation_result.result_type),
                     Translator::Variable.new(
-                        name: command.block_parameter_names[start_eat_params_offset + 1],
+                        name: parent_command.block_parameter_names[start_eat_params_offset + 1],
                         type: input_command_translation_result.result_type)]
 
                 return Translator::InputTranslationResult.new(
@@ -42,14 +42,14 @@ module Ikra
         end
 
         class StencilArrayInput < Input
-            def translate_input(command:, command_translator:, start_eat_params_offset: 0)
+            def translate_input(parent_command:, command_translator:, start_eat_params_offset: 0)
                 # Parameters are allocated in a constant-sized array
 
                 # Count number of parameters
-                num_parameters = command.offsets.size
+                num_parameters = parent_command.offsets.size
 
                 # Get single parameter name
-                block_param_name = command.block_parameter_names[start_eat_params_offset]
+                block_param_name = parent_command.block_parameter_names[start_eat_params_offset]
 
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
@@ -88,20 +88,20 @@ module Ikra
         end
 
         class StencilSingleInput < Input
-            def translate_input(command:, command_translator:, start_eat_params_offset: 0)
+            def translate_input(parent_command:, command_translator:, start_eat_params_offset: 0)
                 # Pass separate parameters
 
                 # Translate input using visitor
                 input_command_translation_result = command_translator.translate_input(self)
 
                 # Count number of parameters
-                num_parameters = command.offsets.size
+                num_parameters = parent_command.offsets.size
 
                 # Take return type from previous computation
                 parameters = []
                 for index in start_eat_params_offset...(start_eat_params_offset + num_parameters)
                     parameters.push(Translator::Variable.new(
-                        name: command.block_parameter_names[index],
+                        name: parent_command.block_parameter_names[index],
                         type: input_command_translation_result.result_type))
                 end
 
@@ -212,18 +212,6 @@ module Ikra
                 elsif index.is_a?(Range)
                     return @input[index].map do |n|
                         n.command_translation_result.result
-                    end
-                else
-                    raise ArgumentError.new("Expected Fixnum or Range")
-                end
-            end
-
-            def result_type(index = 0..-1)
-                if index.is_a?(Fixnum)
-                     return @input[index].command_translation_result.result_type
-                elsif index.is_a?(Range)
-                    return @input[index].map do |n|
-                        n.command_translation_result.result_type
                     end
                 else
                     raise ArgumentError.new("Expected Fixnum or Range")

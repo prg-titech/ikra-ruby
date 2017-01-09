@@ -81,13 +81,13 @@ module Ikra
                     "block_size" => block_size.to_s,
                     "temp_result" => Constants::TEMP_RESULT_IDENTIFIER,
                     "odd" => Constants::ODD_IDENTIFIER,
-                    "type" => block_translation_result.result_type.to_c_type,
+                    "type" => command.result_type.to_c_type,
                     "num_threads" => Constants::NUM_THREADS_IDENTIFIER})
 
                 command_translation = CommandTranslationResult.new(
                     execution: command_execution,
                     result:  Constants::TEMP_RESULT_IDENTIFIER,
-                    result_type: block_translation_result.result_type)
+                    command: command)
 
                 Log.info("DONE translating ArrayReduceCommand [#{command.unique_id}]")
 

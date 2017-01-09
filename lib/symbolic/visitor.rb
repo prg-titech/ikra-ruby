@@ -42,6 +42,12 @@ module Ikra
             end
         end
 
+        class ArrayHostSectionCommand
+            def accept(visitor)
+                visitor.visit_array_host_section_command(self)
+            end
+        end
+
         class Visitor
             def visit_array_command(command)
                 for input in command.input
@@ -77,6 +83,10 @@ module Ikra
 
             def visit_array_zip_command(command)
                 visit_array_command(command)
+            end
+
+            def visit_array_host_section_command(command)
+
             end
         end
     end

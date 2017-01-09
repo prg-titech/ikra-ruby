@@ -9,9 +9,8 @@ module Ikra
                 # Process dependent computation (receiver), returns [InputTranslationResult]
                 input = translate_entire_input(command)
 
-                # Build Ikra struct type
-                zipped_type_singleton = Types::ZipStructType.new(*input.result_type)
-                zipped_type = Types::UnionType.new(zipped_type_singleton)
+                # Get Ikra struct type
+                zipped_type_singleton = command.result_type.singleton_type
 
                 # Add struct type to program builder, so that we can generate the source code
                 # for its definition.
@@ -20,7 +19,7 @@ module Ikra
                 command_translation = CommandTranslationResult.new(
                     execution: input.execution,
                     result: zipped_type_singleton.generate_inline_initialization(input.result),
-                    result_type: zipped_type)
+                    command: command)
 
                 Log.info("DONE translating ArrayZipCommand [#{command.unique_id}]")
 

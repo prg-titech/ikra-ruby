@@ -30,9 +30,6 @@ module Ikra
                 command_translation = build_command_translation_result(
                     execution: input.execution,
                     result: result,
-                    result_type: block_translation_result.result_type,
-                    keep: command.keep,
-                    unique_id: command.unique_id,
                     command: command)
 
                 kernel_launcher.set_result_name(command.unique_id.to_s)
