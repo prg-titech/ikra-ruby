@@ -16,11 +16,7 @@ module Ikra
                 environment_builder.add_base_array(command.unique_id, transformed_base_array)
 
                 command_translation = build_command_translation_result(
-                    execution: "",
                     result: "#{Constants::ENV_IDENTIFIER}->#{EnvironmentBuilder.base_identifier(command.unique_id)}[_tid_]",
-                    result_type: command.base_type,
-                    keep: command.keep,
-                    unique_id: command.unique_id,
                     command: command)
 
                 Log.info("DONE translating ArrayIdentityCommand [#{command.unique_id}]")

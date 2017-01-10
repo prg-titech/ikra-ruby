@@ -98,7 +98,7 @@ module Ikra
                 command_execution = Translator.read_file(file_name: "stencil_body.cpp", replacements: {
                     "execution" => input.execution,
                     "temp_var" => temp_var_name,
-                    "result_type" => block_translation_result.result_type.to_c_type,
+                    "result_type" => command.result_type.to_c_type,
                     "compute_indices" => compute_indices,
                     "out_of_bounds_check" => out_of_bounds_check,
                     "out_of_bounds_fallback" => command.out_of_range_value.to_s,
@@ -107,9 +107,6 @@ module Ikra
                 command_translation = build_command_translation_result(
                     execution: command_execution,
                     result: temp_var_name,
-                    result_type: block_translation_result.result_type,
-                    keep: command.keep,
-                    unique_id: command.unique_id,
                     command: command)
 
                 kernel_launcher.set_result_name(command.unique_id.to_s)

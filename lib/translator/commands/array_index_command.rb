@@ -28,22 +28,20 @@ module Ikra
                 end
 
                 if num_dims > 1
-                    # Build Ikra struct type
-                    zipped_type_singleton = Types::ZipStructType.new(*([Types::UnionType.create_int] * command.dimensions.size))
+                    # Retrieve type that was generated earlier
+                    zipped_type_singleton = command.result_type.singleton_type
                     result = zipped_type_singleton.generate_inline_initialization(index_generators)
-                    result_type = Types::UnionType.new(zipped_type_singleton)
 
                     # Add struct type to program builder, so that we can generate the source code
                     # for its definition.
                     program_builder.structs.add(zipped_type_singleton)
                 else
                     result = "_tid_"
-                    result_type = Types::UnionType.create_int
                 end
 
                 command_translation = CommandTranslationResult.new(
                     result: result,
-                    result_type: result_type)
+                    command: command)
 
                 Log.info("DONE translating ArrayIndexCommand [#{command.unique_id}]")
 

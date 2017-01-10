@@ -2,8 +2,8 @@
 
 require "set"
 
-require_relative "../ast/nodes.rb"
-require_relative "../ast/visitor.rb"
+require_relative "../../ast/nodes.rb"
+require_relative "../../ast/visitor.rb"
 
 module Ikra
     module AST

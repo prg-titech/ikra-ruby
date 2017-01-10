@@ -48,6 +48,8 @@ module Ikra
             # block
             # @param [Array{Variable}] override_block_parameters overrides the the declaration of
             # parameters that this block accepts.
+            # @param [EntireInputTranslationResult] entire_input_translation The result of 
+            # `translate_entire_input`
             # @return [BlockTranslationResult]
             def translate_block(
                 block_def_node:, 

@@ -30,15 +30,15 @@ module Ikra
             end
 
             def to_c_type
-                "#{@inner_type.to_c_type} *"
+                return "#{@inner_type.to_c_type} *"
             end
 
             def to_ffi_type
-                :pointer
+                return :pointer
             end
 
             def to_ruby_type
-                ::Array
+                return ::Array
             end
         end
     end
@@ -52,6 +52,6 @@ class Array
             inner_type.add(element.class.to_ikra_type_obj(element))
         end
 
-        Ikra::Types::ArrayType.new(inner_type)
+        return Ikra::Types::ArrayType.new(inner_type)
     end
 end

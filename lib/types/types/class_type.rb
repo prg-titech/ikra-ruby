@@ -1,9 +1,9 @@
 # No explicit `require`s. This file should be includes via types.rb
 
 require "set"
-require_relative "../sourcify/lib/sourcify"
-require_relative "../parsing"
-require_relative "../ast/builder"
+require_relative "../../sourcify/lib/sourcify"
+require_relative "../../parsing"
+require_relative "../../ast/builder"
 
 module Ikra
     module Types

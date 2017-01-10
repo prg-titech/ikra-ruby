@@ -26,12 +26,16 @@ module Ikra
                 # computation and `execution` should then be empty.
                 attr_reader :result
 
-                attr_reader :result_type
+                attr_reader :command
 
-                def initialize(execution: "", result:, result_type:)
+                def initialize(execution: "", result:, command:)
                     @execution = execution
-                    @result_type = result_type
+                    @command = command
                     @result = result;
+                end
+
+                def result_type
+                    return command.result_type
                 end
             end
 
@@ -126,7 +130,7 @@ module Ikra
             def translate_entire_input(command)
                 input_translated = command.input.each_with_index.map do |input, index|
                     input.translate_input(
-                        command: command,
+                        parent_command: command,
                         command_translator: self,
                         # Assuming that every input consumes exactly one parameter
                         start_eat_params_offset: index)
@@ -143,8 +147,11 @@ module Ikra
                 previous_result = ""
 
                 if input.command.has_previous_result?
-                    environment_builder.add_previous_result(input.command.unique_id, input.command.gpu_result_pointer.device_pointer)
-                    environment_builder.add_previous_result_type(input.command.unique_id, input.command.gpu_result_pointer.result_type)
+                    # Read previously computed (cached) value
+                    environment_builder.add_previous_result(
+                        input.command.unique_id, input.command.gpu_result_pointer)
+                    environment_builder.add_previous_result_type(
+                        input.command.unique_id, input.command.result_type)
 
                     cell_access = ""
                     if input.pattern == :tid
@@ -154,8 +161,8 @@ module Ikra
                     kernel_launcher.configure_grid(input.command.size)
                     previous_result = CommandTranslationResult.new(
                         execution: "",
-                        result: "((#{input.command.gpu_result_pointer.result_type.to_c_type} *)(_env_->" + "prev_#{input.command.unique_id}))#{cell_access}",
-                        result_type: input.command.gpu_result_pointer.result_type)
+                        result: "((#{input.command.result_type.to_c_type} *)(_env_->" + "prev_#{input.command.unique_id}))#{cell_access}",
+                        command: input.command)
 
                     if input.pattern == :tid
                         return previous_result
@@ -176,7 +183,8 @@ module Ikra
                         
                         pop_kernel_launcher(previous_result)
                     else
-                        kernel_launcher.use_cached_result(input.command.unique_id, input.command.gpu_result_pointer.result_type) 
+                        kernel_launcher.use_cached_result(
+                            input.command.unique_id, input.command.result_type) 
                         previous_result_kernel_var = "prev_" + input.command.unique_id.to_s
                     end
 
@@ -190,7 +198,7 @@ module Ikra
 
                     kernel_translation = CommandTranslationResult.new(
                         result: previous_result_kernel_var,
-                        result_type: previous_result.result_type)
+                        command: input.command)
 
                     return kernel_translation
                 else
@@ -199,14 +207,18 @@ module Ikra
             end
 
             def build_command_translation_result(
-                execution:, result:, result_type:, keep: false, unique_id: 0, command: nil)
-                if keep
+                execution: "", result:, command:)
+
+                result_type = command.result_type
+                unique_id = command.unique_id
+
+                if command.keep
+                    # Store result in global array
                     command_result = Constants::TEMP_RESULT_IDENTIFIER + unique_id.to_s
                     command_execution = execution + "\n        " + result_type.to_c_type + " " + command_result + " = " + result + ";"
                     kernel_builder.add_cached_result(unique_id.to_s, result_type)
                     kernel_launcher.add_cached_result(unique_id.to_s, result_type)
-                    command.gpu_result_pointer = Symbolic::GPUResultPointer.new(result_type: result_type)
-                    environment_builder.add_previous_result_type(command.unique_id, result_type)
+                    environment_builder.add_previous_result_type(unique_id, result_type)
                 else
                     command_result = result
                     command_execution = execution
@@ -215,7 +227,7 @@ module Ikra
                 command_translation = CommandTranslationResult.new(
                     execution: command_execution,
                     result: command_result,
-                    result_type: result_type)
+                    command: command)
             end
         end
     end
