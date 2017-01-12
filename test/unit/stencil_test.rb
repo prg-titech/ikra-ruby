@@ -48,7 +48,6 @@ class StencilTest < UnitTestCase
         base_array_gpu = Array.pnew(100) do |j|
             j + 100
         end
-
         stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000) do |values|
             values[-1] + values[0] + values[1]
         end 
@@ -72,5 +71,43 @@ class StencilTest < UnitTestCase
 
         # Compare results
         assert_equal([10000, 10000, 10000, 10000, 10000, 10000, 33, 37, 41, 10000, 10000, 73, 77, 81, 10000, 10000, 113, 117, 121, 10000, 10000, 153, 157, 161, 10000, 10000, 193, 197, 201, 10000, 10000, 233, 237, 241, 10000], stencil_result_gpu.to_a)
+    end
+
+    def test_non_constant_index_stencil_array_parameter
+        # CPU computation
+        base_array_cpu = Array.new(100) do |j|
+            j + 100
+        end
+
+        stencil_result_cpu = base_array_cpu.stencil([-1, 0, 1], 10000) do |values|
+            if values[1] % 2 == 0
+                x = 0
+            else
+                x = 1
+            end
+            values[x] + values[1] + values[x]
+        end
+
+        aggregated_cpu = stencil_result_cpu.reduce(:+)
+
+
+        # GPU computation
+        base_array_gpu = Array.pnew(100) do |j|
+            j + 100
+        end
+        stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000) do |values|
+            if values[0] % 2 == 0
+                x = -1
+            else
+                x = 0
+            end
+            values[x] + values[0] + values[x]
+        end 
+
+        aggregated_gpu = stencil_result_gpu.reduce(:+)
+
+
+        # Compare results
+        assert_equal(aggregated_cpu, aggregated_gpu)
     end
 end
