@@ -80,6 +80,10 @@ module Ikra
                 return true
             end
 
+            def to_union_type
+                return self
+            end
+
             def is_singleton?
                 return @types.size == 1
             end
@@ -99,7 +103,7 @@ module Ikra
             # @return [Bool] true if the argument added new inner types to this union type
             def expand(union_type)
                 if not union_type.is_union_type?
-                    raise "Cannot expand with non-union type"
+                    raise "Cannot expand with non-union type: #{union_type}"
                 end
 
                 is_expanded = false

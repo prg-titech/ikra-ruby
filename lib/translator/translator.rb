@@ -24,6 +24,8 @@ module Ikra
             TEMP_RESULT_IDENTIFIER = "_temp_result_"
             ODD_TYPE = "bool"
             ODD_IDENTIFIER = "_odd_"
+            PROGRAM_RESULT_TYPE = "result_t"
+            PROGRAM_RESULT_IDENTIFIER = "program_result"
         end
 
         class Variable

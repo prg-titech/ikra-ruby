@@ -351,15 +351,7 @@ module Ikra
                 end
 
                 constant = binding.eval(node.identifier.to_s)
-                constant_class = nil
-
-                if constant.is_a?(Module)
-                    constant_class = constant.singleton_class
-                else
-                    constant_class = constant.class
-                end
-
-                node.merge_union_type(Types::UnionType.new(constant_class.to_ikra_type_obj(constant)))
+                node.merge_union_type(constant.ikra_type.to_union_type)
             end
 
             def visit_root_node(node)
@@ -481,7 +473,19 @@ module Ikra
                 for sing_type in receiver_type
                     if RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
-                        return_type = RubyIntegration.get_return_type(sing_type, node.selector, *arg_types)
+
+                        if sing_type.is_a?(Symbolic::ArrayCommand)
+                            # If a method is called on an ArrayCommand, we also pass the AST nodes
+                            # of all arguments
+                            arg_nodes = node.arguments
+                            block_node = node.block_argument
+                        else
+                            arg_nodes = nil
+                            block_node = nil
+                        end
+
+                        return_type = RubyIntegration.get_return_type(
+                            sing_type, node.selector, *arg_types, args_ast: arg_nodes, block_ast: block_node)
                         
                         type.expand(return_type)
                         node.return_type_by_recv_type[sing_type] = return_type

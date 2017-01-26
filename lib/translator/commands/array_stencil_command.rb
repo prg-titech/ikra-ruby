@@ -109,8 +109,6 @@ module Ikra
                     result: temp_var_name,
                     command: command)
 
-                kernel_launcher.set_result_name(command.unique_id.to_s)
-
                 Log.info("DONE translating ArrayStencilCommand [#{command.unique_id}]")
 
                 return command_translation

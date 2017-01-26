@@ -106,7 +106,7 @@ module Ikra
 
                 # Lexical variables
                 lexical_variables.each do |name, value|
-                    block_def_node.lexical_variables_names_and_types[name] = Types::UnionType.new(value.class.to_ikra_type_obj(value))
+                    block_def_node.lexical_variables_names_and_types[name] = value.ikra_type.to_union_type
                 end
 
                 # Type inference
@@ -127,7 +127,7 @@ module Ikra
 
                 # Load environment variables
                 lexical_variables.each do |name, value|
-                    type = value.class.to_ikra_type_obj(value)
+                    type = value.ikra_type
                     mangled_name = environment_builder.add_object(name, value)
                     translation_result.prepend("#{type.to_c_type} #{Constants::LEXICAL_VAR_PREFIX}#{name} = #{Constants::ENV_IDENTIFIER}->#{mangled_name};\n")
                 end

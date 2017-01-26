@@ -13,6 +13,20 @@ module Ikra
                 # Currently supported: :tid, :entire
                 @pattern = pattern
             end
+
+            def ==(other)
+                return self.class == other.class &&
+                    self.pattern == other.pattern &&
+                    self.command == other.command
+            end
+
+            def hash
+                return (pattern.hash + command.hash) % 7656781
+            end
+
+            def eql?(other)
+                return self == other
+            end
         end
 
         # A single input value produced by one command.
@@ -36,6 +50,12 @@ module Ikra
                 @offsets = offsets
                 @out_of_bounds_value = out_of_bounds_value
             end
+
+            def ==(other)
+                return super(other) && 
+                    offsets == other.offsets &&
+                    out_of_bounds_value == other.out_of_bounds_value
+            end
         end
 
         class StencilSingleInput < Input
@@ -48,6 +68,12 @@ module Ikra
                 @command = command
                 @offsets = offsets
                 @out_of_bounds_value = out_of_bounds_value
+            end
+
+            def ==(other)
+                return super(other) && 
+                    offsets == other.offsets &&
+                    out_of_bounds_value == other.out_of_bounds_value
             end
         end
 

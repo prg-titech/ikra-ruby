@@ -10,12 +10,6 @@ module Ikra
 
             attr_accessor :objects
 
-            # Hash that maps the unique_id of a command on the adress of its result on the GPU 
-            attr_accessor :previous_results
-
-            # Hash that maps the unique_id of a command on the type of its result
-            attr_accessor :previous_results_types
-
             attr_accessor :device_struct_allocation
             attr_accessor :ffi_struct
 
@@ -25,6 +19,18 @@ module Ikra
                 @previous_results_types = {}
                 @device_struct_allocation = ""
                 @ffi_struct = {}
+            end
+
+            # Hash that maps the unique_id of a command on the adress of its result on the GPU.
+            # Returns a sorted version of the hash. 
+            def previous_results
+                return Hash[@previous_results.sort]
+            end
+
+            # Hash that maps the unique_id of a command on the type of its result.
+            # Returns a sorted version of the hash. 
+            def previous_results_types
+                return Hash[@previous_results_types.sort]
             end
 
             # Adds an objects as a lexical variable.
@@ -139,11 +145,11 @@ module Ikra
                         # TODO: can this be an extension method of FFI::MemoryPointer?
                         struct_def += "    union_t * #{key};\n"
                     else
-                        struct_def += "    #{value.class.to_ikra_type_obj(value).to_c_type} #{key};\n"
+                        struct_def += "    #{value.ikra_type.to_c_type} #{key};\n"
                     end
                 end
 
-                @previous_results_types.each do |key, value|
+                previous_results_types.each do |key, value|
                     struct_def += "    #{value.to_c_type} *#{key};\n"
                 end
 
@@ -159,11 +165,11 @@ module Ikra
                         # TODO: can this be an extension method of FFI::MemoryPointer?
                         struct_layout += [key.to_sym, :pointer]
                     else
-                        struct_layout += [key.to_sym, value.class.to_ikra_type_obj(value).to_ffi_type]
+                        struct_layout += [key.to_sym, value.ikra_type.to_ffi_type]
                     end
                 end
 
-                @previous_results.each do |key, value|
+                previous_results.each do |key, value|
                     struct_layout += [key.to_sym, :pointer]
                 end
 
@@ -202,7 +208,7 @@ module Ikra
                     end
                 end
 
-                @previous_results.each do |key, value|
+                previous_results.each do |key, value|
                     struct[key.to_sym] = value
                 end
 

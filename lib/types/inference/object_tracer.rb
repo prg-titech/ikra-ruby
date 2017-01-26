@@ -47,10 +47,10 @@ module Ikra
 
                         object.instance_variables.each do |inst_var_name|
                             value = object.instance_variable_get(inst_var_name)
-                            value_type = value.class.to_ikra_type_obj(value)
+                            value_type = value.ikra_type
 
                             # Gather type information
-                            object.class.to_ikra_type_obj(object).inst_vars_types[inst_var_name].add(value_type)
+                            object.ikra_type.inst_vars_types[inst_var_name].add(value_type)
 
                             if value.class.include?(Entity)
                                 # Keep tracing this object

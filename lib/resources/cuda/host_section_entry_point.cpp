@@ -28,18 +28,30 @@ timeStartMeasure();
 /*{prepare_environment}*/
 timeReportMeasure(program_result, prepare_env);
 
+
     /* Launch all kernels */
 timeStartMeasure();
 /*{launch_all_kernels}*/
 timeReportMeasure(program_result, kernel);
 
+
+    /* Copy back memory and set pointer of result */
+/*{copy_back_to_host}*/
+
     /* Free device memory */
-timeStartMeasure();
-/*{free_device_memory}*/
-timeReportMeasure(program_result, free_memory);
+    timeStartMeasure();
+
+    for (
+        auto device_ptr = program_result->device_allocations->begin(); 
+        device_ptr < program_result->device_allocations->end(); 
+        device_ptr++)
+    {
+        cudaFree(*device_ptr);
+    }
 
     delete program_result->device_allocations;
-    
-    program_result->result = /*{host_result_var_name}*/;
+
+    timeReportMeasure(program_result, free_memory);
+
     return program_result;
 }

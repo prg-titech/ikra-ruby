@@ -36,90 +36,127 @@ module Ikra
                     @kernel_launchers.push(launcher)
                 end
 
-                def assert_ready_to_build
-                    if kernel_launchers.size == 0
-                        raise "Not ready to build (ProgramBuilder): No kernel launcher defined"
-                    end
-                end
-
                 # Generates the source code for the CUDA program, compiles it with nvcc and
                 # executes the program.
                 def execute
                     source = build_program
+
                     launcher = Launcher.new(
                         source: source,
                         environment_builder: environment_builder,
-                        result_type: kernel_launchers.last.kernel_builder.result_type,
-                        result_size: kernel_launchers.last.num_threads,
+                        result_type: final_result_variable.type,
+                        result_size: final_result_size,
                         root_command: root_command)
 
                     launcher.compile
                     return launcher.execute
                 end
 
-                # Builds the CUDA program. Returns the source code string.
-                def build_program
-                    assert_ready_to_build
+                protected
 
-                    # Build header of CUDA source code file
-                    result = Translator.read_file(file_name: "header.cpp")
-
-                    # Build environment struct definition
-                    result = result + environment_builder.build_environment_struct
-
-                    # Generate all struct types
-                    for struct_type in structs
-                        result = result + struct_type.generate_definition + "\n"
+                def assert_ready_to_build
+                    if kernel_launchers.size == 0
+                        raise "Not ready to build (ProgramBuilder): No kernel launcher defined"
                     end
+                end
 
-                    # Build methods, blocks and kernels
+                # Build header of CUDA source code file
+                def build_header
+                    return Translator.read_file(file_name: "header.cpp")
+                end
+
+                # Build environment struct definition
+                def build_environment_struct
+                    return environment_builder.build_environment_struct
+                end
+
+                # Generate all struct types
+                def build_struct_types
+                    return structs.map do |struct_type|
+                        struct_type.generate_definition
+                    end.join("\n")
+                end
+
+                # Build methods, blocks and kernels
+                def build_kernels
+                    result = ""
+
                     for launcher in kernel_launchers
-                        # Check whether kernel was already build before
-                        if kernels.include?(launcher.kernel_builder)
-                            next
-                        else
-                            kernels.add(launcher.kernel_builder)
-                        end
+                        for builder in launcher.kernel_builders
+                            # Check whether kernel was already build before
+                            if kernels.include?(builder)
+                                next
+                            else
+                                kernels.add(builder)
+                            end
 
-                        result = result + launcher.kernel_builder.build_methods
-                        result = result + launcher.kernel_builder.build_blocks
-                        result = result + launcher.kernel_builder.build_kernel
+                            result = result + builder.build_methods
+                            result = result + builder.build_blocks
+                            result = result + builder.build_kernel
+                        end
                     end
 
+                    return result
+                end
+
+                # Build kernel invocations
+                def build_kernel_launchers
+                    return kernel_launchers.map do |launcher|
+                        launcher.build_kernel_launcher
+                    end.join("")
+                end
+
+                def final_result_variable
                     # Read some fields from last kernel launch configuration
                     final_kernel_result_var = kernel_launchers.last.host_result_var_name
                     if final_kernel_result_var == nil
                         raise "Result variable name of final kernel launcher not set"
                     end
 
-                    final_kernel_result_type = kernel_launchers.last.kernel_builder.result_type.to_c_type
+                    final_kernel_result_type = kernel_launchers.last.result_type
 
-                    # Build kernel invocations
-                    program_launch = ""
+                    return Variable.new(
+                        name: final_kernel_result_var,
+                        type: final_kernel_result_type)
+                end
 
-                    for launcher in kernel_launchers
-                        program_launch = program_launch + launcher.build_kernel_launcher
-                    end
+                def final_result_size
+                    return kernel_launchers.last.result_size
+                end
 
-                    # Free device memory
-                    free_device_memory = ""
+                # Free device memory
+                def build_memory_free
+                    result = ""
 
                     for launcher in kernel_launchers
                         if !launcher.reuse_memory?
-                            free_device_memory = free_device_memory + launcher.build_device_memory_free
+                            result = result + launcher.build_device_memory_free
                         end
                     end
 
-                    # Build program entry point
-                    result = result + Translator.read_file(file_name: "entry_point.cpp", replacements: {
-                        "prepare_environment" => environment_builder.build_environment_variable,
-                        "result_type" => final_kernel_result_type,
-                        "launch_all_kernels" => program_launch,
-                        "free_device_memory" => free_device_memory,
-                        "host_env_var_name" => Constants::ENV_HOST_IDENTIFIER,
-                        "host_result_var_name" => final_kernel_result_var})
-
                     return result
+                end
+
+                # Build the struct type for `result_t`.
+                def build_header_structs
+                    header_structs = Translator.read_file(file_name: "header_structs.cpp",
+                        replacements: {"result_type" => final_result_variable.type.to_c_type})
+                end
+
+                # Builds the CUDA program. Returns the source code string.
+                def build_program
+                    assert_ready_to_build
+
+                    result = build_header + build_struct_types + build_header_structs + build_environment_struct +  build_kernels
+
+                    # Build program entry point
+                    return result + Translator.read_file(file_name: "entry_point.cpp", replacements: {
+                        "prepare_environment" => environment_builder.build_environment_variable,
+                        "result_type" => final_result_variable.type.to_c_type,
+                        "launch_all_kernels" => build_kernel_launchers,
+                        "free_device_memory" => build_memory_free,
+                        "host_env_var_name" => Constants::ENV_HOST_IDENTIFIER,
+                        "host_result_var_name" => final_result_variable.name})
                 end
             end
         end

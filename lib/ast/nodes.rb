@@ -2,6 +2,18 @@ module Ikra
     module AST
         class Node
             attr_accessor :parent
+
+            def eql?(other)
+                return self == other
+            end
+
+            def ==(other)
+                return self.class == other.class
+            end
+
+            def hash
+                return 1231
+            end
         end
 
         class ProgramNode < Node
@@ -12,6 +24,14 @@ module Ikra
             def initialize(blocks: [], classes: [])
                 @blocks = blocks
                 @classes = classes
+            end
+
+            def ==(other)
+                return super(other) && blocks == other.blocks && classes == other.classes
+            end
+
+            def hash
+                return (blocks.hash + classes.hash) % 4524321
             end
         end
 
@@ -60,6 +80,16 @@ module Ikra
             def enclosing_class
                 return self
             end
+
+            def ==(other)
+                return super(other) && 
+                    name == other.name &&
+                    ruby_class == other.ruby_class &&
+                    instance_variables == other.instance_variables &&
+                    instance_methods == other.instance_methods &&
+                    class_variables == other.class_variables &&
+                    class_methods == other.class_methods
+            end
         end
 
         class VarDefNode < Node
@@ -71,6 +101,13 @@ module Ikra
                 @name = name
                 @read = read
                 @written = written
+            end
+
+            def ==(other)
+                return super(other) &&
+                    name == other.name &&
+                    read == other.read &&
+                    written == other.written
             end
         end
 
@@ -100,21 +137,31 @@ module Ikra
                     return ruby_method.send(:binding)
                 end
             end
+
+            def ==(other)
+                return super(other) && name == other.name && body == other.body
+            end
         end
 
         class BlockDefNode < BehaviorNode
             attr_reader :body
             attr_reader :ruby_block
+            attr_reader :parameters
 
-            def initialize(body:, ruby_block:)
+            def initialize(body:, ruby_block:, parameters: nil)
                 @body = body
                 @ruby_block = ruby_block
+                @parameters = parameters
 
                 body.parent = self
             end
 
             def binding
                 return ruby_block.binding
+            end
+
+            def ==(other)
+                return super(other) && body == other.body && parameters == other.parameters
             end
         end
 
@@ -142,6 +189,23 @@ module Ikra
 
             def find_behavior_node
                 return parent.find_behavior_node
+            end
+
+            def ==(other)
+                if instance_variables != other.instance_variables
+                    return false
+                end
+
+                for var_name in instance_variables
+                    if var_name != :@parent
+                        # Avoid cycles via :parent... There could still be other cycles though
+                        if instance_variable_get(var_name) != other.instance_variable_get(var_name)
+                            return false
+                        end
+                    end
+                end
+
+                return true
             end
         end
 
@@ -349,11 +413,13 @@ module Ikra
             attr_reader :receiver
             attr_reader :selector
             attr_reader :arguments
+            attr_reader :block_argument
             
-            def initialize(receiver:, selector:, arguments: [])
+            def initialize(receiver:, selector:, arguments: [], block_argument: nil)
                 @receiver = receiver
                 @selector = selector
                 @arguments = arguments
+                @block_argument = block_argument
 
                 receiver.parent = self
                 arguments.each do |arg|
@@ -374,6 +440,11 @@ module Ikra
                         arg
                     end
                 end
+            end
+
+            # Setter required for [HostSectionBuilder]
+            def block_argument=(value)
+                @block_argument = value
             end
         end
 

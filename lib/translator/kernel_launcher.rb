@@ -2,7 +2,8 @@ module Ikra
     module Translator
         class CommandTranslator
 
-            # Builds the launch of the kernel. This class is responsible for generating the invocation of the kernel.
+            # Builds the launch of the kernel. This class is responsible for generating the 
+            # invocation of the kernel.
             #
             # For example:
             # kernel<<<..., ...>>>(env, result, d_a, ...);
@@ -42,7 +43,6 @@ module Ikra
                 attr_reader :previously_cached_results
 
                 def initialize(kernel_builder)
-                    @used
                     @kernel_builder = kernel_builder
                     @additional_arguments = []
                     @previous_kernel_input = []
@@ -53,10 +53,11 @@ module Ikra
                     @previously_cached_results = {}
                 end
 
-                # Sets the name of the variable containing a pointer to the result of this command
-                def set_result_name(id)
-                    @kernel_result_var_name = "_kernel_result_" + id
-                    @host_result_var_name = @kernel_result_var_name + "_host"
+                def kernel_builders
+                    # The program builder accesses kernel builders via kernel launchers through
+                    # this method, because some specialized launchers might have multiple kernel 
+                    # builders.
+                    return [kernel_builder]
                 end
 
                 # Adds command whose result will be kept on GPU
@@ -95,6 +96,17 @@ module Ikra
                 # Add additional arguments to the kernel function that might be needed for some computations
                 def add_additional_arguments(argument)
                     @additional_arguments.push(argument)
+                end
+
+                # The result type of this kernel launcher. Same as the result type of its kernel 
+                # builder.
+                def result_type
+                    return kernel_builder.result_type
+                end
+
+                # The size of the result array is the number of threads.
+                def result_size
+                    return num_threads
                 end
 
                 # Configures grid size and block size. Also sets number of threads.

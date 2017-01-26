@@ -10,27 +10,27 @@ module Ikra
             end
 
             def visit_lvar_read_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_lvar_write_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_int_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_float_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_bool_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_nil_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
             
             def visit_for_node(node)
@@ -51,11 +51,15 @@ module Ikra
             end
             
             def visit_send_node(node)
-                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
+                process_node(node)
             end
 
             def visit_return_node(node)
                 # Do nothing
+            end
+
+            def process_node(node)
+                node.parent.replace_child(node, AST::ReturnNode.new(value: node))
             end
         end
     end

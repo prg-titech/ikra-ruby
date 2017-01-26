@@ -56,7 +56,12 @@ module Ikra
             def initialize(root_command:)
                 @kernel_launcher_stack = []
                 @environment_builder = EnvironmentBuilder.new
-                @program_builder = ProgramBuilder.new(environment_builder: environment_builder, root_command: root_command)
+
+                # Select correct program builder based on command type
+                @program_builder = root_command.program_builder_class.new(
+                    environment_builder: environment_builder, 
+                    root_command: root_command)
+
                 @root_command = root_command
             end
 
@@ -107,24 +112,46 @@ module Ikra
                 end
             end
 
-            def push_kernel_launcher(kernel_builder = KernelBuilder.new)
-                @kernel_launcher_stack.push(KernelLauncher.new(kernel_builder))
+            def push_kernel_launcher(kernel_builder: nil, kernel_launcher: nil)
+                if kernel_builder != nil && kernel_launcher == nil
+                    @kernel_launcher_stack.push(KernelLauncher.new(kernel_builder))
+                elsif kernel_builder == nil && kernel_launcher != nil
+                    @kernel_launcher_stack.push(kernel_launcher)
+                elsif kernel_builder == nil && kernel_launcher == nil
+                    # Default: add new kernel builder
+                    @kernel_launcher_stack.push(KernelLauncher.new(KernelBuilder.new))
+                else
+                    raise ArgumentError.new("kernel_builder and kernel_laucher given but only expected one")
+                end
             end
 
             # Pops a KernelBuilder from the kernel builder stack. This method is called when all
             # blocks (parallel sections) for that kernel have been translated, i.e., the kernel
             # is fully built.
+            #
+            # This method is currently required for host sections: Every parallel section that
+            # is launched inside a host section has its own kernel builder (and launcher).
             def pop_kernel_launcher(command_translation_result)
                 previous_launcher = kernel_launcher_stack.pop
-                previous_launcher.kernel_builder.block_invocation = command_translation_result.result
-                previous_launcher.kernel_builder.execution = command_translation_result.execution
-                previous_launcher.kernel_builder.result_type = command_translation_result.result_type
 
-                if previous_launcher == nil
-                    raise "Attempt to pop kernel launcher, but stack is empty"
+                if !command_translation_result.is_a?(HostSectionCommandTranslationResult)
+                    # Host sections are special
+
+                    kernel_builder = previous_launcher.kernel_builder
+                    kernel_builder.block_invocation = command_translation_result.result
+                    kernel_builder.execution = command_translation_result.execution
+                    kernel_builder.result_type = command_translation_result.result_type
+
+                    if previous_launcher == nil
+                        raise "Attempt to pop kernel launcher, but stack is empty"
+                    end
+
+                    program_builder.add_kernel_launcher(previous_launcher)
+
+                    return previous_launcher
+                else
+                    return nil
                 end
-
-                program_builder.add_kernel_launcher(previous_launcher)
             end
 
             def translate_entire_input(command)
@@ -148,6 +175,8 @@ module Ikra
 
                 if input.command.has_previous_result?
                     # Read previously computed (cached) value
+                    Log.info("Reusing kept result for command #{input.command.unique_id}: #{input.command.gpu_result_pointer}")
+
                     environment_builder.add_previous_result(
                         input.command.unique_id, input.command.gpu_result_pointer)
                     environment_builder.add_previous_result_type(
@@ -214,8 +243,10 @@ module Ikra
 
                 if command.keep
                     # Store result in global array
+                    # TODO: Remove DEBUG
                     command_result = Constants::TEMP_RESULT_IDENTIFIER + unique_id.to_s
                     command_execution = execution + "\n        " + result_type.to_c_type + " " + command_result + " = " + result + ";"
+
                     kernel_builder.add_cached_result(unique_id.to_s, result_type)
                     kernel_launcher.add_cached_result(unique_id.to_s, result_type)
                     environment_builder.add_previous_result_type(unique_id, result_type)
@@ -239,6 +270,7 @@ require_relative "array_identity_command"
 require_relative "array_reduce_command"
 require_relative "array_stencil_command"
 require_relative "array_zip_command"
+require_relative "../host_section/array_host_section_command"
 
 require_relative "../program_builder"
 require_relative "../kernel_launcher"

@@ -24,6 +24,7 @@ module Ikra
                 elsif symbol != nil && block == nil
                     ast = AST::BlockDefNode.new(
                         ruby_block: nil,
+                        parameters: [:a, :b],
                         body: AST::RootNode.new(single_child:
                             AST::SendNode.new(
                                 receiver: AST::LVarReadNode.new(identifier: :a),
@@ -34,7 +35,6 @@ module Ikra
                         to_command,
                         nil,
                         ast: ast,
-                        block_parameter_names: [:a, :b],
                         **options)
                 else
                     raise ArgumentError.new("Either block or symbol expected")
@@ -178,10 +178,51 @@ module Ikra
                 @@unique_id = 1
             end
 
-            def initialize
+            def initialize(block: nil, block_ast: nil, block_size: nil, keep: nil)
                 super()
+
                 set_unique_id
+
+                # Set instance variables
+                @block_size = block_size
+                @keep = keep
+
+                if block != nil and block_ast == nil
+                    @block = block
+                elsif block == nil and block_ast != nil
+                    @ast = block_ast
+                elsif block != nil and block_ast != nil
+                    raise ArgumentError.new("`block` and `block_ast` given. Expected at most one.")
+                end
             end
+
+            
+            # ----- EQUALITY -----
+
+            # Methods for equality and hash. These methods are required for comparing array
+            # commands for equality. This is necessary because every array command can also
+            # act as a type. Types must be comparable for equality.
+
+            def ==(other)
+                return self.class == other.class &&
+                    block_size == other.block_size &&
+                    input == other.input &&
+                    keep == other.keep &&
+                    block_def_node == other.block_def_node
+            end
+
+            def hash
+                return (block_size.hash + input.hash + keep.hash + block_def_node.hash) % 7546777
+            end
+
+            def eql?(other)
+                return self == other
+            end
+
+            # ----- EQUALITY END -----
+
+
+            # ----- ARRAY METHODS -----
 
             def [](index)
                 execute
@@ -202,6 +243,9 @@ module Ikra
                 return @result.pack(fmt)
             end
 
+            # ----- ARRAY END -----
+
+
             def execute
                 if @result == nil
                     @result = Translator::CommandTranslator.translate_command(self).execute
@@ -212,12 +256,27 @@ module Ikra
                 return self
             end
 
+            # This method is executed after execution of the parallel section has finish. The
+            # boolean return value indicates if a change has been registered or not.
             def post_execute(environment)
                 if keep
                     # The (temporary) result of this command should be kept on the GPU. Store a
                     # pointer to the result in global memory in an instance variable.
-                    @gpu_result_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i   
+
+                    begin
+                        @gpu_result_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i
+                        Log.info("Kept pointer for result of command #{unique_id.to_s}: #{@gpu_result_pointer}")
+                        return true  
+                    rescue ArgumentError
+                        # No pointer saved for this command. This can happen if the result of this
+                        # command was already cached earlier and the cached result of a
+                        # computation based on this command was used now. 
+                        Log.info("No pointer kept for result of command #{unique_id.to_s}.")
+                        return false
+                    end
                 end
+
+                return false
             end
 
             def has_previous_result?
@@ -227,13 +286,7 @@ module Ikra
             # Returns a collection of the names of all block parameters.
             # @return [Array(Symbol)] list of block parameters
             def block_parameter_names
-                if @block_parameter_names == nil
-                    @block_parameter_names = block.parameters.map do |param|
-                        param[1]
-                    end
-                end
-
-                return @block_parameter_names
+                return block_def_node.parameters
             end
 
             # Returns the size (number of elements) of the result, after executing the parallel 
@@ -252,9 +305,19 @@ module Ikra
             # Returns the abstract syntax tree for a parallel section.
             def block_def_node
                 if @ast == nil
-                    parser_local_vars = block.binding.local_variables + block_parameter_names
+                    if block == nil
+                        return nil
+                    end
+
+                    # Get array of block parameter names
+                    block_params = block.parameters.map do |param|
+                        param[1]
+                    end
+
+                    parser_local_vars = block.binding.local_variables + block_params
                     source = Parsing.parse_block(block, parser_local_vars)
                     @ast = AST::BlockDefNode.new(
+                        parameters: block_params,
                         ruby_block: block,      # necessary to get binding
                         body: AST::Builder.from_parser_ast(source))
                 end
@@ -301,6 +364,11 @@ module Ikra
                     pattern: :tid))
                 return self
             end
+
+            # Returns the [ProgramBuilder] strategy that should be used for this kind of command.
+            def program_builder_class
+                return Translator::CommandTranslator::ProgramBuilder
+            end
         end
 
         class ArrayIndexCommand
@@ -310,28 +378,32 @@ module Ikra
             attr_reader :size
 
             def initialize(block_size: DEFAULT_BLOCK_SIZE, keep: false, dimensions: nil)
-                super()
+                super(block_size: block_size, keep: keep)
 
                 @dimensions = dimensions
                 @size = dimensions.reduce(:*)
 
-                @block_size = block_size
-                @keep = keep
-
                 # No input
                 @input = []
+            end
+
+            def ==(other)
+                return super(other) && dimensions == other.dimensions && size == other.size
             end
         end
 
         class ArrayCombineCommand
             include ArrayCommand
 
-            def initialize(target, others, block, block_size: DEFAULT_BLOCK_SIZE, keep: false)
-                super()
+            def initialize(
+                target, 
+                others, 
+                block, 
+                ast: nil, 
+                block_size: DEFAULT_BLOCK_SIZE, 
+                keep: false)
 
-                @block = block
-                @block_size = block_size
-                @keep = keep
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
                 # Read array at position `tid`
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
@@ -341,6 +413,10 @@ module Ikra
             
             def size
                 return input.first.command.size
+            end
+
+            def ==(other)
+                return super(other) && size == other.size
             end
         end
 
@@ -357,32 +433,34 @@ module Ikra
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
                     SingleInput.new(command: other.to_command, pattern: :tid)
                 end
-
-                # Have to set block parameter names but names are never used
-                @block_parameter_names = [:irrelevant] * @input.size
             end
 
             def size
                 return input.first.command.size
+            end
+
+            def block_parameter_names
+                # Have to set block parameter names but names are never used
+                return [:irrelevant] * @input.size
+            end
+
+            def ==(other)
+                return super(other) && size == other.size
             end
         end
 
         class ArrayReduceCommand
             include ArrayCommand
 
-            def initialize(target, block, block_size: DEFAULT_BLOCK_SIZE, 
-                ast: nil, block_parameter_names: nil)
-                super()
+            def initialize(
+                target, 
+                block, 
+                block_size: DEFAULT_BLOCK_SIZE, 
+                ast: nil)
 
-                @block = block
-                @block_size = block_size
-
-                # Used in case no block is given but an AST
-                @ast = ast
-                @block_parameter_names = block_parameter_names
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
                 @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
-                @keep = keep
             end
 
             def execute
@@ -398,6 +476,10 @@ module Ikra
             def size
                 input.first.command.size
             end
+
+            def ==(other)
+                return super(other) && size == other.size
+            end
         end
 
         class ArrayStencilCommand
@@ -407,16 +489,22 @@ module Ikra
             attr_reader :out_of_range_value
             attr_reader :use_parameter_array
 
-            def initialize(target, offsets, out_of_range_value, block, block_size: DEFAULT_BLOCK_SIZE, keep: false, use_parameter_array: true)
-                super()
+            def initialize(
+                target, 
+                offsets, 
+                out_of_range_value, 
+                block, 
+                ast: nil,
+                block_size: DEFAULT_BLOCK_SIZE, 
+                keep: false, 
+                use_parameter_array: true)
+
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
                 # Read more than just one element, fall back to `:entire` for now
 
                 @out_of_range_value = out_of_range_value
-                @block = block
-                @block_size = block_size
                 @use_parameter_array = use_parameter_array
-                @keep = keep
 
                 if use_parameter_array
                     @input = [StencilArrayInput.new(
@@ -456,6 +544,12 @@ module Ikra
                 @offsets = offsets
             end
 
+            def ==(other)
+                return super(other) && offsets == other.offsets && 
+                    out_of_range_value == other.out_of_range_value &&
+                    use_parameter_array == other.use_parameter_array
+            end
+
             def size
                 return input.first.command.size
             end
@@ -493,15 +587,13 @@ module Ikra
             @@unique_id = 1
 
             def initialize(target, block_size: DEFAULT_BLOCK_SIZE)
-                super()
+                super(block_size: block_size)
 
                 # Ensure that base array cannot be modified
                 target.freeze
 
                 # One thread per array element
                 @input = [SingleInput.new(command: target, pattern: :tid)]
-
-                @block_size = block_size
             end
             
             def execute

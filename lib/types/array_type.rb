@@ -45,11 +45,11 @@ module Ikra
 end
 
 class Array
-    def ikra_type
+    def self.to_ikra_type_obj(object)
         inner_type = Ikra::Types::UnionType.new
 
-        self.each do |element|
-            inner_type.add(element.ikra_type)
+        object.each do |element|
+            inner_type.add(element.class.to_ikra_type_obj(element))
         end
 
         return Ikra::Types::ArrayType.new(inner_type)

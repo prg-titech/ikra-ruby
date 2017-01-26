@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <chrono>
+#include <vector>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -53,3 +54,25 @@ typedef struct union_type_struct
 typedef struct environment_struct environment_t;
 /* ----- END Environment (lexical variables) ----- */
 
+
+/* ----- BEGIN Forward declarations ----- */
+typedef struct result_t result_t;
+/* ----- END Forward declarations ----- */
+
+
+/* ----- BEGIN Macros ----- */
+#define checkErrorReturn(result_var, expr) \
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
+
+#define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
+
+#define timeReportMeasure(result_var, variable_name) \
+end_time = chrono::high_resolution_clock::now(); \
+result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+/* ----- END Macros ----- */

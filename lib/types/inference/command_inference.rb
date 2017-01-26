@@ -29,7 +29,7 @@ module Ikra
 
                 # Lexical variables
                 lexical_variables.each do |name, value|
-                    block_def_node.lexical_variables_names_and_types[name] = Types::UnionType.new(value.class.to_ikra_type_obj(value))
+                    block_def_node.lexical_variables_names_and_types[name] = value.ikra_type.to_union_type
                 end
 
                 # Type inference
@@ -72,7 +72,7 @@ module Ikra
                     # Build Ikra struct type
                     zipped_type_singleton = Types::ZipStructType.new(
                         *([Types::UnionType.create_int] * command.dimensions.size))
-                    return Types::UnionType.new(zipped_type_singleton)
+                    return zipped_type_singleton.to_union_type
                 else
                     return Types::UnionType.create_int
                 end
@@ -90,7 +90,7 @@ module Ikra
 
                 # Build Ikra struct type
                 zipped_type_singleton = Types::ZipStructType.new(*input_types)
-                return Types::UnionType.new(zipped_type_singleton)
+                return zipped_type_singleton.to_union_type
             end
         end
     end

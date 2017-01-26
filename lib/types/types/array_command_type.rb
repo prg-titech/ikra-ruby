@@ -1,37 +1,27 @@
 module Ikra
-    module Types
-        class ArrayCommandType
-            include RubyType
+    module Symbolic
+        module ArrayCommand
+            include Types::RubyType
 
-            attr_reader :size
-            attr_reader :inner_type
-
-            def initialize(size:, inner_type:)
-                @size = size
-                @inner_type = inner_type
-            end
-
+            # TODO: Either ensure that every type is a singleton or implement == properly
+            
             def to_c_type
-                return "#{@inner_type.to_c_type} *"
+                return "#{result_type.to_c_type} *"
             end
 
             def to_ffi_type
+                # TODO: This method is probably not required?
                 return :pointer
             end
 
             def to_ruby_type
-                return Symbolic::ArrayCommand
+                return ArrayCommand
             end
-        end
-    end
 
-    module Symbolic
-        module ArrayCommand
-            def self.to_ikra_type_obj(object)
-                # Perform type inference (if not done yet)
-                return Types::ArrayCommandType.new(
-                    size: object.size,
-                    inner_type: object.result_type)
+            # Every [ArrayCommand] has itself as an Ikra type. This integrates well with the
+            # current type inference approach and `ruby_core`.
+            def ikra_type
+                return self
             end
 
             def result_type

@@ -44,7 +44,7 @@ module Ikra
                 # While more kernel launches than one are needed to finish reduction
                 while num_threads >= block_size + 1
                     # Launch new kernel (with same kernel builder)
-                    push_kernel_launcher(kernel_builder)
+                    push_kernel_launcher(kernel_builder: kernel_builder)
                     # Configure kernel with correct arguments and grid
                     kernel_launcher.add_additional_arguments(odd)
                     kernel_launcher.configure_grid(num_threads)

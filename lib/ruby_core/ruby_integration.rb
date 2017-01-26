@@ -132,16 +132,27 @@ module Ikra
             return source
         end
 
-        def self.get_return_type(rcvr_type, method_name, *arg_types)
+        # Retrieves the return type of a method invocation for receiver type [rcvr_type],
+        # selector [method_name], and argument types [arg_types].
+        #
+        # In addition, this method accepts an optional parameter [args_ast] containing
+        # the abstract syntax tree node of all arguments. In such a case, the nodes are passed
+        # to type inference procs. This is required for symbolic execution of array commands
+        # inside host sections.
+        def self.get_return_type(rcvr_type, method_name, *arg_types, args_ast: nil, block_ast: nil)
             return_type = find_impl(rcvr_type, method_name).return_type
             num_params = find_impl(rcvr_type, method_name).num_params
 
             if return_type.is_a?(Proc)
                 # Return type depends on argument types
                 if num_params != arg_types.size
-                    raise "#{num_params} arguments expected"
+                    raise "#{num_params} arguments expected but #{arg_types.size} given"
                 else
-                    return return_type.call(rcvr_type, *arg_types)
+                    if args_ast == nil
+                        return return_type.call(rcvr_type, *arg_types)
+                    else
+                        return return_type.call(rcvr_type, *arg_types, args_ast: args_ast, block_ast: block_ast)
+                    end
                 end
             else
                 return return_type
@@ -209,3 +220,4 @@ end
 require_relative "core"
 require_relative "math"
 require_relative "array"
+require_relative "array_command"

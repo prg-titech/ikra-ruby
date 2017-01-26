@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <chrono>
+#include <vector>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -53,6 +54,43 @@ typedef struct union_type_struct
 typedef struct environment_struct environment_t;
 /* ----- END Environment (lexical variables) ----- */
 
+
+/* ----- BEGIN Forward declarations ----- */
+typedef struct result_t result_t;
+/* ----- END Forward declarations ----- */
+
+
+/* ----- BEGIN Macros ----- */
+#define checkErrorReturn(result_var, expr) \
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
+
+#define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
+
+#define timeReportMeasure(result_var, variable_name) \
+end_time = chrono::high_resolution_clock::now(); \
+result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+/* ----- END Macros ----- */
+/* ----- BEGIN Structs ----- */
+typedef struct result_t {
+    int *result;
+    int last_error;
+
+    uint64_t time_setup_cuda;
+    uint64_t time_prepare_env;
+    uint64_t time_kernel;
+    uint64_t time_free_memory;
+
+    // Memory management
+    vector<void*> *device_allocations;
+} result_t;
+/* ----- END Structs ----- */
+
 struct environment_struct
 {
 };
@@ -104,31 +142,6 @@ __global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
 }
 
 
-typedef struct result_t {
-    int *result;
-    int last_error;
-
-    uint64_t time_setup_cuda;
-    uint64_t time_prepare_env;
-    uint64_t time_kernel;
-    uint64_t time_free_memory;
-} result_t;
-
-#define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
-
-#define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
-
-#define timeReportMeasure(result_var, variable_name) \
-end_time = chrono::high_resolution_clock::now(); \
-result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
-
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
     // Variables for measuring time
@@ -137,6 +150,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     // CUDA Initialization
     result_t *program_result = (result_t *) malloc(sizeof(result_t));
+    program_result->device_allocations = new vector<void*>();
 
     timeStartMeasure();
 
@@ -164,23 +178,26 @@ timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
 timeStartMeasure();
-    int * _kernel_result_5;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_5, (sizeof(int) * 30000000)));
-    int * _kernel_result_5_host = (int *) malloc((sizeof(int) * 30000000));
-    kernel_1<<<29297, 1024>>>(dev_env, 30000000, _kernel_result_5);
+    int * _kernel_result_2;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 30000000)));
+    program_result->device_allocations->push_back(_kernel_result_2);
+    int * _kernel_result_2_host = (int *) malloc((sizeof(int) * 30000000));
+    kernel_1<<<29297, 1024>>>(dev_env, 30000000, _kernel_result_2);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_5_host, _kernel_result_5, (sizeof(int) * 30000000), cudaMemcpyDeviceToHost));
+    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_2_host, _kernel_result_2, (sizeof(int) * 30000000), cudaMemcpyDeviceToHost));
 
 timeReportMeasure(program_result, kernel);
 
     /* Free device memory */
 timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_5));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
 
 timeReportMeasure(program_result, free_memory);
 
-    program_result->result = _kernel_result_5_host;
+    delete program_result->device_allocations;
+    
+    program_result->result = _kernel_result_2_host;
     return program_result;
 }

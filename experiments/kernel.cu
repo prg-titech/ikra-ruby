@@ -42,10 +42,14 @@ int launch_kernel(float magnify, int hx_res, int hy_res, int iter_max)
     int * device_result;
 
     cudaMalloc(&device_result, sizeof(int) * 1);
+    int o =12;
 
-    dim3 dim_grid(10000, 1, 1);
+    if (hy_res> 0)
+        o =14;
+
+    dim3 dim_grid(o, 1, 1);
     dim3 dim_block(100, 1, 1);
-    main_kernel<<<dim_grid, dim_block>>>(magnify, hx_res, hy_res, iter_max, device_result);
+    main_kernel<<<1000000000, dim_block>>>(magnify, hx_res, hy_res, iter_max, device_result);
 
     cudaThreadSynchronize();
     cudaMemcpy(host_result, device_result, sizeof(int) * 1, cudaMemcpyDeviceToHost);

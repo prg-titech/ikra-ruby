@@ -126,12 +126,18 @@ end
 class Object
     def self.to_ikra_type
         # TODO: should this method be defined on Class?
-        Ikra::Types::ClassType.new(self)
+        return Ikra::Types::ClassType.new(self)
     end
 
-    # Returns the [Ikra::Types::RubyType] for this class. This version of the method receives the actual object as a parameter. This is necessary for example to determine the exact type of an array (including inner type).
-    def self.to_ikra_type_obj(object)
-        to_ikra_type
+    # Returns the [Ikra::Types::RubyType] for this object. Instance of the same Ruby class can
+    # principally have different Ikra types. Thus, this method is defined as an instance method.
+    def ikra_type
+        if self.is_a?(Module)
+            return self.singleton_class.to_ikra_type
+        else
+            # TODO: Double check if we always want to have the singleton class?
+            return self.class.to_ikra_type
+        end
     end
 end
 

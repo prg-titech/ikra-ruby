@@ -28,7 +28,12 @@ module Ikra
             end
 
             def to_array_type
-                return UnionType.new(ArrayType.new(self))
+                # TODO: This should probably not return a union type by default
+                return ArrayType.new(self).to_union_type
+            end
+
+            def to_union_type
+                return UnionType.new(self)
             end
 
             def class_id

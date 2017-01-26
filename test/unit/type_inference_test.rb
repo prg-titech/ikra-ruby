@@ -37,9 +37,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation
-        # Receiver is union type
-
+    def test_coerce_type_primitive_invocation
         array = Array.pnew(100) do |j|
             x1 = j
 
@@ -57,9 +55,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation_2
-        # Operand is union type
-
+    def test_coerce_type_primitive_invocation_2
         array = Array.pnew(100) do |j|
             x1 = j
 
@@ -78,7 +74,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation_3
+    def test_int_method_gg
         array = Array.pnew(100) do |j|
             x1 = 0
 
@@ -99,9 +95,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation_4
-        # Operand is union type and receiver is float
-
+    def test_coerce_type_primitive_invocation_4
         array = Array.pnew(100) do |j|
             x1 = j
 
@@ -120,9 +114,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation_5
-        # Receiver is union type and operand is int, return value is always Bool
-
+    def test_coerce_type_primitive_invocation_5
         array = Array.pnew(100) do |j|
             x1 = 2 * j
 
@@ -141,9 +133,7 @@ class TypeInferenceTest < UnitTestCase
         assert_equal(100, array.reduce(:+))
     end
 
-    def test_union_type_primitive_invocation_6
-        # Receiver is int and operand is union type, return value is always Bool
-
+    def test_coerce_type_primitive_invocation_6
         array = Array.pnew(100) do |j|
             x1 = 2 * j
 
@@ -162,9 +152,7 @@ class TypeInferenceTest < UnitTestCase
         assert_equal(100, array.reduce(:+))
     end
 
-    def test_union_type_primitive_invocation_7
-        # Receiver is float and operand is union type, return value is always Bool
-
+    def test_coerce_type_primitive_invocation_7
         array = Array.pnew(100) do |j|
             x1 = 2 * j
 
@@ -183,9 +171,7 @@ class TypeInferenceTest < UnitTestCase
         assert_equal(100, array.reduce(:+))
     end
 
-    def test_union_type_primitive_invocation_8
-        # Union types everywhere
-
+    def test_coerce_type_primitive_invocation_8
         array = Array.pnew(100) do |j|
             x1 = j
             x2 = j
@@ -212,7 +198,7 @@ class TypeInferenceTest < UnitTestCase
         end
     end
 
-    def test_union_type_primitive_invocation_9
+    def test_coerce_type_primitive_invocation_9
         # Invoke method
 
         array = Array.pnew(100) do |j|
@@ -228,8 +214,8 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(48.0 * 100, array.reduce(:+), 0.001)
     end
 
-    def test_union_type_primitive_invocation_10
-        # Invoke method, two union types
+    def test_coerce_type_primitive_invocation_10
+        # Invoke method
 
         array = Array.pnew(100) do |j|
             x1 = j
@@ -297,5 +283,58 @@ class TypeInferenceTest < UnitTestCase
 
             assert_equal(array[index].class, expected_type)
         end
+    end
+
+    def test_union_type_method_invocation
+        # Returns union type
+
+        array = Array.pnew(100) do |j|
+            x1 = true
+            x2 = true
+
+            if j % 2 == 0
+                x1 = j
+                x2 = j
+            end
+
+            x3 = x1 & x2
+
+            x3
+        end
+
+        expected = Array.new(100) do |j|
+            if j % 2 == 0
+                j
+            else
+                true
+            end
+        end
+
+        assert_equal(array.to_a, expected)
+    end
+
+    def test_union_type_method_invocation_without_args
+        Ikra::RubyIntegration.implement(Ikra::RubyIntegration::INT_S, :dummy_method, Ikra::RubyIntegration::INT, 0, "(100)")
+        Ikra::RubyIntegration.implement(Ikra::RubyIntegration::BOOL_S, :dummy_method, Ikra::RubyIntegration::INT, 0, "(200)")
+
+        array = Array.pnew(100) do |j|
+            x1 = true
+            
+            if j % 2 == 0
+                x1 = 1
+            end
+
+            x1.dummy_method
+        end
+
+        expected = Array.new(100) do |j|
+            if j % 2 == 0
+                100
+            else
+                200
+            end
+        end
+
+        assert_equal(array.to_a, expected)
     end
 end

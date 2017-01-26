@@ -32,8 +32,6 @@ module Ikra
                     result: result,
                     command: command)
 
-                kernel_launcher.set_result_name(command.unique_id.to_s)
-
                 Log.info("DONE translating ArrayCombineCommand [#{command.unique_id}]")
 
                 return command_translation
