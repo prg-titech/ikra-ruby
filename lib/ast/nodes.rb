@@ -460,16 +460,6 @@ module Ikra
                 end
             end
 
-            # Setter required for Stencil Array Access
-            def receiver=(value)
-                @receiver = value
-            end
-
-            # Setter required for Stencil Array Access
-            def arguments=(value)
-                @arguments = value
-            end
-
             # Setter required for [HostSectionBuilder]
             def block_argument=(value)
                 @block_argument = value
