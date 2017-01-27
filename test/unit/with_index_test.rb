@@ -43,7 +43,7 @@ class WithIndexTest < UnitTestCase
 
         stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000).with_index do |values, index|
             # values[-1, -1] + values[0, -1]
-            values[0] + values[1] + values[2] + values[3] + 1000 * index[0] + 100 * index[1]
+            values[-1][-1] + values[0][-1] + values[0][1] + values[0][0] + 1000 * index[0] + 100 * index[1]
         end
 
         # Compare results

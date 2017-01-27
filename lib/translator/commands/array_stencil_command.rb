@@ -1,6 +1,85 @@
 module Ikra
     module Translator
         class CommandTranslator < Symbolic::Visitor
+
+            class NodeIndexModifier < AST::Visitor
+                # This visitor executes the check_parents_index function on every local variable
+                # If the local variable is the "stencil array" then its indices will get modified/corrected for the 1D array access
+
+                attr_reader :offsets
+                attr_reader :name
+
+                def initialize(name, offsets)
+                    @name = name
+                    @offsets = offsets
+                end
+
+                def visit_lvar_read_node(node)
+                    super(node)
+                    check_index(name, offsets, node)
+                end
+
+                def visit_lvar_write_node(node)
+                    super(node)
+                    check_index(name, offsets, node)
+                end
+
+
+                def check_index(name, offsets, node)
+                    if node.identifier == name
+                        # This is the array-variable used in the stencil
+
+                        send_node = node
+                        index_combination = []
+                        literal = true
+
+                        # Build the index off this access in index_combination
+                        for i in 0..offsets.first.first.size-1
+                            send_node = send_node.parent
+                            if i == 1
+                                first_send_node = send_node
+                            end
+                            if not (send_node.is_a?(AST::SendNode) && send_node.selector == :[])
+                                raise "This has to be a SendNode and Array-selector"
+                            end
+                            index_combination[i] = send_node.arguments.first
+                            if not index_combination[i].is_a?(AST::IntLiteralNode)
+                                literal = false
+                            end
+                        end
+
+                        if literal
+                            # The index consists of only literals so we can translate it easily by mapping the index onto the offsets
+
+                            index_combination = index_combination.map do |x|
+                                x.value
+                            end
+                            replacement = AST::IntLiteralNode.new(value: offsets[index_combination])
+                        else
+                            # This handles the case where non-literals have to be translated with the Ternary Node
+
+                            offset_arr = offsets.to_a
+                            replacement = AST::IntLiteralNode.new(value: offset_arr[0][1])
+                            for i in 1..offset_arr.size-1
+                                # Build combination of ternary nodes
+
+                                ternary_build = AST::SendNode.new(receiver: AST::IntLiteralNode.new(value: offset_arr[i][0][0]), selector: :==, arguments: [index_combination[0]])
+                                for j in 1..index_combination.size-1
+
+                                    next_eq = AST::SendNode.new(receiver: AST::IntLiteralNode.new(value: offset_arr[i][0][j]), selector: :==, arguments: [index_combination[j]])
+                                    ternary_build = AST::SendNode.new(receiver: next_eq, selector: :"&&", arguments: ternary_build)
+                                end
+                                replacement = AST::TernaryNode.new(condition: ternary_build, true_val: AST::IntLiteralNode.new(value: offset_arr[i][1]), false_val: replacement)
+                            end
+                        end
+
+                        #Replace outer array access with new 1D array access
+
+                        send_node.replace(AST::SendNode.new(receiver: node, selector: :[], arguments: [replacement]))
+                    end
+                end
+            end
+
             def visit_array_stencil_command(command)
                 Log.info("Translating ArrayStencilCommand [#{command.unique_id}]")
 
@@ -17,6 +96,19 @@ module Ikra
                 # All variables accessed by this block should be prefixed with the unique ID
                 # of the command in the environment.
                 env_builder = @environment_builder[command.unique_id]
+
+                # Translate relative indices to 1D-indicies starting by 0
+                if command.use_parameter_array
+                    offsets_mapped = Hash.new
+                    for i in 0..command.offsets.size-1
+                        if command.offsets[i].is_a?(Array)
+                            offsets_mapped[command.offsets[i]] = i
+                        else
+                            offsets_mapped[[command.offsets[i]]] = i
+                        end
+                    end
+                    command.block_def_node.accept(NodeIndexModifier.new(command.block_parameter_names.first, offsets_mapped))
+                end
 
                 block_translation_result = Translator.translate_block(
                     block_def_node: command.block_def_node,

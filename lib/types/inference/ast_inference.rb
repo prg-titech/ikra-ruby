@@ -433,6 +433,16 @@ module Ikra
                 node.merge_union_type(type)
             end
             
+            def visit_ternary_node(node)
+                assert_singleton_type(node.condition.accept(self), Types::PrimitiveType::Bool)
+                
+                type = Types::UnionType.new
+                type.expand(node.true_val.accept(self))
+                type.expand(node.false_val.accept(self))
+
+                node.merge_union_type(type)
+            end
+            
             def visit_begin_node(node)
                 node.body_stmts[0...-1].each do |stmt|
                     stmt.accept(self)

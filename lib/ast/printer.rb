@@ -130,6 +130,12 @@ module Ikra
             end
         end
 
+        class TernaryNode
+            def to_s
+                return "[TernaryNode: #{condition.to_s}, #{true_val.to_s}, #{false_val.to_s}]"
+            end
+        end
+
         class BeginNode
             def to_s
                 stmts = body_stmts.map do |stmt|

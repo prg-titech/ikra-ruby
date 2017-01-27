@@ -251,6 +251,12 @@ module Ikra
             end
         end
         
+        class TernaryNode
+            def translate_expression
+                return "#{condition.translate_expression} ? (#{true_val.translate_expression}) : (#{false_val.translate_expression})"
+            end
+        end
+        
         class BeginNode
             def translate_statement
                 if body_stmts.size == 0

@@ -136,6 +136,12 @@ module Ikra
             end
         end
         
+        class TernaryNode
+            def accept(visitor)
+                return visitor.visit_ternary_node(self)
+            end
+        end
+        
         class BeginNode
             def accept(visitor)
                 return visitor.visit_begin_node(self)
@@ -264,6 +270,12 @@ module Ikra
                 if node.false_body_stmts != nil
                     node.false_body_stmts.accept(self)
                 end
+            end
+            
+            def visit_ternary_node(node)
+                node.condition.accept(self)
+                node.true_val.accept(self)
+                node.false_val.accept(self)
             end
             
             def visit_begin_node(node)
