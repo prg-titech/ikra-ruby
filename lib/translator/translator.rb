@@ -26,6 +26,7 @@ module Ikra
             ODD_IDENTIFIER = "_odd_"
             PROGRAM_RESULT_TYPE = "result_t"
             PROGRAM_RESULT_IDENTIFIER = "program_result"
+            SELF_IDENTIFIER = "_self_"
         end
 
         class Variable
@@ -61,12 +62,6 @@ module Ikra
 
                 contents
             end
-        end
-    end
-
-    module AST
-        module Constants
-            SELF_IDENTIFIER = "_self_"
         end
     end
 end

@@ -1,4 +1,5 @@
 require_relative "parallel_section_translator"
+require_relative "parallel_section_invocation_visitor"
 require_relative "program_builder"
 
 module Ikra
@@ -46,9 +47,15 @@ module Ikra
                     raise "Return value of host section must be an ArrayCommand"
                 end
 
+                # Insert synthetic __call__ send nodes
+                block_def_node.accept(ParallelSectionInvocationVisitor.new)
+
+                # C++/CUDA code generation
+                ast_translator = ASTTranslator.new
+
                 # Auxiliary methods are instance methods that are called by the host section
                 aux_methods = type_inference_visitor.all_methods.map do |method|
-                    method.translate_method
+                    ast_translator.translate_method(method)
                 end
 
                 # Start translating AST of host section. Whenever a parallel section is found,
@@ -70,7 +77,7 @@ module Ikra
                         "parameters" => function_parameters.join(", ")})
 
                 translation_result = function_head + 
-                    Translator.wrap_in_c_block(block_def_node.translate_block)
+                    Translator.wrap_in_c_block(ast_translator.translate_block(block_def_node))
 
                 program_builder.host_section_source = translation_result
 

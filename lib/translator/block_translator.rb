@@ -113,9 +113,12 @@ module Ikra
                 type_inference_visitor = TypeInference::Visitor.new
                 return_type = type_inference_visitor.process_block(block_def_node)
                 
+                # Translation to source code
+                ast_translator = ASTTranslator.new
+
                 # Auxiliary methods are instance methods that are called by the block
                 aux_methods = type_inference_visitor.all_methods.map do |method|
-                    method.translate_method
+                    ast_translator.translate_method(method)
                 end
 
                 # Classify variables (lexical or local)
@@ -123,7 +126,7 @@ module Ikra
                     lexical_variable_names: lexical_variables.keys))
 
                 # Translate to CUDA/C++ code
-                translation_result = block_def_node.translate_block
+                translation_result = ast_translator.translate_block(block_def_node)
 
                 # Load environment variables
                 lexical_variables.each do |name, value|
