@@ -171,6 +171,8 @@ module Ikra
             end
 
             def replace(another_node)
+                # Sometimes, this method does not work as expected, if the `parent` of the `self`
+                # is already modified before calling this method.
                 parent.replace_child(self, another_node)
             end
 
@@ -216,6 +218,15 @@ module Ikra
             def initialize(single_child:)
                 @single_child = single_child
                 single_child.parent = self
+            end
+        end
+
+        # A synthetic AST node. Contains its string translation directly.
+        class SourceCodeExprNode < TreeNode
+            attr_reader :code
+
+            def initialize(code:)
+                @code = code
             end
         end
 

@@ -11,5 +11,10 @@ typedef struct result_t {
     // Memory management
     vector<void*> *device_allocations;
 } result_t;
+
+template <typename T>
+struct array_command_t {
+    T *result;
+};
 /* ----- END Structs ----- */
 

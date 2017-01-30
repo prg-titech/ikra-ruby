@@ -40,6 +40,10 @@ module Ikra
                     raise "Methods/blocks cannot be translated as an expression"
                 end
 
+                def visit_source_code_expr_node(node)
+                    return node.code
+                end
+
                 def visit_const_node(node)
                     raise NotImplementedError.new
                 end
@@ -110,11 +114,19 @@ module Ikra
                     end
                 end
 
+                # Builds a synthetic [AST::SourceCodeExprNode] with a type and a translation.
+                def build_synthetic_code_node(code, type)
+                    node = AST::SourceCodeExprNode.new(code: code)
+                    node.get_type.expand_return_type(type.to_union_type)
+                    return node
+                end
+
                 def visit_send_node(node)
                     if node.receiver.get_type.is_singleton?
                         return generate_send_for_singleton(
                             node, 
-                            node.receiver.get_type.singleton_type)
+                            node.receiver,
+                            node.get_type)
                     else
                         # Polymorphic case
                         # TODO: This is not an expression anymore!
@@ -125,34 +137,36 @@ module Ikra
                         case_statements = []
 
                         for type in node.receiver.get_type
-                            object_id = nil
-
                             if type == Types::PrimitiveType::Int
-                                object_id = "#{receiver_identifier}.value.int_"
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.int_", type)
                             elsif type == Types::PrimitiveType::Float
-                                object_id = "#{receiver_identifier}.value.float_"
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.float_", type)
                             elsif type == Types::PrimitiveType::Bool
-                                object_id = "#{receiver_identifier}.value.bool_"
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.bool_", type)
                             elsif type == Types::PrimitiveType::Nil
-                                object_id = "#{receiver_identifier}.value.int_"
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.int_", type)
                             else
-                                object_id = "#{receiver_identifier}.value.object_id"
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.object_id", type)
                             end
 
+                            singleton_return_type = node.return_type_by_recv_type[type]
                             singleton_invocation = generate_send_for_singleton(
                                 node, 
-                                type, 
-                                self_argument: object_id)
+                                self_node,
+                                singleton_return_type)
 
-                            singleton_return_value = node.return_type_by_recv_type[type]
-
-                            if singleton_return_value.is_singleton? and !node.get_type.is_singleton?
+                            if singleton_return_type.is_singleton? and !node.get_type.is_singleton?
                                 # The return value of this particular invocation (singleton type 
                                 # recv) is singleton, but in general this send can return many 
                                 # types
                                 singleton_invocation = wrap_in_union_type(
                                     singleton_invocation, 
-                                    singleton_return_value.singleton_type)
+                                    singleton_return_type.singleton_type)
                             end
 
                             case_statements.push("case #{type.class_id}: #{result_identifier} = #{singleton_invocation}; break;")
@@ -166,39 +180,23 @@ module Ikra
                     end
                 end
 
-                def generate_send_for_singleton(node, recv_type, self_argument: nil)
+                def generate_send_for_singleton(node, singleton_recv, return_type)
+                    recv_type = singleton_recv.get_type.singleton_type
+
                     if RubyIntegration.has_implementation?(recv_type, node.selector)
-                        args_code = []
-                        args_types = []
-
-                        if RubyIntegration.should_pass_self?(recv_type, node.selector)
-                            if self_argument != nil
-                                args_code.push(self_argument)
-                            else
-                                args_code.push(node.receiver.accept(self))
-                            end
-                        else
-                            # This value is actually never read
-                            args_code.push(nil)
-                        end
-
-                        args_types.push(recv_type)
-
-                        # Add regular arguments
-                        args_code.push(*node.arguments.map do |arg| arg.accept(self) end)
-                        args_types.push(*node.arguments.map do |arg| arg.get_type end)
-
                         return RubyIntegration.get_implementation(
+                            singleton_recv,
                             node.selector, 
-                            args_types, 
-                            args_code)
+                            node.arguments, 
+                            translator,
+                            return_type)
                     elsif recv_type.is_a?(Types::StructType)
                         first_arg = node.arguments.first
 
                         if first_arg.is_a?(AST::IntLiteralNode)
                             # Reading the struct at a constant position
                             return recv_type.generate_read(
-                                node.receiver.accept(self), 
+                                singleton_recv.accept(self), 
                                 node.selector, 
                                 first_arg.accept(self))
                         else
@@ -211,7 +209,7 @@ module Ikra
                             # TODO: Statement expression is potentially inefficient
                             return "({ int #{name} = #{first_arg_eval};\n" +
                                 recv_type.generate_non_constant_read(
-                                    node.receiver.accept(self),
+                                    singleton_recv.accept(self),
                                     node.selector,
                                     first_arg_eval) + "; })"
                         end
@@ -219,11 +217,7 @@ module Ikra
                         args = [Constants::ENV_IDENTIFIER]
 
                         if recv_type.should_generate_self_arg?
-                            if self_argument != nil
-                                args.push(self_argument) 
-                            else
-                                args.push(node.receiver.accept(self))
-                            end
+                            args.push(singleton_recv.accept(self))
                         else
                             args.push("NULL")
                         end

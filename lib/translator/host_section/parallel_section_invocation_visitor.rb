@@ -10,10 +10,11 @@ module Ikra
         # - When the content of an ArrayCommand-typed expression is accessed
         class ParallelSectionInvocationVisitor < AST::Visitor
             def visit_return_node(node)
-                node.parent.replace_child(node, AST::SendNode.new(
-                    receiver: node,
-                    selector: :__call__))
-                # TODO: Do we have to set the type as well here?
+                node.replace_child(
+                    node.value,
+                        AST::SendNode.new(
+                            receiver: node.value,
+                            selector: :__call__))
             end
         end
 

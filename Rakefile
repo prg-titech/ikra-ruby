@@ -2,8 +2,8 @@ require 'rake/testtask'
 
 Rake::TestTask.new("test:unit") do |t|
     t.test_files = FileList.new('test/unit/*.rb') do |fl|
-        # Test broken
-        fl.exclude("test/unit/host_section_test.rb")
+        # The following tests are broken
+        # fl.exclude("test/unit/host_section_test.rb")
     end
 
     t.warning = false

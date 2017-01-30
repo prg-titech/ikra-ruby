@@ -1,6 +1,6 @@
-require_relative "parallel_section_translator"
 require_relative "parallel_section_invocation_visitor"
 require_relative "program_builder"
+require_relative "ast_translator"
 
 module Ikra
     module Translator
@@ -51,16 +51,12 @@ module Ikra
                 block_def_node.accept(ParallelSectionInvocationVisitor.new)
 
                 # C++/CUDA code generation
-                ast_translator = ASTTranslator.new
+                ast_translator = HostSectionASTTranslator.new(command_translator: self)
 
                 # Auxiliary methods are instance methods that are called by the host section
                 aux_methods = type_inference_visitor.all_methods.map do |method|
                     ast_translator.translate_method(method)
                 end
-
-                # Start translating AST of host section. Whenever a parallel section is found,
-                # replace the result with a kernel invocation.
-                block_def_node.accept(ParallelSectionTranslator.new(command_translator: self))
 
                 # Build C++ function
                 mangled_name = "_host_section_#{command.unique_id}_"
@@ -88,12 +84,12 @@ module Ikra
                     Constants::PROGRAM_RESULT_IDENTIFIER]
 
                 program_builder.host_section_invocation = 
-                    "#{Constants::PROGRAM_RESULT_TYPE} *_host_result_ = #{mangled_name}(#{args.join(", ")});"
+                    "#{Constants::PROGRAM_RESULT_IDENTIFIER}->result = #{mangled_name}(#{args.join(", ")})->result;"
                 program_builder.final_result_variable = Variable.new(
                     name: "_host_result_",
                     # Retrieve result type from ArrayCommand
                     type: result_type.singleton_type.result_type)
-                
+                program_builder.final_result_size = result_type.singleton_type.size
 
                 Log.info("DONE translating ArrayHostSectionCommand [#{command.unique_id}]")
 

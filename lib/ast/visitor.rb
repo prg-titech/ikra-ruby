@@ -46,6 +46,12 @@ module Ikra
             end
         end
 
+        class SourceCodeExprNode
+            def accept(visitor)
+                visitor.visit_source_code_expr_node(self)
+            end
+        end
+
         class ConstNode
             def accept(visitor)
                 visitor.visit_const_node(self)
@@ -181,6 +187,10 @@ module Ikra
 
             def visit_root_node(node)
                 node.single_child.accept(self)
+            end
+
+            def visit_source_code_expr_node(node)
+
             end
 
             def visit_var_def_node(node)

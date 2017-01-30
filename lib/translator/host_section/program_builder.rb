@@ -14,6 +14,10 @@ module Ikra
                 # the result of the host section invocation. This should be device pointer.
                 attr_accessor :final_result_variable
 
+                # The size of the result of this host section.
+                # TODO: This should be variable. In general, not known at compile time.
+                attr_accessor :final_result_size
+
                 def assert_ready_to_build
                     if host_section_source == nil
                         raise "Not ready to build (HostSectionProgramBuilder): No host section source code defined"
@@ -26,11 +30,6 @@ module Ikra
                     if final_result_variable == nil
                         raise "Not ready to build (HostSectionProgramBuilder): No final result variable defined"
                     end
-                end
-
-                def final_result_size
-                    # TODO: Implementation might change in the future
-                    return final_result_variable.type.size
                 end
 
                 # Builds the CUDA program. Returns the source code string.
