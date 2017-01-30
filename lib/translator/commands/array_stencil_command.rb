@@ -25,6 +25,64 @@ module Ikra
                     command_id: command.unique_id,
                     entire_input_translation: input)
 
+                # Translate relative indices to 1D-indicies starting by 0
+                if command.use_parameter_array
+                    # Mark every array access that uses only integer-literals
+                    block_translation_result.block_source.gsub!(/#{command.block_parameter_names.first}((?:\[[^[:alpha:]]+\]){#{command.dimensions.size}})/, "#{command.block_parameter_names.first}_!prep\\1")
+
+                    # Extract indices of accesses where not only integer-literals were used
+                    pm = block_translation_result.block_source.scan(/#{command.block_parameter_names.first}((?:\[[[:graph:]]+\]){#{command.dimensions.size}})/).flatten          
+
+                    pm = pm.map do |indices|
+                        indices[1..-2].split("][")
+                    end
+
+                    offsets = command.offsets
+
+                    # We want offsets to always be arrays, even if they are 1D
+                    if command.dimensions.size == 1
+                        offsets = offsets.map do |offset|
+                            [offset]
+                        end
+                    end
+
+                    # Construct nested "?:"-expression
+                    arr_nested_if = pm.map do |indices|
+                        nested_if = ""
+                        for j in 0..offsets.size-2
+                            for i in 0..indices.size-2
+                                nested_if = nested_if + indices[i] + " == " + offsets[j][i].to_s + " && "
+                            end
+                            nested_if = nested_if + indices[indices.size-1] + " == " + offsets[j][indices.size-1].to_s + " ? "
+                            nested_if = nested_if + j.to_s + " : ("
+                        end
+                        nested_if = nested_if + (offsets.size-1).to_s
+                        nested_if = nested_if + (")" * (offsets.size - 1))
+                    end
+
+                    # Construct a string for each non-literal-access that will be used as key for the replacement with the nested expression
+                    pm = pm.map do |indices|
+                        str = "["
+                        indices.each do |index|
+                            str = str + index + "]["
+                        end
+                        str = str[0..-2]
+                    end
+
+                    # Replace non-literal accesses
+                    for i in 0..pm.size-1
+                        block_translation_result.block_source.gsub!(pm[i], "_!temp[" + arr_nested_if[i] + "]")
+                    end
+
+                    # Replace literal accesses
+                    for i in 0..offsets.size-1
+                        block_translation_result.block_source.gsub!(command.block_parameter_names.first.to_s + "_!prep[" + offsets[i].join("][") + "]", command.block_parameter_names.first.to_s + "_!temp[" + i.to_s + "]")
+                    end
+
+                    # Remove "_!temp"s that where only inserted to prevent an expression to get replaced twice
+                    block_translation_result.block_source.gsub!(command.block_parameter_names.first.to_s + "_!temp[", command.block_parameter_names.first.to_s + "[")
+                end
+
                 kernel_builder.add_methods(block_translation_result.aux_methods)
                 kernel_builder.add_block(block_translation_result.block_source)
 
