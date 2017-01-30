@@ -72,8 +72,15 @@ module Ikra
                         "result_type" => result_type.to_c_type,
                         "parameters" => function_parameters.join(", ")})
 
+                function_translation = ast_translator.translate_block(block_def_node)
+                
+                # Declare local variables
+                block_def_node.local_variables_names_and_types.each do |name, type|
+                    function_translation.prepend("#{type.to_c_type} #{name};\n")
+                end
+
                 translation_result = function_head + 
-                    Translator.wrap_in_c_block(ast_translator.translate_block(block_def_node))
+                    Translator.wrap_in_c_block(function_translation)
 
                 program_builder.host_section_source = translation_result
 
