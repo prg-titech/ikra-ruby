@@ -4,7 +4,30 @@ require_relative "ast_translator"
 
 module Ikra
     module Translator
-        class CommandTranslator < Symbolic::Visitor
+        class HostSectionCommandTranslator < CommandTranslator
+            def initialize(root_command:)
+                super
+
+                # Use a different program builder
+                @program_builder = HostSectionProgramBuilder.new(
+                    environment_builder: environment_builder, 
+                    root_command: root_command)
+            end
+
+            def start_translation
+                Log.info("HostSectionCommandTranslator: Starting translation...")
+
+                # Trace all objects
+                @object_tracer = TypeInference::ObjectTracer.new(root_command)
+                all_objects = object_tracer.trace_all
+
+                # Translate the command (might create additional kernels)
+                root_command.accept(self)
+
+                # Add SoA arrays to environment
+                object_tracer.register_soa_arrays(environment_builder)
+            end
+
             def visit_array_host_section_command(command)
                 Log.info("Translating ArrayHostSectionCommand [#{command.unique_id}]")
 
@@ -12,15 +35,6 @@ module Ikra
 
                 # A host section must be a top-level (root) command. It uses a special
                 # [HostSectionProgramBuilder].
-
-                # Translate input (dependent computations)
-                # for input_command in command.section_input
-                #     push_kernel_launcher
-                #     command_translation_result = input_command.accept(self)
-                #     result_var = kernel_launcher.kernel_result_var_name
-                #     pop_kernel_launcher(command_translation_result)
-                # end
-                # NOT REQUIRED, BECAUSE INPUT IS FUSED WHEN USED
 
                 block_def_node = command.block_def_node
 
@@ -39,16 +53,22 @@ module Ikra
                 # Add information to block_def_node
                 block_def_node.parameters_names_and_types = block_parameter_types
 
+                # Insert return statements (also done by type inference visitor, but we need
+                # it now)
+                block_def_node.accept(LastStatementReturnsVisitor.new)
+
+                # Insert synthetic __call__ send nodes for return values
+                block_def_node.accept(ParallelSectionInvocationVisitor.new)
+
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 result_type = type_inference_visitor.process_block(block_def_node)
 
-                if !result_type.singleton_type.is_a?(Symbolic::ArrayCommand)
-                    raise "Return value of host section must be an ArrayCommand"
+                for singleton_type in result_type
+                    if !singleton_type.is_a?(Types::LocationAwareFixedSizeArrayType)
+                        raise "Return value of host section must be an LocationAwareFixedSizeArrayType. Found a code path with #{singleton_type}."
+                    end
                 end
-
-                # Insert synthetic __call__ send nodes
-                block_def_node.accept(ParallelSectionInvocationVisitor.new)
 
                 # C++/CUDA code generation
                 ast_translator = HostSectionASTTranslator.new(command_translator: self)
@@ -73,7 +93,7 @@ module Ikra
                         "parameters" => function_parameters.join(", ")})
 
                 function_translation = ast_translator.translate_block(block_def_node)
-                
+
                 # Declare local variables
                 block_def_node.local_variables_names_and_types.each do |name, type|
                     function_translation.prepend("#{type.to_c_type} #{name};\n")
@@ -90,23 +110,22 @@ module Ikra
                     Constants::ENV_DEVICE_IDENTIFIER,
                     Constants::PROGRAM_RESULT_IDENTIFIER]
 
-                program_builder.host_section_invocation = 
-                    "#{Constants::PROGRAM_RESULT_IDENTIFIER}->result = #{mangled_name}(#{args.join(", ")})->result;"
-                program_builder.final_result_variable = Variable.new(
-                    name: "_host_result_",
-                    # Retrieve result type from ArrayCommand
-                    type: result_type.singleton_type.result_type)
-                program_builder.final_result_size = result_type.singleton_type.size
+                # Generate code that transfers data back to host. By creating a synthetic send
+                # node here, we can let the compiler generate a switch statement if the type of
+                # the return value (array) cannot be determined uniquely at compile time.
+                host_section_invocation = AST::SourceCodeExprNode.new(
+                    code: "#{mangled_name}(#{args.join(", ")})")
+                host_section_invocation.get_type.expand(result_type)                
+                device_to_host_transfer_node = AST::SendNode.new(
+                    receiver: host_section_invocation,
+                    selector: :__to_host_array__)
+
+                program_builder.host_result_expression = device_to_host_transfer_node.accept(ast_translator.expression_translator)
+                program_builder.result_type = result_type
 
                 Log.info("DONE translating ArrayHostSectionCommand [#{command.unique_id}]")
 
-                # This is not an ordinary command, because it is not executed on the device.
-                return HostSectionCommandTranslationResult.new
-            end
-
-            # This class is just used as a maker to avoid passing `nil`.
-            class HostSectionCommandTranslationResult
-
+                # This method has no return value (for the moment)
             end
         end
     end

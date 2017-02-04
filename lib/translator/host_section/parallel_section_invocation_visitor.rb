@@ -12,9 +12,7 @@ module Ikra
             def visit_return_node(node)
                 node.replace_child(
                     node.value,
-                        AST::SendNode.new(
-                            receiver: node.value,
-                            selector: :__call__))
+                    AST::SendNode.new(receiver: node.value, selector: :__call__))
             end
         end
 

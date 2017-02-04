@@ -33,22 +33,6 @@ typedef int obj_id_t;
 typedef int class_id_t;
 /* ----- END Class Type ----- */
 
-/* ----- BEGIN Union Type ----- */
-typedef union union_type_value {
-    obj_id_t object_id;
-    int int_;
-    float float_;
-    bool bool_;
-} union_v_t;
-
-typedef struct union_type_struct
-{
-    class_id_t class_id;
-    union_v_t value;
-} union_t;
-/* ----- END Union Type ----- */
-
-
 /* ----- BEGIN Environment (lexical variables) ----- */
 // environment_struct must be defined later
 typedef struct environment_struct environment_t;

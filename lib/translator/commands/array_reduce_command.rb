@@ -33,7 +33,7 @@ module Ikra
                 kernel_builder.add_additional_parameters(Constants::ODD_TYPE + " " + Constants::ODD_IDENTIFIER)
 
                 # Number of elements that will be reduced
-                num_threads = command.size
+                num_threads = command.input_size
                 odd = num_threads % 2 == 1
                 # Number of threads needed for reduction
                 num_threads = num_threads.fdiv(2).ceil

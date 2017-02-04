@@ -25,15 +25,10 @@ module Ikra
                 attr_accessor :grid_dim
                 attr_accessor :block_dim
 
-                # Whether the result of this launch is written back to host
-                attr_accessor :write_back_to_host
-
                 # Whether the launch allocates new memory beforehand or uses previous memory
                 attr_accessor :reuse_memory
 
-                # These fields can be read after building the kernel
-                attr_reader :host_result_var_name
-
+                # Pointer to the resulting array (device memory)
                 attr_reader :kernel_result_var_name
 
                 # IDs and types of commands whose results are kept on the GPU
@@ -46,7 +41,6 @@ module Ikra
                     @kernel_builder = kernel_builder
                     @additional_arguments = []
                     @previous_kernel_input = []
-                    @write_back_to_host = false
                     @reuse_memory = false
                     @kernel_result_var_name = "_kernel_result_" + CommandTranslator.next_unique_id.to_s
                     @cached_results = {}
@@ -70,19 +64,9 @@ module Ikra
                     @previously_cached_results[result_id] = type
                 end
 
-                def write_back_to_host!
-                    @write_back_to_host = true
-                    @host_result_var_name = @kernel_result_var_name + "_host"
-                end
-
-                def write_back_to_host?
-                    return @write_back_to_host
-                end
-
                 def reuse_memory!(parameter_name)
                     @reuse_memory = true
                     @kernel_result_var_name = parameter_name
-                    @host_result_var_name = @kernel_result_var_name + "_host"
                 end
 
                 def reuse_memory?
@@ -140,7 +124,7 @@ module Ikra
                 # 4. If result should be written back: Copy result back to host memory.
                 def build_kernel_launcher
                     
-                    Log.info("Building kernel launcher (write_back=#{write_back_to_host?})")
+                    Log.info("Building kernel launcher")
 
                     assert_ready_to_build
 
@@ -149,14 +133,6 @@ module Ikra
                         # Allocate device memory for kernel result
                         result = result + Translator.read_file(file_name: "allocate_device_memory.cpp", replacements: {
                             "name" => kernel_result_var_name,
-                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
-                            "type" => kernel_builder.result_type.to_c_type})
-                    end
-
-                    if write_back_to_host?
-                        # Allocate host memory for kernel result
-                        result = result + Translator.read_file(file_name: "allocate_host_memory.cpp", replacements: {
-                            "name" => @host_result_var_name,
                             "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})",
                             "type" => kernel_builder.result_type.to_c_type})
                     end
@@ -201,14 +177,6 @@ module Ikra
 
                     cached_results.each do |result_id, type|
                         result = result + "    " + Constants::ENV_HOST_IDENTIFIER + "->prev_" + result_id + " = " + Constants::RESULT_IDENTIFIER + result_id + ";\n"
-                    end
-
-                    if write_back_to_host?
-                        # Memcpy kernel result from device to host
-                        result = result + Translator.read_file(file_name: "memcpy_device_to_host.cpp", replacements: {
-                            "host_name" => @host_result_var_name,
-                            "device_name" => @kernel_result_var_name,
-                            "bytes" => "(sizeof(#{kernel_builder.result_type.to_c_type}) * #{num_threads})"})
                     end
 
                     return result

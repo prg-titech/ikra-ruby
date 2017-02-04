@@ -58,7 +58,7 @@ module Ikra
                 @environment_builder = EnvironmentBuilder.new
 
                 # Select correct program builder based on command type
-                @program_builder = root_command.program_builder_class.new(
+                @program_builder = ProgramBuilder.new(
                     environment_builder: environment_builder, 
                     root_command: root_command)
 
@@ -77,9 +77,6 @@ module Ikra
 
                 # Create new kernel launcher
                 push_kernel_launcher
-
-                # Result of this kernel should be written back to the host
-                kernel_launcher.write_back_to_host!
 
                 # Translate the command (might create additional kernels)
                 result = root_command.accept(self)
@@ -128,30 +125,21 @@ module Ikra
             # Pops a KernelBuilder from the kernel builder stack. This method is called when all
             # blocks (parallel sections) for that kernel have been translated, i.e., the kernel
             # is fully built.
-            #
-            # This method is currently required for host sections: Every parallel section that
-            # is launched inside a host section has its own kernel builder (and launcher).
             def pop_kernel_launcher(command_translation_result)
                 previous_launcher = kernel_launcher_stack.pop
 
-                if !command_translation_result.is_a?(HostSectionCommandTranslationResult)
-                    # Host sections are special
+                kernel_builder = previous_launcher.kernel_builder
+                kernel_builder.block_invocation = command_translation_result.result
+                kernel_builder.execution = command_translation_result.execution
+                kernel_builder.result_type = command_translation_result.result_type
 
-                    kernel_builder = previous_launcher.kernel_builder
-                    kernel_builder.block_invocation = command_translation_result.result
-                    kernel_builder.execution = command_translation_result.execution
-                    kernel_builder.result_type = command_translation_result.result_type
-
-                    if previous_launcher == nil
-                        raise "Attempt to pop kernel launcher, but stack is empty"
-                    end
-
-                    program_builder.add_kernel_launcher(previous_launcher)
-
-                    return previous_launcher
-                else
-                    return nil
+                if previous_launcher == nil
+                    raise "Attempt to pop kernel launcher, but stack is empty"
                 end
+
+                program_builder.add_kernel_launcher(previous_launcher)
+
+                return previous_launcher
             end
 
             def translate_entire_input(command)

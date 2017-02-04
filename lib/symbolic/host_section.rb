@@ -39,8 +39,8 @@ module Ikra
                 return @ast
             end
 
-            def program_builder_class
-                return Translator::CommandTranslator::HostSectionProgramBuilder
+            def command_translator_class
+                return Translator::HostSectionCommandTranslator
             end
         end
 

@@ -46,7 +46,6 @@ module Ikra
                     @previous_kernel_input = []
                     @block_invocation = nil
                     @num_threads = nil
-                    @write_back_to_host = false
                     @additional_parameters = []
                     @kernel_name = "kernel_" + CommandTranslator.next_unique_id.to_s
                     @cached_results = {}

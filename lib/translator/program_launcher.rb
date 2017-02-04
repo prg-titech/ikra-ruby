@@ -21,8 +21,13 @@ module Ikra
                         end
                     end
 
+                    class FixedSizeArrayStruct < FFI::Struct
+                        layout :content, :pointer,
+                            :size, :int32
+                    end
+
                     class KernelResultStruct < FFI::Struct
-                        layout :result, :pointer,
+                        layout :result, FixedSizeArrayStruct,
                             :error_code, :int32,
                             :time_setup_cuda, :uint64,
                             :time_prepare_env, :uint64,
@@ -34,7 +39,6 @@ module Ikra
                     attr_reader :source
                     attr_reader :environment_builder
                     attr_reader :result_type
-                    attr_reader :result_size
 
                     class << self
                         attr_accessor :last_time_setup_cuda
@@ -46,11 +50,10 @@ module Ikra
                         attr_accessor :last_time_read_result_ffi
                     end
 
-                    def initialize(source:, environment_builder:, result_type:, result_size:, root_command:)
+                    def initialize(source:, environment_builder:, result_type:, root_command:)
                         @source = source
                         @environment_builder = environment_builder
                         @result_type = result_type
-                        @result_size = result_size
                         @root_command = root_command
                     end
 
@@ -133,22 +136,36 @@ module Ikra
 
                         time_before = Time.now
 
-                        result = result_t_struct[:result]
-
+                        # Check type of result: It should be one of `result_type`
                         if result_type.is_singleton?
+                           array_type = result_type.singleton_type
+
+                            if !array_type.is_a?(Types::ArrayType)
+                                raise "ArrayType expected, but #{array_type} found"
+                            end
+
+                            result = result_t_struct[:result][:content]
+                            result_size = result_t_struct[:result][:size]
+                        else
+                            raise NotImplementedError.new
+                        end
+
+                        inner_type = array_type.inner_type
+
+                        if inner_type.is_singleton?
                             # Read in entire array
-                            if result_type.singleton_type == Types::PrimitiveType::Int
+                            if inner_type.singleton_type == Types::PrimitiveType::Int
                                 computation_result = result.read_array_of_int(result_size)
-                            elsif result_type.singleton_type == Types::PrimitiveType::Float
+                            elsif inner_type.singleton_type == Types::PrimitiveType::Float
                                 computation_result = result.read_array_of_float(result_size)
-                            elsif result_type.singleton_type == Types::PrimitiveType::Bool
+                            elsif inner_type.singleton_type == Types::PrimitiveType::Bool
                                 computation_result = result.read_array_of_uint8(result_size).map do |v|
                                     v == 1
                                 end
-                            elsif result_type.singleton_type == Types::PrimitiveType::Nil
+                            elsif inner_type.singleton_type == Types::PrimitiveType::Nil
                                 computation_result = [nil] * result_size
-                            elsif result_type.singleton_type.is_a?(Types::ZipStructType)
-                                result_struct_type = result_type.singleton_type.to_ruby_type
+                            elsif inner_type.singleton_type.is_a?(Types::ZipStructType)
+                                result_struct_type = inner_type.singleton_type.to_ruby_type
                                 computation_result = Array.new(result_size) do |index|
                                     result_struct_type.new(result + index * result_struct_type.size)
                                 end
@@ -164,14 +181,17 @@ module Ikra
                             result_values = Array.new(result_size)
 
                             for index in 0...result_size
-                                next_type = (result + (8 * index)).read_int
+                                # TODO: Size of union type (12 bytes) should not be hard-coded here
+                                s = Constants::UNION_TYPE_SIZE
+                                o = Constants::UNION_TYPE_VALUE_OFFSET
+                                next_type = (result + (s * index)).read_int
 
                                 if next_type == Types::PrimitiveType::Int.class_id
-                                    result_values[index] = (result + 8 * index + 4).read_int
+                                    result_values[index] = (result + s * index + o).read_int
                                 elsif next_type == Types::PrimitiveType::Float.class_id
-                                    result_values[index] = (result + 8 * index + 4).read_float
+                                    result_values[index] = (result + s * index + o).read_float
                                 elsif next_type == Types::PrimitiveType::Bool.class_id
-                                    result_values[index] = (result + 8 * index + 4).read_uint8 == 1
+                                    result_values[index] = (result + s * index + o).read_uint8 == 1
                                 elsif next_type == Types::PrimitiveType::Nil.class_id
                                     result_values[index] = nil
                                 else

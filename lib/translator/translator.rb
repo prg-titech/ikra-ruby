@@ -27,6 +27,8 @@ module Ikra
             PROGRAM_RESULT_TYPE = "result_t"
             PROGRAM_RESULT_IDENTIFIER = "program_result"
             SELF_IDENTIFIER = "_self_"
+            UNION_TYPE_SIZE = 16
+            UNION_TYPE_VALUE_OFFSET = 8
         end
 
         class Variable

@@ -34,19 +34,13 @@ extern "C" EXPORT result_t *launch_kernel(environment_t */*{host_env_var_name}*/
 
 
     /* Prepare environment */
-timeStartMeasure();
-/*{prepare_environment}*/
-timeReportMeasure(program_result, prepare_env);
-
-
-    /* Launch all kernels */
-timeStartMeasure();
-/*{launch_all_kernels}*/
-timeReportMeasure(program_result, kernel);
+    timeStartMeasure();
+    /*{prepare_environment}*/
+    timeReportMeasure(program_result, prepare_env);
 
 
     /* Copy back memory and set pointer of result */
-/*{copy_back_to_host}*/
+    program_result->result = /*{host_result_array}*/;
 
     /* Free device memory */
     timeStartMeasure();
@@ -56,7 +50,7 @@ timeReportMeasure(program_result, kernel);
         device_ptr < program_result->device_allocations->end(); 
         device_ptr++)
     {
-        cudaFree(*device_ptr);
+        checkErrorReturn(program_result, cudaFree(*device_ptr));
     }
 
     delete program_result->device_allocations;

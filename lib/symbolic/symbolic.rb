@@ -246,9 +246,15 @@ module Ikra
             # ----- ARRAY END -----
 
 
+            # The class or subclass of [CommandTranslator] that should be used for translating
+            # this command. May be overridden.
+            def command_translator_class
+                return Translator::CommandTranslator
+            end
+
             def execute
                 if @result == nil
-                    @result = Translator::CommandTranslator.translate_command(self).execute
+                    @result = command_translator_class.translate_command(self).execute
                 end
             end
             
@@ -364,11 +370,6 @@ module Ikra
                     pattern: :tid))
                 return self
             end
-
-            # Returns the [ProgramBuilder] strategy that should be used for this kind of command.
-            def program_builder_class
-                return Translator::CommandTranslator::ProgramBuilder
-            end
         end
 
         class ArrayIndexCommand
@@ -474,7 +475,12 @@ module Ikra
             end
             
             def size
-                input.first.command.size
+                return 1
+            end
+
+            # Returns the number of elements in the input
+            def input_size
+                return input.first.command.size
             end
 
             def ==(other)

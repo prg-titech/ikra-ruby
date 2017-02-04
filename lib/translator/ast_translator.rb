@@ -149,6 +149,9 @@ module Ikra
                             elsif type == Types::PrimitiveType::Nil
                                 self_node = build_synthetic_code_node(
                                     "#{receiver_identifier}.value.int_", type)
+                            elsif type.is_a?(Symbolic::ArrayCommand)
+                                self_node = build_synthetic_code_node(
+                                    "(#{type.to_c_type}) #{receiver_identifier}.value.array_command", type)
                             else
                                 self_node = build_synthetic_code_node(
                                     "#{receiver_identifier}.value.object_id", type)
@@ -160,7 +163,8 @@ module Ikra
                                 self_node,
                                 singleton_return_type)
 
-                            if singleton_return_type.is_singleton? and !node.get_type.is_singleton?
+                            if singleton_return_type.is_singleton? and
+                                !node.get_type.is_singleton?
                                 # The return value of this particular invocation (singleton type 
                                 # recv) is singleton, but in general this send can return many 
                                 # types
@@ -373,6 +377,8 @@ module Ikra
                     return "((union_t) {#{type.class_id}, {.bool_ = #{str}}})"
                 elsif type == Types::PrimitiveType::Nil
                     return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
+                elsif type.is_a?(Symbolic::ArrayCommand)
+                    return "((union_t) {#{type.class_id}, {.array_command = (array_command_t<void> *) #{str}}})"
                 elsif !type.is_a?(Types::UnionType)
                     return "((union_t) {#{type.class_id}, {.object_id = #{str}}})"
                 else

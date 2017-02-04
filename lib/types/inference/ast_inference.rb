@@ -486,7 +486,7 @@ module Ikra
 
                         return_type = RubyIntegration.get_return_type(
                             sing_type, node.selector, *arg_types, args_ast: arg_nodes, block_ast: block_node)
-                        
+
                         type.expand(return_type)
                         node.return_type_by_recv_type[sing_type] = return_type
                     elsif sing_type.is_a?(Types::StructType)

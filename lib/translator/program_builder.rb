@@ -44,8 +44,7 @@ module Ikra
                     launcher = Launcher.new(
                         source: source,
                         environment_builder: environment_builder,
-                        result_type: final_result_variable.type,
-                        result_size: final_result_size,
+                        result_type: result_type,
                         root_command: root_command)
 
                     launcher.compile
@@ -106,22 +105,33 @@ module Ikra
                     end.join("")
                 end
 
-                def final_result_variable
+                def host_result_expression
                     # Read some fields from last kernel launch configuration
-                    final_kernel_result_var = kernel_launchers.last.host_result_var_name
-                    if final_kernel_result_var == nil
+                    result_device_ptr = kernel_launchers.last.kernel_result_var_name
+                    result_c_type = kernel_launchers.last.result_type.to_c_type
+                    result_size = root_command.size
+
+                    if result_device_ptr == nil
                         raise "Result variable name of final kernel launcher not set"
                     end
 
-                    final_kernel_result_type = kernel_launchers.last.result_type
+                    # Build result values: `fixed_size_array_t` struct. This struct contains a
+                    # pointer to the result array and stores the size of the result.
+                    result_device_fixed_array_t = "fixed_size_array_t<#{result_c_type}>(#{result_device_ptr}, #{result_size})"
 
-                    return Variable.new(
-                        name: final_kernel_result_var,
-                        type: final_kernel_result_type)
+                    return Translator.read_file(file_name: "memcpy_device_to_host_expr.cpp", replacements: {
+                        "type" => result_c_type,
+                        "device_array" => result_device_fixed_array_t})
                 end
 
-                def final_result_size
-                    return kernel_launchers.last.result_size
+                # Returns the result type of this program. The result type must always be a
+                # union type that includes a[Types::LocationAwareFixedSizeArrayType] object, 
+                # because this way we can support return types where the inner type of an array
+                # is unknown at compile time.
+                def result_type
+                    return Types::LocationAwareFixedSizeArrayType.new(
+                        kernel_launchers.last.result_type,
+                        location: :host).to_union_type
                 end
 
                 # Free device memory
@@ -140,7 +150,7 @@ module Ikra
                 # Build the struct type for `result_t`.
                 def build_header_structs
                     header_structs = Translator.read_file(file_name: "header_structs.cpp",
-                        replacements: {"result_type" => final_result_variable.type.to_c_type})
+                        replacements: {"result_type" => result_type.to_c_type})
                 end
 
                 # Builds the CUDA program. Returns the source code string.
@@ -152,11 +162,10 @@ module Ikra
                     # Build program entry point
                     return result + Translator.read_file(file_name: "entry_point.cpp", replacements: {
                         "prepare_environment" => environment_builder.build_environment_variable,
-                        "result_type" => final_result_variable.type.to_c_type,
                         "launch_all_kernels" => build_kernel_launchers,
                         "free_device_memory" => build_memory_free,
                         "host_env_var_name" => Constants::ENV_HOST_IDENTIFIER,
-                        "host_result_var_name" => final_result_variable.name})
+                        "host_result_array" => host_result_expression})
                 end
             end
         end

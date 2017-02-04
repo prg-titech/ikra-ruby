@@ -34,22 +34,24 @@ extern "C" EXPORT result_t *launch_kernel(environment_t */*{host_env_var_name}*/
 
 
     /* Prepare environment */
-timeStartMeasure();
-/*{prepare_environment}*/
-timeReportMeasure(program_result, prepare_env);
+    timeStartMeasure();
+    /*{prepare_environment}*/
+    timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
-timeStartMeasure();
-/*{launch_all_kernels}*/
-timeReportMeasure(program_result, kernel);
+    timeStartMeasure();
+    /*{launch_all_kernels}*/
+    timeReportMeasure(program_result, kernel);
+
+    /* Copy over result to the host */
+    program_result->result = /*{host_result_array}*/;
 
     /* Free device memory */
-timeStartMeasure();
-/*{free_device_memory}*/
-timeReportMeasure(program_result, free_memory);
+    timeStartMeasure();
+    /*{free_device_memory}*/
+    timeReportMeasure(program_result, free_memory);
 
     delete program_result->device_allocations;
     
-    program_result->result = /*{host_result_var_name}*/;
     return program_result;
 }
