@@ -387,7 +387,7 @@ module Ikra
             attr_reader :true_val
             attr_reader :false_val
             
-            def initialize(condition:, true_val:, false_val: nil)
+            def initialize(condition:, true_val:, false_val:)
                 @condition = condition
                 @true_val = true_val
                 @false_val = false_val

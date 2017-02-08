@@ -501,6 +501,12 @@ module Ikra
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
+                if not offsets.first.is_a?(Array)
+                    offsets = offsets.map do |offset|
+                        [offset]
+                    end
+                end
+
                 # Read more than just one element, fall back to `:entire` for now
 
                 @out_of_range_value = out_of_range_value
@@ -520,24 +526,14 @@ module Ikra
                         out_of_bounds_value: out_of_range_value)]
                 end
 
-                # Check if offsets have the correct format
-                if dimensions.size == 1
-                    # Use Fixnum offsets
-                    for offset in offsets
-                        if !offset.is_a?(Fixnum)
-                            raise ArgumentError.new("Fixnum expected but #{offset.class} found")
-                        end
+                
+                # Offsets should be arrays
+                for offset in offsets
+                    if !offset.is_a?(Array)
+                        raise ArgumentError.new("Array expected but #{offset.class} found")
                     end
-                else
-                    # Offsets should be arrays
-                    for offset in offsets
-                        if !offset.is_a?(Array)
-                            raise ArgumentError.new("Array expected but #{offset.class} found")
-                        end
-
-                        if offset.size != dimensions.size
-                            raise ArgumentError.new("#{dimensions.size} indices expected")
-                        end
+                    if offset.size != dimensions.size
+                        raise ArgumentError.new("#{dimensions.size} indices expected")
                     end
                 end
                 

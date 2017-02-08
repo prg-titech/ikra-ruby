@@ -2,16 +2,18 @@ module Ikra
     module Translator
         class CommandTranslator < Symbolic::Visitor
 
-            class NodeIndexModifier < AST::Visitor
-                # This visitor executes the check_parents_index function on every local variable
-                # If the local variable is the "stencil array" then its indices will get modified/corrected for the 1D array access
+            # This visitor executes the check_parents_index function on every local variable
+            # If the local variable is the "stencil array" then its indices will get modified/corrected for the 1D array access
+            class FlattenIndexNodeVisitor < AST::Visitor
 
                 attr_reader :offsets
                 attr_reader :name
+                attr_reader :command
 
-                def initialize(name, offsets)
+                def initialize(name, offsets, command)
                     @name = name
                     @offsets = offsets
+                    @command = command
                 end
 
                 def visit_lvar_read_node(node)
@@ -31,24 +33,21 @@ module Ikra
 
                         send_node = node
                         index_combination = []
-                        literal = true
+                        is_literal = true
 
                         # Build the index off this access in index_combination
-                        for i in 0..offsets.first.first.size-1
+                        for i in 0..command.dimensions.size-1
                             send_node = send_node.parent
-                            if i == 1
-                                first_send_node = send_node
-                            end
                             if not (send_node.is_a?(AST::SendNode) && send_node.selector == :[])
                                 raise "This has to be a SendNode and Array-selector"
                             end
                             index_combination[i] = send_node.arguments.first
                             if not index_combination[i].is_a?(AST::IntLiteralNode)
-                                literal = false
+                                is_literal = false
                             end
                         end
 
-                        if literal
+                        if is_literal
                             # The index consists of only literals so we can translate it easily by mapping the index onto the offsets
 
                             index_combination = index_combination.map do |x|
@@ -67,7 +66,7 @@ module Ikra
                                 for j in 1..index_combination.size-1
 
                                     next_eq = AST::SendNode.new(receiver: AST::IntLiteralNode.new(value: offset_arr[i][0][j]), selector: :==, arguments: [index_combination[j]])
-                                    ternary_build = AST::SendNode.new(receiver: next_eq, selector: :"&&", arguments: ternary_build)
+                                    ternary_build = AST::SendNode.new(receiver: next_eq, selector: :"&&", arguments: [ternary_build])
                                 end
                                 replacement = AST::TernaryNode.new(condition: ternary_build, true_val: AST::IntLiteralNode.new(value: offset_arr[i][1]), false_val: replacement)
                             end
@@ -101,13 +100,9 @@ module Ikra
                 if command.use_parameter_array
                     offsets_mapped = Hash.new
                     for i in 0..command.offsets.size-1
-                        if command.offsets[i].is_a?(Array)
-                            offsets_mapped[command.offsets[i]] = i
-                        else
-                            offsets_mapped[[command.offsets[i]]] = i
-                        end
+                        offsets_mapped[command.offsets[i]] = i
                     end
-                    command.block_def_node.accept(NodeIndexModifier.new(command.block_parameter_names.first, offsets_mapped))
+                    command.block_def_node.accept(FlattenIndexNodeVisitor.new(command.block_parameter_names.first, offsets_mapped, command))
                 end
 
                 block_translation_result = Translator.translate_block(
@@ -139,18 +134,13 @@ module Ikra
 
                 # Check if an index is out of bounds in any dimension
                 out_of_bounds_check = Array.new(num_dims) do |dim_index|
-                    if num_dims > 1
-                        min_in_dim = command.offsets.map do |offset|
-                            offset[dim_index]
-                        end.min
-                        max_in_dim = command.offsets.map do |offset|
-                            offset[dim_index]
-                        end.max
-                    else
-                        min_in_dim = command.offsets.min
-                        max_in_dim = command.offsets.max
-                    end
-
+                    min_in_dim = command.offsets.map do |offset|
+                        offset[dim_index]
+                    end.min
+                    max_in_dim = command.offsets.map do |offset|
+                        offset[dim_index]
+                    end.max
+                    
                     "temp_stencil_dim_#{dim_index} + #{min_in_dim} >= 0 && temp_stencil_dim_#{dim_index} + #{max_in_dim} < #{command.dimensions[dim_index]}"
                 end.join(" && ")
 
@@ -163,19 +153,15 @@ module Ikra
                 # Pass values from previous computation that are required by this thread.
                 # Reconstruct actual indices from indices for each dimension.
                 for i in 0...num_parameters
-                    if num_dims > 1
-                        multiplier = 1
-                        global_index = []
+                    multiplier = 1
+                    global_index = []
 
-                        for dim_index in (num_dims - 1).downto(0)
-                            global_index.push("(temp_stencil_dim_#{dim_index} + #{command.offsets[i][dim_index]}) * #{multiplier}")
-                            multiplier = multiplier * command.dimensions[dim_index]
-                        end
-
-                        arguments.push("#{previous_result}[#{global_index.join(" + ")}]")
-                    else
-                        arguments.push("#{previous_result}[temp_stencil_dim_0 + #{command.offsets[i]}]")
+                    for dim_index in (num_dims - 1).downto(0)
+                        global_index.push("(temp_stencil_dim_#{dim_index} + #{command.offsets[i][dim_index]}) * #{multiplier}")
+                        multiplier = multiplier * command.dimensions[dim_index]
                     end
+
+                    arguments.push("#{previous_result}[#{global_index.join(" + ")}]")
                 end
 
                 # Push additional arguments (e.g., index)

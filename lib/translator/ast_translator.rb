@@ -253,7 +253,7 @@ module Ikra
         
         class TernaryNode
             def translate_expression
-                return "#{condition.translate_expression} ? (#{true_val.translate_expression}) : (#{false_val.translate_expression})"
+                return "((#{condition.translate_expression}) ? (#{true_val.translate_expression}) : (#{false_val.translate_expression}))"
             end
         end
         
