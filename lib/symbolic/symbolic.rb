@@ -501,6 +501,47 @@ module Ikra
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
+                if offsets.first == "G"
+                    # A stencil will be generated
+                    dims = target.to_command.dimensions.size
+
+                    directions = offsets[1]
+                    # Directions says how many of the dimensions can be used in the stencil. E.g.: in 2D directions = 1 would relate in a stencil that only has up, down, left, right offsets, but no diagonals  
+                    distance = offsets[2]
+                    # Distance says how many steps can be made into the directions distance = 2 in the example before would mean 1 or 2 up/down/left/right 
+
+                    if direction > dims
+                        raise "directions should not be higher than the number of dimensions"
+                    end
+
+                    singles = [0]
+                    # Building the numbers that can be part of an offset
+                    for i in 1..distance
+                        singles = singles + [i] + [-i]
+                    end
+
+                    offsets = []
+
+                    # Iterate all possibilities
+                    for i in 0..singles.size**dims-1
+                        # Transform current permutation to according string / base representation
+                        base = i.to_s(singles.size)
+
+                        # Fill up zeroes
+                        sizedif = (singles.size**dims-1).to_s(singles.size).size - base.size
+                        base = "0" * sizedif + base
+
+                        # Check whether offset is allowed (concerning directions)
+                        if base.gsub(/[^0]/, "").size >= dims - directions
+                            new_offset = []
+                            for j in 0..dims-1
+                                new_offset.push(singles[base[j].to_i])
+                            end
+                            offsets.push(new_offset)
+                        end
+                    end
+                end
+
                 if not offsets.first.is_a?(Array)
                     offsets = offsets.map do |offset|
                         [offset]

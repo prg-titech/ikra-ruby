@@ -1,4 +1,7 @@
 module Ikra
+    def self.stencil(directions:, distance:)
+        return ["G", directions, distance]
+    end
     module Translator
         class CommandTranslator < Symbolic::Visitor
 
