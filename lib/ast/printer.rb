@@ -42,6 +42,12 @@ module Ikra
             end
         end
 
+        class SourceCodeExprNode
+            def to_s
+                return "[SourceCodeExprNode: #{code}]"
+            end
+        end
+        
         class ConstNode
             def to_s
                 return "[ConstNode: #{identifier.to_s}]"

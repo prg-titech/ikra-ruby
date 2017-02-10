@@ -46,24 +46,29 @@ module Ikra
         end
 
         # Returns the implementation (CUDA source code snippet) for a method with name 
-        # [method_name] defined on [rcvr_type]. Arguments in [arg] is the code snippet
-        # for the receiver followed by type-snippet pairs for additional arguments.
-        def self.get_implementation(method_name, args_types, args_code)
-            rcvr_type = args_types.first
-            impl = find_impl(rcvr_type, method_name)
+        # [method_name] defined on [rcvr_type].
+        #
+        # This method also receives references to the receiver AST node and to AST nodes for
+        # arguments. In most cases, these AST nodes are directly translated to source code
+        # using `translator` (a [Translator::ASTTranslator]). However, if an implementation
+        # is given through a block ([Proc]), the implementation might decide to not use the
+        # translation (e.g., translation of parallel sections in host sections).
+        #
+        # [receiver] must have a singleton type.
+        def self.get_implementation(receiver, method_name, arguments, translator, result_type)
+            impl = find_impl(receiver.get_type.singleton_type, method_name)
             source = impl.implementation
 
             if source.is_a?(Proc)
-                source = source.call(args_types, args_code)
+                source = source.call(receiver, method_name, arguments, translator, result_type)
             end
 
+            sub_code = arguments.map do |arg| arg.accept(translator.expression_translator) end
+            sub_types = arguments.map do |arg| arg.get_type end
+
             if impl.pass_self
-                sub_code = args_code
-                sub_types = args_types
-            else
-                # Do not pass `self`: Omit first argument
-                sub_code = args_code[1..-1]
-                sub_types = args_types[1..-1]
+                sub_code.insert(0, receiver.accept(translator.expression_translator))
+                sub_types.insert(0, receiver.get_type)
             end
 
             sub_indices = (0...source.length).find_all do |index| 

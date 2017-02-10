@@ -6,7 +6,7 @@ module Ikra
             # TODO: Either ensure that every type is a singleton or implement == properly
             
             def to_c_type
-                return "#{result_type.to_c_type} *"
+                return "array_command_t<#{result_type.to_c_type}> *"
             end
 
             def to_ffi_type

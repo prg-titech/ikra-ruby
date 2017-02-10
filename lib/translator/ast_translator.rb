@@ -1,36 +1,342 @@
 require_relative "../ast/nodes.rb"
+require_relative "../ast/visitor.rb"
 require_relative "../ruby_core/ruby_integration"
 
 # Rule: every statement ends with newline
 # TODO: Add proper exceptions (CompilationError)
 
 module Ikra
-    module AST
-        class TreeNode
-            @@next_temp_identifier_id = 0
+    module Translator
+        class ASTTranslator < AST::Visitor
+            class ExpressionTranslator
+                attr_reader :translator
 
-            def translate_statement
-                return translate_expression + ";\n"
-            end
-            
-            def translate_expression
-                return_value = expression_return_value
-                inner_stmts = nil
-
-                if return_value != nil
-                    # Node specifies a return value
-                    inner_stmts = translate_statement + "return " + return_value + ";\n"
-                else
-                    inner_stmts = translate_statement
+                def initialize(translator)
+                    @translator = translator
                 end
 
-                return statements_as_expression(inner_stmts)
+                def expression_translator
+                    return self
+                end
+
+                def statement_translator
+                    return translator.statement_translator
+                end
+
+                def method_missing(symbol, *args)
+                    if symbol.to_s.start_with?("visit_")
+                        if statement_translator.respond_to?(symbol)
+                            return statements_as_expression(
+                                statement_translator.send(symbol, *args) + "return NULL;")
+                        else
+                            super
+                        end
+                    else
+                        return translator.send(symbol, *args)
+                    end
+                end
+
+                def visit_behavior_node(node)
+                    raise "Methods/blocks cannot be translated as an expression"
+                end
+
+                def visit_source_code_expr_node(node)
+                    return node.code
+                end
+
+                def visit_const_node(node)
+                    raise NotImplementedError.new
+                end
+
+                def visit_lvar_read_node(node)
+                    return node.mangled_identifier.to_s
+                end
+
+                def visit_lvar_write_node(node)
+                    if node.value.get_type.is_singleton? and !node.symbol_table[node.identifier].is_singleton?
+                        # The assigned value is singleton, but the variable is not
+                        singleton_assignment = wrap_in_union_type(
+                            node.value.accept(expression_translator), 
+                            node.value.get_type.singleton_type)
+                        return Translator.read_file(file_name: "ast/assignment.cpp",
+                            replacements: { 
+                                "source" => singleton_assignment,
+                                "target" => node.mangled_identifier.to_s})
+                    else
+                        return Translator.read_file(file_name: "ast/assignment.cpp",
+                            replacements: { 
+                                "source" => node.value.accept(expression_translator),
+                                "target" => node.mangled_identifier.to_s})
+                    end
+                end
+
+                def visit_ivar_read_node(node)
+                    array_identifier = node.enclosing_class.ruby_class.to_ikra_type.inst_var_array_name(identifier)
+                    return "#{Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
+                end
+
+                def visit_int_node(node)
+                    return node.value.to_s
+                end
+
+                def visit_nil_node(node)
+                    return "0"
+                end
+
+                def visit_float_node(node)
+                    return node.value.to_s
+                end
+
+                def visit_bool_node(node)
+                    return node.value.to_s
+                end
+
+                def visit_if_node(node)
+                    # Make every branch return
+                    node.accept(LastStatementReturnsVisitor.new)
+
+                    # Wrap in StatementExpression
+                    return statements_as_expression(node.accept(statement_translator))
+                end
+
+                def visit_ternary_node(node)
+                    return "((#{node.condition.accept(expression_translator)}) ? (#{node.true_val.accept(expression_translator)}) : (#{node.false_val.accept(expression_translator)}))"
+                end
+
+
+                def visit_begin_node(node)
+                    if node.body_stmts.size == 0
+                        raise "Empty BeginNode cannot be an expression"
+                    elsif node.body_stmts.size == 1
+                        # Preserve brackets
+                        return "(#{node.body_stmts.first.accept(self)})"
+                    else
+                        # Wrap in lambda
+                        # Do not worry about scope of varibles, they will all be declared at the
+                        # beginning of the function
+                        node.accept(LastStatementReturnsVisitor.new)
+                        return statements_as_expression(node.accept(statement_translator))
+                    end
+                end
+
+                # Builds a synthetic [AST::SourceCodeExprNode] with a type and a translation.
+                def build_synthetic_code_node(code, type)
+                    node = AST::SourceCodeExprNode.new(code: code)
+                    node.get_type.expand_return_type(type.to_union_type)
+                    return node
+                end
+
+                def visit_send_node(node)
+                    if node.receiver.get_type.is_singleton?
+                        return generate_send_for_singleton(
+                            node, 
+                            node.receiver,
+                            node.get_type)
+                    else
+                        # Polymorphic case
+                        # TODO: This is not an expression anymore!
+                        poly_id = temp_identifier_id
+                        receiver_identifier = "_polytemp_recv_#{poly_id}"
+                        result_identifier = "_polytemp_result_#{poly_id}"
+                        header = "#{define_assign_variable(receiver_identifier, node.receiver)}\n#{node.get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
+                        case_statements = []
+
+                        for type in node.receiver.get_type
+                            if type == Types::PrimitiveType::Int
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.int_", type)
+                            elsif type == Types::PrimitiveType::Float
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.float_", type)
+                            elsif type == Types::PrimitiveType::Bool
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.bool_", type)
+                            elsif type == Types::PrimitiveType::Nil
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.int_", type)
+                            else
+                                self_node = build_synthetic_code_node(
+                                    "#{receiver_identifier}.value.object_id", type)
+                            end
+
+                            singleton_return_type = node.return_type_by_recv_type[type]
+                            singleton_invocation = generate_send_for_singleton(
+                                node, 
+                                self_node,
+                                singleton_return_type)
+
+                            if singleton_return_type.is_singleton? and !node.get_type.is_singleton?
+                                # The return value of this particular invocation (singleton type 
+                                # recv) is singleton, but in general this send can return many 
+                                # types
+                                singleton_invocation = wrap_in_union_type(
+                                    singleton_invocation, 
+                                    singleton_return_type.singleton_type)
+                            end
+
+                            case_statements.push("case #{type.class_id}: #{result_identifier} = #{singleton_invocation}; break;")
+                        end
+
+                        # TODO: compound statements only work with the GNU C++ compiler
+                        return "(" + wrap_in_c_block(
+                            header + 
+                            wrap_in_c_block(case_statements.join("\n")) + 
+                                result_identifier + ";")[0..-2] + ")"
+                    end
+                end
+
+                def generate_send_for_singleton(node, singleton_recv, return_type)
+                    recv_type = singleton_recv.get_type.singleton_type
+
+                    if RubyIntegration.has_implementation?(recv_type, node.selector)
+                        return RubyIntegration.get_implementation(
+                            singleton_recv,
+                            node.selector, 
+                            node.arguments, 
+                            translator,
+                            return_type)
+                    elsif recv_type.is_a?(Types::StructType)
+                        first_arg = node.arguments.first
+
+                        if first_arg.is_a?(AST::IntLiteralNode)
+                            # Reading the struct at a constant position
+                            return recv_type.generate_read(
+                                singleton_recv.accept(self), 
+                                node.selector, 
+                                first_arg.accept(self))
+                        else
+                            # Reading the struct at a non-constant position
+                            id = temp_identifier_id
+                            name = "_temp_var_#{id}"
+                            first_arg_eval = first_arg.accept(self)
+
+                            # Store index in local variable, then generate non-constant access
+                            # TODO: Statement expression is potentially inefficient
+                            return "({ int #{name} = #{first_arg_eval};\n" +
+                                recv_type.generate_non_constant_read(
+                                    singleton_recv.accept(self),
+                                    node.selector,
+                                    first_arg_eval) + "; })"
+                        end
+                    else
+                        args = [Constants::ENV_IDENTIFIER]
+
+                        if recv_type.should_generate_self_arg?
+                            args.push(singleton_recv.accept(self))
+                        else
+                            args.push("NULL")
+                        end
+
+                        args.push(*(node.arguments.map do |arg| arg.accept(self) end))
+                        args_string = args.join(", ")
+
+                        return "#{node.receiver.get_type.singleton_type.mangled_method_name(node.selector)}(#{args_string})"
+                    end
+                end
+
+                def visit_return_node(node)
+                    raise "ReturnNode is never an expression"
+                end
             end
 
-            protected
-            
-            def expression_return_value
-                return "NULL"
+            class StatementTranslator
+                attr_reader :translator
+
+                def initialize(translator)
+                    @translator = translator
+                end
+
+                def expression_translator
+                    return translator.expression_translator
+                end
+
+                def statement_translator
+                    return self
+                end
+
+                def method_missing(symbol, *args)
+                    if symbol.to_s.start_with?("visit_")
+                        if expression_translator.respond_to?(symbol)
+                            return expression_translator.send(symbol, *args) + ";\n"
+                        else
+                            super
+                        end
+                    else
+                        return translator.send(symbol, *args)
+                    end
+                end
+
+                def visit_behavior_node(node)
+                    raise "Methods/blocks cannot be translated as a statement"
+                end
+
+                def visit_root_node(node)
+                    return node.single_child.accept(self)
+                end
+
+                def visit_for_node(node)
+                    loop_header = "for (#{node.iterator_identifier.to_s} = #{node.range_from.accept(expression_translator)}; #{node.iterator_identifier.to_s} <= #{node.range_to.accept(expression_translator)}; #{node.iterator_identifier.to_s}++)"
+
+                    return loop_header + 
+                        "\n" + 
+                        node.body_stmts.accept(self) + 
+                        "#{node.iterator_identifier.to_s}--;\n"
+                end
+
+                def visit_while_node(node)
+                    return "while (#{node.condition.accept(expression_translator)})\n#{node.body_stmts.accept(self)}"
+                end
+
+                def visit_while_post_node(node)
+                    return "do #{node.body_stmts.accept(self)}while (#{node.condition.accept(expression_translator)});\n"
+                end
+
+                def visit_until_node(node)
+                    return "while (#{node.condition.accept(expression_translator)})\n#{node.body_stmts.accept(self)}"
+                end
+
+                def visit_until_post_node(node)
+                    return "do #{node.body_stmts.accept(self)}while (#{node.condition.accept(expression_translator)});\n"
+                end
+
+                def visit_break_node(node)
+                    return "break;\n"
+                end
+
+                def visit_if_node(node)
+                    header = "if (#{node.condition.accept(expression_translator)})\n"
+
+                    if node.false_body_stmts == nil
+                        return header + node.true_body_stmts.accept(self)
+                    else
+                        return header + node.true_body_stmts.accept(self) + "else\n" + node.false_body_stmts.accept(self)
+                    end
+                end
+
+                def visit_begin_node(node)
+                    if node.body_stmts.size == 0
+                        return wrap_in_c_block("")
+                    end
+                    
+                    body_translated = node.body_stmts.map do |stmt|
+                        stmt.accept(self)
+                    end.join("")
+
+                    return wrap_in_c_block(body_translated)
+                end
+
+                def visit_return_node(node)
+                    return "return #{node.value.accept(expression_translator)};\n"
+                end
+            end
+
+            attr_reader :expression_translator
+
+            attr_reader :statement_translator
+
+            def initialize
+                @expression_translator = ExpressionTranslator.new(self)
+                @statement_translator = StatementTranslator.new(self)
             end
 
             def statements_as_expression(str)
@@ -51,6 +357,7 @@ module Ikra
                 end
             end
 
+            @@next_temp_identifier_id = 0
             def temp_identifier_id
                 @@next_temp_identifier_id += 1
                 @@next_temp_identifier_id
@@ -59,16 +366,7 @@ module Ikra
             # Generates code that assigns the value of a node to a newly-defined variable.
             def define_assign_variable(name, node)
                 type = node.get_type.to_c_type
-                return "#{type} #{name} = #{node.translate_expression};"
-            end
-
-            # Stores the evaluation of [node] in a temporary variable and returns the name of
-            # the temporary variable.
-            def let_expr(node)
-                type = node.get_type.to_c_type
-                id = temp_identifier_id
-                name = "_temp_var_#{id}"
-                return name, "#{type} #{name} = #{node.translate_expression};"
+                return "#{type} #{name} = #{node.accept(expression_translator)};"
             end
 
             def wrap_in_union_type(str, type)
@@ -86,327 +384,41 @@ module Ikra
                     raise "UnionType found but singleton type expected"
                 end
             end
-        end
-        
-        class BlockDefNode
-            def translate_block
-                return body.translate_statement
-            end
-        end
 
-        class MethDefNode
-            def translate_method
+            def self.translate_block(block_def_node)
+                return self.new.translate_block(block_def_node)
+            end
+
+            def translate_block(block_def_node)
+                return block_def_node.body.accept(statement_translator)
+            end
+
+            def self.translate_method(method_def_node)
+                return self.new.translate_method(method_def_node)
+            end
+
+            def translate_method(meth_def_node)
                 # TODO: merge with BlockTranslator
                 
-                method_params = (["environment_t * #{Translator::Constants::ENV_IDENTIFIER}", "#{parent.get_type.to_c_type} #{Constants::SELF_IDENTIFIER}"] + parameters_names_and_types.map do |name, type|
-                    "#{type.singleton_type.to_c_type} #{name}"
-                end).join(", ")
+                method_params = ([
+                    "environment_t * #{Constants::ENV_IDENTIFIER}", 
+                    "#{meth_def_node.parent.get_type.to_c_type} #{Constants::SELF_IDENTIFIER}"] + 
+                        meth_def_node.parameters_names_and_types.map do |name, type|
+                            "#{type.singleton_type.to_c_type} #{name}"
+                        end).join(", ")
 
                 # TODO: load environment variables
 
                 # Declare local variables
                 local_variables_def = ""
-                local_variables_names_and_types.each do |name, type|
+                meth_def_node.local_variables_names_and_types.each do |name, type|
                     local_variables_def += "#{type.to_c_type} #{name};\n"
                 end
 
-                signature = "__device__ #{get_type.singleton_type.to_c_type} #{parent.get_type.mangled_method_name(name)}(#{method_params})"
+                signature = "__device__ #{meth_def_node.get_type.singleton_type.to_c_type} #{meth_def_node.parent.get_type.mangled_method_name(meth_def_node.name)}(#{method_params})"
                 return signature + 
                     "\n" + 
-                    Translator.wrap_in_c_block(local_variables_def + body.translate_statement)
-            end
-        end
-
-        class BehaviorNode
-            def translate_statement
-                raise "Methods/blocks cannot be translated as a statement"
-            end
-
-            def translate_expression
-                raise "Methods/blocks cannot be translated as an expression"
-            end
-        end
-
-        class ConstNode
-            def translate_expression
-                raise "Not implemented"
-            end
-        end
-
-        class RootNode
-            def translate_statement
-                return single_child.translate_statement
-            end
-        end
-
-        class LVarReadNode
-            def translate_expression
-                return mangled_identifier.to_s
-            end
-        end
-        
-        class LVarWriteNode
-            def translate_expression
-                if value.get_type.is_singleton? and !symbol_table[identifier].is_singleton?
-                    # The assigned value is singleton, but the variable is not
-                    singleton_assignment = wrap_in_union_type(
-                        value.translate_expression, value.get_type.singleton_type)
-                    return "#{mangled_identifier.to_s} = #{singleton_assignment}"
-                else
-                    return "#{mangled_identifier.to_s} = #{value.translate_expression}"
-                end
-            end
-        end
-        
-        class IVarReadNode
-            def translate_expression
-                array_identifier = enclosing_class.ruby_class.to_ikra_type.inst_var_array_name(identifier)
-                return "#{Translator::Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
-            end
-        end
-
-        class IntLiteralNode
-            def translate_expression
-                return value.to_s
-            end
-        end
-
-        class NilLiteralNode
-            def translate_expression
-                return "0"
-            end
-        end
-        
-        class FloatLiteralNode
-            def translate_expression
-                return value.to_s
-            end
-        end
-        
-        class BoolLiteralNode
-            def translate_expression
-                return value.to_s
-            end
-        end
-        
-        class ForNode
-            def translate_statement
-                loop_header = "for (#{iterator_identifier.to_s} = #{range_from.translate_expression}; #{iterator_identifier.to_s} <= #{range_to.translate_expression}; #{iterator_identifier.to_s}++)"
-                return loop_header + 
-                    "\n" + body_stmts.translate_statement + "#{iterator_identifier.to_s}--;\n"
-            end
-        end
-        
-        class WhileNode
-            def translate_statement
-                return "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
-            end
-        end
-        
-        class WhilePostNode
-            def translate_statement
-                return "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
-            end
-        end
-        
-        class UntilNode
-            def translate_statement
-                return "while (#{condition.translate_expression})\n#{body_stmts.translate_statement}"
-            end
-        end
-        
-        class UntilPostNode
-            def translate_statement
-                return "do #{body_stmts.translate_statement}while (#{condition.translate_expression});\n"
-            end
-        end
-
-        class BreakNode
-            def translate_expression
-                raise "BreakNode is never an expression"
-            end
-            
-            def translate_statement
-                return "break;\n"
-            end
-        end
-        
-        class IfNode
-            def translate_statement
-                header = "if (#{condition.translate_expression})\n"
-
-                if false_body_stmts == nil
-                    return header + true_body_stmts.translate_statement
-                else
-                    return header + true_body_stmts.translate_statement + "else\n" + false_body_stmts.translate_statement
-                end
-            end
-
-            def translate_expression
-                # Make every branch return
-                accept(Translator::LastStatementReturnsVisitor.new)
-
-                # Wrap in StatementExpression
-                return statements_as_expression(translate_statement)
-            end
-        end
-        
-        class TernaryNode
-            def translate_expression
-                return "((#{condition.translate_expression}) ? (#{true_val.translate_expression}) : (#{false_val.translate_expression}))"
-            end
-        end
-        
-        class BeginNode
-            def translate_statement
-                if body_stmts.size == 0
-                    return wrap_in_c_block("")
-                end
-                
-                body_translated = body_stmts.map do |stmt|
-                    stmt.translate_statement
-                end.join("")
-                
-                return wrap_in_c_block(body_translated)
-            end
-
-            def translate_expression
-                if body_stmts.size == 0
-                    raise "Empty BeginNode cannot be an expression"
-                elsif body_stmts.size == 1
-                    # Preserve brackets
-                    return "(#{body_stmts.first.translate_expression})"
-                else
-                    # Wrap in lambda
-                    # Do not worry about scope of varibles, they will all be declared at the
-                    # beginning of the function
-                    accept(Translator::LastStatementReturnsVisitor.new)
-                    return statements_as_expression(translate_statement)
-                end
-
-            end
-        end
-        
-        class SendNode
-            def translate_expression
-                if receiver.get_type.is_singleton?
-                    return generate_send_for_singleton(receiver.get_type.singleton_type)
-                else
-                    # Polymorphic case
-                    # TODO: This is not an expression anymore!
-                    poly_id = temp_identifier_id
-                    receiver_identifier = "_polytemp_recv_#{poly_id}"
-                    result_identifier = "_polytemp_result_#{poly_id}"
-                    header = "#{define_assign_variable(receiver_identifier, receiver)}\n#{get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
-                    case_statements = []
-
-                    for type in receiver.get_type
-                        object_id = nil
-
-                        if type == Types::PrimitiveType::Int
-                            object_id = "#{receiver_identifier}.value.int_"
-                        elsif type == Types::PrimitiveType::Float
-                            object_id = "#{receiver_identifier}.value.float_"
-                        elsif type == Types::PrimitiveType::Bool
-                            object_id = "#{receiver_identifier}.value.bool_"
-                        elsif type == Types::PrimitiveType::Nil
-                            object_id = "#{receiver_identifier}.value.int_"
-                        else
-                            object_id = "#{receiver_identifier}.value.object_id"
-                        end
-
-                        singleton_invocation = generate_send_for_singleton(type, self_argument: object_id)
-                        singleton_return_value = return_type_by_recv_type[type]
-
-                        if singleton_return_value.is_singleton? and !get_type.is_singleton?
-                            # The return value of this particular invocation (singleton type recv)
-                            # is singleton, but in general this send can return many types
-                            singleton_invocation = wrap_in_union_type(singleton_invocation, singleton_return_value.singleton_type)
-                        end
-
-                        case_statements.push("case #{type.class_id}: #{result_identifier} = #{singleton_invocation}; break;")
-                    end
-
-                    # TODO: compound statements only work with the GNU C++ compiler
-                    return "(" + wrap_in_c_block(header + wrap_in_c_block(case_statements.join("\n")) + result_identifier + ";")[0..-2] + ")"
-                end
-            end
-
-            def generate_send_for_singleton(recv_type, self_argument: nil)
-                if RubyIntegration.has_implementation?(recv_type, selector)
-                    args_code = []
-                    args_types = []
-
-                    if RubyIntegration.should_pass_self?(recv_type, selector)
-                        if self_argument != nil
-                            args_code.push(self_argument)
-                        else
-                            args_code.push(receiver.translate_expression)
-                        end
-                    else
-                        # This value is actually never read
-                        args_code.push(nil)
-                    end
-
-                    args_types.push(recv_type)
-
-                    # Add regular arguments
-                    args_code.push(*arguments.map do |arg| arg.translate_expression end)
-                    args_types.push(*arguments.map do |arg| arg.get_type end)
-
-                    return RubyIntegration.get_implementation(selector, args_types, args_code)
-                elsif recv_type.is_a?(Types::StructType)
-                    first_arg = arguments.first
-
-                    if first_arg.is_a?(AST::IntLiteralNode)
-                        # Reading the struct at a constant position
-                        return recv_type.generate_read(
-                            receiver.translate_expression, 
-                            selector, 
-                            first_arg.translate_expression)
-                    else
-                        # Reading the struct at a non-constant position
-                        id = temp_identifier_id
-                        name = "_temp_var_#{id}"
-                        first_arg_eval = first_arg.translate_expression
-
-                        # Store index in local variable, then generate non-constant access
-                        # TODO: Statement expression is potentially inefficient
-                        return "({ int #{name} = #{first_arg_eval};\n" +
-                            recv_type.generate_non_constant_read(
-                                receiver.translate_expression,
-                                selector,
-                                first_arg_eval) + "; })"
-                        return 
-                    end
-                else
-                    args = [Translator::Constants::ENV_IDENTIFIER]
-
-                    if recv_type.should_generate_self_arg?
-                        if self_argument != nil
-                            args.push(self_argument) 
-                        else
-                            args.push(receiver.translate_expression)
-                        end
-                    else
-                        args.push("NULL")
-                    end
-
-                    args.push(*(arguments.map do |arg| arg.translate_expression end))
-                    args_string = args.join(", ")
-
-                    return "#{receiver.get_type.singleton_type.mangled_method_name(selector)}(#{args_string})"
-                end
-            end
-        end
-
-        class ReturnNode
-            def translate_expression
-                raise "ReturnNode is never an expression"
-            end
-
-            def translate_statement
-                return "return #{value.translate_expression};\n"
+                    wrap_in_c_block(local_variables_def + meth_def_node.body.accept(statement_translator))
             end
         end
     end

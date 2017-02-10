@@ -510,7 +510,7 @@ module Ikra
                     distance = offsets[2]
                     # Distance says how many steps can be made into the directions distance = 2 in the example before would mean 1 or 2 up/down/left/right 
 
-                    if direction > dims
+                    if directions > dims
                         raise "directions should not be higher than the number of dimensions"
                     end
 

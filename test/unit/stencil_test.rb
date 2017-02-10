@@ -60,6 +60,35 @@ class StencilTest < UnitTestCase
         assert_equal(aggregated_cpu, aggregated_gpu)
     end
 
+    def test_generated_stencil_array_parameter
+        # CPU computation
+        base_array_cpu = Array.new(100) do |j|
+            j + 100
+        end
+
+        stencil_result_cpu = base_array_cpu.stencil([-1, 0, 1], 10000) do |values|
+            values[0] + values[1] + values[2]
+        end
+
+        aggregated_cpu = stencil_result_cpu.reduce(:+)
+
+
+        # GPU computation
+        base_array_gpu = Array.pnew(100) do |j|
+            j + 100
+        end
+
+        stencil_result_gpu = base_array_gpu.pstencil(Ikra.stencil(directions: 1, distance: 1), 10000) do |values|
+            values[-1] + values[0] + values[1]
+        end 
+
+        aggregated_gpu = stencil_result_gpu.reduce(:+)
+
+
+        # Compare results
+        assert_equal(aggregated_cpu, aggregated_gpu)
+    end
+
     def test_2d_stencil
         # GPU computation
         base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|

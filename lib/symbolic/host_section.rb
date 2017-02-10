@@ -16,7 +16,8 @@ module Ikra
             end
 
             def size
-                raise NotImplementedError.new
+                execute
+                return @result.size
             end
 
             # Returns the abstract syntax tree for this section.
