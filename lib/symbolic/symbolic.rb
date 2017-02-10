@@ -501,6 +501,53 @@ module Ikra
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep)
 
+                if offsets.first == "G"
+                    # A stencil will be generated
+                    dims = target.to_command.dimensions.size
+
+                    directions = offsets[1]
+                    # Directions says how many of the dimensions can be used in the stencil. E.g.: in 2D directions = 1 would relate in a stencil that only has up, down, left, right offsets, but no diagonals  
+                    distance = offsets[2]
+                    # Distance says how many steps can be made into the directions distance = 2 in the example before would mean 1 or 2 up/down/left/right 
+
+                    if directions > dims
+                        raise "directions should not be higher than the number of dimensions"
+                    end
+
+                    singles = [0]
+                    # Building the numbers that can be part of an offset
+                    for i in 1..distance
+                        singles = singles + [i] + [-i]
+                    end
+
+                    offsets = []
+
+                    # Iterate all possibilities
+                    for i in 0..singles.size**dims-1
+                        # Transform current permutation to according string / base representation
+                        base = i.to_s(singles.size)
+
+                        # Fill up zeroes
+                        sizedif = (singles.size**dims-1).to_s(singles.size).size - base.size
+                        base = "0" * sizedif + base
+
+                        # Check whether offset is allowed (concerning directions)
+                        if base.gsub(/[^0]/, "").size >= dims - directions
+                            new_offset = []
+                            for j in 0..dims-1
+                                new_offset.push(singles[base[j].to_i])
+                            end
+                            offsets.push(new_offset)
+                        end
+                    end
+                end
+
+                if not offsets.first.is_a?(Array)
+                    offsets = offsets.map do |offset|
+                        [offset]
+                    end
+                end
+
                 # Read more than just one element, fall back to `:entire` for now
 
                 @out_of_range_value = out_of_range_value
@@ -520,24 +567,14 @@ module Ikra
                         out_of_bounds_value: out_of_range_value)]
                 end
 
-                # Check if offsets have the correct format
-                if dimensions.size == 1
-                    # Use Fixnum offsets
-                    for offset in offsets
-                        if !offset.is_a?(Fixnum)
-                            raise ArgumentError.new("Fixnum expected but #{offset.class} found")
-                        end
+                
+                # Offsets should be arrays
+                for offset in offsets
+                    if !offset.is_a?(Array)
+                        raise ArgumentError.new("Array expected but #{offset.class} found")
                     end
-                else
-                    # Offsets should be arrays
-                    for offset in offsets
-                        if !offset.is_a?(Array)
-                            raise ArgumentError.new("Array expected but #{offset.class} found")
-                        end
-
-                        if offset.size != dimensions.size
-                            raise ArgumentError.new("#{dimensions.size} indices expected")
-                        end
+                    if offset.size != dimensions.size
+                        raise ArgumentError.new("#{dimensions.size} indices expected")
                     end
                 end
                 

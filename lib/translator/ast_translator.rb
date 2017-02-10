@@ -99,6 +99,11 @@ module Ikra
                     return statements_as_expression(node.accept(statement_translator))
                 end
 
+                def visit_ternary_node(node)
+                    return "((#{node.condition.accept(expression_translator)}) ? (#{node.true_val.accept(expression_translator)}) : (#{node.false_val.accept(expression_translator)}))"
+                end
+
+
                 def visit_begin_node(node)
                     if node.body_stmts.size == 0
                         raise "Empty BeginNode cannot be an expression"
