@@ -47,7 +47,7 @@ module Ikra
                     push_kernel_launcher(kernel_builder: kernel_builder)
                     # Configure kernel with correct arguments and grid
                     kernel_launcher.add_additional_arguments(odd)
-                    kernel_launcher.configure_grid(num_threads)
+                    kernel_launcher.configure_grid(num_threads, block_size:block_size)
                     
                     # First launch of kernel is supposed to allocate new memory, so only reuse memory after first launch 
                     if first_launch
@@ -68,7 +68,7 @@ module Ikra
 
                 # Configuration for last launch of kernel
                 kernel_launcher.add_additional_arguments(odd)
-                kernel_launcher.configure_grid(num_threads)
+                kernel_launcher.configure_grid(num_threads, block_size:block_size)
 
                 if !first_launch
                     kernel_launcher.reuse_memory!(previous_result_kernel_var)
