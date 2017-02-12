@@ -19,7 +19,7 @@ module Ikra
                     register_type_change
                 end
 
-                type.expand_return_type(union_type)
+                return type.expand_return_type(union_type)
             end
 
             def symbol_table
@@ -27,7 +27,12 @@ module Ikra
             end
 
             def register_type_change
-                parent.register_type_change
+                if parent != nil
+                    parent.register_type_change
+                else
+                    # This node is not part of a full AST, i.e., it does not have a [BehaviorNode]
+                    # as a parent. Do nothing.
+                end
             end
         end
 
@@ -80,7 +85,7 @@ module Ikra
                     register_type_change
                 end
                 
-                type.expand_return_type(union_type)
+                return type.expand_return_type(union_type)
             end
 
             # Mapping: parameter name -> UnionType
@@ -124,6 +129,8 @@ module Ikra
         end
 
         class SendNode
+            attr_writer :return_type_by_recv_type
+
             # Mapping: Receiver type --> Return value of send
             def return_type_by_recv_type
                 @return_type_by_recv_type ||= {}
@@ -453,6 +460,12 @@ module Ikra
                 node.merge_union_type(type)
             end
                 
+            def visit_source_code_expr_node(node)
+                # This is a synthetic node. No type inference. Return the type that was set
+                # manually before (if any).
+                return node.get_type
+            end
+
             def visit_send_node(node)
                 # TODO: handle self sends
                 receiver_type = nil
@@ -469,7 +482,7 @@ module Ikra
                 end
 
                 type = Types::UnionType.new
-                
+
                 for sing_type in receiver_type
                     if RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end

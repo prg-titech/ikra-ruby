@@ -115,12 +115,16 @@ module Ikra
                 # the return value (array) cannot be determined uniquely at compile time.
                 host_section_invocation = AST::SourceCodeExprNode.new(
                     code: "#{mangled_name}(#{args.join(", ")})")
-                host_section_invocation.get_type.expand(result_type)                
+                host_section_invocation.get_type.expand(result_type)
                 device_to_host_transfer_node = AST::SendNode.new(
                     receiver: host_section_invocation,
                     selector: :__to_host_array__)
 
-                program_builder.host_result_expression = device_to_host_transfer_node.accept(ast_translator.expression_translator)
+                # Type inference is a prerequisite for code generation
+                type_inference_visitor.visit_send_node(device_to_host_transfer_node)
+
+                program_builder.host_result_expression = device_to_host_transfer_node.accept(
+                    ast_translator.expression_translator)
                 program_builder.result_type = result_type
 
                 Log.info("DONE translating ArrayHostSectionCommand [#{command.unique_id}]")

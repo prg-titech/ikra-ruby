@@ -370,17 +370,17 @@ module Ikra
 
             def wrap_in_union_type(str, type)
                 if type == Types::PrimitiveType::Int
-                    return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_int(#{str}))"
                 elsif type == Types::PrimitiveType::Float
-                    return "((union_t) {#{type.class_id}, {.float_ = #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_float(#{str}))"
                 elsif type == Types::PrimitiveType::Bool
-                    return "((union_t) {#{type.class_id}, {.bool_ = #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_bool(#{str}))"
                 elsif type == Types::PrimitiveType::Nil
-                    return "((union_t) {#{type.class_id}, {.int_ = #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_int(#{str}))"
                 elsif type.is_a?(Symbolic::ArrayCommand)
-                    return "((union_t) {#{type.class_id}, {.array_command = (array_command_t<void> *) #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_array_command_t((array_command_t<void> *) #{str}))"
                 elsif !type.is_a?(Types::UnionType)
-                    return "((union_t) {#{type.class_id}, {.object_id = #{str}}})"
+                    return "union_t(#{type.class_id}, union_v_t::from_object_id(#{str}))"
                 else
                     raise "UnionType found but singleton type expected"
                 end

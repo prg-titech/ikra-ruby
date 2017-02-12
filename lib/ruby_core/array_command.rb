@@ -56,9 +56,9 @@ module Ikra
         end
 
         LOCATION_AWARE_ARRAY_TO_HOST_ARRAY_TYPE = proc do |rcvr_type, *args_types|
-            return Types::LocationAwareFixedSizeArrayType.new(
+            Types::LocationAwareFixedSizeArrayType.new(
                 rcvr_type.inner_type,
-                location: :host)
+                location: :host).to_union_type
         end
 
         COPY_ARRAY_TO_HOST = proc do |receiver, method_name, args, translator, result_type|

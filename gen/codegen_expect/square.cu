@@ -33,22 +33,6 @@ typedef int obj_id_t;
 typedef int class_id_t;
 /* ----- END Class Type ----- */
 
-/* ----- BEGIN Union Type ----- */
-typedef union union_type_value {
-    obj_id_t object_id;
-    int int_;
-    float float_;
-    bool bool_;
-} union_v_t;
-
-typedef struct union_type_struct
-{
-    class_id_t class_id;
-    union_v_t value;
-} union_t;
-/* ----- END Union Type ----- */
-
-
 /* ----- BEGIN Environment (lexical variables) ----- */
 // environment_struct must be defined later
 typedef struct environment_struct environment_t;
@@ -61,15 +45,6 @@ typedef struct result_t result_t;
 
 
 /* ----- BEGIN Macros ----- */
-#define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
-
 #define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
 
 #define timeReportMeasure(result_var, variable_name) \
@@ -77,8 +52,84 @@ end_time = chrono::high_resolution_clock::now(); \
 result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
 /* ----- END Macros ----- */
 /* ----- BEGIN Structs ----- */
+template <typename T>
+struct array_command_t {
+    T *result;
+};
+
+template <typename T>
+struct fixed_size_array_t {
+    T *content;
+    int size;
+
+    fixed_size_array_t(T *content_, int size_) : content(content_), size(size_) { }; 
+
+    static const fixed_size_array_t<T> error_return_value;
+};
+
+// error_return_value is used in case a host section terminates abnormally
+template <typename T>
+const fixed_size_array_t<T> fixed_size_array_t<T>::error_return_value = 
+    fixed_size_array_t<T>(NULL, 0);
+
+/* ----- BEGIN Union Type ----- */
+typedef union union_type_value {
+    obj_id_t object_id;
+    int int_;
+    float float_;
+    bool bool_;
+    array_command_t<void> *array_command;
+    fixed_size_array_t<void> fixed_size_array;
+
+    __host__ __device__ union_type_value(int value) : int_(value) { };
+    __host__ __device__ union_type_value(float value) : float_(value) { };
+    __host__ __device__ union_type_value(bool value) : bool_(value) { };
+    __host__ __device__ union_type_value(array_command_t<void> *value) : array_command(value) { };
+    __host__ __device__ union_type_value(fixed_size_array_t<void> value) : fixed_size_array(value) { };
+
+    __host__ __device__ static union_type_value from_object_id(obj_id_t value) {
+        return union_type_value(value);
+    }
+
+    __host__ __device__ static union_type_value from_int(int value) {
+        return union_type_value(value);
+    }
+
+    __host__ __device__ static union_type_value from_float(float value) {
+        return union_type_value(value);
+    }
+
+    __host__ __device__ static union_type_value from_bool(bool value) {
+        return union_type_value(value);
+    }
+
+    __host__ __device__ static union_type_value from_array_command_t(array_command_t<void> *value) {
+        return union_type_value(value);
+    }
+
+    __host__ __device__ static union_type_value from_fixed_size_array_t(fixed_size_array_t<void> value) {
+        return union_type_value(value);
+    }
+} union_v_t;
+
+typedef struct union_type_struct
+{
+    class_id_t class_id;
+    union_v_t value;
+
+    __host__ __device__ union_type_struct(
+        class_id_t class_id_ = 0, union_v_t value_ = union_v_t(0))
+        : class_id(class_id_), value(value_) { };
+
+    static const union_type_struct error_return_value;
+} union_t;
+
+// error_return_value is used in case a host section terminates abnormally
+const union_type_struct union_t::error_return_value = union_type_struct(0, union_v_t(0));
+/* ----- END Union Type ----- */
+
 typedef struct result_t {
-    int *result;
+    fixed_size_array_t<int> result;
     int last_error;
 
     uint64_t time_setup_cuda;
@@ -119,6 +170,16 @@ __global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_)
 }
 
 
+#undef checkErrorReturn
+#define checkErrorReturn(result_var, expr) \
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
+
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
     // Variables for measuring time
@@ -145,8 +206,8 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Prepare environment */
-timeStartMeasure();
-
+    timeStartMeasure();
+    
     void * temp_ptr_b1_base = host_env->b1_base;
     checkErrorReturn(program_result, cudaMalloc((void **) &host_env->b1_base, 40000));
     checkErrorReturn(program_result, cudaMemcpy(host_env->b1_base, temp_ptr_b1_base, 40000, cudaMemcpyHostToDevice));
@@ -155,30 +216,35 @@ timeStartMeasure();
     checkErrorReturn(program_result, cudaMalloc(&dev_env, sizeof(environment_t)));
     checkErrorReturn(program_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-timeReportMeasure(program_result, prepare_env);
+    timeReportMeasure(program_result, prepare_env);
 
     /* Launch all kernels */
-timeStartMeasure();
-    int * _kernel_result_8;
+    timeStartMeasure();
+        int * _kernel_result_8;
     checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (sizeof(int) * 10000)));
     program_result->device_allocations->push_back(_kernel_result_8);
-    int * _kernel_result_8_host = (int *) malloc((sizeof(int) * 10000));
     kernel_7<<<40, 256>>>(dev_env, 10000, _kernel_result_8);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
-    checkErrorReturn(program_result, cudaMemcpy(_kernel_result_8_host, _kernel_result_8, (sizeof(int) * 10000), cudaMemcpyDeviceToHost));
 
-timeReportMeasure(program_result, kernel);
+    timeReportMeasure(program_result, kernel);
+
+    /* Copy over result to the host */
+    program_result->result = ({
+    fixed_size_array_t<int> device_array = fixed_size_array_t<int>(_kernel_result_8, 10000);
+    int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
+    checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
+    fixed_size_array_t<int>(tmp_result, device_array.size);
+});
 
     /* Free device memory */
-timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_8));
+    timeStartMeasure();
+        checkErrorReturn(program_result, cudaFree(_kernel_result_8));
 
-timeReportMeasure(program_result, free_memory);
+    timeReportMeasure(program_result, free_memory);
 
     delete program_result->device_allocations;
     
-    program_result->result = _kernel_result_8_host;
     return program_result;
 }
