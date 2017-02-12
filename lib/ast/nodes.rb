@@ -178,7 +178,7 @@ module Ikra
 
             def replace_child(node, another_node)
                 instance_variables.each do |inst_var|
-                    if instance_variable_get(inst_var) == node
+                    if instance_variable_get(inst_var).equal?(node)
                         instance_variable_set(inst_var, another_node)
                         another_node.parent = self
                     end
@@ -393,6 +393,23 @@ module Ikra
             end
         end
         
+        class TernaryNode < TreeNode
+            attr_reader :condition
+            attr_reader :true_val
+            attr_reader :false_val
+            
+            def initialize(condition:, true_val:, false_val:)
+                @condition = condition
+                @true_val = true_val
+                @false_val = false_val
+
+                condition.parent = self
+                
+                true_val.parent = self
+                false_val.parent = self
+            end
+        end
+        
         class BeginNode < TreeNode
             attr_reader :body_stmts
             
@@ -406,7 +423,7 @@ module Ikra
             
             def replace_child(node, another_node)
                 @body_stmts = @body_stmts.map do |stmt|
-                    if node == stmt
+                    if node.equal?(stmt)
                         another_node.parent = self
                         another_node
                     else
@@ -439,12 +456,13 @@ module Ikra
             end
 
             def replace_child(node, another_node)
-                if @receiver == node
+                if @receiver.equal?(node)
                     @receiver = another_node
+                    another_node.parent = self
                 end
 
                 @arguments = @arguments.map do |arg|
-                    if node == arg
+                    if node.equal?(arg)
                         another_node.parent = self
                         another_node
                     else
