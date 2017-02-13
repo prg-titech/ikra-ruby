@@ -151,15 +151,13 @@ module Ikra
 
                 function_parameters.push(*parameter_decls)
 
-                function_head = Translator.read_file(
+                translation_result = Translator.read_file(
                     file_name: "block_function_head.cpp",
                     replacements: { 
                         "name" => mangled_name, 
                         "result_type" => return_type.to_c_type,
-                        "parameters" => function_parameters.join(", ")})
-
-                translation_result = function_head + 
-                    wrap_in_c_block(pre_execution + "\n" + translation_result)
+                        "parameters" => function_parameters.join(", "),
+                        "body" => wrap_in_c_block(pre_execution + "\n" + translation_result)})
 
                 # TODO: handle more than one result type
                 return BlockTranslationResult.new(

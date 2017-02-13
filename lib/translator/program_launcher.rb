@@ -26,6 +26,26 @@ module Ikra
                             :size, :int32
                     end
 
+                    class UnionTypeValue < FFI::Union
+                        # There are some values missing here, but we don't need them at the moment
+                        layout :int_, :int32,
+                            :fixed_size_array, FixedSizeArrayStruct
+                    end
+
+                    class UnionTypeStruct < FFI::Struct
+                        layout :class_id, :int32,
+                            :value, UnionTypeValue
+                    end
+
+                    class KernelUnionResultStruct < FFI::Struct
+                        layout :result, UnionTypeStruct,
+                            :error_code, :int32,
+                            :time_setup_cuda, :uint64,
+                            :time_prepare_env, :uint64,
+                            :time_kernel, :uint64,
+                            :time_free_memory, :uint64
+                    end
+
                     class KernelResultStruct < FFI::Struct
                         layout :result, FixedSizeArrayStruct,
                             :error_code, :int32,
@@ -118,8 +138,14 @@ module Ikra
                         # Update command
                         root_command.accept(CommandNotifier.new(environment_builder.ffi_struct))
 
+                        # TODO: Currently, this only works if result_type.is_singleton?
+                        if result_type.is_singleton?
+                            result_t_struct = KernelResultStruct.new(kernel_result)
+                        else
+                            result_t_struct = KernelUnionResultStruct.new(kernel_result)
+                        end
+
                         # Extract error code and return value
-                        result_t_struct = KernelResultStruct.new(kernel_result)
                         error_code = result_t_struct[:error_code]
 
                         # Extract time measurements
@@ -147,7 +173,20 @@ module Ikra
                             result = result_t_struct[:result][:content]
                             result_size = result_t_struct[:result][:size]
                         else
-                            raise NotImplementedError.new
+                            array_type = result_type.find do |sing_type|
+                                sing_type.class_id == result_t_struct[:result][:class_id]
+                            end
+
+                            if array_type == nil
+                                raise "Unknown class_id: #{result_t_struct[:result][:class_id]}"
+                            end
+
+                            if !array_type.is_a?(Types::ArrayType)
+                                raise "ArrayType expected, but #{array_type} found"
+                            end
+
+                            result = result_t_struct[:result][:value][:fixed_size_array][:content]
+                            result_size = result_t_struct[:result][:value][:fixed_size_array][:size]
                         end
 
                         inner_type = array_type.inner_type

@@ -6,5 +6,5 @@
         cmd->result = /*{kernel_result}*/;
     }
 
-    fixed_size_array_t</*{result_inner_type}*/>(cmd->result, /*{result_size}*/);
+    fixed_size_array_t((void *) cmd->result, /*{result_size}*/);
 })

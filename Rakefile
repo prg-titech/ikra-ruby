@@ -3,7 +3,7 @@ require 'rake/testtask'
 Rake::TestTask.new("test:unit") do |t|
     t.test_files = FileList.new('test/unit/*.rb') do |fl|
         # The following tests are broken
-        fl.exclude("test/unit/host_section_test.rb")
+        # fl.exclude("test/unit/host_section_test.rb")
     end
 
     t.warning = false

@@ -66,7 +66,7 @@ module Ikra
             end
 
             def to_c_type
-                return "fixed_size_array_t<#{@inner_type.to_c_type}>"
+                return "fixed_size_array_t"
             end
         end
     end

@@ -4,20 +4,18 @@ struct array_command_t {
     T *result;
 };
 
-template <typename T>
 struct fixed_size_array_t {
-    T *content;
+    void *content;
     int size;
 
-    fixed_size_array_t(T *content_, int size_) : content(content_), size(size_) { }; 
+    fixed_size_array_t(void *content_ = NULL, int size_ = 0) : content(content_), size(size_) { }; 
 
-    static const fixed_size_array_t<T> error_return_value;
+    static const fixed_size_array_t error_return_value;
 };
 
 // error_return_value is used in case a host section terminates abnormally
-template <typename T>
-const fixed_size_array_t<T> fixed_size_array_t<T>::error_return_value = 
-    fixed_size_array_t<T>(NULL, 0);
+const fixed_size_array_t fixed_size_array_t::error_return_value = 
+    fixed_size_array_t(NULL, 0);
 
 /* ----- BEGIN Union Type ----- */
 typedef union union_type_value {
@@ -26,35 +24,41 @@ typedef union union_type_value {
     float float_;
     bool bool_;
     array_command_t<void> *array_command;
-    fixed_size_array_t<void> fixed_size_array;
+    fixed_size_array_t fixed_size_array;
 
     __host__ __device__ union_type_value(int value) : int_(value) { };
     __host__ __device__ union_type_value(float value) : float_(value) { };
     __host__ __device__ union_type_value(bool value) : bool_(value) { };
     __host__ __device__ union_type_value(array_command_t<void> *value) : array_command(value) { };
-    __host__ __device__ union_type_value(fixed_size_array_t<void> value) : fixed_size_array(value) { };
+    __host__ __device__ union_type_value(fixed_size_array_t value) : fixed_size_array(value) { };
 
-    __host__ __device__ static union_type_value from_object_id(obj_id_t value) {
+    __host__ __device__ static union_type_value from_object_id(obj_id_t value)
+    {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_int(int value) {
+    __host__ __device__ static union_type_value from_int(int value)
+    {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_float(float value) {
+    __host__ __device__ static union_type_value from_float(float value)
+    {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_bool(bool value) {
+    __host__ __device__ static union_type_value from_bool(bool value)
+    {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_array_command_t(array_command_t<void> *value) {
+    __host__ __device__ static union_type_value from_array_command_t(array_command_t<void> *value)
+    {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_fixed_size_array_t(fixed_size_array_t<void> value) {
+    __host__ __device__ static union_type_value from_fixed_size_array_t(fixed_size_array_t value)
+    {
         return union_type_value(value);
     }
 } union_v_t;

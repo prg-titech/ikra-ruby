@@ -117,7 +117,7 @@ module Ikra
 
                     # Build result values: `fixed_size_array_t` struct. This struct contains a
                     # pointer to the result array and stores the size of the result.
-                    result_device_fixed_array_t = "fixed_size_array_t<#{result_c_type}>(#{result_device_ptr}, #{result_size})"
+                    result_device_fixed_array_t = "fixed_size_array_t((void *) #{result_device_ptr}, #{result_size})"
 
                     return Translator.read_file(file_name: "memcpy_device_to_host_expr.cpp", replacements: {
                         "type" => result_c_type,

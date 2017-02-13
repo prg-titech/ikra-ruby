@@ -79,19 +79,6 @@ module Ikra
                 end
 
                 # Build C++ function
-                mangled_name = "_host_section_#{command.unique_id}_"
-                function_parameters = [
-                    "#{Constants::ENV_TYPE} *#{Constants::ENV_HOST_IDENTIFIER}",
-                    "#{Constants::ENV_TYPE} *#{Constants::ENV_DEVICE_IDENTIFIER}",
-                    "#{Constants::PROGRAM_RESULT_TYPE} *#{Constants::PROGRAM_RESULT_IDENTIFIER}"]
-
-                function_head = Translator.read_file(
-                    file_name: "host_section_block_function_head.cpp",
-                    replacements: { 
-                        "name" => mangled_name, 
-                        "result_type" => result_type.to_c_type,
-                        "parameters" => function_parameters.join(", ")})
-
                 function_translation = ast_translator.translate_block(block_def_node)
 
                 # Declare local variables
@@ -99,8 +86,19 @@ module Ikra
                     function_translation.prepend("#{type.to_c_type} #{name};\n")
                 end
 
-                translation_result = function_head + 
-                    Translator.wrap_in_c_block(function_translation)
+                mangled_name = "_host_section_#{command.unique_id}_"
+                function_parameters = [
+                    "#{Constants::ENV_TYPE} *#{Constants::ENV_HOST_IDENTIFIER}",
+                    "#{Constants::ENV_TYPE} *#{Constants::ENV_DEVICE_IDENTIFIER}",
+                    "#{Constants::PROGRAM_RESULT_TYPE} *#{Constants::PROGRAM_RESULT_IDENTIFIER}"]
+
+                translation_result = Translator.read_file(
+                    file_name: "host_section_block_function_head.cpp",
+                    replacements: { 
+                        "name" => mangled_name, 
+                        "result_type" => result_type.to_c_type,
+                        "parameters" => function_parameters.join(", "),
+                        "body" => Translator.wrap_in_c_block(function_translation)})
 
                 program_builder.host_section_source = translation_result
 
@@ -125,7 +123,7 @@ module Ikra
 
                 program_builder.host_result_expression = device_to_host_transfer_node.accept(
                     ast_translator.expression_translator)
-                program_builder.result_type = result_type
+                program_builder.result_type = device_to_host_transfer_node.get_type
 
                 Log.info("DONE translating ArrayHostSectionCommand [#{command.unique_id}]")
 

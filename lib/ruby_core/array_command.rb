@@ -11,6 +11,11 @@ module Ikra
             rcvr_type.pmap(ast: block_ast).to_union_type
         end
 
+        PZIP_TYPE = proc do |rcvr_type, *args_types, args_ast:, block_ast: nil|
+            # TODO: What if the argument is also a union type??
+            rcvr_type.pzip(args_types[0].singleton_type).to_union_type
+        end
+
         LAUNCH_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
             # The result type is the symbolically executed result of applying this
             # parallel section. The result type is an ArrayCommand.
@@ -32,7 +37,6 @@ module Ikra
                 "array_command" => receiver.accept(translator.expression_translator),
                 "array_command_type" => array_command.to_c_type,
                 "result_size" => array_command.size.to_s,
-                "result_inner_type" => array_command.result_type.to_c_type,
                 "kernel_invocation" => launch_code,
                 "kernel_result" => result_expr})
         end
@@ -75,6 +79,8 @@ module Ikra
 
         # Implement all parallel operations
         implement ALL_ARRAY_COMMAND_TYPES, :pmap, PMAP_TYPE, 0, SYMBOLICALLY_EXECUTE_KERNEL
+
+        implement ALL_ARRAY_COMMAND_TYPES, :pzip, PZIP_TYPE, 1, SYMBOLICALLY_EXECUTE_KERNEL
 
         implement ALL_ARRAY_COMMAND_TYPES, :__call__, ARRAY_COMMAND_TO_ARRAY_TYPE, 0, LAUNCH_KERNEL
 

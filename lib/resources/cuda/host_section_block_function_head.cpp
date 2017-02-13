@@ -9,3 +9,4 @@ if (result_var->last_error = expr) \
 }
 
 /*{result_type}*/ /*{name}*/(/*{parameters}*/)
+/*{body}*/
