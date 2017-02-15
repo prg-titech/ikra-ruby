@@ -2,6 +2,10 @@ require "logger"
 
 module Ikra
     Log = Logger.new(STDOUT)
+
+    class AssertionError < RuntimeError
+
+    end
 end
 
 require_relative "ruby_core/ruby_integration"

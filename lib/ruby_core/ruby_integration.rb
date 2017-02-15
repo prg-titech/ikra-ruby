@@ -16,11 +16,22 @@ module Ikra
             attr_reader :pass_self
             attr_reader :return_type
 
-            def initialize(num_params:, return_type:, implementation:, pass_self: true)
+            # If set to true, all argument should have a singleton type. This is required for
+            # operations on ArrayCommands (e.g., pzip).
+            attr_reader :expect_singleton_args
+
+            def initialize(
+                num_params:, 
+                return_type:, 
+                implementation:, 
+                pass_self: true, 
+                expect_singleton_args: false)
+
                 @num_params = num_params
                 @implementation = implementation
                 @pass_self = pass_self
                 @return_type = return_type
+                @expect_singleton_args = expect_singleton_args
             end
         end
 
@@ -29,12 +40,21 @@ module Ikra
             hash[key] = {}
         end
 
-        def self.implement(rcvr_type, method_name, return_type, num_params, impl, pass_self: true)
+        def self.implement(
+            rcvr_type, 
+            method_name, 
+            return_type, 
+            num_params, 
+            impl, 
+            pass_self: true, 
+            expect_singleton_args: false)
+
             @@impls[rcvr_type][method_name] = Implementation.new(
                 num_params: num_params,
                 return_type: return_type,
                 implementation: impl,
-                pass_self: pass_self)
+                pass_self: pass_self,
+                expect_singleton_args: expect_singleton_args)
         end
 
         def self.has_implementation?(rcvr_type, method_name)
@@ -43,6 +63,10 @@ module Ikra
 
         def self.should_pass_self?(rcvr_type, method_name)
             return find_impl(rcvr_type, method_name).pass_self
+        end
+
+        def self.expect_singleton_args?(rcvr_type, method_name)
+            return find_impl(rcvr_type, method_name).expect_singleton_args
         end
 
         # Returns the implementation (CUDA source code snippet) for a method with name 

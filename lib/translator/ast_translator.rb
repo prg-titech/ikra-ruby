@@ -126,69 +126,116 @@ module Ikra
                     return node
                 end
 
+                def generate_polymorphic_switch(node, &block)
+                    poly_id = temp_identifier_id
+                    node_identifer = "_polytemp_expr_#{poly_id}"
+                    header = "#{define_assign_variable(node_identifer, node)}\nswitch (#{node_identifer}.class_id)\n"
+                    case_statements = []
+
+                    for type in node.get_type
+                        if type == Types::PrimitiveType::Int
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.int_", type)
+                        elsif type == Types::PrimitiveType::Float
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.float_", type)
+                        elsif type == Types::PrimitiveType::Bool
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.bool_", type)
+                        elsif type == Types::PrimitiveType::Nil
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.int_", type)
+                        elsif type.is_a?(Symbolic::ArrayCommand)
+                            self_node = build_synthetic_code_node(
+                                "(#{type.to_c_type}) #{node_identifer}.value.array_command", type)
+                        elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.fixed_size_array", type)
+                        else
+                            self_node = build_synthetic_code_node(
+                                "#{node_identifer}.value.object_id", type)
+                        end
+
+                        case_statements.push("case #{type.class_id}: #{yield(self_node)} break;")
+                    end
+
+                    return header + wrap_in_c_block(case_statements.join("\n"))
+                end
+
                 def visit_send_node(node)
                     if node.receiver.get_type.is_singleton?
-                        return generate_send_for_singleton(
+                        return_type = node.return_type_by_recv_type[
+                            node.receiver.get_type.singleton_type]
+
+                        invocation = generate_send_for_singleton(
                             node, 
                             node.receiver,
-                            node.get_type)
-                    else
-                        # Polymorphic case
-                        # TODO: This is not an expression anymore!
-                        poly_id = temp_identifier_id
-                        receiver_identifier = "_polytemp_recv_#{poly_id}"
-                        result_identifier = "_polytemp_result_#{poly_id}"
-                        header = "#{define_assign_variable(receiver_identifier, node.receiver)}\n#{node.get_type.to_c_type} #{result_identifier};\nswitch (#{receiver_identifier}.class_id)\n"
-                        case_statements = []
+                            return_type)
 
-                        for type in node.receiver.get_type
-                            if type == Types::PrimitiveType::Int
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.int_", type)
-                            elsif type == Types::PrimitiveType::Float
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.float_", type)
-                            elsif type == Types::PrimitiveType::Bool
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.bool_", type)
-                            elsif type == Types::PrimitiveType::Nil
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.int_", type)
-                            elsif type.is_a?(Symbolic::ArrayCommand)
-                                self_node = build_synthetic_code_node(
-                                    "(#{type.to_c_type}) #{receiver_identifier}.value.array_command", type)
-                            elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.fixed_size_array", type)
-                            else
-                                self_node = build_synthetic_code_node(
-                                    "#{receiver_identifier}.value.object_id", type)
+                            if return_type.is_singleton? and
+                                !node.get_type.is_singleton?
+
+                                invocation = wrap_in_union_type(
+                                    invocation, 
+                                    return_type.singleton_type)
                             end
 
-                            singleton_return_type = node.return_type_by_recv_type[type]
-                            singleton_invocation = generate_send_for_singleton(
+                            return invocation
+                    else
+                        # Polymorphic case
+                        result_identifier = "_polytemp_result_#{temp_identifier_id}"
+                        declare_result_var = "#{node.get_type.to_c_type} #{result_identifier};\n"
+
+                        case_statements = generate_polymorphic_switch(node.receiver) do |self_node|
+                            # The singleton type in the current case
+                            type = self_node.get_type.singleton_type
+
+                            # The return type (result type) in the current case (could be polym.)
+                            return_type = node.return_type_by_recv_type[type]
+
+                            # Generate method invocation
+                            invocation = generate_send_for_singleton(
                                 node, 
                                 self_node,
-                                singleton_return_type)
+                                return_type)
 
-                            if singleton_return_type.is_singleton? and
+                            if return_type.is_singleton? and
                                 !node.get_type.is_singleton?
                                 # The return value of this particular invocation (singleton type 
                                 # recv) is singleton, but in general this send can return many 
                                 # types
-                                singleton_invocation = wrap_in_union_type(
-                                    singleton_invocation, 
-                                    singleton_return_type.singleton_type)
+                                invocation = wrap_in_union_type(
+                                    invocation, 
+                                    return_type.singleton_type)
                             end
 
-                            case_statements.push("case #{type.class_id}: #{result_identifier} = #{singleton_invocation}; break;")
+                            "#{result_identifier} = #{invocation};"
                         end
 
                         # TODO: compound statements only work with the GNU C++ compiler
                         return "(" + wrap_in_c_block(
-                            header + 
-                            wrap_in_c_block(case_statements.join("\n")) + 
+                            declare_result_var + 
+                            wrap_in_c_block(case_statements) + 
                                 result_identifier + ";")[0..-2] + ")"
+                    end
+                end
+
+                def build_switch_for_args(nodes, accumulator = [], &block)
+                    if nodes.size == 0
+                        # This was the last argument, we are done with nesting switch 
+                        # stmts. The accumulator contains all singleton-typed self_nodes.
+                        return yield(accumulator)
+                    end
+
+                    next_node = nodes.first
+
+                    if next_node.get_type.is_singleton?
+                        # This node has a singleton type. We're done with this one.
+                        return build_switch_for_args(nodes.drop(1), accumulator + [next_node], &block)
+                    else
+                        return generate_polymorphic_switch(next_node) do |sing_node|
+                            build_switch_for_args(nodes.drop(1), accumulator + [sing_node], &block)
+                        end
                     end
                 end
 
@@ -196,12 +243,57 @@ module Ikra
                     recv_type = singleton_recv.get_type.singleton_type
 
                     if RubyIntegration.has_implementation?(recv_type, node.selector)
-                        return RubyIntegration.get_implementation(
-                            singleton_recv,
-                            node.selector, 
-                            node.arguments, 
-                            translator,
-                            return_type)
+                        # Some implementations accept only singleton-typed arguments
+                        if RubyIntegration.expect_singleton_args?(recv_type, node.selector)
+                            # Generate additional switch statements (one per non-sing. arg.).
+                            # Go through all possible combinations of types (for arguments).
+                            result_identifier = "_polytemp_result_#{temp_identifier_id}"
+                            declare_result_var = "#{return_type.to_c_type} #{result_identifier};\n"
+
+                            case_stmts = build_switch_for_args(node.arguments) do |all_sing_args|
+                                # TODO: Do we really have to redo type inference here?
+                                all_sing_arg_types = all_sing_args.map do |arg|
+                                    arg.get_type
+                                end
+
+                                this_return_type = RubyIntegration.get_return_type(
+                                    singleton_recv.get_type.singleton_type, 
+                                    node.selector, 
+                                    *all_sing_arg_types, 
+                                    args_ast: node.arguments, 
+                                    block_ast: node.block_argument)
+
+                                impl = RubyIntegration.get_implementation(
+                                    singleton_recv,
+                                    node.selector, 
+                                    all_sing_args, 
+                                    translator,
+                                    this_return_type)
+
+                                if this_return_type.is_singleton? and
+                                    !return_type.is_singleton?
+
+                                    impl = wrap_in_union_type(
+                                        impl, 
+                                        this_return_type.singleton_type)
+                                end
+
+                                "#{result_identifier} = #{impl};"
+                            end
+
+                            return "(" + wrap_in_c_block(
+                                declare_result_var + 
+                                wrap_in_c_block(case_stmts) + 
+                                    result_identifier + ";")[0..-2] + ")"
+                        else
+                            # The easy case: Anything is fine (but might fail in ruby_integration)
+                            return RubyIntegration.get_implementation(
+                                singleton_recv,
+                                node.selector, 
+                                node.arguments, 
+                                translator,
+                                return_type)
+                        end
                     elsif recv_type.is_a?(Types::StructType)
                         first_arg = node.arguments.first
 

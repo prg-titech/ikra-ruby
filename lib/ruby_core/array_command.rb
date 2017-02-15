@@ -12,8 +12,15 @@ module Ikra
         end
 
         PZIP_TYPE = proc do |rcvr_type, *args_types, args_ast:, block_ast: nil|
-            # TODO: What if the argument is also a union type??
-            rcvr_type.pzip(args_types[0].singleton_type).to_union_type
+            # TODO: Support multiple arguments for `pzip`
+            types = args_types[0].map do |sing_type|
+                raise AssertionError.new("Singleton type expected") if sing_type.is_union_type?
+                rcvr_type.pzip(sing_type).to_union_type
+            end
+
+            types.reduce(Types::UnionType.new) do |acc, type|
+                acc.expand_return_type(type)
+            end
         end
 
         LAUNCH_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
@@ -78,11 +85,27 @@ module Ikra
         end
 
         # Implement all parallel operations
-        implement ALL_ARRAY_COMMAND_TYPES, :pmap, PMAP_TYPE, 0, SYMBOLICALLY_EXECUTE_KERNEL
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :pmap,
+            PMAP_TYPE,
+            0,
+            SYMBOLICALLY_EXECUTE_KERNEL)
 
-        implement ALL_ARRAY_COMMAND_TYPES, :pzip, PZIP_TYPE, 1, SYMBOLICALLY_EXECUTE_KERNEL
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :pzip,
+            PZIP_TYPE,
+            1,
+            SYMBOLICALLY_EXECUTE_KERNEL,
+            expect_singleton_args: true)
 
-        implement ALL_ARRAY_COMMAND_TYPES, :__call__, ARRAY_COMMAND_TO_ARRAY_TYPE, 0, LAUNCH_KERNEL
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :__call__,
+            ARRAY_COMMAND_TO_ARRAY_TYPE,
+            0,
+            LAUNCH_KERNEL)
 
         implement(
             ALL_LOCATION_AWARE_ARRAY_TYPES, 

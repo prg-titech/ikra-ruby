@@ -150,4 +150,43 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
     end
+
+    def test_host_section_with_union_type_return_4
+        array_gpu = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511) do |j|
+            j + 1 + j + 1 + 10 + 20
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = 2
+
+            if a == 1
+                b = input.pmap do |k|
+                    k + 1
+                end
+
+                c = input.pmap do |k|
+                    k + 10
+                end
+            else
+                # This one is chosen
+                b = input.pmap do |k|
+                    k + 10
+                end
+
+                c = input.pmap do |k|
+                    k + 20
+                end
+            end
+
+            b.pzip(c).pmap do |zipped|
+                zipped[0] + zipped[1]
+            end
+        end
+
+        assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
+    end
 end
