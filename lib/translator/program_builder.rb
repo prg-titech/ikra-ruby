@@ -51,6 +51,13 @@ module Ikra
                     return launcher.execute
                 end
 
+                # Build kernel invocations
+                def build_kernel_launchers
+                    return kernel_launchers.map do |launcher|
+                        launcher.build_kernel_launcher
+                    end.join("")
+                end
+
                 protected
 
                 def assert_ready_to_build
@@ -97,13 +104,6 @@ module Ikra
                     end
 
                     return result
-                end
-
-                # Build kernel invocations
-                def build_kernel_launchers
-                    return kernel_launchers.map do |launcher|
-                        launcher.build_kernel_launcher
-                    end.join("")
                 end
 
                 def host_result_expression

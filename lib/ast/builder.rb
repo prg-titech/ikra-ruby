@@ -39,6 +39,10 @@ module Ikra
                 end
             end
             
+            def translate_array(node)
+                return ArrayNode.new(values: node.children.map do |n| translate_node(n) end)
+            end
+
             def translate_const(node)
                 # TODO(matthias): what is the meaning of the first child?
                 return ConstNode.new(identifier: node.children[1])

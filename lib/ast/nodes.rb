@@ -221,6 +221,18 @@ module Ikra
             end
         end
 
+        class ArrayNode < TreeNode
+            attr_reader :values
+
+            def initialize(values:)
+                @values = values
+
+                for value in values
+                    value.parent = self
+                end
+            end
+        end
+
         # A synthetic AST node. Contains its string translation directly.
         class SourceCodeExprNode < TreeNode
             attr_reader :code

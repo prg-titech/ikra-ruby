@@ -42,6 +42,12 @@ module Ikra
             end
         end
 
+        class ArrayNode
+            def to_s
+                return "[ArrayNode: [#{(values.map do |v| v.to_s end).join(', ')}]]"
+            end
+        end
+
         class SourceCodeExprNode
             def to_s
                 return "[SourceCodeExprNode: #{code}]"

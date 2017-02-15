@@ -46,6 +46,12 @@ module Ikra
             end
         end
 
+        class ArrayNode
+            def accept(visitor)
+                visitor.visit_array_node(self)
+            end
+        end
+
         class SourceCodeExprNode
             def accept(visitor)
                 visitor.visit_source_code_expr_node(self)
@@ -193,6 +199,12 @@ module Ikra
 
             def visit_root_node(node)
                 node.single_child.accept(self)
+            end
+
+            def visit_array_node(node)
+                for value in node.values
+                    value.accept(self)
+                end
             end
 
             def visit_source_code_expr_node(node)

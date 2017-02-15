@@ -7,8 +7,8 @@ require_relative "../ruby_core/ruby_integration"
 
 module Ikra
     module Translator
-        class ASTTranslator < AST::Visitor
-            class ExpressionTranslator
+        class ASTTranslator
+            class ExpressionTranslator < AST::Visitor
                 attr_reader :translator
 
                 def initialize(translator)
@@ -339,7 +339,7 @@ module Ikra
                 end
             end
 
-            class StatementTranslator
+            class StatementTranslator < AST::Visitor
                 attr_reader :translator
 
                 def initialize(translator)
