@@ -7,8 +7,11 @@ require_relative "../ruby_core/ruby_integration"
 
 module Ikra
     module Translator
-        class ASTTranslator < AST::Visitor
+        class ASTTranslator
             class ExpressionTranslator
+                # This class should not inherit from [AST::Visitor]. Otherwise, the dispatch
+                # mechanisum to [StatementTranslator] will not work properly anymore.
+
                 attr_reader :translator
 
                 def initialize(translator)
@@ -74,6 +77,14 @@ module Ikra
                 def visit_ivar_read_node(node)
                     array_identifier = node.enclosing_class.ruby_class.to_ikra_type.inst_var_array_name(identifier)
                     return "#{Constants::ENV_IDENTIFIER}->#{array_identifier}[#{Constants::SELF_IDENTIFIER}]"
+                end
+
+                def visit_array_node(node)
+                    elements = node.values.map do |value|
+                        value.accept(self)
+                    end
+                    
+                    return "(new #{node.get_type.to_c_type[0..-2]} {#{elements.join(', ')}})"
                 end
 
                 def visit_int_node(node)
@@ -340,6 +351,9 @@ module Ikra
             end
 
             class StatementTranslator
+                # This class should not inherit from [AST::Visitor]. Otherwise, the dispatch
+                # mechanisum to [ExpressionTranslator] will not work properly anymore.
+
                 attr_reader :translator
 
                 def initialize(translator)

@@ -1,4 +1,5 @@
 require_relative "../types/types/array_type.rb"
+require_relative "../ast/interpreter.rb"
 
 module Ikra
     module RubyIntegration
@@ -23,6 +24,15 @@ module Ikra
             end
         end
 
+        PSTENCIL_TYPE = proc do |rcvr_type, *args_types, args_ast:, block_ast:|
+            # TODO: Handle keyword arguments
+            ruby_args = args_ast.map do |node|
+                AST::Interpreter.interpret(node)
+            end
+
+            rcvr_type.pstencil(*ruby_args, ast: block_ast).to_union_type
+        end
+
         LAUNCH_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
             # The result type is the symbolically executed result of applying this
             # parallel section. The result type is an ArrayCommand.
@@ -34,18 +44,25 @@ module Ikra
             result = array_command.accept(command_translator)
             kernel_launcher = command_translator.pop_kernel_launcher(result)
 
-            # Generate launch code
-            launch_code = kernel_launcher.build_kernel_launcher
+            # Generate launch code for all kernels
+            launch_code = command_translator.program_builder.build_kernel_launchers
 
             # Always return a device pointer. Only at the very end, we transfer data to the host.
             result_expr = kernel_launcher.kernel_result_var_name
 
-            Translator.read_file(file_name: "host_section_launch_parallel_section.cpp", replacements: {
+            result = Translator.read_file(file_name: "host_section_launch_parallel_section.cpp", replacements: {
                 "array_command" => receiver.accept(translator.expression_translator),
                 "array_command_type" => array_command.to_c_type,
                 "result_size" => array_command.size.to_s,
                 "kernel_invocation" => launch_code,
                 "kernel_result" => result_expr})
+
+            # Clear kernel launchers. Otherwise, we might launch them again in a later, unrelated
+            # LAUNCH_KERNEL branch. This is because we reuse the same [ProgramBuilder] for an
+            # entire host section.
+            command_translator.program_builder.clear_kernel_launchers
+
+            result
         end
 
         ARRAY_COMMAND_TO_ARRAY_TYPE = proc do |rcvr_type, *args_types, args_ast:, block_ast:|
@@ -99,6 +116,13 @@ module Ikra
             1,
             SYMBOLICALLY_EXECUTE_KERNEL,
             expect_singleton_args: true)
+
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :pstencil,
+            PSTENCIL_TYPE,
+            2,      # neighborhood and default value
+            SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(
             ALL_ARRAY_COMMAND_TYPES,

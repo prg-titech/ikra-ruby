@@ -189,4 +189,26 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
     end
+
+    def test_simple_stencil
+        array_gpu = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511) do |j|
+            j + 1
+        end
+
+        stencil_result_gpu = Ikra::Symbolic.host_section(array_gpu) do |input|
+            input.pstencil([-1, 0, 1], 10000) do |values|
+                values[-1] + values[0] + values[1]
+            end 
+        end
+
+        stencil_result_cpu = array_cpu.stencil([-1, 0, 1], 10000) do |values|
+            values[0] + values[1] + values[2]
+        end
+
+        assert_equal(stencil_result_cpu , stencil_result_gpu.to_a)
+    end
 end

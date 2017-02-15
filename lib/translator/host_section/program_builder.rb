@@ -1,3 +1,5 @@
+require "set"
+
 require_relative "../program_builder"
 
 module Ikra
@@ -14,6 +16,12 @@ module Ikra
                 # pointing to an array in the host memory.
                 attr_accessor :host_result_expression
 
+                def initialize(environment_builder:, root_command:)
+                    super
+
+                    @kernel_builders = Set.new
+                end
+
                 def assert_ready_to_build
                     if host_section_source == nil
                         raise AssertionError.new("Not ready to build (HostSectionProgramBuilder): No host section source code defined")
@@ -26,6 +34,21 @@ module Ikra
                     if host_result_expression == nil
                         raise AssertionError.new("Not ready to build (HostSectionProgramBuilder): No host result expression defined")
                     end
+                end
+
+                def clear_kernel_launchers
+                    @kernel_launchers.clear
+                end
+
+                def add_kernel_launcher(launcher)
+                    super
+
+                    # Let's keep track of kernels here by ourselves
+                    @kernel_builders.merge(launcher.kernel_builders)
+                end
+
+                def all_kernel_builders
+                    return @kernel_builders
                 end
 
                 # Builds the CUDA program. Returns the source code string.

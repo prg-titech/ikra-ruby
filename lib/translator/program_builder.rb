@@ -51,6 +51,13 @@ module Ikra
                     return launcher.execute
                 end
 
+                # Build kernel invocations
+                def build_kernel_launchers
+                    return kernel_launchers.map do |launcher|
+                        launcher.build_kernel_launcher
+                    end.join("")
+                end
+
                 protected
 
                 def assert_ready_to_build
@@ -77,33 +84,30 @@ module Ikra
                     end.join("\n")
                 end
 
+                def all_kernel_builders
+                    return kernel_launchers.map do |launcher|
+                        launcher.kernel_builders
+                    end.flatten
+                end
+
                 # Build methods, blocks and kernels
                 def build_kernels
                     result = ""
 
-                    for launcher in kernel_launchers
-                        for builder in launcher.kernel_builders
-                            # Check whether kernel was already build before
-                            if kernels.include?(builder)
-                                next
-                            else
-                                kernels.add(builder)
-                            end
-
-                            result = result + builder.build_methods
-                            result = result + builder.build_blocks
-                            result = result + builder.build_kernel
+                    for builder in all_kernel_builders
+                        # Check whether kernel was already build before
+                        if kernels.include?(builder)
+                            next
+                        else
+                            kernels.add(builder)
                         end
+
+                        result = result + builder.build_methods
+                        result = result + builder.build_blocks
+                        result = result + builder.build_kernel
                     end
 
                     return result
-                end
-
-                # Build kernel invocations
-                def build_kernel_launchers
-                    return kernel_launchers.map do |launcher|
-                        launcher.build_kernel_launcher
-                    end.join("")
                 end
 
                 def host_result_expression
