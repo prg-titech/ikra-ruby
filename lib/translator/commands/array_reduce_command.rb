@@ -7,7 +7,7 @@ module Ikra
                 super
 
                 if command.input.size != 1
-                    raise "Expected exactly one input for ArrayReduceCommand"
+                    raise AssertionError.new("Expected exactly one input for ArrayReduceCommand")
                 end
 
                 # Process dependent computation (receiver)

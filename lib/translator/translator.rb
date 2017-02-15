@@ -54,7 +54,7 @@ module Ikra
             def read_file(file_name:, replacements: {})
                 full_name = Ikra::Configuration.resource_file_name(file_name)
                 if !File.exist?(full_name)
-                    raise "File does not exist: #{full_name}"
+                    raise AssertionError.new("File does not exist: #{full_name}")
                 end
 
                 contents = File.open(full_name, "rb").read

@@ -2,7 +2,7 @@ module Ikra
     module Symbolic
         class Input
             def get_parameters(**kwargs)
-                raise "Not implemented yet"
+                raise NotImplementedError.new
             end
         end
 

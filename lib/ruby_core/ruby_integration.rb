@@ -105,7 +105,7 @@ module Ikra
                     arg_index = source[index + 2].to_i
 
                     if arg_index >= sub_code.size
-                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                        raise ArgumentError.new("Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}")
                     end
 
                     substitutions["\#F#{arg_index}"] = code_argument(FLOAT_S, sub_types[arg_index], sub_code[arg_index])
@@ -114,7 +114,7 @@ module Ikra
                     arg_index = source[index + 2].to_i
 
                     if arg_index >= sub_code.size
-                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                        raise ArgumentError.new("Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}")
                     end
 
                     substitutions["\#I#{arg_index}"] = code_argument(INT_S, sub_types[arg_index], sub_code[arg_index])
@@ -123,7 +123,7 @@ module Ikra
                     arg_index = source[index + 2].to_i
 
                     if arg_index >= sub_code.size
-                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                        raise ArgumentError.new("Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}")
                     end
 
                     substitutions["\#B#{arg_index}"] = code_argument(BOOL_S, sub_types[arg_index], sub_code[arg_index])
@@ -132,7 +132,7 @@ module Ikra
                     arg_index = source[index + 2].to_i
 
                     if arg_index >= sub_code.size
-                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                        raise ArgumentError.new("Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}")
                     end
 
                     if sub_types[arg_index].include?(FLOAT_S)
@@ -146,7 +146,7 @@ module Ikra
                     arg_index = source[index + 1].to_i
 
                     if arg_index >= sub_code.size
-                        raise "Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}"
+                        raise ArgumentError.new("Argument missing: Expected at least #{arg_index + 1}, found #{sub_code.size}")
                     end
 
                     substitutions["\##{arg_index}"] = sub_code[arg_index]
@@ -175,7 +175,8 @@ module Ikra
             if return_type.is_a?(Proc)
                 # Return type depends on argument types
                 if num_params != arg_types.size
-                    raise "#{num_params} arguments expected but #{arg_types.size} given"
+                    raise ArgumentError.new(
+                        "#{num_params} arguments expected but #{arg_types.size} given")
                 else
                     if args_ast == nil
                         return return_type.call(rcvr_type, *arg_types)

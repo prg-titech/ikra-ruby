@@ -56,7 +56,7 @@ module Ikra
 
         SYMBOLICALLY_EXECUTE_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
             if !result_type.is_singleton?
-                raise "Singleton type expected"
+                raise AssertionError.new("Singleton type expected")
             end
 
             "new array_command_t<#{result_type.singleton_type.result_type.to_c_type}>()"

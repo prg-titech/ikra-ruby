@@ -55,7 +55,8 @@ module Ikra
 
                 def assert_ready_to_build
                     if kernel_launchers.size == 0
-                        raise "Not ready to build (ProgramBuilder): No kernel launcher defined"
+                        raise AssertionError.new(
+                            "Not ready to build (ProgramBuilder): No kernel launcher defined")
                     end
                 end
 
@@ -112,7 +113,8 @@ module Ikra
                     result_size = root_command.size
 
                     if result_device_ptr == nil
-                        raise "Result variable name of final kernel launcher not set"
+                        raise AssertionError.new(
+                            "Result variable name of final kernel launcher not set")
                     end
 
                     # Build result values: `fixed_size_array_t` struct. This struct contains a

@@ -299,7 +299,7 @@ module Ikra
             # section.
             # @return [Fixnum] size
             def size
-                raise NotImplementedError
+                raise NotImplementedError.new
             end
 
             def dimensions
@@ -517,7 +517,8 @@ module Ikra
                     # Distance says how many steps can be made into the directions distance = 2 in the example before would mean 1 or 2 up/down/left/right 
 
                     if directions > dims
-                        raise "directions should not be higher than the number of dimensions"
+                        raise ArgumentError.new(
+                            "Directions should not be higher than the number of dimensions")
                     end
 
                     singles = [0]

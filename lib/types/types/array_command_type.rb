@@ -27,7 +27,7 @@ module Ikra
                             end
                         end
 
-                        raise "Value not found"
+                        raise RuntimeError.new("Value not found")
                     end
 
                     def add_value(value)

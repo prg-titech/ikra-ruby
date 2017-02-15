@@ -109,7 +109,8 @@ module Ikra
 
                     for selector in required_values
                         if send(selector) == nil
-                            raise "Not ready to build (KernelBuilder): #{selector} is not set"
+                            raise AssertionError.new(
+                                "Not ready to build (KernelBuilder): #{selector} is not set")
                         end
                     end
                 end

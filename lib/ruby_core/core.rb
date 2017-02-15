@@ -9,13 +9,13 @@ module Ikra
                 INT
             else
                 # At least one of the types INT_S or FLOAT_S are required
-                raise "Operation defined numeric values only (found #{other})"
+                raise RuntimeError.new("Operation defined numeric values only (found #{other})")
             end
         end
 
         TYPE_INT_RETURN_INT = proc do |recv, other|
             if !other.include?(INT_S)
-                raise "Operation defined Int values only (found #{other})"
+                raise RuntimeError.new("Operation defined Int values only (found #{other})")
             end
 
             INT
@@ -23,7 +23,7 @@ module Ikra
 
         TYPE_NUMERIC_RETURN_BOOL = proc do |recv, other|
             if !other.include?(INT_S) && !other.include?(FLOAT_S)
-                raise "Expected type Int or Float, found #{other}"
+                raise RuntimeError.new("Expected type Int or Float, found #{other}")
             end
 
             BOOL
@@ -31,7 +31,7 @@ module Ikra
 
         TYPE_BOOL_RETURN_BOOL = proc do |recv, other|
             if !other.include?(BOOL_S)
-                raise "Expected type Bool, found #{other}"
+                raise RuntimeError.new("Expected type Bool, found #{other}")
             end
 
             BOOL

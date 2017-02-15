@@ -6,7 +6,7 @@ module Ikra
 
             def translate_block(node)
                 if node.children[0].type != :send
-                    raise "Unknown AST construct: Send node expected"
+                    raise AssertionError.new("Unknown AST construct: Send node expected")
                 end
 
                 send_node = node.children[0]

@@ -16,15 +16,15 @@ module Ikra
 
                 def assert_ready_to_build
                     if host_section_source == nil
-                        raise "Not ready to build (HostSectionProgramBuilder): No host section source code defined"
+                        raise AssertionError.new("Not ready to build (HostSectionProgramBuilder): No host section source code defined")
                     end
 
                     if result_type == nil
-                        raise "Not ready to build (HostSectionProgramBuilder): No result type defined"
+                        raise AssertionError.new("Not ready to build (HostSectionProgramBuilder): No result type defined")
                     end
 
                     if host_result_expression == nil
-                        raise "Not ready to build (HostSectionProgramBuilder): No host result expression defined"
+                        raise AssertionError.new("Not ready to build (HostSectionProgramBuilder): No host result expression defined")
                     end
                 end
 

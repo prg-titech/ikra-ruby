@@ -102,7 +102,7 @@ module Ikra
                 next_node = node
                 while next_node.type == :begin
                     if next_node.children.size != 1
-                        raise "Begin node contains more than one statement"
+                        raise AssertionError.new("Begin node contains more than one statement")
                     end
                     
                     next_node = next_node.children[0]
@@ -133,7 +133,7 @@ module Ikra
                         range_to: range_to_inclusive,
                         body_stmts: wrap_in_begin(translate_node(node.children[2])))
                 else
-                    raise "Can only handle simple For loops at the moment"
+                    raise NotImplementedError.new("Can only handle simple For loops at the moment")
                 end
             end
             

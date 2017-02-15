@@ -34,11 +34,11 @@ module Ikra
             end
             
             def visit_for_node(node)
-                raise "Cannot handle for loop as return value"
+                raise NotImplementedError.new("Cannot handle for loop as return value")
             end
             
             def visit_break_node(node)
-                raise "Break must not be a return value"
+                raise AssertionError.new("Break must not be a return value")
             end
             
             def visit_if_node(node)

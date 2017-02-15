@@ -42,7 +42,7 @@ module Ikra
             def initialize(fields)
                 fields.each do |key, value|
                     if not value.is_union_type?
-                        raise "Union type expected for field #{key}"
+                        raise AssertionError.new("Union type expected for field #{key}")
                     end
                 end
 
@@ -60,7 +60,7 @@ module Ikra
 
             def to_ruby_type
                 # TODO: general structs
-                raise NotImplementedError
+                raise NotImplementedError.new
             end
         end
 
@@ -84,16 +84,18 @@ module Ikra
                 # to Array integration code.
 
                 if selector != :"[]"
-                    raise "Selector not supported for ZipStructType: #{selector}"
+                    raise AssertionError.new(
+                        "Selector not supported for ZipStructType: #{selector}")
                 end
 
                 if arg_nodes.size != 1
-                    raise "Expected exactly one argument"
+                    raise AssertionError.new("Expected exactly one argument")
                 end
 
                 if arg_nodes.first.class == AST::IntLiteralNode
                     if arg_nodes.first.value >= @fields.size
-                        raise "ZipStruct index out of bounds: #{arg_nodes.first.value}"
+                        raise AssertionError.new(
+                            "ZipStruct index out of bounds: #{arg_nodes.first.value}")
                     end
 
                     return self[arg_nodes.first.value]

@@ -21,7 +21,8 @@ module Ikra
                 # Check arguments
                 types.each do |type|
                     if type.is_union_type?
-                        raise "Union type not allowed as inner type of union type"
+                        raise AssertionError.new(
+                            "Union type not allowed as inner type of union type")
                     end
                 end
 
@@ -56,7 +57,7 @@ module Ikra
                 if is_singleton?
                     return @types.first.to_ruby_type
                 else
-                    raise "Not implemented yet"
+                    raise NotImplementedError.new
                 end
             end
 
@@ -64,7 +65,7 @@ module Ikra
                 if is_singleton?
                     return @types.first.to_ffi_type
                 else
-                    raise "Not implemented yet"
+                    raise NotImplementedError.new
                 end
             end
 
@@ -92,7 +93,8 @@ module Ikra
             # @return [RubyType] Inner type
             def singleton_type
                 if !is_singleton?
-                    raise "Union type is not singleton (found #{@types.size} types)"
+                    raise AssertionError.new(
+                        "Union type is not singleton (found #{@types.size} types)")
                 end
 
                 return @types.first
@@ -103,7 +105,8 @@ module Ikra
             # @return [Bool] true if the argument added new inner types to this union type
             def expand(union_type)
                 if not union_type.is_union_type?
-                    raise "Cannot expand with non-union type: #{union_type}"
+                    raise AssertionError.new(
+                        "Cannot expand with non-union type: #{union_type}")
                 end
 
                 is_expanded = false
@@ -127,7 +130,7 @@ module Ikra
             # @return True if the type was extended
             def add(singleton_type)
                 if singleton_type.is_union_type?
-                    raise "Singleton type expected"
+                    raise AssertionError.new("Singleton type expected")
                 end
 
                 if singleton_type == PrimitiveType::Int && include?(PrimitiveType::Float)
@@ -150,7 +153,7 @@ module Ikra
             # @return [Bool] true if the type is included
             def include?(singleton_type)
                 if singleton_type.is_union_type?
-                    raise "Union type can never be included in union type"
+                    raise AssertionError.new("Union type can never be included in union type")
                 end
 
                 @types.include?(singleton_type)
@@ -158,7 +161,7 @@ module Ikra
 
             def include_all?(union_type)
                 if not union_type.is_union_type?
-                    raise "Union type expected"
+                    raise AssertionError.new("Union type expected")
                 end
 
                 return (union_type.types - @types).size == 0

@@ -14,7 +14,7 @@ module Ikra
 
             def check_software_configuration
                 if !SUPPORTED_OS.include?(operating_system)
-                    raise "Operating system not supported: #{operating_system}"
+                    raise AssertionError.new("Operating system not supported: #{operating_system}")
                 end
 
                 @@cuda_nvcc = CUDA_NVCC
@@ -40,15 +40,15 @@ module Ikra
                 # Check if nvcc is installed
                 %x(#{@@cuda_nvcc} 2>&1)
                 if $?.exitstatus != 1
-                    raise "nvcc not installed"
+                    raise AssertionError.new("nvcc not installed")
                 end
 
                 if !File.directory?(@@cuda_common_include)
-                    raise "Directory does not exist: #{@@cuda_common_include}. Check OS configuration!"
+                    raise AssertionError.new("Directory does not exist: #{@@cuda_common_include}. Check OS configuration!")
                 end
 
                 if !File.directory?(@@cuda_cupti_include)
-                    raise "Directory does not exist: #{@@cuda_cupti_include}. Check OS configuration!"
+                    raise AssertionError.new("Directory does not exist: #{@@cuda_cupti_include}. Check OS configuration!")
                 end
             end
 
@@ -64,7 +64,7 @@ module Ikra
                 elsif operating_system == :windows
                     "dll"
                 else
-                    raise "Operating system not supported"
+                    raise AssertionError.new("Operating system not supported")
                 end
             end
 
@@ -82,7 +82,7 @@ module Ikra
                     when /solaris|bsd/
                         :unix
                     else
-                        raise "Unknown operating system"
+                        raise AssertionError.new("Unknown operating system")
                 end
             end
         end

@@ -134,7 +134,7 @@ module Ikra
                 kernel_builder.result_type = command_translation_result.result_type
 
                 if previous_launcher == nil
-                    raise "Attempt to pop kernel launcher, but stack is empty"
+                    raise AssertionError.new("Attempt to pop kernel launcher, but stack is empty")
                 end
 
                 program_builder.add_kernel_launcher(previous_launcher)
@@ -219,7 +219,7 @@ module Ikra
 
                     return kernel_translation
                 else
-                    raise "Unknown input pattern: #{input.pattern}"
+                    raise NotImplementedError.new("Unknown input pattern: #{input.pattern}")
                 end
             end
 

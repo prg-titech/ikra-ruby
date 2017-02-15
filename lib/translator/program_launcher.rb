@@ -110,7 +110,7 @@ module Ikra
 
                         if $? != 0
                             Log.fatal("nvcc failed: #{compile_status}")
-                            raise "nvcc failed: #{compile_status}"
+                            raise RuntimeError.new("nvcc failed: #{compile_status}")
                         else
                             Log.info("nvcc successful: #{compile_status}")
                         end
@@ -167,7 +167,8 @@ module Ikra
                            array_type = result_type.singleton_type
 
                             if !array_type.is_a?(Types::ArrayType)
-                                raise "ArrayType expected, but #{array_type} found"
+                                raise AssertionError.new(
+                                    "ArrayType expected, but #{array_type} found")
                             end
 
                             result = result_t_struct[:result][:content]
@@ -178,11 +179,13 @@ module Ikra
                             end
 
                             if array_type == nil
-                                raise "Unknown class_id: #{result_t_struct[:result][:class_id]}"
+                                raise AssertionError.new(
+                                    "Unknown class_id: #{result_t_struct[:result][:class_id]}")
                             end
 
                             if !array_type.is_a?(Types::ArrayType)
-                                raise "ArrayType expected, but #{array_type} found"
+                                raise AssertionError.new(
+                                    "ArrayType expected, but #{array_type} found")
                             end
 
                             result = result_t_struct[:result][:value][:fixed_size_array][:content]

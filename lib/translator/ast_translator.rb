@@ -37,7 +37,8 @@ module Ikra
                 end
 
                 def visit_behavior_node(node)
-                    raise "Methods/blocks cannot be translated as an expression"
+                    raise AssertionError.new(
+                        "Methods/blocks cannot be translated as an expression")
                 end
 
                 def visit_source_code_expr_node(node)
@@ -106,7 +107,7 @@ module Ikra
 
                 def visit_begin_node(node)
                     if node.body_stmts.size == 0
-                        raise "Empty BeginNode cannot be an expression"
+                        raise AssertionError.new("Empty BeginNode cannot be an expression")
                     elsif node.body_stmts.size == 1
                         # Preserve brackets
                         return "(#{node.body_stmts.first.accept(self)})"
@@ -334,7 +335,7 @@ module Ikra
                 end
 
                 def visit_return_node(node)
-                    raise "ReturnNode is never an expression"
+                    raise AssertionError.new("ReturnNode is never an expression")
                 end
             end
 
@@ -366,7 +367,7 @@ module Ikra
                 end
 
                 def visit_behavior_node(node)
-                    raise "Methods/blocks cannot be translated as a statement"
+                    raise AssertionError.new("Methods/blocks cannot be translated as a statement")
                 end
 
                 def visit_root_node(node)
@@ -484,7 +485,7 @@ module Ikra
                 elsif !type.is_a?(Types::UnionType)
                     return "union_t(#{type.class_id}, union_v_t::from_object_id(#{str}))"
                 else
-                    raise "UnionType found but singleton type expected"
+                    raise AssertionError.new("UnionType found but singleton type expected")
                 end
             end
 

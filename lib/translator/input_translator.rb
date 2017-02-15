@@ -2,7 +2,7 @@ module Ikra
     module Symbolic
         class Input
             def translate_input(**kwargs)
-                raise "Not implemented yet"
+                raise NotImplementedError.new
             end
         end
 

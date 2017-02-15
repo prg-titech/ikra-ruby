@@ -24,7 +24,7 @@ module Ikra
             
             def initialize(inner_type)
                 if not inner_type.is_union_type?
-                    raise "Union type expected"
+                    raise AssertionError.new("Union type expected")
                 end
 
                 @inner_type = inner_type

@@ -87,7 +87,7 @@ module Ikra
 
             def inst_var_array_name(inst_var_name)
                 if inst_var_name.to_s[0] != "@"
-                    raise "Expected instance variable identifier"
+                    raise AssertionError.new("Expected instance variable identifier")
                 end
 
                 "_iv_#{class_name}_#{inst_var_name.to_s[1..-1]}_"

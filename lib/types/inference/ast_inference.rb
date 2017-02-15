@@ -348,13 +348,14 @@ module Ikra
 
             def assert_singleton_type(union_type, expected_type)
                 if union_type.singleton_type != expected_type
-                    raise "Expected type #{expected_type} but found #{union_type.singleton_type}"
+                    raise AssertionError.new(
+                        "Expected type #{expected_type} but found #{union_type.singleton_type}")
                 end
             end
 
             def visit_const_node(node)
                 if not binding
-                    raise "Unable to resolve constants without Binding"
+                    raise AssertionError.new("Unable to resolve constants without Binding")
                 end
 
                 constant = binding.eval(node.identifier.to_s)

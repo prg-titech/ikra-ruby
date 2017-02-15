@@ -38,7 +38,7 @@ module Ikra
 
             def [](variable_name)
                 if !has_variable?(variable_name)
-                    raise "Variable #{variable_name} not defined"
+                    raise AssertionError.new("Variable #{variable_name} not defined")
                 end
 
                 return @symbols[variable_name].type
@@ -46,7 +46,8 @@ module Ikra
 
             def read!(variable_name)
                 if !has_variable?(variable_name)
-                    raise "Variable #{variable_name} read but not found in symbol table"
+                    raise AssertionError.new(
+                        "Variable #{variable_name} read but not found in symbol table")
                 end
 
                 @symbols[variable_name].read = true
@@ -54,7 +55,8 @@ module Ikra
 
             def written!(variable_name)
                 if !has_variable?(variable_name)
-                    raise "Variable #{variable_name} written but not found in symbol table"
+                    raise AssertionError.new(
+                        "Variable #{variable_name} written but not found in symbol table")
                 end
 
                 @symbols[variable_name].written = true
@@ -78,8 +80,9 @@ module Ikra
 
             def expand_type(variable_name, type)
                 if !has_variable?(variable_name)
-                    raise "Attempt to expand type of variable #{variable_name} but not found in " 
-                        + " symbol table"
+                    raise AssertionError.new(
+                        "Attempt to expand type of variable #{variable_name} but not found in " +
+                        " symbol table")
                 end
 
                 @symbols[variable_name].type.expand(type)

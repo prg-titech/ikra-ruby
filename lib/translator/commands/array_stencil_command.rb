@@ -43,7 +43,8 @@ module Ikra
                         for i in 0..command.dimensions.size-1
                             send_node = send_node.parent
                             if not (send_node.is_a?(AST::SendNode) && send_node.selector == :[])
-                                raise "This has to be a SendNode and Array-selector"
+                                raise AssertionError.new(
+                                    "This has to be a SendNode and Array-selector")
                             end
                             index_combination[i] = send_node.arguments.first
                             if not index_combination[i].is_a?(AST::IntLiteralNode)

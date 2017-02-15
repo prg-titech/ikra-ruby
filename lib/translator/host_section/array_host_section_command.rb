@@ -66,7 +66,7 @@ module Ikra
 
                 for singleton_type in result_type
                     if !singleton_type.is_a?(Types::LocationAwareFixedSizeArrayType)
-                        raise "Return value of host section must be an LocationAwareFixedSizeArrayType. Found a code path with #{singleton_type}."
+                        raise AssertionError.new("Return value of host section must be an LocationAwareFixedSizeArrayType. Found a code path with #{singleton_type}.")
                     end
                 end
 
