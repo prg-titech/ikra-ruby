@@ -78,7 +78,7 @@ class StencilTest < UnitTestCase
             j + 100
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil(Ikra.stencil(directions: 1, distance: 1), 10000) do |values|
+        stencil_result_gpu = base_array_gpu.pstencil(Ikra::Symbolic.stencil(directions: 1, distance: 1), 10000) do |values|
             values[-1] + values[0] + values[1]
         end 
 

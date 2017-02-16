@@ -44,8 +44,21 @@ module Ikra
             end
 
             def translate_const(node)
-                # TODO(matthias): what is the meaning of the first child?
-                return ConstNode.new(identifier: node.children[1])
+                full_const_string = "#{node.children[1]}"
+                current_const = node
+
+                while current_const.children[0] != nil
+                    # First receiver is enclosing class/module
+                    current_const = current_const.children[0]
+
+                    if current_const.type != :const
+                        raise AssertionError.new("Expected :const")
+                    end
+
+                    full_const_string = current_const.children[1].to_s + "::" + full_const_string
+                end
+
+                return ConstNode.new(identifier: full_const_string)
             end
 
             def translate_int(node)
@@ -72,6 +85,28 @@ module Ikra
                 return NilLiteralNode.new
             end
             
+            def translate_sym(node)
+                return SymbolLiteralNode.new(value: node.children[0])
+            end
+
+            def translate_str(node)
+                return StringLiteralNode.new(value: node.children[0])
+            end
+
+            def translate_hash(node)
+                hash = {}
+
+                node.children.each do |child|
+                    if child.type != :pair
+                        raise NotImplementedError.new("Expected :pair, found #{child.type}")
+                    end
+
+                    hash[translate_node(child.children[0])] = translate_node(child.children[1])
+                end
+
+                return HashNode.new(hash: hash)
+            end
+
             def translate_and(node)
                 return SendNode.new(receiver: translate_node(node.children[0]),
                     selector: :"&&",

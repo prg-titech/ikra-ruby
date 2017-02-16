@@ -211,4 +211,36 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(stencil_result_cpu , stencil_result_gpu.to_a)
     end
+
+    def test_generated_stencil_with_interpreter_method
+        # CPU computation
+        base_array_cpu = Array.new(100) do |j|
+            j + 100
+        end
+
+        stencil_result_cpu = base_array_cpu.stencil([-1, 0, 1], 10000) do |values|
+            values[0] + values[1] + values[2]
+        end
+
+        aggregated_cpu = stencil_result_cpu.reduce(:+)
+
+
+        # GPU computation
+        base_array_gpu = Array.pnew(100) do |j|
+            j + 100
+        end
+
+        stencil_result_gpu = Ikra::Symbolic.host_section(base_array_gpu) do |input|
+            # `Ikra::Symbolic.stencil` is computed in the Ruby interpreter
+            input.pstencil(Ikra::Symbolic.stencil(directions: 1, distance: 1), 10000) do |values|
+                values[-1] + values[0] + values[1]
+            end
+        end 
+
+        aggregated_gpu = stencil_result_gpu.reduce(:+)
+
+
+        # Compare results
+        assert_equal(aggregated_cpu, aggregated_gpu)
+    end
 end

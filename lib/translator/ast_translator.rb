@@ -254,7 +254,10 @@ module Ikra
                 def generate_send_for_singleton(node, singleton_recv, return_type)
                     recv_type = singleton_recv.get_type.singleton_type
 
-                    if RubyIntegration.has_implementation?(recv_type, node.selector)
+                    if RubyIntegration.is_interpreter_only?(recv_type)
+                        # No translation necessary
+                        return nil
+                    elsif RubyIntegration.has_implementation?(recv_type, node.selector)
                         # Some implementations accept only singleton-typed arguments
                         if RubyIntegration.expect_singleton_args?(recv_type, node.selector)
                             # Generate additional switch statements (one per non-sing. arg.).

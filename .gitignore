@@ -41,3 +41,5 @@ dbg*.rb
 
 gen/codegen_expect/last_generated.cu
 gen/log
+
+test/unit/debug_test.rb

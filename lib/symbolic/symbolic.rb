@@ -14,6 +14,10 @@ module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
 
+        def self.stencil(directions:, distance:)
+            return ["G", directions, distance]
+        end
+    
         module ParallelOperations
             def preduce(symbol = nil, **options, &block)
                 if symbol == nil && block != nil

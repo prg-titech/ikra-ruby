@@ -242,6 +242,14 @@ module Ikra
             end
         end
 
+        class HashNode < TreeNode
+            attr_reader :hash
+
+            def initialize(hash:)
+                @hash = hash
+            end
+        end
+
         class ConstNode < TreeNode
             attr_reader :identifier
 
@@ -306,6 +314,22 @@ module Ikra
             
         end
         
+        class SymbolLiteralNode < TreeNode
+            attr_reader :value
+
+            def initialize(value:)
+                @value = value
+            end
+        end
+
+        class StringLiteralNode < TreeNode
+            attr_reader :value
+
+            def initialize(value:)
+                @value = value
+            end
+        end
+
         class ForNode < TreeNode
             attr_reader :iterator_identifier
             attr_reader :range_from

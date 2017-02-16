@@ -58,6 +58,12 @@ module Ikra
             end
         end
 
+        class HashNode
+            def accept(visitor)
+                visitor.visit_hash_node(self)
+            end
+        end
+
         class ConstNode
             def accept(visitor)
                 visitor.visit_const_node(self)
@@ -103,6 +109,18 @@ module Ikra
         class NilLiteralNode
             def accept(visitor)
                 visitor.visit_nil_node(self)
+            end
+        end
+
+        class SymbolLiteralNode
+            def accept(visitor)
+                visitor.visit_symbol_node(self)
+            end
+        end
+
+        class StringLiteralNode
+            def accept(visitor)
+                visitor.visit_string_node(self)
             end
         end
         
@@ -211,6 +229,13 @@ module Ikra
 
             end
 
+            def visit_hash_node(node)
+                node.hash.each do |key, value|
+                    key.accept(self)
+                    value.accept(self)
+                end
+            end
+
             def visit_var_def_node(node)
 
             end
@@ -255,6 +280,14 @@ module Ikra
             
             end
             
+            def visit_symbol_node(node)
+
+            end
+
+            def visit_string_node(node)
+
+            end
+
             def visit_for_node(node)
                 node.range_from.accept(self)
                 node.range_to.accept(self)

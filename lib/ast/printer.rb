@@ -54,6 +54,14 @@ module Ikra
             end
         end
         
+        class HashNode
+            def to_s
+                return "[HashNode: {" + hash.map do |key, value|
+                    "#{key.to_s} => #{value.to_s}"
+                end.join(", ") + "}]"
+            end
+        end
+
         class ConstNode
             def to_s
                 return "[ConstNode: #{identifier.to_s}]"
@@ -93,6 +101,18 @@ module Ikra
         class NilLiteralNode
             def to_s
                 return "<nil>"
+            end
+        end
+
+        class SymbolLiteralNode
+            def to_s
+                return "<:#{value.to_s}>"
+            end
+        end
+
+        class StringLiteralNode
+            def to_s
+                return "<#{value.to_s}>"
             end
         end
 

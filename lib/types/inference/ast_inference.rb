@@ -409,6 +409,21 @@ module Ikra
                 node.merge_union_type(Types::UnionType.create_bool)
             end
             
+            def visit_string_node(node)
+                # Use [Types::ClassType] for the moment
+                return node.value.ikra_type.to_union_type
+            end
+
+            def visit_symbol_node(node)
+                # Use [Types::ClassType] for the moment
+                return node.value.ikra_type.to_union_type
+            end
+
+            def visit_hash_node(node)
+                # Use [Types::ClassType] for the moment
+                return Hash.to_ikra_type.to_union_type
+            end
+
             def visit_for_node(node)
                 assert_singleton_type(node.range_from.accept(self), Types::PrimitiveType::Int)
                 assert_singleton_type(node.range_to.accept(self), Types::PrimitiveType::Int)
@@ -495,7 +510,11 @@ module Ikra
                 type = Types::UnionType.new
 
                 for sing_type in receiver_type
-                    if RubyIntegration.has_implementation?(sing_type, node.selector)
+                    if RubyIntegration.is_interpreter_only?(sing_type)
+                        return_type = Types::InterpreterOnlyType.new.to_union_type
+                        node.return_type_by_recv_type[sing_type] = return_type
+                        type.expand(return_type)
+                    elsif RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
 
                         if sing_type.is_a?(Symbolic::ArrayCommand)

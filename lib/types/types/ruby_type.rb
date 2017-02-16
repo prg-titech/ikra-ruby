@@ -45,6 +45,20 @@ module Ikra
                 @class_id
             end
         end
+
+        # This type is marker and denotes that an expression should be executed only in the Ruby
+        # interpreter. No CUDA code should be generated for such expressions.
+        class InterpreterOnlyType
+            include RubyType
+
+            def self.new
+                if @singleton_instance == nil
+                    @singleton_instance = super
+                end
+
+                return @singleton_instance
+            end
+        end
     end
 end
 
