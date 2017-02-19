@@ -517,18 +517,17 @@ module Ikra
                     elsif RubyIntegration.has_implementation?(sing_type, node.selector)
                         arg_types = node.arguments.map do |arg| arg.get_type end
 
-                        if sing_type.is_a?(Symbolic::ArrayCommand)
-                            # If a method is called on an ArrayCommand, we also pass the AST nodes
-                            # of all arguments
-                            arg_nodes = node.arguments
-                            block_node = node.block_argument
-                        else
-                            arg_nodes = nil
-                            block_node = nil
-                        end
+                        begin
+                            return_type = RubyIntegration.get_return_type(
+                                sing_type, node.selector, *arg_types, send_node: node)
+                        rescue RubyIntegration::CycleDetectedError => cycle_error
+                            # Cannot do further symbolic execution, i.e., kernel fusion here,
+                            # because we are in a loop.
 
-                        return_type = RubyIntegration.get_return_type(
-                            sing_type, node.selector, *arg_types, args_ast: arg_nodes, block_ast: block_node)
+                            # TODO: Insert __call__ send node here to execute the kernel. Then,
+                            # call pmap or whatever on the result and return it.
+                            raise NotImplementedError.new("HANDLE THE CYCLE!")
+                        end
 
                         type.expand(return_type)
                         node.return_type_by_recv_type[sing_type] = return_type

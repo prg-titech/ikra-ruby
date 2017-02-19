@@ -176,13 +176,23 @@ module Ikra
             # Returns the block of the parallel section or [nil] if none.
             attr_reader :block
 
+            # A reference to the AST send node that generated this [ArrayCommand] (if inside a
+            # host section).
+            attr_reader :generator_node
+
             @@unique_id  = 1
 
             def self.reset_unique_id
                 @@unique_id = 1
             end
 
-            def initialize(block: nil, block_ast: nil, block_size: nil, keep: nil)
+            def initialize(
+                block: nil, 
+                block_ast: nil, 
+                block_size: nil, 
+                keep: nil, 
+                generator_node: nil)
+
                 super()
 
                 set_unique_id
@@ -190,6 +200,7 @@ module Ikra
                 # Set instance variables
                 @block_size = block_size
                 @keep = keep
+                @generator_node = generator_node
 
                 if block != nil and block_ast == nil
                     @block = block
@@ -406,9 +417,10 @@ module Ikra
                 block, 
                 ast: nil, 
                 block_size: DEFAULT_BLOCK_SIZE, 
-                keep: false)
+                keep: false,
+                generator_node: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
 
                 # Read array at position `tid`
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
@@ -429,11 +441,7 @@ module Ikra
             include ArrayCommand
 
             def initialize(target, others, **options)
-                super()
-
-                if options.size  > 0
-                    raise ArgumentError.new("Invalid options: #{options}")
-                end
+                super(**options)
 
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
                     SingleInput.new(command: other.to_command, pattern: :tid)
@@ -461,9 +469,10 @@ module Ikra
                 target, 
                 block, 
                 block_size: DEFAULT_BLOCK_SIZE, 
-                ast: nil)
+                ast: nil,
+                generator_node: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
 
                 @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
             end
@@ -507,9 +516,10 @@ module Ikra
                 ast: nil,
                 block_size: DEFAULT_BLOCK_SIZE, 
                 keep: false, 
-                use_parameter_array: true)
+                use_parameter_array: true,
+                generator_node: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
 
                 if offsets.first == "G"
                     # A stencil will be generated

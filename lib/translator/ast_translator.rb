@@ -275,8 +275,7 @@ module Ikra
                                     singleton_recv.get_type.singleton_type, 
                                     node.selector, 
                                     *all_sing_arg_types, 
-                                    args_ast: node.arguments, 
-                                    block_ast: node.block_argument)
+                                    send_node: node)
 
                                 impl = RubyIntegration.get_implementation(
                                     singleton_recv,
