@@ -411,8 +411,13 @@ module Ikra
             
             def initialize(condition:, true_body_stmts:, false_body_stmts: nil)
                 if true_body_stmts == nil
-                    # Handle empty `if` statements
+                    # Handle empty `true` block
                     true_body_stmts = BeginNode.new
+                end
+
+                if false_body_stmts == nil
+                    # Handle empty `false` block
+                    false_body_stmts = BeginNode.new
                 end
 
                 @condition = condition
@@ -420,12 +425,8 @@ module Ikra
                 @false_body_stmts = false_body_stmts
 
                 condition.parent = self
-                
                 true_body_stmts.parent = self 
-
-                if false_body_stmts != nil
-                    false_body_stmts.parent = self
-                end
+                false_body_stmts.parent = self
             end
         end
         
@@ -440,7 +441,6 @@ module Ikra
                 @false_val = false_val
 
                 condition.parent = self
-                
                 true_val.parent = self
                 false_val.parent = self
             end
@@ -455,6 +455,11 @@ module Ikra
                 body_stmts.each do |stmt|
                     stmt.parent = self
                 end
+            end
+
+            def add_statement(node)
+                body_stmts.push(node)
+                node.parent = self
             end
             
             def replace_child(node, another_node)

@@ -17,7 +17,12 @@ module Ikra
 
             def wrap_in_begin(translated_node)
                 if translated_node != nil
-                    return BeginNode.new(body_stmts: [translated_node])
+                    if translated_node.is_a?(BeginNode)
+                        # Is already a `BeginNode`
+                        return translated_node
+                    else
+                        return BeginNode.new(body_stmts: [translated_node])
+                    end
                 else
                     return nil
                 end

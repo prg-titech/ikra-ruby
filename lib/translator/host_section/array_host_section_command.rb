@@ -1,6 +1,7 @@
 require_relative "parallel_section_invocation_visitor"
 require_relative "program_builder"
 require_relative "ast_translator"
+require_relative "../../ast/ssa_generator"
 
 module Ikra
     module Translator
@@ -60,6 +61,9 @@ module Ikra
                 # Insert synthetic __call__ send nodes for return values
                 block_def_node.accept(ParallelSectionInvocationVisitor.new)
 
+                # Concert to SSA form
+                AST::SSAGenerator.transform_to_ssa!(block_def_node)
+                
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 result_type = type_inference_visitor.process_block(block_def_node)

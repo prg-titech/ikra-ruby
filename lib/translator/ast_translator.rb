@@ -421,13 +421,10 @@ module Ikra
                 end
 
                 def visit_if_node(node)
-                    header = "if (#{node.condition.accept(expression_translator)})\n"
-
-                    if node.false_body_stmts == nil
-                        return header + node.true_body_stmts.accept(self)
-                    else
-                        return header + node.true_body_stmts.accept(self) + "else\n" + node.false_body_stmts.accept(self)
-                    end
+                    return "if (#{node.condition.accept(expression_translator)})\n" +
+                        node.true_body_stmts.accept(self) + 
+                        "else\n" + 
+                        node.false_body_stmts.accept(self)
                 end
 
                 def visit_begin_node(node)

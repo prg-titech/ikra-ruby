@@ -60,6 +60,30 @@ class HostSectionTest < UnitTestCase
         assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
     end
 
+    def test_host_section_with_fusion_and_ssa
+        array_gpu = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511) do |j|
+            j + 5
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input.pmap do |k|
+                k + 1
+            end
+
+            a = a.pmap do |k|
+                k + 3
+            end
+
+            a
+        end
+
+        assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
+    end
+
     def test_host_section_with_union_type_return
         array_gpu = Array.pnew(511) do |j|
             j + 1
@@ -190,6 +214,61 @@ class HostSectionTest < UnitTestCase
         assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
     end
 
+    def test_host_section_with_union_type_return_4_with_ssa
+        array_gpu = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511) do |j|
+            j + 1 + j + 1 + 10 + 20
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = 2
+
+            if a == 1
+                b = input.pmap do |k|
+                    k + 2
+                end
+
+                b = b.pmap do |k|
+                    k - 1
+                end
+
+                c = input.pmap do |k|
+                    k + 5
+                end
+
+                c = c.pmap do |k|
+                    k + 5
+                end
+            else
+                # This one is chosen
+                b = input.pmap do |k|
+                    k + 4
+                end
+
+                b = b.pmap do |k|
+                    k + 6
+                end
+
+                c = input.pmap do |k|
+                    k + 9
+                end
+
+                c = c.pmap do |k|
+                    k + 11
+                end
+            end
+
+            b.pzip(c).pmap do |zipped|
+                zipped[0] + zipped[1]
+            end
+        end
+
+        assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
+    end
+
     def test_simple_stencil
         array_gpu = Array.pnew(511) do |j|
             j + 1
@@ -232,6 +311,7 @@ class HostSectionTest < UnitTestCase
 
         stencil_result_gpu = Ikra::Symbolic.host_section(base_array_gpu) do |input|
             # `Ikra::Symbolic.stencil` is computed in the Ruby interpreter
+            # TODO: Hoist expression outside of host_section?
             input.pstencil(Ikra::Symbolic.stencil(directions: 1, distance: 1), 10000) do |values|
                 values[-1] + values[0] + values[1]
             end

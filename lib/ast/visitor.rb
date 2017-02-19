@@ -321,10 +321,7 @@ module Ikra
             def visit_if_node(node)
                 node.condition.accept(self)
                 node.true_body_stmts.accept(self)
-
-                if node.false_body_stmts != nil
-                    node.false_body_stmts.accept(self)
-                end
+                node.false_body_stmts.accept(self)
             end
             
             def visit_ternary_node(node)

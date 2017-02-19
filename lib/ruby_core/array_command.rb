@@ -9,6 +9,7 @@ module Ikra
 
         PMAP_TYPE = proc do |rcvr_type, *args_types, args_ast:, block_ast:|
             # TODO: Handle keyword arguments
+            # TODO: We have to find the loop here!
             rcvr_type.pmap(ast: block_ast).to_union_type
         end
 
