@@ -4,6 +4,7 @@ require_relative "codegen/mandelbrot"
 require_relative "codegen/square"
 require_relative "codegen/gradient_benchmark"
 require_relative "codegen/matrix_matrix_multiply"
+require_relative "codegen/host_section"
 
 class CodegenTest < Test::Unit::TestCase
     def setup
@@ -38,5 +39,10 @@ class CodegenTest < Test::Unit::TestCase
 
         Ikra::Configuration.codegen_expect_file_name = "matrix_matrix_multiply"
         matrix_gpu
+    end
+
+    def test_host_section
+        Ikra::Configuration.codegen_expect_file_name = "host_section_iterative_map"
+        test_host_section_iterative_map
     end
 end

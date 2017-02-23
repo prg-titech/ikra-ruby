@@ -180,7 +180,7 @@ __device__ int _block_k_4_(environment_t *_env_, int index)
 #endif
 
 
-__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_20(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -247,10 +247,10 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
     timeStartMeasure();
-        int * _kernel_result_6;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 5625)));
-    program_result->device_allocations->push_back(_kernel_result_6);
-    kernel_5<<<11, 512>>>(dev_env, 5625, _kernel_result_6);
+        int * _kernel_result_21;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_21, (sizeof(int) * 5625)));
+    program_result->device_allocations->push_back(_kernel_result_21);
+    kernel_20<<<11, 512>>>(dev_env, 5625, _kernel_result_21);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
@@ -259,7 +259,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Copy over result to the host */
     program_result->result = ({
-    fixed_size_array_t device_array = fixed_size_array_t((void *) _kernel_result_6, 5625);
+    fixed_size_array_t device_array = fixed_size_array_t((void *) _kernel_result_21, 5625);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
     checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
     fixed_size_array_t((void *) tmp_result, device_array.size);
@@ -267,7 +267,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Free device memory */
     timeStartMeasure();
-        checkErrorReturn(program_result, cudaFree(_kernel_result_6));
+        checkErrorReturn(program_result, cudaFree(_kernel_result_21));
 
     timeReportMeasure(program_result, free_memory);
 

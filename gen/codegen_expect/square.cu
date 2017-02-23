@@ -164,7 +164,7 @@ __device__ int _block_k_2_(environment_t *_env_, int value)
 #endif
 
 
-__global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_22(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -227,10 +227,10 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
     timeStartMeasure();
-        int * _kernel_result_8;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (sizeof(int) * 10000)));
-    program_result->device_allocations->push_back(_kernel_result_8);
-    kernel_7<<<40, 256>>>(dev_env, 10000, _kernel_result_8);
+        int * _kernel_result_23;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_23, (sizeof(int) * 10000)));
+    program_result->device_allocations->push_back(_kernel_result_23);
+    kernel_22<<<40, 256>>>(dev_env, 10000, _kernel_result_23);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
@@ -239,7 +239,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Copy over result to the host */
     program_result->result = ({
-    fixed_size_array_t device_array = fixed_size_array_t((void *) _kernel_result_8, 10000);
+    fixed_size_array_t device_array = fixed_size_array_t((void *) _kernel_result_23, 10000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
     checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
     fixed_size_array_t((void *) tmp_result, device_array.size);
@@ -247,7 +247,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Free device memory */
     timeStartMeasure();
-        checkErrorReturn(program_result, cudaFree(_kernel_result_8));
+        checkErrorReturn(program_result, cudaFree(_kernel_result_23));
 
     timeReportMeasure(program_result, free_memory);
 

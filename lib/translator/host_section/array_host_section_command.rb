@@ -98,7 +98,12 @@ module Ikra
 
                 # Define incoming values (parameters). These must all be array commands for now.
                 parameter_def = block_parameter_types.map do |name, type|
-                    "#{type.singleton_type.to_c_type} #{name};"
+                    if type.singleton_type.is_a?(Symbolic::ArrayCommand)
+                        # Should be initialized with new array command struct
+                        "#{type.singleton_type.to_c_type} #{name} = new #{type.singleton_type.to_c_type[0...-2]}();"
+                    else
+                        "#{type.singleton_type.to_c_type} #{name};"
+                    end
                 end.join("\n") + "\n"
 
                 translation_result = Translator.read_file(
