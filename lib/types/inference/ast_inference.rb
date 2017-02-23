@@ -4,6 +4,7 @@ require "set"
 
 require_relative "../../ast/nodes.rb"
 require_relative "../../ast/visitor.rb"
+require_relative "clear_types_visitor.rb"
 
 module Ikra
     module AST
@@ -140,6 +141,13 @@ module Ikra
     
     module TypeInference
         class Visitor < AST::Visitor
+
+            # If this error is thrown, type inference should start from the beginning (with
+            # an empty symbol table).
+            class RestartTypeInferenceError < RuntimeError
+
+            end
+
             attr_reader :classes
 
             def initialize
@@ -201,8 +209,22 @@ module Ikra
                 # Add return statements
                 body_ast.accept(Translator::LastStatementReturnsVisitor.new)
 
-                # Infer types
-                body_ast.accept(self)
+                begin
+                    # Infer types
+                    body_ast.accept(self)
+                rescue RestartTypeInferenceError
+                    # Reset all type information
+                    symbol_table.clear!
+                    block_def_node.accept(ClearTypesVisitor.new)
+
+                    # Remove block from stack
+                    @work_stack.pop
+
+                    Log.info("Changed AST during type inference. Restarting type inference.")
+
+                    # Restart inference
+                    return process_block(block_def_node)
+                end
 
                 # Get local variable definitons
                 for variable_name in symbol_table.read_and_written_variables
@@ -341,8 +363,6 @@ module Ikra
 
                 method_def_node.callers.push(current_method_or_block)
 
-                send_node.return_type_by_recv_type[recv_singleton_type] = method_def_node.get_type
-                send_node.merge_union_type(method_def_node.get_type)
                 return method_def_node.get_type
             end
 
@@ -427,8 +447,9 @@ module Ikra
             def visit_for_node(node)
                 assert_singleton_type(node.range_from.accept(self), Types::PrimitiveType::Int)
                 assert_singleton_type(node.range_to.accept(self), Types::PrimitiveType::Int)
-                
+
                 changed = symbol_table.ensure_variable_declared(node.iterator_identifier, type: Types::UnionType.create_int)
+                symbol_table.written!(node.iterator_identifier)
                 
                 super(node)
                 
@@ -492,6 +513,54 @@ module Ikra
                 return node.get_type
             end
 
+            def visit_send_node_singleton_receiver(sing_type, node)
+                if RubyIntegration.is_interpreter_only?(sing_type)
+                    return Types::InterpreterOnlyType.new.to_union_type
+                elsif RubyIntegration.has_implementation?(sing_type, node.selector)
+                    arg_types = node.arguments.map do |arg| arg.get_type end
+
+                    begin
+                        return_type = RubyIntegration.get_return_type(
+                            sing_type, node.selector, *arg_types, send_node: node)
+                        return return_type
+                    rescue RubyIntegration::CycleDetectedError => cycle_error
+                        # Cannot do further symbolic execution, i.e., kernel fusion here,
+                        # because we are in a loop.
+
+                        # Invoke parallel section: change to `RECV` to `RECV.__call__.to_command`
+                        node.replace_child(
+                            node.receiver, 
+                            AST::SendNode.new(
+                                receiver: AST::SendNode.new(
+                                    receiver: node.receiver, selector: :__call__),
+                                selector: :to_command))
+
+                        # Start fresh
+                        raise RestartTypeInferenceError.new
+                    end
+                elsif sing_type.is_a?(Types::StructType)
+                    # This is a struct type, special type inference rules apply
+                    return sing_type.get_return_type(node.selector, *node.arguments)
+                else
+                    Log.info("Translate call to ordinary Ruby method #{sing_type}.#{node.selector}")
+                    return visit_method_call(node, sing_type)
+                end
+            end
+
+            def visit_send_node_union_type(receiver_type, node)
+                type = Types::UnionType.new
+
+                for sing_type in receiver_type
+                    return_type = visit_send_node_singleton_receiver(sing_type, node)
+                    node.return_type_by_recv_type[sing_type] = return_type
+                    type.expand(return_type)
+                end
+
+                node.merge_union_type(type)
+
+                return type
+            end
+
             def visit_send_node(node)
                 # TODO: handle self sends
                 receiver_type = nil
@@ -506,43 +575,10 @@ module Ikra
                 node.arguments.each do |arg|
                     arg.accept(self)
                 end
-
-                type = Types::UnionType.new
-
-                for sing_type in receiver_type
-                    if RubyIntegration.is_interpreter_only?(sing_type)
-                        return_type = Types::InterpreterOnlyType.new.to_union_type
-                        node.return_type_by_recv_type[sing_type] = return_type
-                        type.expand(return_type)
-                    elsif RubyIntegration.has_implementation?(sing_type, node.selector)
-                        arg_types = node.arguments.map do |arg| arg.get_type end
-
-                        begin
-                            return_type = RubyIntegration.get_return_type(
-                                sing_type, node.selector, *arg_types, send_node: node)
-                        rescue RubyIntegration::CycleDetectedError => cycle_error
-                            # Cannot do further symbolic execution, i.e., kernel fusion here,
-                            # because we are in a loop.
-
-                            # TODO: Insert __call__ send node here to execute the kernel. Then,
-                            # call pmap or whatever on the result and return it.
-                            raise NotImplementedError.new("HANDLE THE CYCLE!")
-                        end
-
-                        type.expand(return_type)
-                        node.return_type_by_recv_type[sing_type] = return_type
-                    elsif sing_type.is_a?(Types::StructType)
-                        # This is a struct type, special type inference rules apply
-                        return_type = sing_type.get_return_type(node.selector, *node.arguments)
-
-                        type.expand(return_type)
-                        node.return_type_by_recv_type[sing_type] = return_type
-                    else
-                        type.expand(visit_method_call(node, sing_type))
-                    end
-                end
                 
-                node.merge_union_type(type)
+                visit_send_node_union_type(receiver_type, node)
+
+                return node.get_type
             end
         end
     end

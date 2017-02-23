@@ -61,6 +61,10 @@ module Ikra
                     block_parameters: process_entire_input(command))
             end
 
+            def visit_array_in_host_section_command(command)
+                return command.base_type
+            end
+
             def visit_array_identity_command(command)
                 return command.base_type
             end

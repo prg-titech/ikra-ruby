@@ -49,6 +49,30 @@ module Ikra
                     end
                 end
 
+                class NormalCache
+                    def initialize
+                        @values = []
+                    end
+
+                    def get_value(value)
+                        for el in @values
+                            if el == value
+                                return el
+                            end
+                        end
+
+                        raise RuntimeError.new("Value not found")
+                    end
+
+                    def add_value(value)
+                        @values.push(value)
+                    end
+
+                    def include?(value)
+                        return @values.include?(value)
+                    end
+                end
+
                 # Ensure that ArrayCommands are singletons. Otherwise, we have a problem, because
                 # two equal commands can have different class IDs.
                 def new(*args, **kwargs, &block)
@@ -68,7 +92,7 @@ module Ikra
             end
 
             def to_c_type
-                return "array_command_t<#{result_type.to_c_type}> *"
+                return "#{Translator::ArrayCommandStructBuilder.struct_name(self)} *"
             end
 
             def to_ffi_type

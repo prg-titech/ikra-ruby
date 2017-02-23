@@ -196,6 +196,8 @@ module Ikra
             end
 
             def visit_program_node(node)
+                visit_node(node)
+
                 node.classes.each do |c|
                     c.accept(self)
                 end
@@ -206,6 +208,8 @@ module Ikra
             end
 
             def visit_class_def_node(node)
+                visit_node(node)
+
                 node.instance_variables.each do |iv|
                     iv.accept(self)
                 end
@@ -216,20 +220,25 @@ module Ikra
             end
 
             def visit_root_node(node)
+                visit_node(node)
                 node.single_child.accept(self)
             end
 
             def visit_array_node(node)
+                visit_node(node)
+
                 for value in node.values
                     value.accept(self)
                 end
             end
 
             def visit_source_code_expr_node(node)
-
+                visit_node(node)
             end
 
             def visit_hash_node(node)
+                visit_node(node)
+
                 node.hash.each do |key, value|
                     key.accept(self)
                     value.accept(self)
@@ -237,106 +246,128 @@ module Ikra
             end
 
             def visit_var_def_node(node)
-
+                visit_node(node)
             end
 
             def visit_meth_def_node(node)
+                visit_node(node)
                 node.body.accept(self)
             end
 
             def visit_block_def_node(node)
+                visit_node(node)
                 node.body.accept(self)
             end
 
             def visit_const_node(node)
-
+                visit_node(node)
             end
             
             def visit_lvar_read_node(node)
-            
+                visit_node(node)
             end
             
             def visit_lvar_write_node(node)
+                visit_node(node)
                 node.value.accept(self)
             end
             
             def visit_ivar_read_node(node)
-
+                visit_node(node)
             end
             
             def visit_int_node(node)
-            
+                visit_node(node)
             end
             
             def visit_float_node(node)
+                visit_node(node)
             
             end
             
             def visit_bool_node(node)
-            
+                visit_node(node)
             end
             
             def visit_nil_node(node)
-            
+                visit_node(node)
             end
             
             def visit_symbol_node(node)
-
+                visit_node(node)
             end
 
             def visit_string_node(node)
-
+                visit_node(node)
             end
 
             def visit_for_node(node)
+                visit_node(node)
+
                 node.range_from.accept(self)
                 node.range_to.accept(self)
                 node.body_stmts.accept(self)
             end
             
             def visit_while_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.body_stmts.accept(self)
             end
             
             def visit_while_post_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.body_stmts.accept(self)
             end
             
             def visit_until_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.body_stmts.accept(self)
             end
             
             def visit_until_post_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.body_stmts.accept(self)
             end
 
             def visit_break_node(node)
-            
+                visit_node(node)
             end
             
             def visit_if_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.true_body_stmts.accept(self)
                 node.false_body_stmts.accept(self)
             end
             
             def visit_ternary_node(node)
+                visit_node(node)
+
                 node.condition.accept(self)
                 node.true_val.accept(self)
                 node.false_val.accept(self)
             end
             
             def visit_begin_node(node)
+                visit_node(node)
+
                 node.body_stmts.each do |stmt|
                     stmt.accept(self)
                 end
             end
             
             def visit_send_node(node)
+                visit_node(node)
+
                 # Receiver might be nil for self sends
                 if node.receiver != nil
                     node.receiver.accept(self)
@@ -348,6 +379,7 @@ module Ikra
             end
 
             def visit_return_node(node)
+                visit_node(node)
                 node.value.accept(self)
             end
         end

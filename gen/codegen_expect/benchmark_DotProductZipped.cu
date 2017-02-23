@@ -56,12 +56,8 @@ struct indexed_struct_2_lt_int_int_gt_t
     int field_0;
 int field_1;
 };
-/* ----- BEGIN Structs ----- */
-template <typename T>
-struct array_command_t {
-    T *result;
-};
 
+/* ----- BEGIN Structs ----- */
 struct fixed_size_array_t {
     void *content;
     int size;
@@ -81,13 +77,13 @@ typedef union union_type_value {
     int int_;
     float float_;
     bool bool_;
-    array_command_t<void> *array_command;
+    void *pointer;
     fixed_size_array_t fixed_size_array;
 
     __host__ __device__ union_type_value(int value) : int_(value) { };
     __host__ __device__ union_type_value(float value) : float_(value) { };
     __host__ __device__ union_type_value(bool value) : bool_(value) { };
-    __host__ __device__ union_type_value(array_command_t<void> *value) : array_command(value) { };
+    __host__ __device__ union_type_value(void *value) : pointer(value) { };
     __host__ __device__ union_type_value(fixed_size_array_t value) : fixed_size_array(value) { };
 
     __host__ __device__ static union_type_value from_object_id(obj_id_t value)
@@ -110,7 +106,7 @@ typedef union union_type_value {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_array_command_t(array_command_t<void> *value)
+    __host__ __device__ static union_type_value from_pointer(void *value)
     {
         return union_type_value(value);
     }
@@ -150,6 +146,7 @@ typedef struct result_t {
     vector<void*> *device_allocations;
 } result_t;
 /* ----- END Structs ----- */
+
 
 struct environment_struct
 {

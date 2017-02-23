@@ -30,10 +30,17 @@ module Ikra
 
             attr_reader :return_type
 
+            # For debug purposes
+            attr_reader :symbols
+
             def initialize
                 # This is a mapping from variable names to Variable instances.
                 @symbols = {}
                 @return_type = Types::UnionType.new
+            end
+
+            def clear!
+                @symbols = {}
             end
 
             def [](variable_name)
@@ -75,7 +82,7 @@ module Ikra
             end
             
             def read_and_written_variables
-                read_variables + written_variables
+                return read_variables + written_variables
             end
 
             def expand_type(variable_name, type)

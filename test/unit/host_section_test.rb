@@ -84,6 +84,30 @@ class HostSectionTest < UnitTestCase
         assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
     end
 
+    def test_host_section_with_fusion_and_ssa_2
+        array_gpu = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511) do |j|
+            j + 3
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input.pmap do |k|
+                k + 1
+            end
+
+            a = a.pmap do |k|
+                k + 1
+            end
+
+            a
+        end
+
+        assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
+    end
+
     def test_host_section_with_union_type_return
         array_gpu = Array.pnew(511) do |j|
             j + 1

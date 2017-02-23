@@ -44,6 +44,35 @@ module Ikra
             end
         end
 
+        # An array that that is referenced using C++/CUDA expressions. Such an array does not
+        # necessarily have to be present in the Ruby interpreter. Its size does also not have to
+        # be known at compile time.
+        class ArrayInHostSectionCommand
+            include ArrayCommand
+            
+            attr_accessor :target
+            attr_accessor :base_type
+
+            def initialize(target, base_type, block_size: DEFAULT_BLOCK_SIZE)
+                super(block_size: block_size)
+
+                if base_type == nil
+                    raise AssertionError.new("base_type missing")
+                end
+
+                # One thread per array element
+                @input = [SingleInput.new(command: target, pattern: :tid)]
+                @base_type = base_type
+            end
+            
+            def size
+                # Size is not known at compile time. Return a source code string here.
+                return "#{input.first.command}->size()"
+            end
+
+            # TODO: Support multiple dimensions
+        end
+
         def self.host_section(*section_input, &block)
             return ArrayHostSectionCommand.new(*section_input, &block)
         end

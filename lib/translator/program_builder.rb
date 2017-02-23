@@ -21,6 +21,9 @@ module Ikra
                 # generated for this program.
                 attr_reader :structs
 
+                # An array of array command structs.
+                attr_reader :array_command_structs
+
                 def initialize(environment_builder:, root_command:)
                     @kernel_launchers = []
                     @kernels = Set.new([])
@@ -30,6 +33,13 @@ module Ikra
                     # The collection of structs is a [Set]. Struct types are unique, i.e., there
                     # are never two equal struct types with different object identity.  
                     @structs = Set.new
+                    @array_command_structs = Set.new
+                end
+
+                def add_array_command_struct(*structs)
+                    for struct in structs
+                        array_command_structs.add(struct)
+                    end
                 end
 
                 def add_kernel_launcher(launcher)
@@ -77,11 +87,15 @@ module Ikra
                     return environment_builder.build_environment_struct
                 end
 
-                # Generate all struct types
+                # Generate all struct types (except for array command struct types).
                 def build_struct_types
                     return structs.map do |struct_type|
-                        struct_type.generate_definition
-                    end.join("\n")
+                            struct_type.generate_definition
+                        end.join("\n") + "\n"
+                end
+
+                def build_array_command_struct_types
+                    return array_command_structs.to_a.join("\n") + "\n"
                 end
 
                 def all_kernel_builders
@@ -163,7 +177,9 @@ module Ikra
                 def build_program
                     assert_ready_to_build
 
-                    result = build_header + build_struct_types + build_header_structs + build_environment_struct +  build_kernels
+                    result = build_header + build_struct_types + build_header_structs + 
+                        build_array_command_struct_types + build_environment_struct + 
+                        build_kernels
 
                     # Build program entry point
                     return result + Translator.read_file(file_name: "entry_point.cpp", replacements: {

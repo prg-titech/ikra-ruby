@@ -63,7 +63,7 @@ module Ikra
 
                 # Concert to SSA form
                 AST::SSAGenerator.transform_to_ssa!(block_def_node)
-                
+
                 # Type inference
                 type_inference_visitor = TypeInference::Visitor.new
                 result_type = type_inference_visitor.process_block(block_def_node)
@@ -96,13 +96,18 @@ module Ikra
                     "#{Constants::ENV_TYPE} *#{Constants::ENV_DEVICE_IDENTIFIER}",
                     "#{Constants::PROGRAM_RESULT_TYPE} *#{Constants::PROGRAM_RESULT_IDENTIFIER}"]
 
+                # Define incoming values (parameters). These must all be array commands for now.
+                parameter_def = block_parameter_types.map do |name, type|
+                    "#{type.singleton_type.to_c_type} #{name};"
+                end.join("\n") + "\n"
+
                 translation_result = Translator.read_file(
                     file_name: "host_section_block_function_head.cpp",
                     replacements: { 
                         "name" => mangled_name, 
                         "result_type" => result_type.to_c_type,
                         "parameters" => function_parameters.join(", "),
-                        "body" => Translator.wrap_in_c_block(function_translation)})
+                        "body" => Translator.wrap_in_c_block(parameter_def + function_translation)})
 
                 program_builder.host_section_source = translation_result
 
@@ -136,3 +141,5 @@ module Ikra
         end
     end
 end
+
+require_relative "array_in_host_section_command"

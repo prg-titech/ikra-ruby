@@ -667,7 +667,8 @@ module Ikra
                 return [size]
             end
 
-            # Returns a collection of external objects that are accessed within a parallel section. This includes all elements of the base array.
+            # Returns a collection of external objects that are accessed within a parallel
+            # section. This includes all elements of the base array.
             def externals
                 lexical_externals.keys + input.first.command
             end

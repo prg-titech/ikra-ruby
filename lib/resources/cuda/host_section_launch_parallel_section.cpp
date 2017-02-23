@@ -1,4 +1,6 @@
 ({
+    // /*{debug_information}*/
+    
     /*{array_command_type}*/ cmd = /*{array_command}*/;
 
     if (cmd->result == 0) {

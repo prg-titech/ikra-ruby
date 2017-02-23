@@ -7,6 +7,7 @@ require_relative "environment_builder"
 require_relative "commands/command_translator"
 require_relative "last_returns_visitor"
 require_relative "struct_type"
+require_relative "array_command_struct_builder"
 
 module Ikra
 

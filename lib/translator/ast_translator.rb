@@ -159,7 +159,7 @@ module Ikra
                                 "#{node_identifer}.value.int_", type)
                         elsif type.is_a?(Symbolic::ArrayCommand)
                             self_node = build_synthetic_code_node(
-                                "(#{type.to_c_type}) #{node_identifer}.value.array_command", type)
+                                "(#{type.to_c_type}) #{node_identifer}.value.pointer", type)
                         elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
                             self_node = build_synthetic_code_node(
                                 "#{node_identifer}.value.fixed_size_array", type)
@@ -203,7 +203,8 @@ module Ikra
                             type = self_node.get_type.singleton_type
 
                             # The return type (result type) in the current case (could be polym.)
-                            return_type = node.return_type_by_recv_type[type]
+                            # TODO: Not sure why it does not work without `dup`????
+                            return_type = node.return_type_by_recv_type.dup[type]
 
                             # Generate method invocation
                             invocation = generate_send_for_singleton(
@@ -492,7 +493,7 @@ module Ikra
                 elsif type == Types::PrimitiveType::Nil
                     return "union_t(#{type.class_id}, union_v_t::from_int(#{str}))"
                 elsif type.is_a?(Symbolic::ArrayCommand)
-                    return "union_t(#{type.class_id}, union_v_t::from_array_command_t((array_command_t<void> *) #{str}))"
+                    return "union_t(#{type.class_id}, union_v_t::from_pointer((void *) #{str}))"
                 elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
                     return "union_t(#{type.class_id}, union_v_t::from_fixed_size_array_t(#{str}))"
                 elsif !type.is_a?(Types::UnionType)

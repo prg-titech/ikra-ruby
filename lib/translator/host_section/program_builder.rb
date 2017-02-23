@@ -51,11 +51,19 @@ module Ikra
                     return @kernel_builders
                 end
 
+                def prepare_additional_args_for_launch(command)
+                    kernel_launchers.each do |launcher|
+                        launcher.prepare_additional_args_for_launch(command)
+                    end
+                end
+
                 # Builds the CUDA program. Returns the source code string.
                 def build_program
                     assert_ready_to_build
 
-                    result = build_header + build_struct_types + build_header_structs + build_environment_struct + build_kernels + host_section_source
+                    result = build_header + build_struct_types + build_header_structs + 
+                        build_array_command_struct_types + build_environment_struct + 
+                        build_kernels + host_section_source
 
                     # Build program entry point
                     return result + Translator.read_file(file_name: "host_section_entry_point.cpp", replacements: {

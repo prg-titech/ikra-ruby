@@ -7,6 +7,7 @@ module Ikra
 
             class << self
                 alias_method :new_original, :new
+
                 # Ensure singleton per class
                 def new(inner_type)
                     if @cache == nil
@@ -67,6 +68,13 @@ module Ikra
 
             def to_c_type
                 return "fixed_size_array_t"
+            end
+
+            def to_command
+                # No fusion possible here. The first parameter (target) is a reference to the
+                # array command struct representing the [ArrayInHostSectionCommand].
+                # TODO: The code depends on the template (variable name `cmd` and `input_0`).
+                return Symbolic::ArrayInHostSectionCommand.new("cmd->input_0", @inner_type)
             end
         end
     end

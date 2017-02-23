@@ -6,7 +6,8 @@ require "set"
 module Ikra
     module Types
 
-        # Represents a possibly polymorphic type consisting of 0..* instances of {RubyType}. Only primitive types or class types are allowed for these inner types, but not union types.
+        # Represents a possibly polymorphic type consisting of 0..* instances of {RubyType}. Only 
+        # primitive types or class types are allowed for these inner types, but not union types.
         class UnionType
             include RubyType
             include Enumerable
@@ -31,6 +32,22 @@ module Ikra
 
             def empty?
                 return @types.empty?
+            end
+
+            # Removes all type information.
+            def clear!
+                @types.clear
+            end
+
+            # Removes all singleton types contained in `union_type` from this type.
+            def remove!(union_type)
+                if union_type.is_singleton?
+                    raise AssertionError.new("Union type expected")
+                else
+                    @types.delete_if do |type|
+                        union_type.include?(type)
+                    end
+                end
             end
 
             def size

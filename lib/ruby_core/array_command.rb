@@ -80,16 +80,37 @@ module Ikra
             result = array_command.accept(command_translator)
             kernel_launcher = command_translator.pop_kernel_launcher(result)
 
+            # Prepare kernel launchers for launch of `array_command`
+            command_translator.program_builder.prepare_additional_args_for_launch(array_command)
+
             # Generate launch code for all kernels
             launch_code = command_translator.program_builder.build_kernel_launchers
 
             # Always return a device pointer. Only at the very end, we transfer data to the host.
             result_expr = kernel_launcher.kernel_result_var_name
 
+            if Translator::ArrayCommandStructBuilder::RequireRuntimeSizeChecker.require_size_function?(array_command)
+
+                # Size is not statically known, take information from receiver.
+                # TODO: Code depends on template. `cmd` is defined in template.
+                result_size = "cmd->size()"
+            else
+                # Size is known statically
+                result_size = array_command.size.to_s
+            end
+                    
+            # Debug information
+            if array_command.generator_node != nil
+                debug_information = array_command.to_s + ": " + array_command.generator_node.to_s
+            else
+                debug_information = array_command.to_s
+            end
+
             result = Translator.read_file(file_name: "host_section_launch_parallel_section.cpp", replacements: {
+                "debug_information" => debug_information, 
                 "array_command" => receiver.accept(translator.expression_translator),
                 "array_command_type" => array_command.to_c_type,
-                "result_size" => array_command.size.to_s,
+                "result_size" => result_size,
                 "kernel_invocation" => launch_code,
                 "kernel_result" => result_expr})
 
@@ -97,6 +118,10 @@ module Ikra
             # LAUNCH_KERNEL branch. This is because we reuse the same [ProgramBuilder] for an
             # entire host section.
             command_translator.program_builder.clear_kernel_launchers
+
+            # Build all array command structs for this command
+            command_translator.program_builder.add_array_command_struct(
+                *Translator::ArrayCommandStructBuilder.build_all_structs(array_command))
 
             result
         end
@@ -112,7 +137,25 @@ module Ikra
                 raise AssertionError.new("Singleton type expected")
             end
 
-            "new array_command_t<#{result_type.singleton_type.result_type.to_c_type}>()"
+            # Build arguments to constructor. First one (result field) is NULL.
+            constructor_args = ["NULL"]
+
+            # Translate all inputs (receiver, then arguments to parallel section)
+            constructor_args.push(receiver.accept(translator.expression_translator))
+
+            for arg in arguments
+                if arg.get_type.is_singleton? && 
+                    arg.get_type.singleton_type.is_a?(Symbolic::ArrayCommand)
+                    
+                    # Only ArrayCommands should show up as arguments
+                    constructor_args.push(arg.accept(translator.expression_translator))
+                end
+            end
+
+            all_args = constructor_args.join(", ")
+
+            # This is a hack because the type is a pointer type
+            "new #{result_type.singleton_type.to_c_type[0...-2]}(#{all_args})"
         end
 
         ALL_LOCATION_AWARE_ARRAY_TYPES = proc do |type|
@@ -123,6 +166,11 @@ module Ikra
             Types::LocationAwareFixedSizeArrayType.new(
                 rcvr_type.inner_type,
                 location: :host).to_union_type
+        end
+
+        LOCATION_AWARE_ARRAY_CALL_TYPE = proc do |rcvr_type, *args_types|
+            # Calling `__call__` on an array does not do anything
+            rcvr_type.to_union_type
         end
 
         COPY_ARRAY_TO_HOST = proc do |receiver, method_name, args, translator, result_type|
@@ -137,11 +185,22 @@ module Ikra
             end
         end
 
+        ARRAY_TYPE_TO_COMMAND_TYPE = proc do |rcvr_type, *args_types, send_node:|
+            rcvr_type.to_command.to_union_type
+        end
+
         # Implement all parallel operations
         implement(
             ALL_ARRAY_COMMAND_TYPES,
             :pmap,
             PMAP_TYPE,
+            0,
+            SYMBOLICALLY_EXECUTE_KERNEL)
+
+        implement(
+            ALL_LOCATION_AWARE_ARRAY_TYPES,
+            :to_command,
+            ARRAY_TYPE_TO_COMMAND_TYPE,
             0,
             SYMBOLICALLY_EXECUTE_KERNEL)
 
@@ -173,5 +232,12 @@ module Ikra
             LOCATION_AWARE_ARRAY_TO_HOST_ARRAY_TYPE,
             0,
             COPY_ARRAY_TO_HOST)
+
+        implement(
+            ALL_LOCATION_AWARE_ARRAY_TYPES,
+            :__call__,
+            LOCATION_AWARE_ARRAY_CALL_TYPE,
+            0,
+            "#0")
     end
 end
