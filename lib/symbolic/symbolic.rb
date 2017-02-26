@@ -594,6 +594,7 @@ module Ikra
                     if !offset.is_a?(Array)
                         raise ArgumentError.new("Array expected but #{offset.class} found")
                     end
+
                     if offset.size != dimensions.size
                         raise ArgumentError.new("#{dimensions.size} indices expected")
                     end

@@ -66,6 +66,8 @@ module Ikra
                 AST::Interpreter.interpret(node)
             end
 
+            SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
+            
             rcvr_type.pstencil(*ruby_args, ast: send_node.block_argument, generator_node: send_node).to_union_type
         end
 

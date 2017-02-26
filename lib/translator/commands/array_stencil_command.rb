@@ -142,7 +142,20 @@ module Ikra
                         offset[dim_index]
                     end.max
                     
-                    "temp_stencil_dim_#{dim_index} + #{min_in_dim} >= 0 && temp_stencil_dim_#{dim_index} + #{max_in_dim} < #{command.dimensions[dim_index]}"
+                    dim_size = command.dimensions[dim_index]
+
+                    if dim_size.is_a?(String)
+                        # This is not a compile-time constant. Pass dimension size as argument
+                        # to the kernel.
+
+                        dim_size_expr = "dim_size_#{dim_index}"
+                        kernel_builder.add_additional_parameters("int #{dim_size_expr}")
+                        kernel_launcher.add_additional_arguments(dim_size)
+                    else
+                        dim_size_expr = dim_size
+                    end
+
+                    "temp_stencil_dim_#{dim_index} + #{min_in_dim} >= 0 && temp_stencil_dim_#{dim_index} + #{max_in_dim} < #{dim_size_expr}"
                 end.join(" && ")
 
                 # `previous_result` should be an expression returning the array containing the
@@ -159,7 +172,14 @@ module Ikra
 
                     for dim_index in (num_dims - 1).downto(0)
                         global_index.push("(temp_stencil_dim_#{dim_index} + #{command.offsets[i][dim_index]}) * #{multiplier}")
-                        multiplier = multiplier * command.dimensions[dim_index]
+
+                        next_dim_size = command.dimensions[dim_index]
+
+                        if next_dim_size.is_a?(String)
+                            Log.warn("Cannot handle multi-dimensional stencil computations in host sections yet.")
+                        else
+                            multiplier = multiplier * next_dim_size
+                        end
                     end
 
                     arguments.push("#{previous_result}[#{global_index.join(" + ")}]")

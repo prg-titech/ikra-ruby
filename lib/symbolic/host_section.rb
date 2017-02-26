@@ -71,6 +71,9 @@ module Ikra
             end
 
             # TODO: Support multiple dimensions
+            def dimensions
+                return [size]
+            end
         end
 
         def self.host_section(*section_input, &block)
