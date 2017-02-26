@@ -34,7 +34,7 @@ module Ikra
 
                 # Number of elements that will be reduced
                 num_threads = command.input_size
-                odd = num_threads % 2 == 1
+                odd = (num_threads % 2 == 1).to_s
                 # Number of threads needed for reduction
                 num_threads = num_threads.fdiv(2).ceil
 
@@ -62,7 +62,7 @@ module Ikra
 
                     # Update number of threads needed
                     num_threads = num_threads.fdiv(block_size).ceil
-                    odd = num_threads % 2 == 1
+                    odd = (num_threads % 2 == 1).to_s
                     num_threads = num_threads.fdiv(2).ceil
                 end
 

@@ -67,8 +67,16 @@ module Ikra
             end
 
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
-            
+
             rcvr_type.pstencil(*ruby_args, ast: send_node.block_argument, generator_node: send_node).to_union_type
+        end
+
+        PREDUCE_TYPE = proc do |rcvr_type, *args_types, send_node:|
+            # TODO: Handle keyword arguments
+            
+            SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
+
+            rcvr_type.preduce(ast: send_node.block_argument, generator_node: send_node).to_union_type
         end
 
         LAUNCH_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
@@ -129,7 +137,7 @@ module Ikra
         end
 
         ARRAY_COMMAND_TO_ARRAY_TYPE = proc do |rcvr_type, *args_types, send_node:|
-            Types::LocationAwareFixedSizeArrayType.new(
+            Types::LocationAwareVariableSizeArrayType.new(
                 rcvr_type.result_type,
                 location: :device).to_union_type
         end
@@ -161,11 +169,11 @@ module Ikra
         end
 
         ALL_LOCATION_AWARE_ARRAY_TYPES = proc do |type|
-            type.is_a?(Types::LocationAwareFixedSizeArrayType)
+            type.is_a?(Types::LocationAwareVariableSizeArrayType)
         end
 
         LOCATION_AWARE_ARRAY_TO_HOST_ARRAY_TYPE = proc do |rcvr_type, *args_types|
-            Types::LocationAwareFixedSizeArrayType.new(
+            Types::LocationAwareVariableSizeArrayType.new(
                 rcvr_type.inner_type,
                 location: :host).to_union_type
         end
@@ -219,6 +227,13 @@ module Ikra
             :pstencil,
             PSTENCIL_TYPE,
             2,      # neighborhood and default value
+            SYMBOLICALLY_EXECUTE_KERNEL)
+
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :preduce,
+            PREDUCE_TYPE,
+            0,
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(

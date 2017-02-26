@@ -44,7 +44,7 @@ module Ikra
             end
         end
 
-        class LocationAwareFixedSizeArrayType < ArrayType
+        class LocationAwareVariableSizeArrayType < ArrayType
             class << self
                 def new(inner_type, location: :device)
                     if @cache == nil
@@ -67,7 +67,7 @@ module Ikra
             end
 
             def to_c_type
-                return "fixed_size_array_t"
+                return "variable_size_array_t"
             end
 
             def to_command

@@ -29,7 +29,7 @@ module Ikra
                     class UnionTypeValue < FFI::Union
                         # There are some values missing here, but we don't need them at the moment
                         layout :int_, :int32,
-                            :fixed_size_array, FixedSizeArrayStruct
+                            :variable_size_array, FixedSizeArrayStruct
                     end
 
                     class UnionTypeStruct < FFI::Struct
@@ -188,8 +188,8 @@ module Ikra
                                     "ArrayType expected, but #{array_type} found")
                             end
 
-                            result = result_t_struct[:result][:value][:fixed_size_array][:content]
-                            result_size = result_t_struct[:result][:value][:fixed_size_array][:size]
+                            result = result_t_struct[:result][:value][:variable_size_array][:content]
+                            result_size = result_t_struct[:result][:value][:variable_size_array][:size]
                         end
 
                         inner_type = array_type.inner_type

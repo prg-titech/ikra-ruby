@@ -20,7 +20,7 @@ module Ikra
     
         module ParallelOperations
             def preduce(symbol = nil, **options, &block)
-                if symbol == nil && block != nil
+                if symbol == nil && (block != nil || options[:ast] != nil)
                     return ArrayReduceCommand.new(
                         to_command, 
                         block, 

@@ -69,8 +69,8 @@ module Ikra
                 result_type = type_inference_visitor.process_block(block_def_node)
 
                 for singleton_type in result_type
-                    if !singleton_type.is_a?(Types::LocationAwareFixedSizeArrayType)
-                        raise AssertionError.new("Return value of host section must be an LocationAwareFixedSizeArrayType. Found a code path with #{singleton_type}.")
+                    if !singleton_type.is_a?(Types::LocationAwareVariableSizeArrayType)
+                        raise AssertionError.new("Return value of host section must be an LocationAwareVariableSizeArrayType. Found a code path with #{singleton_type}.")
                     end
                 end
 

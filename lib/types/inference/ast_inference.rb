@@ -187,6 +187,7 @@ module Ikra
             # This is used as an entry point for the visitor
             def process_block(block_def_node)
                 Log.info("Type inference: proceed into block(#{Types::UnionType.parameter_hash_to_s(block_def_node.parameters_names_and_types)})")
+
                 @work_stack.push(block_def_node)
                 body_ast = block_def_node.body
 
@@ -194,7 +195,7 @@ module Ikra
                 predefined_variables = []
 
                 # Add parameters to symbol table (name -> type)
-                block_def_node.parameters_names_and_types.each do |name, type|
+                block_def_node.parameters_names_and_types.each do |name, type|                
                     symbol_table.declare_variable(name, type: type)
                     predefined_variables.push(name)
                 end

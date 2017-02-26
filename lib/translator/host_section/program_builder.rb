@@ -12,7 +12,7 @@ module Ikra
                 # The type of the result (not an array type, just the inner type).
                 attr_accessor :result_type
 
-                # An expression that returns the final result, as an `fixed_size_array_t` object
+                # An expression that returns the final result, as an `variable_size_array_t` object
                 # pointing to an array in the host memory.
                 attr_accessor :host_result_expression
 

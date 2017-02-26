@@ -121,8 +121,8 @@ module Ikra
                     struct_def = struct_def + "    // #{command.class}\n"
                     
                     struct_def = struct_def + "    #{command.result_type.to_c_type} *result;\n"
-                    struct_def = struct_def + "    fixed_size_array_t input_0;\n"
-                    struct_def = struct_def + "    __host__ __device__ #{this_name}(#{command.result_type.to_c_type} *result = NULL, fixed_size_array_t input_0 = fixed_size_array_t::error_return_value) : result(result), input_0(input_0) { }\n"
+                    struct_def = struct_def + "    variable_size_array_t input_0;\n"
+                    struct_def = struct_def + "    __host__ __device__ #{this_name}(#{command.result_type.to_c_type} *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }\n"
 
                     # Add instance methods
                     struct_def = struct_def + "    int size() { return input_0.size; }\n"

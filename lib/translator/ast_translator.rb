@@ -160,9 +160,9 @@ module Ikra
                         elsif type.is_a?(Symbolic::ArrayCommand)
                             self_node = build_synthetic_code_node(
                                 "(#{type.to_c_type}) #{node_identifer}.value.pointer", type)
-                        elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
+                        elsif type.is_a?(Types::LocationAwareVariableSizeArrayType)
                             self_node = build_synthetic_code_node(
-                                "#{node_identifer}.value.fixed_size_array", type)
+                                "#{node_identifer}.value.variable_size_array", type)
                         else
                             self_node = build_synthetic_code_node(
                                 "#{node_identifer}.value.object_id", type)
@@ -494,8 +494,8 @@ module Ikra
                     return "union_t(#{type.class_id}, union_v_t::from_int(#{str}))"
                 elsif type.is_a?(Symbolic::ArrayCommand)
                     return "union_t(#{type.class_id}, union_v_t::from_pointer((void *) #{str}))"
-                elsif type.is_a?(Types::LocationAwareFixedSizeArrayType)
-                    return "union_t(#{type.class_id}, union_v_t::from_fixed_size_array_t(#{str}))"
+                elsif type.is_a?(Types::LocationAwareVariableSizeArrayType)
+                    return "union_t(#{type.class_id}, union_v_t::from_variable_size_array_t(#{str}))"
                 elsif !type.is_a?(Types::UnionType)
                     return "union_t(#{type.class_id}, union_v_t::from_object_id(#{str}))"
                 else

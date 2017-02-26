@@ -135,21 +135,21 @@ module Ikra
                             "Result variable name of final kernel launcher not set")
                     end
 
-                    # Build result values: `fixed_size_array_t` struct. This struct contains a
+                    # Build result values: `variable_size_array_t` struct. This struct contains a
                     # pointer to the result array and stores the size of the result.
-                    result_device_fixed_array_t = "fixed_size_array_t((void *) #{result_device_ptr}, #{result_size})"
+                    result_device_variable_array_t = "variable_size_array_t((void *) #{result_device_ptr}, #{result_size})"
 
                     return Translator.read_file(file_name: "memcpy_device_to_host_expr.cpp", replacements: {
                         "type" => result_c_type,
-                        "device_array" => result_device_fixed_array_t})
+                        "device_array" => result_device_variable_array_t})
                 end
 
                 # Returns the result type of this program. The result type must always be a
-                # union type that includes a[Types::LocationAwareFixedSizeArrayType] object, 
+                # union type that includes a [Types::LocationAwareVariableSizeArrayType] object, 
                 # because this way we can support return types where the inner type of an array
                 # is unknown at compile time.
                 def result_type
-                    return Types::LocationAwareFixedSizeArrayType.new(
+                    return Types::LocationAwareVariableSizeArrayType.new(
                         kernel_launchers.last.result_type,
                         location: :host).to_union_type
                 end
