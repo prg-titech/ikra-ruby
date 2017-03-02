@@ -12,23 +12,31 @@ module Ikra
                 def new(inner_type)
                     if @cache == nil
                         @cache = {}
-                        @cache.default_proc = Proc.new do |hash, key|
+                        @cache.default_proc = proc do |hash, key|
                             hash[key] = new_original(key)
                         end
                     end
 
-                    @cache[inner_type]
+                    return @cache[inner_type]
                 end
             end
 
             attr_reader :inner_type
             
+            def ==(other)
+                return other.class == self.class && other.inner_type == self.inner_type
+            end
+
             def initialize(inner_type)
                 if not inner_type.is_union_type?
                     raise AssertionError.new("Union type expected")
                 end
 
                 @inner_type = inner_type
+            end
+
+            def to_s
+                return "[#{self.class.to_s}, inner_type = #{inner_type}]"
             end
 
             def to_c_type
@@ -60,6 +68,10 @@ module Ikra
 
             # Determines if the array is allocated on the host or on the device
             attr_reader :location
+
+            def ==(other)
+                return super && self.location == other.location
+            end
 
             def initialize(inner_type, location)
                 @inner_type = inner_type

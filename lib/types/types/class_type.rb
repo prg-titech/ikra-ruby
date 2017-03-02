@@ -27,6 +27,10 @@ module Ikra
                 end
             end
 
+            def ==(other)
+                return other.class == self.class && other.cls == self.cls
+            end
+
             def initialize(cls)
                 @cls = cls
                 @inst_vars_read = Set.new

@@ -7,6 +7,14 @@ module Ikra
         module RubyType
             @@next_class_id = 10
 
+            def to_str
+                return to_s
+            end
+
+            def inspect
+                return to_s
+            end
+            
             def to_ruby_type
                 raise NotImplementedError
             end
@@ -43,6 +51,15 @@ module Ikra
                 end
 
                 @class_id
+            end
+
+            def eql?(other)
+                return self == other
+            end
+
+            def hash
+                # TODO: Implement
+                return 0
             end
         end
 

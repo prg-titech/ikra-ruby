@@ -16,8 +16,18 @@ module Ikra
             def_delegator :@types, :each
 
             # @return [Set<RubyType>] Inner types
-            attr_reader :types
+            attr_accessor :types
 
+            def ==(other)
+                return other.class == self.class && other.types == self.types
+            end
+
+            def dup
+                result = super
+                result.types = @types.dup
+                return result
+            end
+            
             def initialize(*types)
                 # Check arguments
                 types.each do |type|
@@ -190,7 +200,7 @@ module Ikra
             end
 
             def to_s
-                return "{#{@types.to_a.join(", ")}}"
+                return "U{#{@types.to_a.join(", ")}}"
             end
 
             class << self

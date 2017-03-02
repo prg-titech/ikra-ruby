@@ -11,16 +11,17 @@ module Ikra
         class TreeNode
             def get_type
                 @type ||= Types::UnionType.new
+                return @type.dup
             end
 
             def merge_union_type(union_type)
-                type = @type ||= Types::UnionType.new
+                @type ||= Types::UnionType.new
 
                 if not @type.include_all?(union_type)
                     register_type_change
                 end
 
-                return type.expand_return_type(union_type)
+                return @type.expand_return_type(union_type).dup
             end
 
             def symbol_table
@@ -86,7 +87,7 @@ module Ikra
                     register_type_change
                 end
                 
-                return type.expand_return_type(union_type)
+                return type.expand_return_type(union_type).dup
             end
 
             # Mapping: parameter name -> UnionType
@@ -206,9 +207,6 @@ module Ikra
                     symbol_table.ensure_variable_declared(name, type: type, kind: :lexical)
                     predefined_variables.push(name)
                 end
-
-                # Add return statements
-                body_ast.accept(Translator::LastStatementReturnsVisitor.new)
 
                 begin
                     # Infer types

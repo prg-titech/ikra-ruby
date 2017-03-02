@@ -26,6 +26,12 @@ module Ikra
                 @classes = classes
             end
 
+            def clone
+                return ProgramNode.new(
+                    blocks: @blocks.map do |b| b.clone end,
+                    classes: @classes.map do |c| c.clone end)
+            end
+
             def ==(other)
                 return super(other) && blocks == other.blocks && classes == other.classes
             end
@@ -55,6 +61,16 @@ module Ikra
                 @ruby_class = ruby_class
                 @instance_variables = instance_variables
                 @instance_methods = instance_methods
+            end
+
+            def clone
+                return ClassDefNode.new(
+                    name: @name,
+                    ruby_class: @ruby_class,
+                    instance_variables: @instance_variables.map do |i| i.clone end,
+                    instance_methods: @instance_methods.map do |i| i.clone end,
+                    class_variables: @class_variables.map do |c| c.clone end,
+                    class_methods: @class_methods.map do |c| c.clone end)
             end
 
             def add_instance_variable(inst_var)
@@ -103,6 +119,13 @@ module Ikra
                 @written = written
             end
 
+            def clone
+                return VarDefNode.new(
+                    name: @name,
+                    read: @read,
+                    written: @written)
+            end
+
             def ==(other)
                 return super(other) &&
                     name == other.name &&
@@ -130,6 +153,13 @@ module Ikra
                 body.parent = self
             end
 
+            def clone
+                return MethodDefNode.new(
+                    name: @name,
+                    body: @body.clone,
+                    ruby_method: @ruby_method)
+            end
+
             def binding
                 if ruby_method == nil 
                     return nil
@@ -154,6 +184,13 @@ module Ikra
                 @parameters = parameters
 
                 body.parent = self
+            end
+
+            def clone
+                return BlockDefNode.new(
+                    body: @body.clone,
+                    ruby_block: @ruby_block,
+                    parameters: @parameters == nil ? nil : @parameters.dup)
             end
 
             def binding
@@ -193,13 +230,21 @@ module Ikra
                 return parent.find_behavior_node
             end
 
+            TYPE_INFO_VARS = [:@return_type_by_recv_type, :@type]
+
             def ==(other)
-                if instance_variables != other.instance_variables
+                if self.class != other.class
+                    return false
+                end
+
+                # Ignore types
+                if (instance_variables - TYPE_INFO_VARS) != (other.instance_variables - TYPE_INFO_VARS)
+                    
                     return false
                 end
 
                 for var_name in instance_variables
-                    if var_name != :@parent
+                    if var_name != :@parent && !TYPE_INFO_VARS.include?(var_name)
                         # Avoid cycles via :parent... There could still be other cycles though
                         if instance_variable_get(var_name) != other.instance_variable_get(var_name)
                             return false
@@ -219,6 +264,10 @@ module Ikra
                 @single_child = single_child
                 single_child.parent = self
             end
+
+            def clone
+                return RootNode.new(single_child: @single_child.clone)
+            end
         end
 
         class ArrayNode < TreeNode
@@ -231,6 +280,11 @@ module Ikra
                     value.parent = self
                 end
             end
+
+            def clone
+                return ArrayNode.new(
+                    values: @values.map do |v| v.clone end)
+            end
         end
 
         # A synthetic AST node. Contains its string translation directly.
@@ -240,6 +294,10 @@ module Ikra
             def initialize(code:)
                 @code = code
             end
+
+            def clone
+                return SourceCodeExprNode.new(code: @code)
+            end
         end
 
         class HashNode < TreeNode
@@ -247,6 +305,11 @@ module Ikra
 
             def initialize(hash:)
                 @hash = hash
+            end
+
+            def clone
+                # TODO: Clone properly
+                return HashNode.new(hash: @hash.clone)
             end
         end
 
@@ -256,6 +319,10 @@ module Ikra
             def initialize(identifier:)
                 @identifier = identifier
             end
+
+            def clone
+                return ConstNode.new(identifier: @identifier)
+            end
         end
 
         class LVarReadNode < TreeNode
@@ -263,6 +330,10 @@ module Ikra
             
             def initialize(identifier:)
                 @identifier = identifier
+            end
+
+            def clone
+                return LVarReadNode.new(identifier: @identifier)
             end
         end
         
@@ -276,6 +347,12 @@ module Ikra
 
                 value.parent = self
             end
+
+            def clone
+                return LVarWriteNode.new(
+                    identifier: @identifier,
+                    value: @value.clone)
+            end
         end
         
         class IVarReadNode < TreeNode
@@ -283,6 +360,10 @@ module Ikra
 
             def initialize(identifier:)
                 @identifier = identifier
+            end
+
+            def clone
+                return IVarReadNode.new(identifier: @identifier)
             end
         end
 
@@ -292,6 +373,10 @@ module Ikra
             def initialize(value:)
                 @value = value
             end
+
+            def clone
+                return IntLiteralNode.new(value: @value)
+            end
         end
         
         class FloatLiteralNode < TreeNode
@@ -300,6 +385,10 @@ module Ikra
             def initialize(value:)
                 @value = value
             end
+
+            def clone
+                return FloatLiteralNode.new(value: @value)
+            end
         end
         
         class BoolLiteralNode < TreeNode
@@ -307,6 +396,10 @@ module Ikra
             
             def initialize(value:)
                 @value = value
+            end
+
+            def clone
+                return BoolLiteralNode.new(value: @value)
             end
         end
 
@@ -320,6 +413,10 @@ module Ikra
             def initialize(value:)
                 @value = value
             end
+
+            def clone
+                return SymbolLiteralNode.new(value: @value)
+            end
         end
 
         class StringLiteralNode < TreeNode
@@ -327,6 +424,10 @@ module Ikra
 
             def initialize(value:)
                 @value = value
+            end
+
+            def clone
+                return StringLiteralNode.new(value: @value)
             end
         end
 
@@ -346,6 +447,14 @@ module Ikra
                 range_to.parent = self
                 body_stmts.parent = self
             end
+
+            def clone
+                return ForNode.new(
+                    iterator_identifier: @iterator_identifier,
+                    range_from: @range_from.clone,
+                    range_to: @range_to.clone,
+                    body_stmts: @body_stmts.clone)
+            end
         end
         
         class WhileNode < TreeNode
@@ -358,6 +467,12 @@ module Ikra
 
                 condition.parent = self
                 body_stmts.parent = self
+            end
+
+            def clone
+                return WhileNode.new(
+                    condition: @condition.clone,
+                    body_stmts: @body_stmts.clone)
             end
         end
         
@@ -372,6 +487,12 @@ module Ikra
                 condition.parent = self
                 body_stmts.parent = self
             end
+
+            def clone
+                return WhilePostNode.new(
+                    condition: @condition.clone,
+                    body_stmts: @body_stmts.clone)
+            end
         end
         
         class UntilNode < TreeNode
@@ -385,6 +506,12 @@ module Ikra
                 condition.parent = self
                 body_stmts.parent = self
             end
+
+            def clone
+                return UntilNode.new(
+                    condition: @condition.clone,
+                    body_stmts: @body_stmts.clone)
+            end
         end
         
         class UntilPostNode < TreeNode
@@ -397,6 +524,12 @@ module Ikra
 
                 condition.parent = self
                 body_stmts.parent = self
+            end
+
+            def clone
+                return UntilPostNode.new(
+                    condition: @condition.clone,
+                    body_stmts: @body_stmts.clone)
             end
         end
 
@@ -428,6 +561,13 @@ module Ikra
                 true_body_stmts.parent = self 
                 false_body_stmts.parent = self
             end
+
+            def clone
+                return IfNode.new(
+                    condition: @condition.clone,
+                    true_body_stmts: @true_body_stmts.clone,
+                    false_body_stmts: @false_body_stmts.clone)
+            end
         end
         
         class TernaryNode < TreeNode
@@ -444,6 +584,13 @@ module Ikra
                 true_val.parent = self
                 false_val.parent = self
             end
+
+            def clone
+                return TernaryNode.new(
+                    condition: @condition.clone,
+                    true_val: @true_val.clone,
+                    false_val: @false_val.clone)
+            end
         end
         
         class BeginNode < TreeNode
@@ -455,6 +602,11 @@ module Ikra
                 body_stmts.each do |stmt|
                     stmt.parent = self
                 end
+            end
+
+            def clone
+                return BeginNode.new(
+                    body_stmts: @body_stmts.map do |s| s.clone end)
             end
 
             def add_statement(node)
@@ -496,6 +648,14 @@ module Ikra
                 end
             end
 
+            def clone
+                return SendNode.new(
+                    receiver: @receiver.clone,
+                    selector: @selector,
+                    arguments: @arguments.map do |a| a.clone end,
+                    block_argument: block_argument == nil ? nil : block_argument.clone)
+            end
+
             def replace_child(node, another_node)
                 if @receiver.equal?(node)
                     @receiver = another_node
@@ -525,6 +685,10 @@ module Ikra
                 @value = value
 
                 value.parent = self
+            end
+
+            def clone
+                return ReturnNode.new(value: value.clone)
             end
         end
     end

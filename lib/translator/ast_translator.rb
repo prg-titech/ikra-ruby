@@ -134,7 +134,7 @@ module Ikra
                 # Builds a synthetic [AST::SourceCodeExprNode] with a type and a translation.
                 def build_synthetic_code_node(code, type)
                     node = AST::SourceCodeExprNode.new(code: code)
-                    node.get_type.expand_return_type(type.to_union_type)
+                    node.merge_union_type(type.to_union_type)
                     return node
                 end
 
@@ -143,6 +143,10 @@ module Ikra
                     node_identifer = "_polytemp_expr_#{poly_id}"
                     header = "#{define_assign_variable(node_identifer, node)}\nswitch (#{node_identifer}.class_id)\n"
                     case_statements = []
+
+                    if node.get_type.size == 0
+                        raise AssertionError.new("Cannot generate switch for empty UnionType")
+                    end
 
                     for type in node.get_type
                         if type == Types::PrimitiveType::Int
@@ -168,7 +172,9 @@ module Ikra
                                 "#{node_identifer}.value.object_id", type)
                         end
 
-                        case_statements.push("case #{type.class_id}: #{yield(self_node)} break;")
+                        debug_info = "#{type.to_s} (#{type.to_ruby_type.to_s})"
+
+                        case_statements.push("case #{type.class_id}: /* #{debug_info} */ #{yield(self_node)} break;")
                     end
 
                     return header + wrap_in_c_block(case_statements.join("\n"))
@@ -203,8 +209,7 @@ module Ikra
                             type = self_node.get_type.singleton_type
 
                             # The return type (result type) in the current case (could be polym.)
-                            # TODO: Not sure why it does not work without `dup`????
-                            return_type = node.return_type_by_recv_type.dup[type]
+                            return_type = node.return_type_by_recv_type[type]
 
                             # Generate method invocation
                             invocation = generate_send_for_singleton(
@@ -245,6 +250,8 @@ module Ikra
                     if next_node.get_type.is_singleton?
                         # This node has a singleton type. We're done with this one.
                         return build_switch_for_args(nodes.drop(1), accumulator + [next_node], &block)
+                    elsif next_node.get_type.size == 0
+                        raise "AssertionError: Found empty UnionType"
                     else
                         return generate_polymorphic_switch(next_node) do |sing_node|
                             build_switch_for_args(nodes.drop(1), accumulator + [sing_node], &block)

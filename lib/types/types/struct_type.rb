@@ -39,6 +39,10 @@ module Ikra
                 end
             end
 
+            def ==(other)
+                return other.class == self.class && other.fields == self.fields
+            end
+
             def initialize(fields)
                 fields.each do |key, value|
                     if not value.is_union_type?

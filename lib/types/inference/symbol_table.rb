@@ -21,7 +21,7 @@ module Ikra
                 attr_accessor :written
                 
                 def initialize(type: Types::UnionType.new, kind: :local)
-                    @type = type
+                    @type = type.dup
                     @kind = kind
                     @read = false
                     @written = false

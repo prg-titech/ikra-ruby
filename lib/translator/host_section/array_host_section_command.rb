@@ -127,7 +127,7 @@ module Ikra
                 # the return value (array) cannot be determined uniquely at compile time.
                 host_section_invocation = AST::SourceCodeExprNode.new(
                     code: "#{mangled_name}(#{args.join(", ")})")
-                host_section_invocation.get_type.expand(result_type)
+                host_section_invocation.merge_union_type(result_type)
                 device_to_host_transfer_node = AST::SendNode.new(
                     receiver: host_section_invocation,
                     selector: :__to_host_array__)
