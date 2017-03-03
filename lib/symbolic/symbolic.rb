@@ -389,12 +389,16 @@ module Ikra
             end
 
             def with_index(&block)
-                @block = block
+                self.block = block
                 @input.push(SingleInput.new(
                     command: ArrayIndexCommand.new(dimensions: dimensions),
                     pattern: :tid))
                 return self
             end
+
+            protected
+
+            attr_writer :block
         end
 
         class ArrayIndexCommand
@@ -694,16 +698,18 @@ module Ikra
                 @offsets = offsets
 
                 # Translate relative indices to 1D-indicies starting by 0
-                if use_parameter_array
-                    offsets_mapped = Hash.new
-                    for i in 0..offsets.size-1
-                        offsets_mapped[offsets[i]] = i
-                    end
+                if block_def_node != nil
+                    if use_parameter_array
+                        offsets_mapped = Hash.new
+                        for i in 0..offsets.size-1
+                            offsets_mapped[offsets[i]] = i
+                        end
 
-                    # Do not modify the original AST
-                    @ast = block_def_node.clone
-                    @ast.accept(FlattenIndexNodeVisitor.new(
-                        block_parameter_names.first, offsets_mapped, self))
+                        # Do not modify the original AST
+                        @ast = block_def_node.clone
+                        @ast.accept(FlattenIndexNodeVisitor.new(
+                            block_parameter_names.first, offsets_mapped, self))
+                    end
                 end
             end
 
@@ -723,6 +729,24 @@ module Ikra
 
             def max_offset
                 return offsets.max
+            end
+
+            protected
+
+            def block=(block)
+                super
+
+                if use_parameter_array
+                    offsets_mapped = Hash.new
+                    for i in 0..offsets.size-1
+                        offsets_mapped[offsets[i]] = i
+                    end
+
+                    # Do not modify the original AST
+                    @ast = block_def_node.clone
+                    @ast.accept(FlattenIndexNodeVisitor.new(
+                        block_parameter_names.first, offsets_mapped, self))
+                end
             end
         end
 
