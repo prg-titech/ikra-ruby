@@ -442,4 +442,44 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(result.reduce(:+) , section_result.reduce(:+))
     end
+
+    def test_iterative_stencil_update_with_reduce_criteria
+        array_gpu = Array.pnew(902) do |j|
+            j % 2
+        end
+
+        array_cpu = Array.new(902) do |j|
+            j % 2
+        end
+
+        # GPU calculation
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input
+
+            while (a.preduce do |a, b| a + b end).__call__.__to_host_array__[0] < 10000
+                a = a.pstencil([-1, 0, 1], 1) do |values|
+                    (values[-1] - values[0] - values[1] + 7)
+                end
+            end
+
+            a
+        end
+
+        # CPU calculation
+        num_iter = 0    # Count iterations
+        result = begin
+            a = array_cpu
+
+            while (a.reduce do |a, b| a + b end) < 10000
+                num_iter = num_iter + 1
+                a = a.stencil([-1, 0, 1], 1, use_parameter_array: false) do |p0, p1, p2|
+                    (p0 - p1 - p2 + 7)
+                end
+            end
+
+            a
+        end
+
+        assert_equal(result.reduce(:+) , section_result.reduce(:+))
+    end
 end

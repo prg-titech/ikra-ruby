@@ -53,18 +53,18 @@ result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(e
 /* ----- END Macros ----- */
 
 /* ----- BEGIN Structs ----- */
-struct fixed_size_array_t {
+struct variable_size_array_t {
     void *content;
     int size;
 
-    fixed_size_array_t(void *content_ = NULL, int size_ = 0) : content(content_), size(size_) { }; 
+    variable_size_array_t(void *content_ = NULL, int size_ = 0) : content(content_), size(size_) { }; 
 
-    static const fixed_size_array_t error_return_value;
+    static const variable_size_array_t error_return_value;
 };
 
 // error_return_value is used in case a host section terminates abnormally
-const fixed_size_array_t fixed_size_array_t::error_return_value = 
-    fixed_size_array_t(NULL, 0);
+const variable_size_array_t variable_size_array_t::error_return_value = 
+    variable_size_array_t(NULL, 0);
 
 /* ----- BEGIN Union Type ----- */
 typedef union union_type_value {
@@ -73,13 +73,13 @@ typedef union union_type_value {
     float float_;
     bool bool_;
     void *pointer;
-    fixed_size_array_t fixed_size_array;
+    variable_size_array_t variable_size_array;
 
     __host__ __device__ union_type_value(int value) : int_(value) { };
     __host__ __device__ union_type_value(float value) : float_(value) { };
     __host__ __device__ union_type_value(bool value) : bool_(value) { };
     __host__ __device__ union_type_value(void *value) : pointer(value) { };
-    __host__ __device__ union_type_value(fixed_size_array_t value) : fixed_size_array(value) { };
+    __host__ __device__ union_type_value(variable_size_array_t value) : variable_size_array(value) { };
 
     __host__ __device__ static union_type_value from_object_id(obj_id_t value)
     {
@@ -106,7 +106,7 @@ typedef union union_type_value {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_fixed_size_array_t(fixed_size_array_t value)
+    __host__ __device__ static union_type_value from_variable_size_array_t(variable_size_array_t value)
     {
         return union_type_value(value);
     }
@@ -129,7 +129,7 @@ const union_type_struct union_t::error_return_value = union_type_struct(0, union
 /* ----- END Union Type ----- */
 
 typedef struct result_t {
-    fixed_size_array_t result;
+    variable_size_array_t result;
     int last_error;
 
     uint64_t time_setup_cuda;
@@ -164,7 +164,7 @@ __device__ int _block_k_2_(environment_t *_env_, int value)
 #endif
 
 
-__global__ void kernel_20(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_197(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -227,10 +227,10 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
     timeStartMeasure();
-        int * _kernel_result_21;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_21, (sizeof(int) * 10000)));
-    program_result->device_allocations->push_back(_kernel_result_21);
-    kernel_20<<<40, 256>>>(dev_env, 10000, _kernel_result_21);
+        int * _kernel_result_198;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_198, (sizeof(int) * 10000)));
+    program_result->device_allocations->push_back(_kernel_result_198);
+    kernel_197<<<40, 256>>>(dev_env, 10000, _kernel_result_198);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
 
@@ -239,15 +239,15 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Copy over result to the host */
     program_result->result = ({
-    fixed_size_array_t device_array = fixed_size_array_t((void *) _kernel_result_21, 10000);
+    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_198, 10000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
     checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
-    fixed_size_array_t((void *) tmp_result, device_array.size);
+    variable_size_array_t((void *) tmp_result, device_array.size);
 });
 
     /* Free device memory */
     timeStartMeasure();
-        checkErrorReturn(program_result, cudaFree(_kernel_result_21));
+        checkErrorReturn(program_result, cudaFree(_kernel_result_198));
 
     timeReportMeasure(program_result, free_memory);
 

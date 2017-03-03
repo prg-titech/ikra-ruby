@@ -53,18 +53,18 @@ result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(e
 /* ----- END Macros ----- */
 
 /* ----- BEGIN Structs ----- */
-struct fixed_size_array_t {
+struct variable_size_array_t {
     void *content;
     int size;
 
-    fixed_size_array_t(void *content_ = NULL, int size_ = 0) : content(content_), size(size_) { }; 
+    variable_size_array_t(void *content_ = NULL, int size_ = 0) : content(content_), size(size_) { }; 
 
-    static const fixed_size_array_t error_return_value;
+    static const variable_size_array_t error_return_value;
 };
 
 // error_return_value is used in case a host section terminates abnormally
-const fixed_size_array_t fixed_size_array_t::error_return_value = 
-    fixed_size_array_t(NULL, 0);
+const variable_size_array_t variable_size_array_t::error_return_value = 
+    variable_size_array_t(NULL, 0);
 
 /* ----- BEGIN Union Type ----- */
 typedef union union_type_value {
@@ -73,13 +73,13 @@ typedef union union_type_value {
     float float_;
     bool bool_;
     void *pointer;
-    fixed_size_array_t fixed_size_array;
+    variable_size_array_t variable_size_array;
 
     __host__ __device__ union_type_value(int value) : int_(value) { };
     __host__ __device__ union_type_value(float value) : float_(value) { };
     __host__ __device__ union_type_value(bool value) : bool_(value) { };
     __host__ __device__ union_type_value(void *value) : pointer(value) { };
-    __host__ __device__ union_type_value(fixed_size_array_t value) : fixed_size_array(value) { };
+    __host__ __device__ union_type_value(variable_size_array_t value) : variable_size_array(value) { };
 
     __host__ __device__ static union_type_value from_object_id(obj_id_t value)
     {
@@ -106,7 +106,7 @@ typedef union union_type_value {
         return union_type_value(value);
     }
 
-    __host__ __device__ static union_type_value from_fixed_size_array_t(fixed_size_array_t value)
+    __host__ __device__ static union_type_value from_variable_size_array_t(variable_size_array_t value)
     {
         return union_type_value(value);
     }
@@ -129,7 +129,7 @@ const union_type_struct union_t::error_return_value = union_type_struct(0, union
 /* ----- END Union Type ----- */
 
 typedef struct result_t {
-    union_t result;
+    variable_size_array_t result;
     int last_error;
 
     uint64_t time_setup_cuda;
@@ -153,11 +153,17 @@ struct array_command_2 {
     array_command_1 *input_0;
     __host__ __device__ array_command_2(int *result = NULL, array_command_1 *input_0 = NULL) : result(result), input_0(input_0) { }
 };
+struct array_command_3 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_2 *input_0;
+    __host__ __device__ array_command_3(int *result = NULL, array_command_2 *input_0 = NULL) : result(result), input_0(input_0) { }
+};
 struct array_command_5 {
     // Ikra::Symbolic::ArrayInHostSectionCommand
     int *result;
-    fixed_size_array_t input_0;
-    __host__ __device__ array_command_5(int *result = NULL, fixed_size_array_t input_0 = fixed_size_array_t::error_return_value) : result(result), input_0(input_0) { }
+    variable_size_array_t input_0;
+    __host__ __device__ array_command_5(int *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }
     int size() { return input_0.size; }
 };
 struct array_command_6 {
@@ -200,6 +206,53 @@ __global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_)
 
 
 
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_3_ is already defined
+#ifndef _block_k_3__func
+#define _block_k_3__func
+__device__ int _block_k_3_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
+    }
+}
+
+
+
 // TODO: There should be a better to check if _block_k_6_ is already defined
 #ifndef _block_k_6__func
 #define _block_k_6__func
@@ -215,7 +268,7 @@ __device__ int _block_k_6_(environment_t *_env_, int k)
 #endif
 
 
-__global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_, int *_array_9_)
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_, int *_array_11_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -223,7 +276,7 @@ __global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_,
     {
 
         
-        _result_[_tid_] = _block_k_6_(_env_, _array_9_[_tid_]);
+        _result_[_tid_] = _block_k_6_(_env_, _array_11_[_tid_]);
     }
 }
 
@@ -244,7 +297,7 @@ __device__ int _block_k_2_(environment_t *_env_, int j)
 #endif
 
 
-__global__ void kernel_10(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_12(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -253,6 +306,53 @@ __global__ void kernel_10(environment_t *_env_, int _num_threads_, int *_result_
 
         
         _result_[_tid_] = _block_k_2_(_env_, _tid_);
+    }
+}
+
+
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_3_ is already defined
+#ifndef _block_k_3__func
+#define _block_k_3__func
+__device__ int _block_k_3_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
     }
 }
 
@@ -273,7 +373,7 @@ __device__ int _block_k_6_(environment_t *_env_, int k)
 #endif
 
 
-__global__ void kernel_12(environment_t *_env_, int _num_threads_, int *_result_, int *_array_14_)
+__global__ void kernel_16(environment_t *_env_, int _num_threads_, int *_result_, int *_array_18_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -281,7 +381,7 @@ __global__ void kernel_12(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_6_(_env_, _array_14_[_tid_]);
+        _result_[_tid_] = _block_k_6_(_env_, _array_18_[_tid_]);
     }
 }
 
@@ -302,7 +402,7 @@ __device__ int _block_k_2_(environment_t *_env_, int j)
 #endif
 
 
-__global__ void kernel_15(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_19(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -311,6 +411,53 @@ __global__ void kernel_15(environment_t *_env_, int _num_threads_, int *_result_
 
         
         _result_[_tid_] = _block_k_2_(_env_, _tid_);
+    }
+}
+
+
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_3_ is already defined
+#ifndef _block_k_3__func
+#define _block_k_3__func
+__device__ int _block_k_3_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_21(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
     }
 }
 
@@ -331,7 +478,7 @@ __device__ int _block_k_6_(environment_t *_env_, int k)
 #endif
 
 
-__global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_, int *_array_19_)
+__global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_, int *_array_25_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -339,7 +486,217 @@ __global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_6_(_env_, _array_19_[_tid_]);
+        _result_[_tid_] = _block_k_6_(_env_, _array_25_[_tid_]);
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_26(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_2_(_env_, _tid_);
+    }
+}
+
+
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_3_ is already defined
+#ifndef _block_k_3__func
+#define _block_k_3__func
+__device__ int _block_k_3_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_28(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_6_ is already defined
+#ifndef _block_k_6__func
+#define _block_k_6__func
+__device__ int _block_k_6_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_30(environment_t *_env_, int _num_threads_, int *_result_, int *_array_32_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_6_(_env_, _array_32_[_tid_]);
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_33(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_2_(_env_, _tid_);
+    }
+}
+
+
+
+
+
+// TODO: There should be a better to check if _block_k_2_ is already defined
+#ifndef _block_k_2__func
+#define _block_k_2__func
+__device__ int _block_k_2_(environment_t *_env_, int j)
+{
+    
+    
+    {
+        return (j + 1);
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_3_ is already defined
+#ifndef _block_k_3__func
+#define _block_k_3__func
+__device__ int _block_k_3_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_35(environment_t *_env_, int _num_threads_, int *_result_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_3_(_env_, _block_k_2_(_env_, _tid_));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_6_ is already defined
+#ifndef _block_k_6__func
+#define _block_k_6__func
+__device__ int _block_k_6_(environment_t *_env_, int k)
+{
+    
+    
+    {
+        return (k + 1);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_37(environment_t *_env_, int _num_threads_, int *_result_, int *_array_39_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_6_(_env_, _array_39_[_tid_]);
     }
 }
 
@@ -351,125 +708,152 @@ if (result_var->last_error = expr) \
     cudaError_t error = cudaGetLastError();\
     printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
     cudaDeviceReset();\
-    return union_t::error_return_value;\
+    return variable_size_array_t::error_return_value;\
 }
 
-union_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
+variable_size_array_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
 {
     array_command_2 * input = new array_command_2();
     int i;
-    array_command_6 * _ssa_var_a_2;
+    union_t _ssa_var_a_2;
     union_t _ssa_var_a_1;
     {
         _ssa_var_a_1 = union_t(10, union_v_t::from_pointer((void *) input));
         for (i = 1; i <= (100000 - 1); i++)
         {
-            _ssa_var_a_2 = new array_command_6(NULL, ({
-                array_command_5 * _polytemp_result_1;
+            _ssa_var_a_2 = union_t(12, union_v_t::from_pointer((void *) new array_command_6(NULL, new array_command_5(NULL, ({
+                variable_size_array_t _polytemp_result_1;
                 {
-                    union_t _polytemp_expr_2 = ({
-                        union_t _polytemp_result_3;
-                        {
-                            union_t _polytemp_expr_4 = _ssa_var_a_1;
-                            switch (_polytemp_expr_4.class_id)
-                            {
-                                case 10: _polytemp_result_3 = union_t(11, union_v_t::from_fixed_size_array_t(({
-                                    // #<Ikra::Symbolic::ArrayCombineCommand:0x000000006905a0>
-                                
-                                    array_command_2 * cmd = (array_command_2 *) _polytemp_expr_4.value.pointer;
-                                
-                                    if (cmd->result == 0) {
-                                            int * _kernel_result_6;
-                                    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 511)));
-                                    program_result->device_allocations->push_back(_kernel_result_6);
-                                    kernel_5<<<2, 256>>>(dev_env, 511, _kernel_result_6);
-                                    checkErrorReturn(program_result, cudaPeekAtLastError());
-                                    checkErrorReturn(program_result, cudaThreadSynchronize());
-                                
-                                
-                                        cmd->result = _kernel_result_6;
-                                    }
-                                
-                                    fixed_size_array_t((void *) cmd->result, 511);
-                                }))); break;
-                                case 12: _polytemp_result_3 = union_t(13, union_v_t::from_fixed_size_array_t(({
-                                    // #<Ikra::Symbolic::ArrayCombineCommand:0x00000000e9a390>: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
-                                
-                                    array_command_6 * cmd = (array_command_6 *) _polytemp_expr_4.value.pointer;
-                                
-                                    if (cmd->result == 0) {
-                                            int * _kernel_result_8;
-                                    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (sizeof(int) * cmd->input_0->size())));
-                                    program_result->device_allocations->push_back(_kernel_result_8);
-                                    kernel_7<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_8, ((int *) cmd->input_0->input_0.content));
-                                    checkErrorReturn(program_result, cudaPeekAtLastError());
-                                    checkErrorReturn(program_result, cudaThreadSynchronize());
-                                
-                                
-                                        cmd->result = _kernel_result_8;
-                                    }
-                                
-                                    fixed_size_array_t((void *) cmd->result, cmd->size());
-                                }))); break;
-                            }
-                        }
-                        _polytemp_result_3;
-                    });
+                    union_t _polytemp_expr_2 = _ssa_var_a_1;
                     switch (_polytemp_expr_2.class_id)
                     {
-                        case 11: _polytemp_result_1 = new array_command_5(NULL, _polytemp_expr_2.value.fixed_size_array); break;
-                        case 13: _polytemp_result_1 = new array_command_5(NULL, _polytemp_expr_2.value.fixed_size_array); break;
+                        case 10: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                            // [Ikra::Symbolic::ArrayCombineCommand, size = 511]
+                        
+                            array_command_2 * cmd = (array_command_2 *) _polytemp_expr_2.value.pointer;
+                        
+                            if (cmd->result == 0) {
+                                    int * _kernel_result_6;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 511)));
+                            program_result->device_allocations->push_back(_kernel_result_6);
+                            kernel_5<<<2, 256>>>(dev_env, 511, _kernel_result_6);
+                            checkErrorReturn(program_result, cudaPeekAtLastError());
+                            checkErrorReturn(program_result, cudaThreadSynchronize());
+                        
+                        
+                                cmd->result = _kernel_result_6;
+                            }
+                        
+                            variable_size_array_t((void *) cmd->result, 511);
+                        }); break;
+                        case 11: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                            // [Ikra::Symbolic::ArrayCombineCommand, size = 511]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                        
+                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_2.value.pointer;
+                        
+                            if (cmd->result == 0) {
+                                    int * _kernel_result_8;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (sizeof(int) * 511)));
+                            program_result->device_allocations->push_back(_kernel_result_8);
+                            kernel_7<<<2, 256>>>(dev_env, 511, _kernel_result_8);
+                            checkErrorReturn(program_result, cudaPeekAtLastError());
+                            checkErrorReturn(program_result, cudaThreadSynchronize());
+                        
+                        
+                                cmd->result = _kernel_result_8;
+                            }
+                        
+                            variable_size_array_t((void *) cmd->result, 511);
+                        }); break;
+                        case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                            // [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                        
+                            array_command_6 * cmd = (array_command_6 *) _polytemp_expr_2.value.pointer;
+                        
+                            if (cmd->result == 0) {
+                                    int * _kernel_result_10;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * cmd->input_0->size())));
+                            program_result->device_allocations->push_back(_kernel_result_10);
+                            kernel_9<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_10, ((int *) cmd->input_0->input_0.content));
+                            checkErrorReturn(program_result, cudaPeekAtLastError());
+                            checkErrorReturn(program_result, cudaThreadSynchronize());
+                        
+                        
+                                cmd->result = _kernel_result_10;
+                            }
+                        
+                            variable_size_array_t((void *) cmd->result, cmd->size());
+                        }); break;
                     }
                 }
                 _polytemp_result_1;
-            }));
-            _ssa_var_a_1 = union_t(12, union_v_t::from_pointer((void *) _ssa_var_a_2));
+            })))));
+            _ssa_var_a_1 = _ssa_var_a_2;
         }
         i--;
         return ({
-            union_t _polytemp_result_9;
+            variable_size_array_t _polytemp_result_9;
             {
                 union_t _polytemp_expr_10 = _ssa_var_a_1;
                 switch (_polytemp_expr_10.class_id)
                 {
-                    case 10: _polytemp_result_9 = union_t(11, union_v_t::from_fixed_size_array_t(({
-                        // #<Ikra::Symbolic::ArrayCombineCommand:0x000000006905a0>
+                    case 10: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
+                        // [Ikra::Symbolic::ArrayCombineCommand, size = 511]
                     
                         array_command_2 * cmd = (array_command_2 *) _polytemp_expr_10.value.pointer;
                     
                         if (cmd->result == 0) {
-                                int * _kernel_result_16;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_16, (sizeof(int) * 511)));
-                        program_result->device_allocations->push_back(_kernel_result_16);
-                        kernel_15<<<2, 256>>>(dev_env, 511, _kernel_result_16);
+                                int * _kernel_result_34;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_34, (sizeof(int) * 511)));
+                        program_result->device_allocations->push_back(_kernel_result_34);
+                        kernel_33<<<2, 256>>>(dev_env, 511, _kernel_result_34);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                     
                     
-                            cmd->result = _kernel_result_16;
+                            cmd->result = _kernel_result_34;
                         }
                     
-                        fixed_size_array_t((void *) cmd->result, 511);
-                    }))); break;
-                    case 12: _polytemp_result_9 = union_t(13, union_v_t::from_fixed_size_array_t(({
-                        // #<Ikra::Symbolic::ArrayCombineCommand:0x00000000e9a390>: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                        variable_size_array_t((void *) cmd->result, 511);
+                    }); break;
+                    case 11: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
+                        // [Ikra::Symbolic::ArrayCombineCommand, size = 511]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                    
+                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_10.value.pointer;
+                    
+                        if (cmd->result == 0) {
+                                int * _kernel_result_36;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_36, (sizeof(int) * 511)));
+                        program_result->device_allocations->push_back(_kernel_result_36);
+                        kernel_35<<<2, 256>>>(dev_env, 511, _kernel_result_36);
+                        checkErrorReturn(program_result, cudaPeekAtLastError());
+                        checkErrorReturn(program_result, cudaThreadSynchronize());
+                    
+                    
+                            cmd->result = _kernel_result_36;
+                        }
+                    
+                        variable_size_array_t((void *) cmd->result, 511);
+                    }); break;
+                    case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
+                        // [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
                     
                         array_command_6 * cmd = (array_command_6 *) _polytemp_expr_10.value.pointer;
                     
                         if (cmd->result == 0) {
-                                int * _kernel_result_18;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_18, (sizeof(int) * cmd->input_0->size())));
-                        program_result->device_allocations->push_back(_kernel_result_18);
-                        kernel_17<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_18, ((int *) cmd->input_0->input_0.content));
+                                int * _kernel_result_38;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_38, (sizeof(int) * cmd->input_0->size())));
+                        program_result->device_allocations->push_back(_kernel_result_38);
+                        kernel_37<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_38, ((int *) cmd->input_0->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                     
                     
-                            cmd->result = _kernel_result_18;
+                            cmd->result = _kernel_result_38;
                         }
                     
-                        fixed_size_array_t((void *) cmd->result, cmd->size());
-                    }))); break;
+                        variable_size_array_t((void *) cmd->result, cmd->size());
+                    }); break;
                 }
             }
             _polytemp_result_9;
@@ -524,26 +908,10 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Copy back memory and set pointer of result */
     program_result->result = ({
-    union_t _polytemp_result_11;
-    {
-        union_t _polytemp_expr_12 = _host_section__(host_env, dev_env, program_result);
-        switch (_polytemp_expr_12.class_id)
-        {
-            case 11: _polytemp_result_11 = union_t(14, union_v_t::from_fixed_size_array_t(({
-                fixed_size_array_t device_array = _polytemp_expr_12.value.fixed_size_array;
-                int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
-                checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
-                fixed_size_array_t((void *) tmp_result, device_array.size);
-            }))); break;
-            case 13: _polytemp_result_11 = union_t(15, union_v_t::from_fixed_size_array_t(({
-                fixed_size_array_t device_array = _polytemp_expr_12.value.fixed_size_array;
-                int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
-                checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
-                fixed_size_array_t((void *) tmp_result, device_array.size);
-            }))); break;
-        }
-    }
-    _polytemp_result_11;
+    variable_size_array_t device_array = _host_section__(host_env, dev_env, program_result);
+    int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
+    checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
+    variable_size_array_t((void *) tmp_result, device_array.size);
 });
 
     /* Free device memory */
