@@ -43,7 +43,9 @@ module Ikra
                             :time_setup_cuda, :uint64,
                             :time_prepare_env, :uint64,
                             :time_kernel, :uint64,
-                            :time_free_memory, :uint64
+                            :time_free_memory, :uint64,
+                            :time_transfer_memory, :uint64,
+                            :time_allocate_memory, :uint64
                     end
 
                     class KernelResultStruct < FFI::Struct
@@ -52,7 +54,9 @@ module Ikra
                             :time_setup_cuda, :uint64,
                             :time_prepare_env, :uint64,
                             :time_kernel, :uint64,
-                            :time_free_memory, :uint64
+                            :time_free_memory, :uint64,
+                            :time_transfer_memory, :uint64,
+                            :time_allocate_memory, :uint64
                     end
 
                     attr_reader :root_command
@@ -65,6 +69,8 @@ module Ikra
                         attr_accessor :last_time_prepare_env
                         attr_accessor :last_time_kernel
                         attr_accessor :last_time_free_memory
+                        attr_accessor :last_time_transfer_memory
+                        attr_accessor :last_time_allocate_memory
                         attr_accessor :last_time_total_external
                         attr_accessor :last_time_compiler
                         attr_accessor :last_time_read_result_ffi
@@ -153,6 +159,8 @@ module Ikra
                         self.class.last_time_prepare_env = result_t_struct[:time_prepare_env] * 0.000001
                         self.class.last_time_kernel = result_t_struct[:time_kernel] * 0.000001
                         self.class.last_time_free_memory = result_t_struct[:time_free_memory] * 0.000001
+                        self.class.last_time_transfer_memory = result_t_struct[:time_transfer_memory] * 0.000001
+                        self.class.last_time_allocate_memory = result_t_struct[:time_allocate_memory] * 0.000001
                         self.class.last_time_total_external = total_time_external
 
                         if error_code != 0

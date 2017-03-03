@@ -10,12 +10,8 @@ if (result_var->last_error = expr) \
 
 extern "C" EXPORT result_t *launch_kernel(environment_t */*{host_env_var_name}*/)
 {
-    // Variables for measuring time
-    chrono::high_resolution_clock::time_point start_time;
-    chrono::high_resolution_clock::time_point end_time;
-
     // CUDA Initialization
-    result_t *program_result = (result_t *) malloc(sizeof(result_t));
+    program_result = new result_t();
     program_result->device_allocations = new vector<void*>();
 
     timeStartMeasure();
@@ -34,9 +30,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t */*{host_env_var_name}*/
 
 
     /* Prepare environment */
-    timeStartMeasure();
     /*{prepare_environment}*/
-    timeReportMeasure(program_result, prepare_env);
 
 
     /* Copy back memory and set pointer of result */

@@ -82,6 +82,8 @@ typedef struct result_t {
     uint64_t time_prepare_env;
     uint64_t time_kernel;
     uint64_t time_free_memory;
+    uint64_t time_transfer_memory;
+    uint64_t time_allocate_memory;
 
     // Memory management
     vector<void*> *device_allocations;

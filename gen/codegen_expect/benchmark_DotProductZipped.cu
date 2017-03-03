@@ -43,13 +43,19 @@ typedef struct environment_struct environment_t;
 typedef struct result_t result_t;
 /* ----- END Forward declarations ----- */
 
+// Define program result variable. Also contains benchmark numbers.
+result_t *program_result;
+
+// Variables for measuring time
+chrono::high_resolution_clock::time_point start_time;
+chrono::high_resolution_clock::time_point end_time;
 
 /* ----- BEGIN Macros ----- */
 #define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
 
 #define timeReportMeasure(result_var, variable_name) \
 end_time = chrono::high_resolution_clock::now(); \
-result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+result_var->time_##variable_name = result_var->time_##variable_name + chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
 /* ----- END Macros ----- */
 struct indexed_struct_2_lt_int_int_gt_t
 {
@@ -141,6 +147,8 @@ typedef struct result_t {
     uint64_t time_prepare_env;
     uint64_t time_kernel;
     uint64_t time_free_memory;
+    uint64_t time_transfer_memory;
+    uint64_t time_allocate_memory;
 
     // Memory management
     vector<void*> *device_allocations;
@@ -228,12 +236,8 @@ if (result_var->last_error = expr) \
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
-    // Variables for measuring time
-    chrono::high_resolution_clock::time_point start_time;
-    chrono::high_resolution_clock::time_point end_time;
-
     // CUDA Initialization
-    result_t *program_result = (result_t *) malloc(sizeof(result_t));
+    program_result = new result_t();
     program_result->device_allocations = new vector<void*>();
 
     timeStartMeasure();
@@ -252,39 +256,47 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Prepare environment */
-    timeStartMeasure();
         /* Allocate device environment and copy over struct */
     environment_t *dev_env;
-    checkErrorReturn(program_result, cudaMalloc(&dev_env, sizeof(environment_t)));
-    checkErrorReturn(program_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
 
-    timeReportMeasure(program_result, prepare_env);
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc(&dev_env, sizeof(environment_t)));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(dev_env, host_env, sizeof(environment_t), cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+    
 
     /* Launch all kernels */
-    timeStartMeasure();
-        int * _kernel_result_4;
+        timeStartMeasure();
+    int * _kernel_result_4;
     checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (sizeof(int) * 30000000)));
     program_result->device_allocations->push_back(_kernel_result_4);
+    timeReportMeasure(program_result, allocate_memory);
+    timeStartMeasure();
     kernel_3<<<29297, 1024>>>(dev_env, 30000000, _kernel_result_4);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
-
-
     timeReportMeasure(program_result, kernel);
 
     /* Copy over result to the host */
     program_result->result = ({
     variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_4, 30000000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
+
+    timeStartMeasure();
     checkErrorReturn(program_result, cudaMemcpy(tmp_result, device_array.content, sizeof(int) * device_array.size, cudaMemcpyDeviceToHost));
+    timeReportMeasure(program_result, transfer_memory);
+
     variable_size_array_t((void *) tmp_result, device_array.size);
 });
 
     /* Free device memory */
-    timeStartMeasure();
-        checkErrorReturn(program_result, cudaFree(_kernel_result_4));
-
+        timeStartMeasure();
+    checkErrorReturn(program_result, cudaFree(_kernel_result_4));
     timeReportMeasure(program_result, free_memory);
+
 
     delete program_result->device_allocations;
     

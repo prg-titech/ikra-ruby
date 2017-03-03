@@ -35,7 +35,7 @@ Benchmark:                         #{self.class.to_s}"""
         end_entire = Time.now
 
         print_stats
-        stats = """Total Execution Time:              #{end_entire - start_entire}
+        stats = """Total Execution Time:              #{'%.04f' % (end_entire - start_entire)}
 --------------------------------------------------------------------------------
 """
         Ikra::Log.info(stats)
@@ -56,15 +56,17 @@ Benchmark:                         #{self.class.to_s}"""
         launcher = Ikra::Translator::CommandTranslator::ProgramBuilder::Launcher
 
         stats = """--------------------------------------------------------------------------------
-NVCC Time:                         #{launcher.last_time_compiler}
+NVCC Time:                         #{'%.04f' % launcher.last_time_compiler}
 --------------------------------------------------------------------------------
-CUDA Setup Time:                   #{launcher.last_time_setup_cuda}
-Prepare Environment Time:          #{launcher.last_time_prepare_env}
-Kernel(s) Time:                    #{launcher.last_time_kernel}
-Free Memory Time:                  #{launcher.last_time_free_memory}
-Total External Execution Time:     #{launcher.last_time_total_external}
+CUDA Setup Time:                   #{'%.04f' % launcher.last_time_setup_cuda}
+Kernel(s) Time:                    #{'%.04f' % launcher.last_time_kernel}
+Allocate Memory Time:              #{'%.04f' % launcher.last_time_allocate_memory}
+Transfer Memory Time:              #{'%.04f' % launcher.last_time_transfer_memory}
+Free Memory Time:                  #{'%.04f' % launcher.last_time_free_memory}
+
+Total External Execution Time:     #{'%.04f' % launcher.last_time_total_external}
 --------------------------------------------------------------------------------
-Read Result (FFI) Time:            #{launcher.last_time_read_result_ffi}
+Read Result (FFI) Time:            #{'%.04f' % launcher.last_time_read_result_ffi}
 --------------------------------------------------------------------------------
 """
 

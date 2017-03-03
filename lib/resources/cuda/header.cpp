@@ -43,11 +43,17 @@ typedef struct environment_struct environment_t;
 typedef struct result_t result_t;
 /* ----- END Forward declarations ----- */
 
+// Define program result variable. Also contains benchmark numbers.
+result_t *program_result;
+
+// Variables for measuring time
+chrono::high_resolution_clock::time_point start_time;
+chrono::high_resolution_clock::time_point end_time;
 
 /* ----- BEGIN Macros ----- */
 #define timeStartMeasure() start_time = chrono::high_resolution_clock::now();
 
 #define timeReportMeasure(result_var, variable_name) \
 end_time = chrono::high_resolution_clock::now(); \
-result_var->time_##variable_name = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+result_var->time_##variable_name = result_var->time_##variable_name + chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
 /* ----- END Macros ----- */
