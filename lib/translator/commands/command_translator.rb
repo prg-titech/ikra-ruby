@@ -261,4 +261,4 @@ require_relative "array_zip_command"
 require_relative "../host_section/array_host_section_command"
 
 require_relative "../program_builder"
-require_relative "../kernel_launcher"
+require_relative "../kernel_launcher/kernel_launcher"

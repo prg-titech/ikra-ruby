@@ -51,6 +51,11 @@ module Ikra
                     return command.accept(self.new)
                 end
 
+                def visit_array_reduce_command(command)
+                    # Size is always 1
+                    return false
+                end
+
                 def visit_array_identity_command(command)
                     # Fully fused, size known at compile time
                     return false

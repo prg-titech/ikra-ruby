@@ -402,4 +402,44 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(array_cpu.to_a , section_result.to_a)
     end
+
+    def test_iterative_map_update_with_reduce_criteria
+        array_gpu = Array.pnew(102900) do |j|
+            j % 7
+        end
+
+        array_cpu = Array.new(102900) do |j|
+            j % 7
+        end
+
+        # GPU calculation
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input
+
+            while (a.preduce do |a, b| a + b end).__call__.__to_host_array__[0] < 10000000
+                a = a.pmap do |k|
+                    k + 1
+                end
+            end
+
+            a
+        end
+
+        # CPU calculation
+        num_iter = 0    # Count iterations
+        result = begin
+            a = array_cpu
+
+            while (a.reduce do |a, b| a + b end) < 10000000
+                num_iter = num_iter + 1
+                a = a.map do |k|
+                    k + 1
+                end
+            end
+
+            a
+        end
+
+        assert_equal(result.reduce(:+) , section_result.reduce(:+))
+    end
 end

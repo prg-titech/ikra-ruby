@@ -222,4 +222,6 @@ module Ikra
     end
 end
 
-require_relative "kernel_builder"
+require_relative "../kernel_builder"
+require_relative "for_loop_kernel_launcher"
+require_relative "while_loop_kernel_launcher"
