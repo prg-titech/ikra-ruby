@@ -52,20 +52,7 @@ module Ikra
             end
         end
 
-        class LocationAwareVariableSizeArrayType < ArrayType
-            class << self
-                def new(inner_type, location: :device)
-                    if @cache == nil
-                        @cache = {}
-                        @cache.default_proc = Proc.new do |hash, key|
-                            hash[key] = new_original(*key)
-                        end
-                    end
-
-                    @cache[[inner_type, location]]
-                end
-            end
-
+        class LocationAwareArrayType < ArrayType
             # Determines if the array is allocated on the host or on the device
             attr_reader :location
 
@@ -81,12 +68,57 @@ module Ikra
             def to_c_type
                 return "variable_size_array_t"
             end
+        end
+
+        class LocationAwareVariableSizeArrayType < LocationAwareArrayType
+            class << self
+                def new(inner_type, location: :device)
+                    if @cache == nil
+                        @cache = {}
+                        @cache.default_proc = Proc.new do |hash, key|
+                            hash[key] = new_original(*key)
+                        end
+                    end
+
+                    return @cache[[inner_type, location]]
+                end
+            end
 
             def to_command
                 # No fusion possible here. The first parameter (target) is a reference to the
                 # array command struct representing the [ArrayInHostSectionCommand].
                 # TODO: The code depends on the template (variable name `cmd` and `input_0`).
                 return Symbolic::ArrayInHostSectionCommand.new("cmd->input_0", @inner_type)
+            end
+        end
+
+        class LocationAwareFixedSizeArrayType < LocationAwareArrayType
+            class << self
+                def new(inner_type, dimensions, location: :device)
+                    if @cache == nil
+                        @cache = {}
+                        @cache.default_proc = Proc.new do |hash, key|
+                            hash[key] = new_original(*key)
+                        end
+                    end
+
+                    return @cache[[inner_type, location, dimensions]]
+                end
+            end
+
+            attr_reader :dimensions
+
+            def initialize(inner_type, location, dimensions)
+                super(inner_type, location)
+                @dimensions = dimensions
+            end
+
+            def to_command
+                # No fusion possible here. The first parameter (target) is a reference to the
+                # array command struct representing the [ArrayInHostSectionCommand].
+                # TODO: The code depends on the template (variable name `cmd` and `input_0`).
+                return Symbolic::FixedSizeArrayInHostSectionCommand.new(
+                    "cmd->input_0", @inner_type, @dimensions)
             end
         end
     end

@@ -74,6 +74,32 @@ module Ikra
             def dimensions
                 return [size]
             end
+
+            def ==(other)
+                return super(other) && base_type == other.base_type
+            end
+        end
+
+        class FixedSizeArrayInHostSectionCommand < ArrayInHostSectionCommand
+            include ArrayCommand
+
+            attr_accessor :target
+            attr_accessor :base_type
+            attr_accessor :dimensions
+
+            def initialize(target, base_type, dimensions, block_size: DEFAULT_BLOCK_SIZE)
+                super(target, base_type, block_size: block_size)
+
+                @dimensions = dimensions
+            end
+
+            def size
+                return dimensions.reduce(:*)
+            end
+
+            def ==(other)
+                return super(other) && dimensions == other.dimensions
+            end
         end
 
         def self.host_section(*section_input, &block)

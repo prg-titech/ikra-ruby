@@ -159,8 +159,9 @@ module Ikra
         end
 
         ARRAY_COMMAND_TO_ARRAY_TYPE = proc do |rcvr_type, *args_types, send_node:|
-            Types::LocationAwareVariableSizeArrayType.new(
+            Types::LocationAwareFixedSizeArrayType.new(
                 rcvr_type.result_type,
+                rcvr_type.dimensions,
                 location: :device).to_union_type
         end
 
@@ -191,12 +192,14 @@ module Ikra
         end
 
         ALL_LOCATION_AWARE_ARRAY_TYPES = proc do |type|
-            type.is_a?(Types::LocationAwareVariableSizeArrayType)
+            type.is_a?(Types::LocationAwareArrayType)
         end
 
         LOCATION_AWARE_ARRAY_TO_HOST_ARRAY_TYPE = proc do |rcvr_type, *args_types|
-            Types::LocationAwareVariableSizeArrayType.new(
+            # TODO: Should also be able to handle variable variant
+            Types::LocationAwareFixedSizeArrayType.new(
                 rcvr_type.inner_type,
+                rcvr_type.dimensions,
                 location: :host).to_union_type
         end
 

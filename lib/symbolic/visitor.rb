@@ -54,6 +54,12 @@ module Ikra
             end
         end
 
+        class FixedSizeArrayInHostSectionCommand < ArrayInHostSectionCommand
+            def accept(visitor)
+                visitor.visit_fixed_size_array_in_host_section_command(self)
+            end
+        end
+
         class Visitor
             def visit_array_command(command)
                 for input in command.input
@@ -97,6 +103,10 @@ module Ikra
 
             def visit_array_host_section_command(command)
 
+            end
+
+            def visit_fixed_size_array_in_host_section_command(command)
+                visit_array_in_host_section_command(command)
             end
         end
     end

@@ -168,7 +168,7 @@ struct array_command_3 {
     __host__ __device__ array_command_3(int *result = NULL, array_command_2 *input_0 = NULL) : result(result), input_0(input_0) { }
 };
 struct array_command_5 {
-    // Ikra::Symbolic::ArrayInHostSectionCommand
+    // Ikra::Symbolic::FixedSizeArrayInHostSectionCommand
     int *result;
     variable_size_array_t input_0;
     __host__ __device__ array_command_5(int *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }
@@ -179,7 +179,6 @@ struct array_command_6 {
     int *result;
     array_command_5 *input_0;
     __host__ __device__ array_command_6(int *result = NULL, array_command_5 *input_0 = NULL) : result(result), input_0(input_0) { }
-    int size() { return input_0->size(); }
 };
 struct environment_struct
 {
@@ -777,26 +776,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         
                             variable_size_array_t((void *) cmd->result, 511);
                         }); break;
-                        case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
-                            // [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                        case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                            // [Ikra::Symbolic::ArrayCombineCommand, size = 511]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
                         
                             array_command_6 * cmd = (array_command_6 *) _polytemp_expr_2.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
                             int * _kernel_result_10;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * cmd->input_0->size())));
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 511)));
                             program_result->device_allocations->push_back(_kernel_result_10);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_9<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_10, ((int *) cmd->input_0->input_0.content));
+                            kernel_9<<<2, 256>>>(dev_env, 511, _kernel_result_10, ((int *) cmd->input_0->input_0.content));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_10;
                             }
                         
-                            variable_size_array_t((void *) cmd->result, cmd->size());
+                            variable_size_array_t((void *) cmd->result, 511);
                         }); break;
                     }
                 }
@@ -853,26 +852,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                     
                         variable_size_array_t((void *) cmd->result, 511);
                     }); break;
-                    case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                        // [Ikra::Symbolic::ArrayCombineCommand, size = cmd->input_0->size()]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
+                    case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = 511] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
+                        // [Ikra::Symbolic::ArrayCombineCommand, size = 511]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_a_1].__call__()].to_command()].pmap()]
                     
                         array_command_6 * cmd = (array_command_6 *) _polytemp_expr_10.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
                         int * _kernel_result_38;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_38, (sizeof(int) * cmd->input_0->size())));
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_38, (sizeof(int) * 511)));
                         program_result->device_allocations->push_back(_kernel_result_38);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_37<<<max((int) ceil(((float) cmd->input_0->size()) / 256), 1), (cmd->input_0->size() >= 256 ? 256 : cmd->input_0->size())>>>(dev_env, cmd->input_0->size(), _kernel_result_38, ((int *) cmd->input_0->input_0.content));
+                        kernel_37<<<2, 256>>>(dev_env, 511, _kernel_result_38, ((int *) cmd->input_0->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_38;
                         }
                     
-                        variable_size_array_t((void *) cmd->result, cmd->size());
+                        variable_size_array_t((void *) cmd->result, 511);
                     }); break;
                 }
             }

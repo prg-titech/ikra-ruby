@@ -145,7 +145,7 @@ module Ikra
                 end
 
                 # Returns the result type of this program. The result type must always be a
-                # union type that includes a [Types::LocationAwareVariableSizeArrayType] object, 
+                # union type that includes a [Types::LocationAwareArrayType] object, 
                 # because this way we can support return types where the inner type of an array
                 # is unknown at compile time.
                 def result_type

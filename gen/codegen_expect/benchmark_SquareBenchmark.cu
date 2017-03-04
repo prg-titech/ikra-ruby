@@ -172,7 +172,7 @@ __device__ int _block_k_2_(environment_t *_env_, int value)
 #endif
 
 
-__global__ void kernel_197(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_193(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -241,19 +241,19 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
         timeStartMeasure();
-    int * _kernel_result_198;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_198, (sizeof(int) * 10000)));
-    program_result->device_allocations->push_back(_kernel_result_198);
+    int * _kernel_result_194;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_194, (sizeof(int) * 10000)));
+    program_result->device_allocations->push_back(_kernel_result_194);
     timeReportMeasure(program_result, allocate_memory);
     timeStartMeasure();
-    kernel_197<<<40, 256>>>(dev_env, 10000, _kernel_result_198);
+    kernel_193<<<40, 256>>>(dev_env, 10000, _kernel_result_194);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
     timeReportMeasure(program_result, kernel);
 
     /* Copy over result to the host */
     program_result->result = ({
-    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_198, 10000);
+    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_194, 10000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
 
     timeStartMeasure();
@@ -265,7 +265,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Free device memory */
         timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_198));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_194));
     timeReportMeasure(program_result, free_memory);
 
 

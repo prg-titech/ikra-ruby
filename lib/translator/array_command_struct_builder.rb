@@ -66,6 +66,11 @@ module Ikra
                     return true
                 end
 
+                def visit_fixed_size_array_in_host_section_command(command)
+                    # Size is part of the type/command
+                    return false
+                end
+
                 def visit_array_command(command)
                     if command.input.size == 0
                         return false

@@ -513,7 +513,7 @@ class HostSectionTest < UnitTestCase
         assert_equal(array_cpu.to_a , section_result.to_a)
     end
 
-    def test_stencil_with_2d_index
+    def test_map_with_2d_index
         array_gpu = Array.pnew(dimensions: [2, 3]) do |index|
             index[0] * 10 + index[1]
         end
@@ -527,5 +527,25 @@ class HostSectionTest < UnitTestCase
         end
 
         assert_equal([0, 101, 202, 1010, 1111, 1212] , section_result.to_a)
+    end
+
+    def test_iterative_map_with_2d_index
+        array_gpu = Array.pnew(dimensions: [2, 3]) do |index|
+            index[0] * 10 + index[1]
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input
+
+            for i in 1..5
+                a = a.pmap(with_index: true) do |value, index|
+                    value + 1000 * index[0] + 100 * index[1]
+                end
+            end
+
+            a
+        end
+
+        assert_equal([0, 501, 1002, 5010, 5511, 6012], section_result.to_a)
     end
 end

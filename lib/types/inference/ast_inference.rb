@@ -196,7 +196,7 @@ module Ikra
                 predefined_variables = []
 
                 # Add parameters to symbol table (name -> type)
-                block_def_node.parameters_names_and_types.each do |name, type|                
+                block_def_node.parameters_names_and_types.each do |name, type|            
                     symbol_table.declare_variable(name, type: type)
                     predefined_variables.push(name)
                 end
