@@ -1,5 +1,5 @@
 class Array 
-    def stencil(neighbors, out_of_range_value, use_parameter_array: true, &block)
+    def stencil(neighbors, out_of_range_value, use_parameter_array: true, with_index: false, &block)
         copy = self.dup
 
         return Array.new(size) do |index|
@@ -11,9 +11,17 @@ class Array
                 end
 
                 if use_parameter_array
-                    block.call(values)
+                    if with_index
+                        block.call(values, index)
+                    else
+                        block.call(values)
+                    end
                 else
-                    block.call(*values)
+                    if with_index
+                        block.call(*values, index)
+                    else
+                        block.call(*values)
+                    end
                 end
             end
         end
@@ -27,7 +35,5 @@ class Array
 
             block.call(self[index], *other_elements)
         end
-
-
     end
 end

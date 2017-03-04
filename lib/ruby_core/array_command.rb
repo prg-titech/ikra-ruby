@@ -45,7 +45,18 @@ module Ikra
             # In that case we have to abort type inference here, because it would not terminate.
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
 
-            rcvr_type.pmap(ast: send_node.block_argument, generator_node: send_node).to_union_type
+            more_kw_args = {}
+
+            if send_node.arguments.size == 1
+                if !send_node.arguments.first.is_a?(AST::HashNode)
+                    raise ArgumentError.new("If an argument is given, it must be a Hash of kwargs.")
+                end
+
+                # Pass kwargs separately
+                more_kw_args = AST::Interpreter.interpret(send_node.arguments.first)
+            end
+
+            rcvr_type.pmap(ast: send_node.block_argument, generator_node: send_node, **more_kw_args).to_union_type
         end
 
         PZIP_TYPE = proc do |rcvr_type, *args_types, send_node:|
@@ -66,9 +77,20 @@ module Ikra
                 AST::Interpreter.interpret(node)
             end
 
+            more_kw_args = {}
+
+            if args_types.size == 3
+                if !ruby_args.last.is_a?(Hash)
+                    raise ArgumentError.new("If 3 arguments are given, the last one must be a Hash of kwargs.")
+                end
+
+                # Pass kwargs separately
+                more_kw_args = ruby_args.pop
+            end
+
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
 
-            rcvr_type.pstencil(*ruby_args, ast: send_node.block_argument, generator_node: send_node).to_union_type
+            rcvr_type.pstencil(*ruby_args, ast: send_node.block_argument, generator_node: send_node, **more_kw_args).to_union_type
         end
 
         PREDUCE_TYPE = proc do |rcvr_type, *args_types, send_node:|
@@ -204,7 +226,7 @@ module Ikra
             ALL_ARRAY_COMMAND_TYPES,
             :pmap,
             PMAP_TYPE,
-            0,
+            0..1,
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(
@@ -226,7 +248,7 @@ module Ikra
             ALL_ARRAY_COMMAND_TYPES,
             :pstencil,
             PSTENCIL_TYPE,
-            2,      # neighborhood and default value
+            2..3,      # neighborhood and default value, maybe hash
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(

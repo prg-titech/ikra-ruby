@@ -432,13 +432,20 @@ module Ikra
                 ast: nil, 
                 block_size: DEFAULT_BLOCK_SIZE, 
                 keep: false,
-                generator_node: nil)
+                generator_node: nil,
+                with_index: false)
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
 
                 # Read array at position `tid`
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
                     SingleInput.new(command: other.to_command, pattern: :tid)
+                end
+
+                if with_index
+                    @input.push(SingleInput.new(
+                        command: ArrayIndexCommand.new(dimensions: dimensions),
+                        pattern: :tid))
                 end
             end
             
@@ -612,7 +619,8 @@ module Ikra
                 block_size: DEFAULT_BLOCK_SIZE, 
                 keep: false, 
                 use_parameter_array: true,
-                generator_node: nil)
+                generator_node: nil,
+                with_index: false)
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
 
@@ -683,6 +691,11 @@ module Ikra
                         out_of_bounds_value: out_of_range_value)]
                 end
 
+                if with_index
+                    @input.push(SingleInput.new(
+                        command: ArrayIndexCommand.new(dimensions: dimensions),
+                        pattern: :tid))
+                end
                 
                 # Offsets should be arrays
                 for offset in offsets

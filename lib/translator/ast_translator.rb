@@ -48,6 +48,11 @@ module Ikra
                     return node.code
                 end
 
+                # TODO: Should never translate a hash node (check `with_index` in host section)
+                def visit_hash_node(node)
+                    return ""
+                end
+
                 def visit_const_node(node)
                     raise NotImplementedError.new
                 end

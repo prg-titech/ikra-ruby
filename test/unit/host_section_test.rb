@@ -482,4 +482,50 @@ class HostSectionTest < UnitTestCase
 
         assert_equal(result.reduce(:+) , section_result.reduce(:+))
     end
+
+    def test_iterative_stencil_update_and_index
+        array_gpu = Array.pnew(1195) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(1195) do |j|
+            j + 1
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input
+
+            for i in 1...10
+                a = a.pstencil([-1, 0, 1], 5, with_index: true) do |values, index|
+                    values[-1] - values[0] + values[1] + 1 + (index % 11)
+                end
+            end
+
+            a
+        end
+
+        for i in 1...10
+            array_cpu = array_cpu.stencil([-1, 0, 1], 5, use_parameter_array: false, with_index: true) do |p0, p1, p2, index|
+                p0 - p1 + p2 + 1 + (index % 11)
+            end
+        end
+
+        assert_equal(array_cpu.to_a , section_result.to_a)
+    end
+
+    def test_stencil_with_2d_index
+        array_gpu = Array.pnew(dimensions: [2, 3]) do |index|
+            index[0] * 10 + index[1]
+        end
+
+        section_result = Ikra::Symbolic.host_section(array_gpu) do |input|
+            a = input
+
+            a.pmap(with_index: true) do |value, index|
+                value + 1000 * index[0] + 100 * index[1]
+            end
+        end
+
+        assert_equal([0, 101, 202, 1010, 1111, 1212] , section_result.to_a)
+    end
 end

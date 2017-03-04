@@ -173,7 +173,10 @@ module Ikra
 
             if return_type.is_a?(Proc)
                 # Return type depends on argument types
-                if num_params != arg_types.size
+                if num_params.is_a?(Fixnum) && num_params != arg_types.size
+                    raise ArgumentError.new(
+                        "#{num_params} arguments expected but #{arg_types.size} given")
+                elsif num_params.is_a?(Range) && !num_params.include?(arg_types.size)
                     raise ArgumentError.new(
                         "#{num_params} arguments expected but #{arg_types.size} given")
                 else
