@@ -104,7 +104,7 @@ class StencilTest < UnitTestCase
     end
 
     def test_non_constant_stencil_2d
-                # GPU computation
+        # GPU computation
         base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|
             10 * index[0] + index[1]
         end
