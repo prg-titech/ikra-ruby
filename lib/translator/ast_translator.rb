@@ -343,7 +343,7 @@ module Ikra
                                 recv_type.generate_non_constant_read(
                                     singleton_recv.accept(self),
                                     node.selector,
-                                    first_arg_eval) + "; })"
+                                    name) + "; })"
                         end
                     else
                         args = [Constants::ENV_IDENTIFIER]

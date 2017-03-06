@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -3126,6 +3127,44 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_44;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_43 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_43));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_43),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                        timeStartMeasure();
+                    
+                        if (_kernel_result_44 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_44));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_44),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                    
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3169,6 +3208,62 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_52;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_50 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_50));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_50),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                        timeStartMeasure();
+                    
+                        if (_kernel_result_48 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_48));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_48),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                        timeStartMeasure();
+                    
+                        if (_kernel_result_52 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_52));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_52),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                    
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3185,7 +3280,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_58);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_57<<<353, 256>>>(dev_env, 90210, _kernel_result_58, ((int *) ((int *) cmd->input_0->input_0->input_0.content)));
+                        kernel_57<<<353, 256>>>(dev_env, 90210, _kernel_result_58, ((int *) ((int *) ((int *) cmd->input_0->input_0->input_0.content))));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3212,6 +3307,62 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_61;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_58 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_58));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_58),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                        timeStartMeasure();
+                    
+                        if (_kernel_result_56 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_56));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_56),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                        timeStartMeasure();
+                    
+                        if (_kernel_result_61 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_61));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_61),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                    
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3252,6 +3403,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_129;
+                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 90210);
@@ -3282,6 +3435,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_131;
+                        
+                                    timeStartMeasure();
+                        
+                            if (_kernel_result_133 != cmd->result) {
+                                // Don't free memory if it is the result. There is already a similar check in
+                                // program_builder (free all except for last). However, this check is not sufficient in
+                                // case the same array is reused!
+                        
+                                checkErrorReturn(program_result, cudaFree(_kernel_result_133));
+                                // Remove from list of allocations
+                                program_result->device_allocations->erase(
+                                    std::remove(
+                                        program_result->device_allocations->begin(),
+                                        program_result->device_allocations->end(),
+                                        _kernel_result_133),
+                                    program_result->device_allocations->end());
+                            }
+                        
+                            timeReportMeasure(program_result, free_memory);
+                        
                             }
                         
                             variable_size_array_t((void *) cmd->result, 90210);
@@ -3298,7 +3471,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_138);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_137<<<353, 256>>>(dev_env, 90210, _kernel_result_138, ((int *) cmd->input_0->input_0.content));
+                            kernel_137<<<353, 256>>>(dev_env, 90210, _kernel_result_138, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3312,6 +3485,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_136;
+                        
+                                    timeStartMeasure();
+                        
+                            if (_kernel_result_138 != cmd->result) {
+                                // Don't free memory if it is the result. There is already a similar check in
+                                // program_builder (free all except for last). However, this check is not sufficient in
+                                // case the same array is reused!
+                        
+                                checkErrorReturn(program_result, cudaFree(_kernel_result_138));
+                                // Remove from list of allocations
+                                program_result->device_allocations->erase(
+                                    std::remove(
+                                        program_result->device_allocations->begin(),
+                                        program_result->device_allocations->end(),
+                                        _kernel_result_138),
+                                    program_result->device_allocations->end());
+                            }
+                        
+                            timeReportMeasure(program_result, free_memory);
+                        
                             }
                         
                             variable_size_array_t((void *) cmd->result, 90210);
@@ -3345,6 +3538,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_181;
+                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 90210);
@@ -3375,6 +3570,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_183;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_185 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_185));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_185),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                    
                         }
                     
                         variable_size_array_t((void *) cmd->result, 90210);
@@ -3391,7 +3606,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_190);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_189<<<353, 256>>>(dev_env, 90210, _kernel_result_190, ((int *) cmd->input_0->input_0.content));
+                        kernel_189<<<353, 256>>>(dev_env, 90210, _kernel_result_190, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3405,6 +3620,26 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_188;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_190 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_190));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_190),
+                                program_result->device_allocations->end());
+                        }
+                    
+                        timeReportMeasure(program_result, free_memory);
+                    
                         }
                     
                         variable_size_array_t((void *) cmd->result, 90210);

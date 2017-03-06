@@ -118,10 +118,9 @@ module Ikra
                 node.range_to.accept(self)
 
                 before_loop_aliases = @aliases.dup
-                loop_body_aliases = @aliases.dup
 
-                @aliases = loop_body_aliases
                 node.body_stmts.accept(self)
+                loop_body_aliases = @aliases.dup
 
                 # Insert merge statements at the end of the loop body
                 @aliases = merge_aliases(before_loop_aliases, loop_body_aliases) do |orig_var|
@@ -129,11 +128,18 @@ module Ikra
                     name_before = before_loop_aliases[orig_var]
                     name_inside = loop_body_aliases[orig_var]
 
-                    node.body_stmts.add_statement(LVarWriteNode.new(
-                        identifier: name_before, value: LVarReadNode.new(identifier: name_inside)))
+                    if name_before != nil
+                        resolved_name = name_before
+
+                        node.body_stmts.add_statement(LVarWriteNode.new(
+                            identifier: name_before, 
+                            value: LVarReadNode.new(identifier: name_inside)))
+                    else
+                        resolved_name = name_inside
+                    end
 
                     # Resolved name is `name_before`
-                    name_before
+                    resolved_name
                 end
             end
 
@@ -141,10 +147,9 @@ module Ikra
                 node.condition.accept(self)
 
                 before_loop_aliases = @aliases.dup
-                loop_body_aliases = @aliases.dup
 
-                @aliases = loop_body_aliases
                 node.body_stmts.accept(self)
+                loop_body_aliases = @aliases.dup
 
                 # Insert merge statements at the end of the loop body
                 @aliases = merge_aliases(before_loop_aliases, loop_body_aliases) do |orig_var|
@@ -152,11 +157,18 @@ module Ikra
                     name_before = before_loop_aliases[orig_var]
                     name_inside = loop_body_aliases[orig_var]
 
-                    node.body_stmts.add_statement(LVarWriteNode.new(
-                        identifier: name_before, value: LVarReadNode.new(identifier: name_inside)))
+                    if name_before != nil
+                        resolved_name = name_before
+
+                        node.body_stmts.add_statement(LVarWriteNode.new(
+                            identifier: name_before, 
+                            value: LVarReadNode.new(identifier: name_inside)))
+                    else
+                        resolved_name = name_inside
+                    end
 
                     # Resolved name is `name_before`
-                    name_before
+                    resolved_name
                 end
             end
 

@@ -13,3 +13,5 @@ require_relative "symbolic/symbolic"
 require_relative "entity"
 require_relative "translator/cuda_errors"
 require_relative "cpu/cpu_implementation"
+
+Ikra::Translator::CommandTranslator::ProgramBuilder::Launcher.reset_time

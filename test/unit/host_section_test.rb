@@ -578,4 +578,34 @@ class HostSectionTest < UnitTestCase
         # Compare results
         assert_equal(b.to_a, section_result.to_a)
     end
+
+    def test_iterative_stencil_update_3d_and_index
+        base_array_gpu = Array.pnew(dimensions: [7, 5, 3]) do |index|
+            10 * index[0] + index[1] - index[2]
+        end
+
+        # Host section result
+        section_result = Ikra::Symbolic.host_section(base_array_gpu) do |input|
+            a = input
+
+            for i in 0...3
+                a = a.pstencil([[-1, -1, 1], [0, -1, -1], [0, 1, 0], [0, 0, 0]], 10000, with_index: true) do |values, indices|
+                    values[-1][-1][1] + values[0][-1][-1] + values[0][1][0] + values[0][0][0] + indices[1] - indices[0]
+                end
+            end
+
+            a
+        end
+
+        # Expected result
+        b = base_array_gpu
+        for i in 0...3
+            b = b.pstencil([[-1, -1, 1], [0, -1, -1], [0, 1, 0], [0, 0, 0]], 10000, with_index: true) do |values, indices|
+                values[-1][-1][1] + values[0][-1][-1] + values[0][1][0] + values[0][0][0] + indices[1] - indices[0]
+            end
+        end
+
+        # Compare results
+        assert_equal(b.to_a, section_result.to_a)
+    end
 end

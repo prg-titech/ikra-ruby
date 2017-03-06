@@ -312,7 +312,7 @@ module Ikra
                 selector = send_node.selector
 
                 if recv_singleton_type.is_primitive?
-                    raise NotImplementedError.new("#{recv_singleton_type}.#{selector} not implemented")
+                    raise NotImplementedError.new("#{recv_singleton_type}.#{selector} not implemented (#{send_node.to_s})")
                 end
 
                 parameter_names = recv_singleton_type.method_parameters(selector)

@@ -144,7 +144,8 @@ module Ikra
                 "array_command_type" => array_command.to_c_type,
                 "result_size" => result_size,
                 "kernel_invocation" => launch_code,
-                "kernel_result" => result_expr})
+                "kernel_result" => result_expr,
+                "free_memory" => command_translator.program_builder.build_memory_free_except_last})
 
             # Clear kernel launchers. Otherwise, we might launch them again in a later, unrelated
             # LAUNCH_KERNEL branch. This is because we reuse the same [ProgramBuilder] for an
@@ -223,6 +224,22 @@ module Ikra
         ARRAY_TYPE_TO_COMMAND_TYPE = proc do |rcvr_type, *args_types, send_node:|
             rcvr_type.to_command.to_union_type
         end
+
+        FREE_MEMORY_FOR_ARRAY_COMMAND = proc do |receiver, method_name, args, translator, result_type|
+
+            Translator.read_file(file_name: "free_memory_for_command.cpp", replacements: {
+                "type" => receiver.get_type.to_c_type,
+                "receiver" => receiver.accept(translator.expression_translator)})
+        end
+
+        # Manually free memory
+        # TODO: Implement escape analysis and try to reuse memory
+        implement(
+            ALL_ARRAY_COMMAND_TYPES,
+            :free_memory,
+            BOOL,
+            0,
+            FREE_MEMORY_FOR_ARRAY_COMMAND)
 
         # Implement all parallel operations
         implement(

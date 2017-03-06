@@ -4,6 +4,7 @@ require "ikra"
 module BenchmarkBase
     def setup
         Ikra::Configuration.reset_state
+        Ikra::Translator::CommandTranslator::ProgramBuilder::Launcher.reset_time
 
         test_name = "benchmark_" + self.class.to_s
         file_name = Ikra::Configuration.log_file_name_for(test_name)

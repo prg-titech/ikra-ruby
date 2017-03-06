@@ -88,7 +88,7 @@ module Ikra
                 # No fusion possible here. The first parameter (target) is a reference to the
                 # array command struct representing the [ArrayInHostSectionCommand].
                 # TODO: The code depends on the template (variable name `cmd` and `input_0`).
-                return Symbolic::ArrayInHostSectionCommand.new("cmd->input_0", @inner_type)
+                return Symbolic::ArrayInHostSectionCommand.new("((#{@inner_type.to_c_type} *) cmd->input_0)", @inner_type)
             end
         end
 
@@ -118,7 +118,7 @@ module Ikra
                 # array command struct representing the [ArrayInHostSectionCommand].
                 # TODO: The code depends on the template (variable name `cmd` and `input_0`).
                 return Symbolic::FixedSizeArrayInHostSectionCommand.new(
-                    "cmd->input_0", @inner_type, @dimensions)
+                    "((#{@inner_type.to_c_type} *) cmd->input_0)", @inner_type, @dimensions)
             end
         end
     end

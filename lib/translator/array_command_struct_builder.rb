@@ -15,7 +15,7 @@ module Ikra
                 if command.is_a?(Symbolic::ArrayInHostSectionCommand)
                     if command.equal?(input_command)
                         # This should be passed as an argument
-                        return "#{path}->input_0.content"
+                        return "((#{command.base_type.to_c_type} *) #{path}->input_0.content)"
                     else
                         # This is not the one we are looking for
                         return nil

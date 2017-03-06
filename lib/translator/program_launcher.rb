@@ -74,6 +74,18 @@ module Ikra
                         attr_accessor :last_time_total_external
                         attr_accessor :last_time_compiler
                         attr_accessor :last_time_read_result_ffi
+
+                        def reset_time
+                            @last_time_setup_cuda = 0
+                            @last_time_prepare_env = 0
+                            @last_time_kernel = 0
+                            @last_time_free_memory = 0
+                            @last_time_transfer_memory = 0
+                            @last_time_allocate_memory = 0
+                            @last_time_total_external = 0
+                            @last_time_compiler = 0
+                            @last_time_read_result_ffi = 0
+                        end
                     end
 
                     def initialize(source:, environment_builder:, result_type:, root_command:)
@@ -155,13 +167,13 @@ module Ikra
                         error_code = result_t_struct[:error_code]
 
                         # Extract time measurements
-                        self.class.last_time_setup_cuda = result_t_struct[:time_setup_cuda] * 0.000001
-                        self.class.last_time_prepare_env = result_t_struct[:time_prepare_env] * 0.000001
-                        self.class.last_time_kernel = result_t_struct[:time_kernel] * 0.000001
-                        self.class.last_time_free_memory = result_t_struct[:time_free_memory] * 0.000001
-                        self.class.last_time_transfer_memory = result_t_struct[:time_transfer_memory] * 0.000001
-                        self.class.last_time_allocate_memory = result_t_struct[:time_allocate_memory] * 0.000001
-                        self.class.last_time_total_external = total_time_external
+                        self.class.last_time_setup_cuda += result_t_struct[:time_setup_cuda] * 0.000001
+                        self.class.last_time_prepare_env += result_t_struct[:time_prepare_env] * 0.000001
+                        self.class.last_time_kernel += result_t_struct[:time_kernel] * 0.000001
+                        self.class.last_time_free_memory += result_t_struct[:time_free_memory] * 0.000001
+                        self.class.last_time_transfer_memory += result_t_struct[:time_transfer_memory] * 0.000001
+                        self.class.last_time_allocate_memory += result_t_struct[:time_allocate_memory] * 0.000001
+                        self.class.last_time_total_external += total_time_external
 
                         if error_code != 0
                             # Kernel failed

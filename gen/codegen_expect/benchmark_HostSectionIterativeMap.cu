@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -751,6 +752,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_6;
+                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 511);
@@ -772,6 +775,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_8;
+                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 511);
@@ -788,11 +793,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_10);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_9<<<2, 256>>>(dev_env, 511, _kernel_result_10, ((int *) cmd->input_0->input_0.content));
+                            kernel_9<<<2, 256>>>(dev_env, 511, _kernel_result_10, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_10;
+                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 511);
@@ -827,6 +834,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_34;
+                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 511);
@@ -848,6 +857,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_36;
+                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 511);
@@ -864,11 +875,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_38);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_37<<<2, 256>>>(dev_env, 511, _kernel_result_38, ((int *) cmd->input_0->input_0.content));
+                        kernel_37<<<2, 256>>>(dev_env, 511, _kernel_result_38, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_38;
+                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 511);

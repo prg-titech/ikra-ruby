@@ -57,6 +57,18 @@ module Ikra
                     end
                 end
 
+                def build_memory_free_except_last
+                    result = ""
+
+                    for launcher in kernel_launchers[0...-1]
+                        if !launcher.reuse_memory?
+                            result = result + launcher.build_device_memory_free_in_host_section
+                        end
+                    end
+
+                    return result
+                end
+
                 # Builds the CUDA program. Returns the source code string.
                 def build_program
                     assert_ready_to_build

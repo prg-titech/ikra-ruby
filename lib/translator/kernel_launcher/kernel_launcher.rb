@@ -8,6 +8,12 @@ module Ikra
             # For example:
             # kernel<<<..., ...>>>(env, result, d_a, ...);
             class KernelLauncher
+                class << self
+                    # Debug flag only: Frees all input after launching kernel. This causes an
+                    # error if data is used twice or kept (using the `keep` flag)
+                    attr_accessor :debug_free_previous_input_immediately
+                end
+
                 attr_accessor :kernel_builder
 
                 # Additional parameters that this kernel should accept (to access the result
@@ -202,6 +208,17 @@ module Ikra
                         "grid_dim" => grid_dim,
                         "block_dim" => block_dim})
 
+                    # ---- DEBUG ONLY: Free input after computation so that we can process larger
+                    #                  data sets in benchmarks without running out of memory
+                    # TODO: Implement analysis and do this automatically
+                    if KernelLauncher.debug_free_previous_input_immediately == true
+                        for var in kernel_builder.previous_kernel_input
+                            result = result + Translator.read_file(file_name: "free_device_memory.cpp", replacements: {
+                                "name" => var.name.to_s})
+                        end 
+                    end
+                    # ---- END DEBUG ONLY
+
                     cached_results.each do |result_id, type|
                         result = result + "    " + Constants::ENV_HOST_IDENTIFIER + "->prev_" + result_id + " = " + Constants::RESULT_IDENTIFIER + result_id + ";\n"
                     end
@@ -214,7 +231,22 @@ module Ikra
 
                     assert_ready_to_build
 
+                    if KernelLauncher.debug_free_previous_input_immediately == true
+                        Log.warn("Debug flag set... Freeing input memory immediately and some memory not at all!")
+                        return ""
+                    end
+
                     return Translator.read_file(file_name: "free_device_memory.cpp", replacements: {
+                        "name" => kernel_result_var_name})
+                end
+
+                # Same as above, but also removes item from the list of allocated memory chunks.
+                def build_device_memory_free_in_host_section
+                    Log.info("Building kernel post-launch CUDA free (host section")
+
+                    assert_ready_to_build
+
+                    return Translator.read_file(file_name: "host_section_free_device_memory.cpp", replacements: {
                         "name" => kernel_result_var_name})
                 end
             end
