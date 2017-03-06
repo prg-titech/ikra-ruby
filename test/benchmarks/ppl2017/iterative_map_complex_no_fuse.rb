@@ -17,14 +17,14 @@ class IterativeMapComplexNoFuse < Test::Unit::TestCase
             for r in 0...200
                 if r % 2 == 0
                     if r % 3 == 0
-                        y = y.pmap(with_index: true) do |i, indices|
+                        y = y.__call__.to_command.pmap(with_index: true) do |i, indices|
                             (i + indices[3]) % 77689
                         end
 
                         old_data.free_memory
                         old_data = y
                     else
-                        y = y.pmap(with_index: true) do |i, indices|
+                        y = y.__call__.to_command.pmap(with_index: true) do |i, indices|
                             (i + indices[0]) % 11799
                         end
 
@@ -32,7 +32,7 @@ class IterativeMapComplexNoFuse < Test::Unit::TestCase
                         old_data = y
                     end
                 else
-                    y = y.pmap(with_index: true) do |i, indices|
+                    y = y.__call__.to_command.pmap(with_index: true) do |i, indices|
                         (i + indices[2]) % 1337
                     end
 
