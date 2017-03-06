@@ -200,15 +200,15 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
     
     
     {
-        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_1 = ((indices.field_1 % 4));
-        (_temp_var_1 == 0 ? indices.field_0 : (_temp_var_1 == 1 ? indices.field_1 : (_temp_var_1 == 2 ? indices.field_2 : (_temp_var_1 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
+        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_117 = ((indices.field_1 % 4));
+        (_temp_var_117 == 0 ? indices.field_0 : (_temp_var_117 == 1 ? indices.field_1 : (_temp_var_117 == 2 ? indices.field_2 : (_temp_var_117 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_197(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -230,15 +230,15 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
     
     
     {
-        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_2 = ((indices.field_1 % 4));
-        (_temp_var_2 == 0 ? indices.field_0 : (_temp_var_2 == 1 ? indices.field_1 : (_temp_var_2 == 2 ? indices.field_2 : (_temp_var_2 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
+        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_118 = ((indices.field_1 % 4));
+        (_temp_var_118 == 0 ? indices.field_0 : (_temp_var_118 == 1 ? indices.field_1 : (_temp_var_118 == 2 ? indices.field_2 : (_temp_var_118 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_199(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -253,7 +253,7 @@ __global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
 
 
 
-__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_, int *_array_7_)
+__global__ void kernel_201(environment_t *_env_, int _num_threads_, int *_result_, int *_array_203_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -261,14 +261,14 @@ __global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_,
     {
 
         
-        _result_[_tid_] = _array_7_[_tid_];
+        _result_[_tid_] = _array_203_[_tid_];
     }
 }
 
 
 
 
-__global__ void kernel_10(environment_t *_env_, int _num_threads_, int *_result_, int *_array_12_)
+__global__ void kernel_206(environment_t *_env_, int _num_threads_, int *_result_, int *_array_208_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -276,7 +276,7 @@ __global__ void kernel_10(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_12_[_tid_];
+        _result_[_tid_] = _array_208_[_tid_];
     }
 }
 
@@ -292,23 +292,23 @@ __device__ int _block_k_4_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_5 = ((({ int _temp_var_6 = ((({ int _temp_var_7 = ((values[2] % 4));
-        (_temp_var_7 == 0 ? indices.field_0 : (_temp_var_7 == 1 ? indices.field_1 : (_temp_var_7 == 2 ? indices.field_2 : (_temp_var_7 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_6 == 0 ? indices.field_0 : (_temp_var_6 == 1 ? indices.field_1 : (_temp_var_6 == 2 ? indices.field_2 : (_temp_var_6 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_5 == 0 ? indices.field_0 : (_temp_var_5 == 1 ? indices.field_1 : (_temp_var_5 == 2 ? indices.field_2 : (_temp_var_5 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_121 = ((({ int _temp_var_122 = ((({ int _temp_var_123 = ((values[2] % 4));
+        (_temp_var_123 == 0 ? indices.field_0 : (_temp_var_123 == 1 ? indices.field_1 : (_temp_var_123 == 2 ? indices.field_2 : (_temp_var_123 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_122 == 0 ? indices.field_0 : (_temp_var_122 == 1 ? indices.field_1 : (_temp_var_122 == 2 ? indices.field_2 : (_temp_var_122 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_121 == 0 ? indices.field_0 : (_temp_var_121 == 1 ? indices.field_1 : (_temp_var_121 == 2 ? indices.field_2 : (_temp_var_121 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_8(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_11)
+__global__ void kernel_204(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_207)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_13;
+    int temp_stencil_209;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 500000;
@@ -320,22 +320,22 @@ int temp_stencil_dim_3 = (_tid_ / 1) % 2;
     {
         // All value indices within bounds
         
-        temp_stencil_13 = _block_k_4_(_env_, _kernel_result_11[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_11[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_11[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_11[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_209 = _block_k_4_(_env_, _kernel_result_207[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_207[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_207[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_207[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_13 = 37;
+        temp_stencil_209 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_13;
+        _result_[_tid_] = temp_stencil_209;
     }
 }
 
 
 
 
-__global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_, int *_array_16_)
+__global__ void kernel_210(environment_t *_env_, int _num_threads_, int *_result_, int *_array_212_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -343,14 +343,14 @@ __global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_16_[_tid_];
+        _result_[_tid_] = _array_212_[_tid_];
     }
 }
 
 
 
 
-__global__ void kernel_19(environment_t *_env_, int _num_threads_, int *_result_, int *_array_21_)
+__global__ void kernel_215(environment_t *_env_, int _num_threads_, int *_result_, int *_array_217_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -358,7 +358,7 @@ __global__ void kernel_19(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_21_[_tid_];
+        _result_[_tid_] = _array_217_[_tid_];
     }
 }
 
@@ -374,23 +374,23 @@ __device__ int _block_k_4_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_10 = ((({ int _temp_var_11 = ((({ int _temp_var_12 = ((values[2] % 4));
-        (_temp_var_12 == 0 ? indices.field_0 : (_temp_var_12 == 1 ? indices.field_1 : (_temp_var_12 == 2 ? indices.field_2 : (_temp_var_12 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_11 == 0 ? indices.field_0 : (_temp_var_11 == 1 ? indices.field_1 : (_temp_var_11 == 2 ? indices.field_2 : (_temp_var_11 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_10 == 0 ? indices.field_0 : (_temp_var_10 == 1 ? indices.field_1 : (_temp_var_10 == 2 ? indices.field_2 : (_temp_var_10 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_126 = ((({ int _temp_var_127 = ((({ int _temp_var_128 = ((values[2] % 4));
+        (_temp_var_128 == 0 ? indices.field_0 : (_temp_var_128 == 1 ? indices.field_1 : (_temp_var_128 == 2 ? indices.field_2 : (_temp_var_128 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_127 == 0 ? indices.field_0 : (_temp_var_127 == 1 ? indices.field_1 : (_temp_var_127 == 2 ? indices.field_2 : (_temp_var_127 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_126 == 0 ? indices.field_0 : (_temp_var_126 == 1 ? indices.field_1 : (_temp_var_126 == 2 ? indices.field_2 : (_temp_var_126 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_20)
+__global__ void kernel_213(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_216)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_22;
+    int temp_stencil_218;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 500000;
@@ -402,22 +402,22 @@ int temp_stencil_dim_3 = (_tid_ / 1) % 2;
     {
         // All value indices within bounds
         
-        temp_stencil_22 = _block_k_4_(_env_, _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_218 = _block_k_4_(_env_, _kernel_result_216[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_216[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_216[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_216[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_22 = 37;
+        temp_stencil_218 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_22;
+        _result_[_tid_] = temp_stencil_218;
     }
 }
 
 
 
 
-__global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_, int *_array_25_)
+__global__ void kernel_219(environment_t *_env_, int _num_threads_, int *_result_, int *_array_221_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -425,14 +425,14 @@ __global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_25_[_tid_];
+        _result_[_tid_] = _array_221_[_tid_];
     }
 }
 
 
 
 
-__global__ void kernel_28(environment_t *_env_, int _num_threads_, int *_result_, int *_array_30_)
+__global__ void kernel_224(environment_t *_env_, int _num_threads_, int *_result_, int *_array_226_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -440,7 +440,7 @@ __global__ void kernel_28(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_30_[_tid_];
+        _result_[_tid_] = _array_226_[_tid_];
     }
 }
 
@@ -456,23 +456,23 @@ __device__ int _block_k_4_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_15 = ((({ int _temp_var_16 = ((({ int _temp_var_17 = ((values[2] % 4));
-        (_temp_var_17 == 0 ? indices.field_0 : (_temp_var_17 == 1 ? indices.field_1 : (_temp_var_17 == 2 ? indices.field_2 : (_temp_var_17 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_16 == 0 ? indices.field_0 : (_temp_var_16 == 1 ? indices.field_1 : (_temp_var_16 == 2 ? indices.field_2 : (_temp_var_16 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_15 == 0 ? indices.field_0 : (_temp_var_15 == 1 ? indices.field_1 : (_temp_var_15 == 2 ? indices.field_2 : (_temp_var_15 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_131 = ((({ int _temp_var_132 = ((({ int _temp_var_133 = ((values[2] % 4));
+        (_temp_var_133 == 0 ? indices.field_0 : (_temp_var_133 == 1 ? indices.field_1 : (_temp_var_133 == 2 ? indices.field_2 : (_temp_var_133 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_132 == 0 ? indices.field_0 : (_temp_var_132 == 1 ? indices.field_1 : (_temp_var_132 == 2 ? indices.field_2 : (_temp_var_132 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_131 == 0 ? indices.field_0 : (_temp_var_131 == 1 ? indices.field_1 : (_temp_var_131 == 2 ? indices.field_2 : (_temp_var_131 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_26(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_29)
+__global__ void kernel_222(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_225)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_31;
+    int temp_stencil_227;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 500000;
@@ -484,22 +484,22 @@ int temp_stencil_dim_3 = (_tid_ / 1) % 2;
     {
         // All value indices within bounds
         
-        temp_stencil_31 = _block_k_4_(_env_, _kernel_result_29[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_29[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_29[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_29[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_227 = _block_k_4_(_env_, _kernel_result_225[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_225[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_225[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_225[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_31 = 37;
+        temp_stencil_227 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_31;
+        _result_[_tid_] = temp_stencil_227;
     }
 }
 
 
 
 
-__global__ void kernel_32(environment_t *_env_, int _num_threads_, int *_result_, int *_array_34_)
+__global__ void kernel_228(environment_t *_env_, int _num_threads_, int *_result_, int *_array_230_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -507,14 +507,14 @@ __global__ void kernel_32(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_34_[_tid_];
+        _result_[_tid_] = _array_230_[_tid_];
     }
 }
 
 
 
 
-__global__ void kernel_37(environment_t *_env_, int _num_threads_, int *_result_, int *_array_39_)
+__global__ void kernel_233(environment_t *_env_, int _num_threads_, int *_result_, int *_array_235_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -522,7 +522,7 @@ __global__ void kernel_37(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_39_[_tid_];
+        _result_[_tid_] = _array_235_[_tid_];
     }
 }
 
@@ -538,23 +538,23 @@ __device__ int _block_k_4_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_20 = ((({ int _temp_var_21 = ((({ int _temp_var_22 = ((values[2] % 4));
-        (_temp_var_22 == 0 ? indices.field_0 : (_temp_var_22 == 1 ? indices.field_1 : (_temp_var_22 == 2 ? indices.field_2 : (_temp_var_22 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_21 == 0 ? indices.field_0 : (_temp_var_21 == 1 ? indices.field_1 : (_temp_var_21 == 2 ? indices.field_2 : (_temp_var_21 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_20 == 0 ? indices.field_0 : (_temp_var_20 == 1 ? indices.field_1 : (_temp_var_20 == 2 ? indices.field_2 : (_temp_var_20 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_136 = ((({ int _temp_var_137 = ((({ int _temp_var_138 = ((values[2] % 4));
+        (_temp_var_138 == 0 ? indices.field_0 : (_temp_var_138 == 1 ? indices.field_1 : (_temp_var_138 == 2 ? indices.field_2 : (_temp_var_138 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_137 == 0 ? indices.field_0 : (_temp_var_137 == 1 ? indices.field_1 : (_temp_var_137 == 2 ? indices.field_2 : (_temp_var_137 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_136 == 0 ? indices.field_0 : (_temp_var_136 == 1 ? indices.field_1 : (_temp_var_136 == 2 ? indices.field_2 : (_temp_var_136 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_35(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_38)
+__global__ void kernel_231(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_234)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_40;
+    int temp_stencil_236;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 500000;
@@ -566,22 +566,22 @@ int temp_stencil_dim_3 = (_tid_ / 1) % 2;
     {
         // All value indices within bounds
         
-        temp_stencil_40 = _block_k_4_(_env_, _kernel_result_38[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_38[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_38[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_38[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_236 = _block_k_4_(_env_, _kernel_result_234[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_234[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_234[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_234[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_40 = 37;
+        temp_stencil_236 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_40;
+        _result_[_tid_] = temp_stencil_236;
     }
 }
 
 
 
 
-__global__ void kernel_41(environment_t *_env_, int _num_threads_, int *_result_, int *_array_43_)
+__global__ void kernel_237(environment_t *_env_, int _num_threads_, int *_result_, int *_array_239_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -589,14 +589,14 @@ __global__ void kernel_41(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_43_[_tid_];
+        _result_[_tid_] = _array_239_[_tid_];
     }
 }
 
 
 
 
-__global__ void kernel_46(environment_t *_env_, int _num_threads_, int *_result_, int *_array_48_)
+__global__ void kernel_242(environment_t *_env_, int _num_threads_, int *_result_, int *_array_244_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -604,7 +604,7 @@ __global__ void kernel_46(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_48_[_tid_];
+        _result_[_tid_] = _array_244_[_tid_];
     }
 }
 
@@ -620,23 +620,23 @@ __device__ int _block_k_4_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_27 = ((({ int _temp_var_28 = ((({ int _temp_var_29 = ((values[2] % 4));
-        (_temp_var_29 == 0 ? indices.field_0 : (_temp_var_29 == 1 ? indices.field_1 : (_temp_var_29 == 2 ? indices.field_2 : (_temp_var_29 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_28 == 0 ? indices.field_0 : (_temp_var_28 == 1 ? indices.field_1 : (_temp_var_28 == 2 ? indices.field_2 : (_temp_var_28 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_27 == 0 ? indices.field_0 : (_temp_var_27 == 1 ? indices.field_1 : (_temp_var_27 == 2 ? indices.field_2 : (_temp_var_27 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_143 = ((({ int _temp_var_144 = ((({ int _temp_var_145 = ((values[2] % 4));
+        (_temp_var_145 == 0 ? indices.field_0 : (_temp_var_145 == 1 ? indices.field_1 : (_temp_var_145 == 2 ? indices.field_2 : (_temp_var_145 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_144 == 0 ? indices.field_0 : (_temp_var_144 == 1 ? indices.field_1 : (_temp_var_144 == 2 ? indices.field_2 : (_temp_var_144 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_143 == 0 ? indices.field_0 : (_temp_var_143 == 1 ? indices.field_1 : (_temp_var_143 == 2 ? indices.field_2 : (_temp_var_143 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_44(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_47)
+__global__ void kernel_240(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_243)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_49;
+    int temp_stencil_245;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 500000;
@@ -648,15 +648,15 @@ int temp_stencil_dim_3 = (_tid_ / 1) % 2;
     {
         // All value indices within bounds
         
-        temp_stencil_49 = _block_k_4_(_env_, _kernel_result_47[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_47[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_47[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_47[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_245 = _block_k_4_(_env_, _kernel_result_243[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_243[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_243[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_243[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_49 = 37;
+        temp_stencil_245 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_49;
+        _result_[_tid_] = temp_stencil_245;
     }
 }
 
@@ -678,7 +678,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
     array_command_4 * _ssa_var_y_6;
     union_t _ssa_var_old_data_5;
     union_t _ssa_var_old_old_data_4;
-    int i;
+    int r;
     union_t _ssa_var_old_data_2;
     union_t _ssa_var_y_1;
     {
@@ -689,93 +689,101 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_2;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_2);
+            int * _kernel_result_198;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_198, (sizeof(int) * 10000000)));
+            program_result->device_allocations->push_back(_kernel_result_198);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+            kernel_197<<<39063, 256>>>(dev_env, 10000000, _kernel_result_198);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_2;
+                cmd->result = _kernel_result_198;
         
                 
             }
         
             variable_size_array_t((void *) cmd->result, 10000000);
         }))));
-        _ssa_var_old_data_2 = union_t(11, union_v_t::from_pointer((void *) x));
-        _ssa_var_old_old_data_3 = union_t(11, union_v_t::from_pointer((void *) x));
-        for (i = 0; i <= (200 - 1); i++)
+        _ssa_var_old_data_2 = union_t(19, union_v_t::from_pointer((void *) x));
+        _ssa_var_old_old_data_3 = union_t(19, union_v_t::from_pointer((void *) x));
+        for (r = 0; r <= (200 - 1); r++)
         {
             _ssa_var_old_old_data_4 = _ssa_var_old_data_2;
             _ssa_var_old_data_5 = _ssa_var_y_1;
             _ssa_var_y_6 = new array_command_4(NULL, new array_command_3(NULL, ({
-                variable_size_array_t _polytemp_result_3;
+                variable_size_array_t _polytemp_result_119;
                 {
-                    union_t _polytemp_expr_4 = _ssa_var_y_1;
-                    switch (_polytemp_expr_4.class_id)
+                    union_t _polytemp_expr_120 = _ssa_var_y_1;
+                    switch (_polytemp_expr_120.class_id)
                     {
-                        case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_3 = ({
+                        case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_119 = ({
                             // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000]
                         
-                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_4.value.pointer;
+                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_120.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            int * _kernel_result_6;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 10000000)));
-                            program_result->device_allocations->push_back(_kernel_result_6);
+                            int * _kernel_result_202;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_202, (sizeof(int) * 10000000)));
+                            program_result->device_allocations->push_back(_kernel_result_202);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_5<<<39063, 256>>>(dev_env, 10000000, _kernel_result_6, ((int *) cmd->input_0.content));
+                            kernel_201<<<39063, 256>>>(dev_env, 10000000, _kernel_result_202, ((int *) cmd->input_0.content));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_6;
+                                cmd->result = _kernel_result_202;
                         
                                 
                             }
                         
                             variable_size_array_t((void *) cmd->result, 10000000);
                         }); break;
-                        case 12: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_3 = ({
+                        case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_119 = ({
                             // [Ikra::Symbolic::ArrayStencilCommand, size = 10000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<-1>, <0>, <0>, <0>]], [ArrayNode: [<0>, <0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>, <0>]], [ArrayNode: [<-1>, <-1>, <0>, <0>]]]]; <37>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                         
-                            array_command_4 * cmd = (array_command_4 *) _polytemp_expr_4.value.pointer;
+                            array_command_4 * cmd = (array_command_4 *) _polytemp_expr_120.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            int * _kernel_result_11;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_11, (sizeof(int) * 10000000)));
-                            program_result->device_allocations->push_back(_kernel_result_11);
+                            int * _kernel_result_207;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_207, (sizeof(int) * 10000000)));
+                            program_result->device_allocations->push_back(_kernel_result_207);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_10<<<39063, 256>>>(dev_env, 10000000, _kernel_result_11, ((int *) ((int *) cmd->input_0->input_0.content)));
+                            kernel_206<<<39063, 256>>>(dev_env, 10000000, _kernel_result_207, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                            int * _kernel_result_9;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_9, (sizeof(int) * 10000000)));
-                            program_result->device_allocations->push_back(_kernel_result_9);
+                            int * _kernel_result_205;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_205, (sizeof(int) * 10000000)));
+                            program_result->device_allocations->push_back(_kernel_result_205);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_8<<<39063, 256>>>(dev_env, 10000000, _kernel_result_9, _kernel_result_11);
+                            kernel_204<<<39063, 256>>>(dev_env, 10000000, _kernel_result_205, _kernel_result_207);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_9;
+                                cmd->result = _kernel_result_205;
                         
                                     timeStartMeasure();
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_11));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_11),
-                                program_result->device_allocations->end());
+                        
+                            if (_kernel_result_207 != cmd->result) {
+                                // Don't free memory if it is the result. There is already a similar check in
+                                // program_builder (free all except for last). However, this check is not sufficient in
+                                // case the same array is reused!
+                        
+                                checkErrorReturn(program_result, cudaFree(_kernel_result_207));
+                                // Remove from list of allocations
+                                program_result->device_allocations->erase(
+                                    std::remove(
+                                        program_result->device_allocations->begin(),
+                                        program_result->device_allocations->end(),
+                                        _kernel_result_207),
+                                    program_result->device_allocations->end());
+                            }
+                        
                             timeReportMeasure(program_result, free_memory);
                         
                             }
@@ -784,24 +792,24 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         }); break;
                     }
                 }
-                _polytemp_result_3;
+                _polytemp_result_119;
             })));
-            if (((i > 1)))
+            if (((r > 1)))
             {
                 ({
-                    bool _polytemp_result_23;
+                    bool _polytemp_result_139;
                     {
-                        union_t _polytemp_expr_24 = _ssa_var_old_old_data_4;
-                        switch (_polytemp_expr_24.class_id)
+                        union_t _polytemp_expr_140 = _ssa_var_old_old_data_4;
+                        switch (_polytemp_expr_140.class_id)
                         {
-                            case 11: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_23 = ({
-                                array_command_2 * cmd_to_free = (array_command_2 *) _polytemp_expr_24.value.pointer;
+                            case 19: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_139 = ({
+                                array_command_2 * cmd_to_free = (array_command_2 *) _polytemp_expr_140.value.pointer;
                             
                                 timeStartMeasure();
                                 bool freed_memory = false;
                             
                                 if (cmd_to_free->result != 0) {
-                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
                             
                                     // Remove from list of allocations
                                     program_result->device_allocations->erase(
@@ -818,14 +826,14 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                                 
                                 freed_memory;
                             }); break;
-                            case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_23 = ({
-                                array_command_3 * cmd_to_free = (array_command_3 *) _polytemp_expr_24.value.pointer;
+                            case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_139 = ({
+                                array_command_3 * cmd_to_free = (array_command_3 *) _polytemp_expr_140.value.pointer;
                             
                                 timeStartMeasure();
                                 bool freed_memory = false;
                             
                                 if (cmd_to_free->result != 0) {
-                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
                             
                                     // Remove from list of allocations
                                     program_result->device_allocations->erase(
@@ -842,14 +850,14 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                                 
                                 freed_memory;
                             }); break;
-                            case 12: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_23 = ({
-                                array_command_4 * cmd_to_free = (array_command_4 *) _polytemp_expr_24.value.pointer;
+                            case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_139 = ({
+                                array_command_4 * cmd_to_free = (array_command_4 *) _polytemp_expr_140.value.pointer;
                             
                                 timeStartMeasure();
                                 bool freed_memory = false;
                             
                                 if (cmd_to_free->result != 0) {
-                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
                             
                                     // Remove from list of allocations
                                     program_result->device_allocations->erase(
@@ -868,83 +876,91 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             }); break;
                         }
                     }
-                    _polytemp_result_23;
+                    _polytemp_result_139;
                 });
             }
             else
             {
             
             }
-            _ssa_var_y_1 = union_t(12, union_v_t::from_pointer((void *) _ssa_var_y_6));
+            _ssa_var_y_1 = union_t(20, union_v_t::from_pointer((void *) _ssa_var_y_6));
             _ssa_var_old_data_2 = _ssa_var_old_data_5;
             _ssa_var_old_old_data_3 = _ssa_var_old_old_data_4;
         }
-        i--;
+        r--;
         return ({
-            variable_size_array_t _polytemp_result_25;
+            variable_size_array_t _polytemp_result_141;
             {
-                union_t _polytemp_expr_26 = _ssa_var_y_1;
-                switch (_polytemp_expr_26.class_id)
+                union_t _polytemp_expr_142 = _ssa_var_y_1;
+                switch (_polytemp_expr_142.class_id)
                 {
-                    case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_25 = ({
+                    case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_141 = ({
                         // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000]
                     
-                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_26.value.pointer;
+                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_142.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        int * _kernel_result_42;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_42, (sizeof(int) * 10000000)));
-                        program_result->device_allocations->push_back(_kernel_result_42);
+                        int * _kernel_result_238;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_238, (sizeof(int) * 10000000)));
+                        program_result->device_allocations->push_back(_kernel_result_238);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_41<<<39063, 256>>>(dev_env, 10000000, _kernel_result_42, ((int *) cmd->input_0.content));
+                        kernel_237<<<39063, 256>>>(dev_env, 10000000, _kernel_result_238, ((int *) cmd->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_42;
+                            cmd->result = _kernel_result_238;
                     
                             
                         }
                     
                         variable_size_array_t((void *) cmd->result, 10000000);
                     }); break;
-                    case 12: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_25 = ({
+                    case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_141 = ({
                         // [Ikra::Symbolic::ArrayStencilCommand, size = 10000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<-1>, <0>, <0>, <0>]], [ArrayNode: [<0>, <0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>, <0>]], [ArrayNode: [<-1>, <-1>, <0>, <0>]]]]; <37>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                     
-                        array_command_4 * cmd = (array_command_4 *) _polytemp_expr_26.value.pointer;
+                        array_command_4 * cmd = (array_command_4 *) _polytemp_expr_142.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        int * _kernel_result_47;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_47, (sizeof(int) * 10000000)));
-                        program_result->device_allocations->push_back(_kernel_result_47);
+                        int * _kernel_result_243;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_243, (sizeof(int) * 10000000)));
+                        program_result->device_allocations->push_back(_kernel_result_243);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_46<<<39063, 256>>>(dev_env, 10000000, _kernel_result_47, ((int *) ((int *) cmd->input_0->input_0.content)));
+                        kernel_242<<<39063, 256>>>(dev_env, 10000000, _kernel_result_243, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        int * _kernel_result_45;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_45, (sizeof(int) * 10000000)));
-                        program_result->device_allocations->push_back(_kernel_result_45);
+                        int * _kernel_result_241;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_241, (sizeof(int) * 10000000)));
+                        program_result->device_allocations->push_back(_kernel_result_241);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_44<<<39063, 256>>>(dev_env, 10000000, _kernel_result_45, _kernel_result_47);
+                        kernel_240<<<39063, 256>>>(dev_env, 10000000, _kernel_result_241, _kernel_result_243);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_45;
+                            cmd->result = _kernel_result_241;
                     
                                 timeStartMeasure();
-                        checkErrorReturn(program_result, cudaFree(_kernel_result_47));
-                        // Remove from list of allocations
-                        program_result->device_allocations->erase(
-                            std::remove(
-                                program_result->device_allocations->begin(),
-                                program_result->device_allocations->end(),
-                                _kernel_result_47),
-                            program_result->device_allocations->end());
+                    
+                        if (_kernel_result_243 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_243));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_243),
+                                program_result->device_allocations->end());
+                        }
+                    
                         timeReportMeasure(program_result, free_memory);
                     
                         }
@@ -953,20 +969,14 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                     }); break;
                 }
             }
-            _polytemp_result_25;
+            _polytemp_result_141;
         });
     }
 }
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

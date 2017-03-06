@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -190,8 +191,8 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
     
     
     {
-        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_1 = ((indices.field_1 % 4));
-        (_temp_var_1 == 0 ? indices.field_0 : (_temp_var_1 == 1 ? indices.field_1 : (_temp_var_1 == 2 ? indices.field_2 : (_temp_var_1 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
+        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_125 = ((indices.field_1 % 4));
+        (_temp_var_125 == 0 ? indices.field_0 : (_temp_var_125 == 1 ? indices.field_1 : (_temp_var_125 == 2 ? indices.field_2 : (_temp_var_125 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
     }
 }
 
@@ -208,10 +209,10 @@ __device__ int _block_k_3_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     {
-        return (((((((i % 938)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_2 = ((({ int _temp_var_3 = ((({ int _temp_var_4 = ((i % 4));
-        (_temp_var_4 == 0 ? indices.field_0 : (_temp_var_4 == 1 ? indices.field_1 : (_temp_var_4 == 2 ? indices.field_2 : (_temp_var_4 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_3 == 0 ? indices.field_0 : (_temp_var_3 == 1 ? indices.field_1 : (_temp_var_3 == 2 ? indices.field_2 : (_temp_var_3 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_2 == 0 ? indices.field_0 : (_temp_var_2 == 1 ? indices.field_1 : (_temp_var_2 == 2 ? indices.field_2 : (_temp_var_2 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 938)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_126 = ((({ int _temp_var_127 = ((({ int _temp_var_128 = ((i % 4));
+        (_temp_var_128 == 0 ? indices.field_0 : (_temp_var_128 == 1 ? indices.field_1 : (_temp_var_128 == 2 ? indices.field_2 : (_temp_var_128 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_127 == 0 ? indices.field_0 : (_temp_var_127 == 1 ? indices.field_1 : (_temp_var_127 == 2 ? indices.field_2 : (_temp_var_127 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_126 == 0 ? indices.field_0 : (_temp_var_126 == 1 ? indices.field_1 : (_temp_var_126 == 2 ? indices.field_2 : (_temp_var_126 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -228,10 +229,10 @@ __device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     {
-        return (((((((i % 939)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_5 = ((({ int _temp_var_6 = ((({ int _temp_var_7 = ((i % 4));
-        (_temp_var_7 == 0 ? indices.field_0 : (_temp_var_7 == 1 ? indices.field_1 : (_temp_var_7 == 2 ? indices.field_2 : (_temp_var_7 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_6 == 0 ? indices.field_0 : (_temp_var_6 == 1 ? indices.field_1 : (_temp_var_6 == 2 ? indices.field_2 : (_temp_var_6 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_5 == 0 ? indices.field_0 : (_temp_var_5 == 1 ? indices.field_1 : (_temp_var_5 == 2 ? indices.field_2 : (_temp_var_5 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 939)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_129 = ((({ int _temp_var_130 = ((({ int _temp_var_131 = ((i % 4));
+        (_temp_var_131 == 0 ? indices.field_0 : (_temp_var_131 == 1 ? indices.field_1 : (_temp_var_131 == 2 ? indices.field_2 : (_temp_var_131 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_130 == 0 ? indices.field_0 : (_temp_var_130 == 1 ? indices.field_1 : (_temp_var_130 == 2 ? indices.field_2 : (_temp_var_130 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_129 == 0 ? indices.field_0 : (_temp_var_129 == 1 ? indices.field_1 : (_temp_var_129 == 2 ? indices.field_2 : (_temp_var_129 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -248,10 +249,10 @@ __device__ int _block_k_7_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     {
-        return (((((((i % 940)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_8 = ((({ int _temp_var_9 = ((({ int _temp_var_10 = ((i % 4));
-        (_temp_var_10 == 0 ? indices.field_0 : (_temp_var_10 == 1 ? indices.field_1 : (_temp_var_10 == 2 ? indices.field_2 : (_temp_var_10 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_9 == 0 ? indices.field_0 : (_temp_var_9 == 1 ? indices.field_1 : (_temp_var_9 == 2 ? indices.field_2 : (_temp_var_9 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_8 == 0 ? indices.field_0 : (_temp_var_8 == 1 ? indices.field_1 : (_temp_var_8 == 2 ? indices.field_2 : (_temp_var_8 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 940)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_132 = ((({ int _temp_var_133 = ((({ int _temp_var_134 = ((i % 4));
+        (_temp_var_134 == 0 ? indices.field_0 : (_temp_var_134 == 1 ? indices.field_1 : (_temp_var_134 == 2 ? indices.field_2 : (_temp_var_134 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_133 == 0 ? indices.field_0 : (_temp_var_133 == 1 ? indices.field_1 : (_temp_var_133 == 2 ? indices.field_2 : (_temp_var_133 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_132 == 0 ? indices.field_0 : (_temp_var_132 == 1 ? indices.field_1 : (_temp_var_132 == 2 ? indices.field_2 : (_temp_var_132 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -268,10 +269,10 @@ __device__ int _block_k_9_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     {
-        return (((((((i % 941)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_11 = ((({ int _temp_var_12 = ((({ int _temp_var_13 = ((i % 4));
-        (_temp_var_13 == 0 ? indices.field_0 : (_temp_var_13 == 1 ? indices.field_1 : (_temp_var_13 == 2 ? indices.field_2 : (_temp_var_13 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_12 == 0 ? indices.field_0 : (_temp_var_12 == 1 ? indices.field_1 : (_temp_var_12 == 2 ? indices.field_2 : (_temp_var_12 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_11 == 0 ? indices.field_0 : (_temp_var_11 == 1 ? indices.field_1 : (_temp_var_11 == 2 ? indices.field_2 : (_temp_var_11 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 941)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_135 = ((({ int _temp_var_136 = ((({ int _temp_var_137 = ((i % 4));
+        (_temp_var_137 == 0 ? indices.field_0 : (_temp_var_137 == 1 ? indices.field_1 : (_temp_var_137 == 2 ? indices.field_2 : (_temp_var_137 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_136 == 0 ? indices.field_0 : (_temp_var_136 == 1 ? indices.field_1 : (_temp_var_136 == 2 ? indices.field_2 : (_temp_var_136 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_135 == 0 ? indices.field_0 : (_temp_var_135 == 1 ? indices.field_1 : (_temp_var_135 == 2 ? indices.field_2 : (_temp_var_135 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -288,10 +289,10 @@ __device__ int _block_k_11_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 942)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_14 = ((({ int _temp_var_15 = ((({ int _temp_var_16 = ((i % 4));
-        (_temp_var_16 == 0 ? indices.field_0 : (_temp_var_16 == 1 ? indices.field_1 : (_temp_var_16 == 2 ? indices.field_2 : (_temp_var_16 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_15 == 0 ? indices.field_0 : (_temp_var_15 == 1 ? indices.field_1 : (_temp_var_15 == 2 ? indices.field_2 : (_temp_var_15 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_14 == 0 ? indices.field_0 : (_temp_var_14 == 1 ? indices.field_1 : (_temp_var_14 == 2 ? indices.field_2 : (_temp_var_14 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 942)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_138 = ((({ int _temp_var_139 = ((({ int _temp_var_140 = ((i % 4));
+        (_temp_var_140 == 0 ? indices.field_0 : (_temp_var_140 == 1 ? indices.field_1 : (_temp_var_140 == 2 ? indices.field_2 : (_temp_var_140 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_139 == 0 ? indices.field_0 : (_temp_var_139 == 1 ? indices.field_1 : (_temp_var_139 == 2 ? indices.field_2 : (_temp_var_139 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_138 == 0 ? indices.field_0 : (_temp_var_138 == 1 ? indices.field_1 : (_temp_var_138 == 2 ? indices.field_2 : (_temp_var_138 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -308,10 +309,10 @@ __device__ int _block_k_13_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 943)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_17 = ((({ int _temp_var_18 = ((({ int _temp_var_19 = ((i % 4));
-        (_temp_var_19 == 0 ? indices.field_0 : (_temp_var_19 == 1 ? indices.field_1 : (_temp_var_19 == 2 ? indices.field_2 : (_temp_var_19 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_18 == 0 ? indices.field_0 : (_temp_var_18 == 1 ? indices.field_1 : (_temp_var_18 == 2 ? indices.field_2 : (_temp_var_18 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_17 == 0 ? indices.field_0 : (_temp_var_17 == 1 ? indices.field_1 : (_temp_var_17 == 2 ? indices.field_2 : (_temp_var_17 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 943)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_141 = ((({ int _temp_var_142 = ((({ int _temp_var_143 = ((i % 4));
+        (_temp_var_143 == 0 ? indices.field_0 : (_temp_var_143 == 1 ? indices.field_1 : (_temp_var_143 == 2 ? indices.field_2 : (_temp_var_143 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_142 == 0 ? indices.field_0 : (_temp_var_142 == 1 ? indices.field_1 : (_temp_var_142 == 2 ? indices.field_2 : (_temp_var_142 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_141 == 0 ? indices.field_0 : (_temp_var_141 == 1 ? indices.field_1 : (_temp_var_141 == 2 ? indices.field_2 : (_temp_var_141 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -328,10 +329,10 @@ __device__ int _block_k_15_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 944)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_20 = ((({ int _temp_var_21 = ((({ int _temp_var_22 = ((i % 4));
-        (_temp_var_22 == 0 ? indices.field_0 : (_temp_var_22 == 1 ? indices.field_1 : (_temp_var_22 == 2 ? indices.field_2 : (_temp_var_22 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_21 == 0 ? indices.field_0 : (_temp_var_21 == 1 ? indices.field_1 : (_temp_var_21 == 2 ? indices.field_2 : (_temp_var_21 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_20 == 0 ? indices.field_0 : (_temp_var_20 == 1 ? indices.field_1 : (_temp_var_20 == 2 ? indices.field_2 : (_temp_var_20 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 944)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_144 = ((({ int _temp_var_145 = ((({ int _temp_var_146 = ((i % 4));
+        (_temp_var_146 == 0 ? indices.field_0 : (_temp_var_146 == 1 ? indices.field_1 : (_temp_var_146 == 2 ? indices.field_2 : (_temp_var_146 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_145 == 0 ? indices.field_0 : (_temp_var_145 == 1 ? indices.field_1 : (_temp_var_145 == 2 ? indices.field_2 : (_temp_var_145 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_144 == 0 ? indices.field_0 : (_temp_var_144 == 1 ? indices.field_1 : (_temp_var_144 == 2 ? indices.field_2 : (_temp_var_144 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -348,10 +349,10 @@ __device__ int _block_k_17_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 945)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_23 = ((({ int _temp_var_24 = ((({ int _temp_var_25 = ((i % 4));
-        (_temp_var_25 == 0 ? indices.field_0 : (_temp_var_25 == 1 ? indices.field_1 : (_temp_var_25 == 2 ? indices.field_2 : (_temp_var_25 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_24 == 0 ? indices.field_0 : (_temp_var_24 == 1 ? indices.field_1 : (_temp_var_24 == 2 ? indices.field_2 : (_temp_var_24 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_23 == 0 ? indices.field_0 : (_temp_var_23 == 1 ? indices.field_1 : (_temp_var_23 == 2 ? indices.field_2 : (_temp_var_23 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 945)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_147 = ((({ int _temp_var_148 = ((({ int _temp_var_149 = ((i % 4));
+        (_temp_var_149 == 0 ? indices.field_0 : (_temp_var_149 == 1 ? indices.field_1 : (_temp_var_149 == 2 ? indices.field_2 : (_temp_var_149 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_148 == 0 ? indices.field_0 : (_temp_var_148 == 1 ? indices.field_1 : (_temp_var_148 == 2 ? indices.field_2 : (_temp_var_148 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_147 == 0 ? indices.field_0 : (_temp_var_147 == 1 ? indices.field_1 : (_temp_var_147 == 2 ? indices.field_2 : (_temp_var_147 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -368,10 +369,10 @@ __device__ int _block_k_19_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 946)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_26 = ((({ int _temp_var_27 = ((({ int _temp_var_28 = ((i % 4));
-        (_temp_var_28 == 0 ? indices.field_0 : (_temp_var_28 == 1 ? indices.field_1 : (_temp_var_28 == 2 ? indices.field_2 : (_temp_var_28 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_27 == 0 ? indices.field_0 : (_temp_var_27 == 1 ? indices.field_1 : (_temp_var_27 == 2 ? indices.field_2 : (_temp_var_27 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_26 == 0 ? indices.field_0 : (_temp_var_26 == 1 ? indices.field_1 : (_temp_var_26 == 2 ? indices.field_2 : (_temp_var_26 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 946)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_150 = ((({ int _temp_var_151 = ((({ int _temp_var_152 = ((i % 4));
+        (_temp_var_152 == 0 ? indices.field_0 : (_temp_var_152 == 1 ? indices.field_1 : (_temp_var_152 == 2 ? indices.field_2 : (_temp_var_152 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_151 == 0 ? indices.field_0 : (_temp_var_151 == 1 ? indices.field_1 : (_temp_var_151 == 2 ? indices.field_2 : (_temp_var_151 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_150 == 0 ? indices.field_0 : (_temp_var_150 == 1 ? indices.field_1 : (_temp_var_150 == 2 ? indices.field_2 : (_temp_var_150 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
@@ -388,17 +389,17 @@ __device__ int _block_k_21_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     {
-        return (((((((i % 947)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_29 = ((({ int _temp_var_30 = ((({ int _temp_var_31 = ((i % 4));
-        (_temp_var_31 == 0 ? indices.field_0 : (_temp_var_31 == 1 ? indices.field_1 : (_temp_var_31 == 2 ? indices.field_2 : (_temp_var_31 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_30 == 0 ? indices.field_0 : (_temp_var_30 == 1 ? indices.field_1 : (_temp_var_30 == 2 ? indices.field_2 : (_temp_var_30 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_29 == 0 ? indices.field_0 : (_temp_var_29 == 1 ? indices.field_1 : (_temp_var_29 == 2 ? indices.field_2 : (_temp_var_29 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+        return (((((((i % 947)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_153 = ((({ int _temp_var_154 = ((({ int _temp_var_155 = ((i % 4));
+        (_temp_var_155 == 0 ? indices.field_0 : (_temp_var_155 == 1 ? indices.field_1 : (_temp_var_155 == 2 ? indices.field_2 : (_temp_var_155 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_154 == 0 ? indices.field_0 : (_temp_var_154 == 1 ? indices.field_1 : (_temp_var_154 == 2 ? indices.field_2 : (_temp_var_154 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_153 == 0 ? indices.field_0 : (_temp_var_153 == 1 ? indices.field_1 : (_temp_var_153 == 2 ? indices.field_2 : (_temp_var_153 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -457,19 +458,19 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
         timeStartMeasure();
-    int * _kernel_result_2;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-    program_result->device_allocations->push_back(_kernel_result_2);
+    int * _kernel_result_10;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 10000000)));
+    program_result->device_allocations->push_back(_kernel_result_10);
     timeReportMeasure(program_result, allocate_memory);
     timeStartMeasure();
-    kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+    kernel_9<<<39063, 256>>>(dev_env, 10000000, _kernel_result_10);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
     timeReportMeasure(program_result, kernel);
 
     /* Copy over result to the host */
     program_result->result = ({
-    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_2, 10000000);
+    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_10, 10000000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
 
     timeStartMeasure();
@@ -481,7 +482,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Free device memory */
         timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_10));
     timeReportMeasure(program_result, free_memory);
 
 

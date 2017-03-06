@@ -161,506 +161,6 @@ typedef struct result_t {
 
 struct environment_struct
 {
-    int l3_i;
-    int l5_i;
-    int l7_i;
-    int l9_i;
-    int l11_i;
-    int l13_i;
-    int l15_i;
-    int l17_i;
-    int l19_i;
-    int l21_i;
-    int l23_i;
-    int l25_i;
-    int l27_i;
-    int l29_i;
-    int l31_i;
-    int l33_i;
-    int l35_i;
-    int l37_i;
-    int l39_i;
-    int l41_i;
-    int l43_i;
-    int l45_i;
-    int l47_i;
-    int l49_i;
-    int l51_i;
-    int l53_i;
-    int l55_i;
-    int l57_i;
-    int l59_i;
-    int l61_i;
-    int l63_i;
-    int l65_i;
-    int l67_i;
-    int l69_i;
-    int l71_i;
-    int l73_i;
-    int l75_i;
-    int l77_i;
-    int l79_i;
-    int l81_i;
-    int l83_i;
-    int l85_i;
-    int l87_i;
-    int l89_i;
-    int l91_i;
-    int l93_i;
-    int l95_i;
-    int l97_i;
-    int l99_i;
-    int l101_i;
-    int l103_i;
-    int l105_i;
-    int l107_i;
-    int l109_i;
-    int l111_i;
-    int l113_i;
-    int l115_i;
-    int l117_i;
-    int l119_i;
-    int l121_i;
-    int l123_i;
-    int l125_i;
-    int l127_i;
-    int l129_i;
-    int l131_i;
-    int l133_i;
-    int l135_i;
-    int l137_i;
-    int l139_i;
-    int l141_i;
-    int l143_i;
-    int l145_i;
-    int l147_i;
-    int l149_i;
-    int l151_i;
-    int l153_i;
-    int l155_i;
-    int l157_i;
-    int l159_i;
-    int l161_i;
-    int l163_i;
-    int l165_i;
-    int l167_i;
-    int l169_i;
-    int l171_i;
-    int l173_i;
-    int l175_i;
-    int l177_i;
-    int l179_i;
-    int l181_i;
-    int l183_i;
-    int l185_i;
-    int l187_i;
-    int l189_i;
-    int l191_i;
-    int l193_i;
-    int l195_i;
-    int l197_i;
-    int l199_i;
-    int l201_i;
-    int l203_i;
-    int l205_i;
-    int l207_i;
-    int l209_i;
-    int l211_i;
-    int l213_i;
-    int l215_i;
-    int l217_i;
-    int l219_i;
-    int l221_i;
-    int l223_i;
-    int l225_i;
-    int l227_i;
-    int l229_i;
-    int l231_i;
-    int l233_i;
-    int l235_i;
-    int l237_i;
-    int l239_i;
-    int l241_i;
-    int l243_i;
-    int l245_i;
-    int l247_i;
-    int l249_i;
-    int l251_i;
-    int l253_i;
-    int l255_i;
-    int l257_i;
-    int l259_i;
-    int l261_i;
-    int l263_i;
-    int l265_i;
-    int l267_i;
-    int l269_i;
-    int l271_i;
-    int l273_i;
-    int l275_i;
-    int l277_i;
-    int l279_i;
-    int l281_i;
-    int l283_i;
-    int l285_i;
-    int l287_i;
-    int l289_i;
-    int l291_i;
-    int l293_i;
-    int l295_i;
-    int l297_i;
-    int l299_i;
-    int l301_i;
-    int l303_i;
-    int l305_i;
-    int l307_i;
-    int l309_i;
-    int l311_i;
-    int l313_i;
-    int l315_i;
-    int l317_i;
-    int l319_i;
-    int l321_i;
-    int l323_i;
-    int l325_i;
-    int l327_i;
-    int l329_i;
-    int l331_i;
-    int l333_i;
-    int l335_i;
-    int l337_i;
-    int l339_i;
-    int l341_i;
-    int l343_i;
-    int l345_i;
-    int l347_i;
-    int l349_i;
-    int l351_i;
-    int l353_i;
-    int l355_i;
-    int l357_i;
-    int l359_i;
-    int l361_i;
-    int l363_i;
-    int l365_i;
-    int l367_i;
-    int l369_i;
-    int l371_i;
-    int l373_i;
-    int l375_i;
-    int l377_i;
-    int l379_i;
-    int l381_i;
-    int l383_i;
-    int l385_i;
-    int l387_i;
-    int l389_i;
-    int l391_i;
-    int l393_i;
-    int l395_i;
-    int l397_i;
-    int l399_i;
-    int l401_i;
-    int l403_i;
-    int l405_i;
-    int l407_i;
-    int l409_i;
-    int l411_i;
-    int l413_i;
-    int l415_i;
-    int l417_i;
-    int l419_i;
-    int l421_i;
-    int l423_i;
-    int l425_i;
-    int l427_i;
-    int l429_i;
-    int l431_i;
-    int l433_i;
-    int l435_i;
-    int l437_i;
-    int l439_i;
-    int l441_i;
-    int l443_i;
-    int l445_i;
-    int l447_i;
-    int l449_i;
-    int l451_i;
-    int l453_i;
-    int l455_i;
-    int l457_i;
-    int l459_i;
-    int l461_i;
-    int l463_i;
-    int l465_i;
-    int l467_i;
-    int l469_i;
-    int l471_i;
-    int l473_i;
-    int l475_i;
-    int l477_i;
-    int l479_i;
-    int l481_i;
-    int l483_i;
-    int l485_i;
-    int l487_i;
-    int l489_i;
-    int l491_i;
-    int l493_i;
-    int l495_i;
-    int l497_i;
-    int l499_i;
-    int l501_i;
-    int l503_i;
-    int l505_i;
-    int l507_i;
-    int l509_i;
-    int l511_i;
-    int l513_i;
-    int l515_i;
-    int l517_i;
-    int l519_i;
-    int l521_i;
-    int l523_i;
-    int l525_i;
-    int l527_i;
-    int l529_i;
-    int l531_i;
-    int l533_i;
-    int l535_i;
-    int l537_i;
-    int l539_i;
-    int l541_i;
-    int l543_i;
-    int l545_i;
-    int l547_i;
-    int l549_i;
-    int l551_i;
-    int l553_i;
-    int l555_i;
-    int l557_i;
-    int l559_i;
-    int l561_i;
-    int l563_i;
-    int l565_i;
-    int l567_i;
-    int l569_i;
-    int l571_i;
-    int l573_i;
-    int l575_i;
-    int l577_i;
-    int l579_i;
-    int l581_i;
-    int l583_i;
-    int l585_i;
-    int l587_i;
-    int l589_i;
-    int l591_i;
-    int l593_i;
-    int l595_i;
-    int l597_i;
-    int l599_i;
-    int l601_i;
-    int l603_i;
-    int l605_i;
-    int l607_i;
-    int l609_i;
-    int l611_i;
-    int l613_i;
-    int l615_i;
-    int l617_i;
-    int l619_i;
-    int l621_i;
-    int l623_i;
-    int l625_i;
-    int l627_i;
-    int l629_i;
-    int l631_i;
-    int l633_i;
-    int l635_i;
-    int l637_i;
-    int l639_i;
-    int l641_i;
-    int l643_i;
-    int l645_i;
-    int l647_i;
-    int l649_i;
-    int l651_i;
-    int l653_i;
-    int l655_i;
-    int l657_i;
-    int l659_i;
-    int l661_i;
-    int l663_i;
-    int l665_i;
-    int l667_i;
-    int l669_i;
-    int l671_i;
-    int l673_i;
-    int l675_i;
-    int l677_i;
-    int l679_i;
-    int l681_i;
-    int l683_i;
-    int l685_i;
-    int l687_i;
-    int l689_i;
-    int l691_i;
-    int l693_i;
-    int l695_i;
-    int l697_i;
-    int l699_i;
-    int l701_i;
-    int l703_i;
-    int l705_i;
-    int l707_i;
-    int l709_i;
-    int l711_i;
-    int l713_i;
-    int l715_i;
-    int l717_i;
-    int l719_i;
-    int l721_i;
-    int l723_i;
-    int l725_i;
-    int l727_i;
-    int l729_i;
-    int l731_i;
-    int l733_i;
-    int l735_i;
-    int l737_i;
-    int l739_i;
-    int l741_i;
-    int l743_i;
-    int l745_i;
-    int l747_i;
-    int l749_i;
-    int l751_i;
-    int l753_i;
-    int l755_i;
-    int l757_i;
-    int l759_i;
-    int l761_i;
-    int l763_i;
-    int l765_i;
-    int l767_i;
-    int l769_i;
-    int l771_i;
-    int l773_i;
-    int l775_i;
-    int l777_i;
-    int l779_i;
-    int l781_i;
-    int l783_i;
-    int l785_i;
-    int l787_i;
-    int l789_i;
-    int l791_i;
-    int l793_i;
-    int l795_i;
-    int l797_i;
-    int l799_i;
-    int l801_i;
-    int l803_i;
-    int l805_i;
-    int l807_i;
-    int l809_i;
-    int l811_i;
-    int l813_i;
-    int l815_i;
-    int l817_i;
-    int l819_i;
-    int l821_i;
-    int l823_i;
-    int l825_i;
-    int l827_i;
-    int l829_i;
-    int l831_i;
-    int l833_i;
-    int l835_i;
-    int l837_i;
-    int l839_i;
-    int l841_i;
-    int l843_i;
-    int l845_i;
-    int l847_i;
-    int l849_i;
-    int l851_i;
-    int l853_i;
-    int l855_i;
-    int l857_i;
-    int l859_i;
-    int l861_i;
-    int l863_i;
-    int l865_i;
-    int l867_i;
-    int l869_i;
-    int l871_i;
-    int l873_i;
-    int l875_i;
-    int l877_i;
-    int l879_i;
-    int l881_i;
-    int l883_i;
-    int l885_i;
-    int l887_i;
-    int l889_i;
-    int l891_i;
-    int l893_i;
-    int l895_i;
-    int l897_i;
-    int l899_i;
-    int l901_i;
-    int l903_i;
-    int l905_i;
-    int l907_i;
-    int l909_i;
-    int l911_i;
-    int l913_i;
-    int l915_i;
-    int l917_i;
-    int l919_i;
-    int l921_i;
-    int l923_i;
-    int l925_i;
-    int l927_i;
-    int l929_i;
-    int l931_i;
-    int l933_i;
-    int l935_i;
-    int l937_i;
-    int l939_i;
-    int l941_i;
-    int l943_i;
-    int l945_i;
-    int l947_i;
-    int l949_i;
-    int l951_i;
-    int l953_i;
-    int l955_i;
-    int l957_i;
-    int l959_i;
-    int l961_i;
-    int l963_i;
-    int l965_i;
-    int l967_i;
-    int l969_i;
-    int l971_i;
-    int l973_i;
-    int l975_i;
-    int l977_i;
-    int l979_i;
-    int l981_i;
-    int l983_i;
-    int l985_i;
-    int l987_i;
-    int l989_i;
-    int l991_i;
-    int l993_i;
-    int l995_i;
-    int l997_i;
-    int l999_i;
-    int l1001_i;
 };
 
 
@@ -1687,9 +1187,8 @@ __device__ int _block_k_3_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     
-    int lex_i = _env_->l3_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -1705,9 +1204,8 @@ __device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     
-    int lex_i = _env_->l5_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -1723,9 +1221,8 @@ __device__ int _block_k_7_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     
-    int lex_i = _env_->l7_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -1741,9 +1238,8 @@ __device__ int _block_k_9_(environment_t *_env_, int i, indexed_struct_4_lt_int_
     
     
     
-    int lex_i = _env_->l9_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -1759,9 +1255,8 @@ __device__ int _block_k_11_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l11_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -1777,9 +1272,8 @@ __device__ int _block_k_13_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l13_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -1795,9 +1289,8 @@ __device__ int _block_k_15_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l15_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -1813,9 +1306,8 @@ __device__ int _block_k_17_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l17_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -1831,9 +1323,8 @@ __device__ int _block_k_19_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l19_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -1849,9 +1340,8 @@ __device__ int _block_k_21_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l21_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -1867,9 +1357,8 @@ __device__ int _block_k_23_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l23_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -1885,9 +1374,8 @@ __device__ int _block_k_25_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l25_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -1903,9 +1391,8 @@ __device__ int _block_k_27_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l27_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -1921,9 +1408,8 @@ __device__ int _block_k_29_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l29_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -1939,9 +1425,8 @@ __device__ int _block_k_31_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l31_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -1957,9 +1442,8 @@ __device__ int _block_k_33_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l33_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -1975,9 +1459,8 @@ __device__ int _block_k_35_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l35_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -1993,9 +1476,8 @@ __device__ int _block_k_37_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l37_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2011,9 +1493,8 @@ __device__ int _block_k_39_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l39_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2029,9 +1510,8 @@ __device__ int _block_k_41_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l41_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2047,9 +1527,8 @@ __device__ int _block_k_43_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l43_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2065,9 +1544,8 @@ __device__ int _block_k_45_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l45_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2083,9 +1561,8 @@ __device__ int _block_k_47_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l47_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2101,9 +1578,8 @@ __device__ int _block_k_49_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l49_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2119,9 +1595,8 @@ __device__ int _block_k_51_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l51_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2137,9 +1612,8 @@ __device__ int _block_k_53_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l53_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2155,9 +1629,8 @@ __device__ int _block_k_55_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l55_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2173,9 +1646,8 @@ __device__ int _block_k_57_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l57_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2191,9 +1663,8 @@ __device__ int _block_k_59_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l59_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2209,9 +1680,8 @@ __device__ int _block_k_61_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l61_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2227,9 +1697,8 @@ __device__ int _block_k_63_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l63_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2245,9 +1714,8 @@ __device__ int _block_k_65_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l65_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2263,9 +1731,8 @@ __device__ int _block_k_67_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l67_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2281,9 +1748,8 @@ __device__ int _block_k_69_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l69_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2299,9 +1765,8 @@ __device__ int _block_k_71_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l71_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2317,9 +1782,8 @@ __device__ int _block_k_73_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l73_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2335,9 +1799,8 @@ __device__ int _block_k_75_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l75_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2353,9 +1816,8 @@ __device__ int _block_k_77_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l77_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2371,9 +1833,8 @@ __device__ int _block_k_79_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l79_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2389,9 +1850,8 @@ __device__ int _block_k_81_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l81_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2407,9 +1867,8 @@ __device__ int _block_k_83_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l83_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2425,9 +1884,8 @@ __device__ int _block_k_85_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l85_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2443,9 +1901,8 @@ __device__ int _block_k_87_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l87_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2461,9 +1918,8 @@ __device__ int _block_k_89_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l89_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2479,9 +1935,8 @@ __device__ int _block_k_91_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l91_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2497,9 +1952,8 @@ __device__ int _block_k_93_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l93_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2515,9 +1969,8 @@ __device__ int _block_k_95_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l95_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2533,9 +1986,8 @@ __device__ int _block_k_97_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l97_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2551,9 +2003,8 @@ __device__ int _block_k_99_(environment_t *_env_, int i, indexed_struct_4_lt_int
     
     
     
-    int lex_i = _env_->l99_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2569,9 +2020,8 @@ __device__ int _block_k_101_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l101_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2587,9 +2037,8 @@ __device__ int _block_k_103_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l103_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2605,9 +2054,8 @@ __device__ int _block_k_105_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l105_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2623,9 +2071,8 @@ __device__ int _block_k_107_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l107_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2641,9 +2088,8 @@ __device__ int _block_k_109_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l109_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2659,9 +2105,8 @@ __device__ int _block_k_111_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l111_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2677,9 +2122,8 @@ __device__ int _block_k_113_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l113_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2695,9 +2139,8 @@ __device__ int _block_k_115_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l115_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2713,9 +2156,8 @@ __device__ int _block_k_117_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l117_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2731,9 +2173,8 @@ __device__ int _block_k_119_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l119_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2749,9 +2190,8 @@ __device__ int _block_k_121_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l121_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2767,9 +2207,8 @@ __device__ int _block_k_123_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l123_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2785,9 +2224,8 @@ __device__ int _block_k_125_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l125_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2803,9 +2241,8 @@ __device__ int _block_k_127_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l127_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2821,9 +2258,8 @@ __device__ int _block_k_129_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l129_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2839,9 +2275,8 @@ __device__ int _block_k_131_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l131_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2857,9 +2292,8 @@ __device__ int _block_k_133_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l133_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2875,9 +2309,8 @@ __device__ int _block_k_135_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l135_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2893,9 +2326,8 @@ __device__ int _block_k_137_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l137_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -2911,9 +2343,8 @@ __device__ int _block_k_139_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l139_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -2929,9 +2360,8 @@ __device__ int _block_k_141_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l141_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -2947,9 +2377,8 @@ __device__ int _block_k_143_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l143_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -2965,9 +2394,8 @@ __device__ int _block_k_145_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l145_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -2983,9 +2411,8 @@ __device__ int _block_k_147_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l147_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3001,9 +2428,8 @@ __device__ int _block_k_149_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l149_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3019,9 +2445,8 @@ __device__ int _block_k_151_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l151_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3037,9 +2462,8 @@ __device__ int _block_k_153_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l153_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3055,9 +2479,8 @@ __device__ int _block_k_155_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l155_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3073,9 +2496,8 @@ __device__ int _block_k_157_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l157_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3091,9 +2513,8 @@ __device__ int _block_k_159_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l159_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3109,9 +2530,8 @@ __device__ int _block_k_161_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l161_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3127,9 +2547,8 @@ __device__ int _block_k_163_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l163_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3145,9 +2564,8 @@ __device__ int _block_k_165_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l165_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3163,9 +2581,8 @@ __device__ int _block_k_167_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l167_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3181,9 +2598,8 @@ __device__ int _block_k_169_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l169_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3199,9 +2615,8 @@ __device__ int _block_k_171_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l171_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3217,9 +2632,8 @@ __device__ int _block_k_173_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l173_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3235,9 +2649,8 @@ __device__ int _block_k_175_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l175_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3253,9 +2666,8 @@ __device__ int _block_k_177_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l177_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3271,9 +2683,8 @@ __device__ int _block_k_179_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l179_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3289,9 +2700,8 @@ __device__ int _block_k_181_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l181_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3307,9 +2717,8 @@ __device__ int _block_k_183_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l183_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3325,9 +2734,8 @@ __device__ int _block_k_185_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l185_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3343,9 +2751,8 @@ __device__ int _block_k_187_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l187_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3361,9 +2768,8 @@ __device__ int _block_k_189_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l189_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3379,9 +2785,8 @@ __device__ int _block_k_191_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l191_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3397,9 +2802,8 @@ __device__ int _block_k_193_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l193_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3415,9 +2819,8 @@ __device__ int _block_k_195_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l195_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3433,9 +2836,8 @@ __device__ int _block_k_197_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l197_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3451,9 +2853,8 @@ __device__ int _block_k_199_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l199_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3469,9 +2870,8 @@ __device__ int _block_k_201_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l201_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3487,9 +2887,8 @@ __device__ int _block_k_203_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l203_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3505,9 +2904,8 @@ __device__ int _block_k_205_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l205_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3523,9 +2921,8 @@ __device__ int _block_k_207_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l207_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3541,9 +2938,8 @@ __device__ int _block_k_209_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l209_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3559,9 +2955,8 @@ __device__ int _block_k_211_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l211_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3577,9 +2972,8 @@ __device__ int _block_k_213_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l213_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3595,9 +2989,8 @@ __device__ int _block_k_215_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l215_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3613,9 +3006,8 @@ __device__ int _block_k_217_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l217_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3631,9 +3023,8 @@ __device__ int _block_k_219_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l219_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3649,9 +3040,8 @@ __device__ int _block_k_221_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l221_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3667,9 +3057,8 @@ __device__ int _block_k_223_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l223_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3685,9 +3074,8 @@ __device__ int _block_k_225_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l225_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3703,9 +3091,8 @@ __device__ int _block_k_227_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l227_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3721,9 +3108,8 @@ __device__ int _block_k_229_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l229_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3739,9 +3125,8 @@ __device__ int _block_k_231_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l231_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3757,9 +3142,8 @@ __device__ int _block_k_233_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l233_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3775,9 +3159,8 @@ __device__ int _block_k_235_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l235_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3793,9 +3176,8 @@ __device__ int _block_k_237_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l237_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3811,9 +3193,8 @@ __device__ int _block_k_239_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l239_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3829,9 +3210,8 @@ __device__ int _block_k_241_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l241_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3847,9 +3227,8 @@ __device__ int _block_k_243_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l243_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3865,9 +3244,8 @@ __device__ int _block_k_245_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l245_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3883,9 +3261,8 @@ __device__ int _block_k_247_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l247_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3901,9 +3278,8 @@ __device__ int _block_k_249_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l249_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -3919,9 +3295,8 @@ __device__ int _block_k_251_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l251_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -3937,9 +3312,8 @@ __device__ int _block_k_253_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l253_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -3955,9 +3329,8 @@ __device__ int _block_k_255_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l255_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -3973,9 +3346,8 @@ __device__ int _block_k_257_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l257_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -3991,9 +3363,8 @@ __device__ int _block_k_259_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l259_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4009,9 +3380,8 @@ __device__ int _block_k_261_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l261_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4027,9 +3397,8 @@ __device__ int _block_k_263_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l263_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4045,9 +3414,8 @@ __device__ int _block_k_265_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l265_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4063,9 +3431,8 @@ __device__ int _block_k_267_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l267_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4081,9 +3448,8 @@ __device__ int _block_k_269_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l269_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4099,9 +3465,8 @@ __device__ int _block_k_271_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l271_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4117,9 +3482,8 @@ __device__ int _block_k_273_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l273_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4135,9 +3499,8 @@ __device__ int _block_k_275_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l275_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4153,9 +3516,8 @@ __device__ int _block_k_277_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l277_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4171,9 +3533,8 @@ __device__ int _block_k_279_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l279_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4189,9 +3550,8 @@ __device__ int _block_k_281_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l281_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4207,9 +3567,8 @@ __device__ int _block_k_283_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l283_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4225,9 +3584,8 @@ __device__ int _block_k_285_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l285_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4243,9 +3601,8 @@ __device__ int _block_k_287_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l287_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4261,9 +3618,8 @@ __device__ int _block_k_289_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l289_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4279,9 +3635,8 @@ __device__ int _block_k_291_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l291_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4297,9 +3652,8 @@ __device__ int _block_k_293_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l293_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4315,9 +3669,8 @@ __device__ int _block_k_295_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l295_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4333,9 +3686,8 @@ __device__ int _block_k_297_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l297_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4351,9 +3703,8 @@ __device__ int _block_k_299_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l299_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4369,9 +3720,8 @@ __device__ int _block_k_301_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l301_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4387,9 +3737,8 @@ __device__ int _block_k_303_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l303_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4405,9 +3754,8 @@ __device__ int _block_k_305_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l305_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4423,9 +3771,8 @@ __device__ int _block_k_307_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l307_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4441,9 +3788,8 @@ __device__ int _block_k_309_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l309_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4459,9 +3805,8 @@ __device__ int _block_k_311_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l311_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4477,9 +3822,8 @@ __device__ int _block_k_313_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l313_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4495,9 +3839,8 @@ __device__ int _block_k_315_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l315_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4513,9 +3856,8 @@ __device__ int _block_k_317_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l317_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4531,9 +3873,8 @@ __device__ int _block_k_319_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l319_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4549,9 +3890,8 @@ __device__ int _block_k_321_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l321_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4567,9 +3907,8 @@ __device__ int _block_k_323_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l323_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4585,9 +3924,8 @@ __device__ int _block_k_325_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l325_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4603,9 +3941,8 @@ __device__ int _block_k_327_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l327_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4621,9 +3958,8 @@ __device__ int _block_k_329_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l329_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4639,9 +3975,8 @@ __device__ int _block_k_331_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l331_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4657,9 +3992,8 @@ __device__ int _block_k_333_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l333_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4675,9 +4009,8 @@ __device__ int _block_k_335_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l335_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4693,9 +4026,8 @@ __device__ int _block_k_337_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l337_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4711,9 +4043,8 @@ __device__ int _block_k_339_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l339_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4729,9 +4060,8 @@ __device__ int _block_k_341_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l341_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4747,9 +4077,8 @@ __device__ int _block_k_343_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l343_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4765,9 +4094,8 @@ __device__ int _block_k_345_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l345_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4783,9 +4111,8 @@ __device__ int _block_k_347_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l347_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4801,9 +4128,8 @@ __device__ int _block_k_349_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l349_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4819,9 +4145,8 @@ __device__ int _block_k_351_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l351_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4837,9 +4162,8 @@ __device__ int _block_k_353_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l353_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4855,9 +4179,8 @@ __device__ int _block_k_355_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l355_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4873,9 +4196,8 @@ __device__ int _block_k_357_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l357_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4891,9 +4213,8 @@ __device__ int _block_k_359_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l359_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4909,9 +4230,8 @@ __device__ int _block_k_361_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l361_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -4927,9 +4247,8 @@ __device__ int _block_k_363_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l363_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -4945,9 +4264,8 @@ __device__ int _block_k_365_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l365_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -4963,9 +4281,8 @@ __device__ int _block_k_367_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l367_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -4981,9 +4298,8 @@ __device__ int _block_k_369_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l369_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -4999,9 +4315,8 @@ __device__ int _block_k_371_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l371_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5017,9 +4332,8 @@ __device__ int _block_k_373_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l373_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5035,9 +4349,8 @@ __device__ int _block_k_375_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l375_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5053,9 +4366,8 @@ __device__ int _block_k_377_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l377_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5071,9 +4383,8 @@ __device__ int _block_k_379_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l379_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5089,9 +4400,8 @@ __device__ int _block_k_381_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l381_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5107,9 +4417,8 @@ __device__ int _block_k_383_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l383_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5125,9 +4434,8 @@ __device__ int _block_k_385_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l385_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5143,9 +4451,8 @@ __device__ int _block_k_387_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l387_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5161,9 +4468,8 @@ __device__ int _block_k_389_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l389_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5179,9 +4485,8 @@ __device__ int _block_k_391_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l391_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5197,9 +4502,8 @@ __device__ int _block_k_393_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l393_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5215,9 +4519,8 @@ __device__ int _block_k_395_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l395_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5233,9 +4536,8 @@ __device__ int _block_k_397_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l397_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5251,9 +4553,8 @@ __device__ int _block_k_399_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l399_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5269,9 +4570,8 @@ __device__ int _block_k_401_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l401_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5287,9 +4587,8 @@ __device__ int _block_k_403_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l403_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5305,9 +4604,8 @@ __device__ int _block_k_405_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l405_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5323,9 +4621,8 @@ __device__ int _block_k_407_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l407_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5341,9 +4638,8 @@ __device__ int _block_k_409_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l409_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5359,9 +4655,8 @@ __device__ int _block_k_411_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l411_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5377,9 +4672,8 @@ __device__ int _block_k_413_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l413_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5395,9 +4689,8 @@ __device__ int _block_k_415_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l415_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5413,9 +4706,8 @@ __device__ int _block_k_417_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l417_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5431,9 +4723,8 @@ __device__ int _block_k_419_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l419_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5449,9 +4740,8 @@ __device__ int _block_k_421_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l421_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5467,9 +4757,8 @@ __device__ int _block_k_423_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l423_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5485,9 +4774,8 @@ __device__ int _block_k_425_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l425_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5503,9 +4791,8 @@ __device__ int _block_k_427_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l427_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5521,9 +4808,8 @@ __device__ int _block_k_429_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l429_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5539,9 +4825,8 @@ __device__ int _block_k_431_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l431_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5557,9 +4842,8 @@ __device__ int _block_k_433_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l433_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5575,9 +4859,8 @@ __device__ int _block_k_435_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l435_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5593,9 +4876,8 @@ __device__ int _block_k_437_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l437_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5611,9 +4893,8 @@ __device__ int _block_k_439_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l439_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5629,9 +4910,8 @@ __device__ int _block_k_441_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l441_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5647,9 +4927,8 @@ __device__ int _block_k_443_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l443_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5665,9 +4944,8 @@ __device__ int _block_k_445_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l445_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5683,9 +4961,8 @@ __device__ int _block_k_447_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l447_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5701,9 +4978,8 @@ __device__ int _block_k_449_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l449_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5719,9 +4995,8 @@ __device__ int _block_k_451_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l451_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5737,9 +5012,8 @@ __device__ int _block_k_453_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l453_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5755,9 +5029,8 @@ __device__ int _block_k_455_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l455_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5773,9 +5046,8 @@ __device__ int _block_k_457_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l457_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5791,9 +5063,8 @@ __device__ int _block_k_459_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l459_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5809,9 +5080,8 @@ __device__ int _block_k_461_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l461_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5827,9 +5097,8 @@ __device__ int _block_k_463_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l463_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5845,9 +5114,8 @@ __device__ int _block_k_465_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l465_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5863,9 +5131,8 @@ __device__ int _block_k_467_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l467_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5881,9 +5148,8 @@ __device__ int _block_k_469_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l469_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5899,9 +5165,8 @@ __device__ int _block_k_471_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l471_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -5917,9 +5182,8 @@ __device__ int _block_k_473_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l473_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -5935,9 +5199,8 @@ __device__ int _block_k_475_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l475_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -5953,9 +5216,8 @@ __device__ int _block_k_477_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l477_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -5971,9 +5233,8 @@ __device__ int _block_k_479_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l479_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -5989,9 +5250,8 @@ __device__ int _block_k_481_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l481_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6007,9 +5267,8 @@ __device__ int _block_k_483_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l483_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6025,9 +5284,8 @@ __device__ int _block_k_485_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l485_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6043,9 +5301,8 @@ __device__ int _block_k_487_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l487_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6061,9 +5318,8 @@ __device__ int _block_k_489_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l489_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6079,9 +5335,8 @@ __device__ int _block_k_491_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l491_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6097,9 +5352,8 @@ __device__ int _block_k_493_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l493_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6115,9 +5369,8 @@ __device__ int _block_k_495_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l495_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6133,9 +5386,8 @@ __device__ int _block_k_497_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l497_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6151,9 +5403,8 @@ __device__ int _block_k_499_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l499_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6169,9 +5420,8 @@ __device__ int _block_k_501_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l501_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6187,9 +5437,8 @@ __device__ int _block_k_503_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l503_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6205,9 +5454,8 @@ __device__ int _block_k_505_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l505_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6223,9 +5471,8 @@ __device__ int _block_k_507_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l507_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6241,9 +5488,8 @@ __device__ int _block_k_509_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l509_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6259,9 +5505,8 @@ __device__ int _block_k_511_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l511_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6277,9 +5522,8 @@ __device__ int _block_k_513_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l513_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6295,9 +5539,8 @@ __device__ int _block_k_515_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l515_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6313,9 +5556,8 @@ __device__ int _block_k_517_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l517_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6331,9 +5573,8 @@ __device__ int _block_k_519_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l519_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6349,9 +5590,8 @@ __device__ int _block_k_521_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l521_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6367,9 +5607,8 @@ __device__ int _block_k_523_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l523_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6385,9 +5624,8 @@ __device__ int _block_k_525_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l525_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6403,9 +5641,8 @@ __device__ int _block_k_527_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l527_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6421,9 +5658,8 @@ __device__ int _block_k_529_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l529_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6439,9 +5675,8 @@ __device__ int _block_k_531_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l531_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6457,9 +5692,8 @@ __device__ int _block_k_533_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l533_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6475,9 +5709,8 @@ __device__ int _block_k_535_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l535_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6493,9 +5726,8 @@ __device__ int _block_k_537_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l537_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6511,9 +5743,8 @@ __device__ int _block_k_539_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l539_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6529,9 +5760,8 @@ __device__ int _block_k_541_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l541_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6547,9 +5777,8 @@ __device__ int _block_k_543_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l543_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6565,9 +5794,8 @@ __device__ int _block_k_545_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l545_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6583,9 +5811,8 @@ __device__ int _block_k_547_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l547_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6601,9 +5828,8 @@ __device__ int _block_k_549_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l549_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6619,9 +5845,8 @@ __device__ int _block_k_551_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l551_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6637,9 +5862,8 @@ __device__ int _block_k_553_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l553_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6655,9 +5879,8 @@ __device__ int _block_k_555_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l555_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6673,9 +5896,8 @@ __device__ int _block_k_557_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l557_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6691,9 +5913,8 @@ __device__ int _block_k_559_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l559_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6709,9 +5930,8 @@ __device__ int _block_k_561_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l561_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6727,9 +5947,8 @@ __device__ int _block_k_563_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l563_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6745,9 +5964,8 @@ __device__ int _block_k_565_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l565_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6763,9 +5981,8 @@ __device__ int _block_k_567_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l567_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6781,9 +5998,8 @@ __device__ int _block_k_569_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l569_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6799,9 +6015,8 @@ __device__ int _block_k_571_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l571_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6817,9 +6032,8 @@ __device__ int _block_k_573_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l573_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6835,9 +6049,8 @@ __device__ int _block_k_575_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l575_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6853,9 +6066,8 @@ __device__ int _block_k_577_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l577_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6871,9 +6083,8 @@ __device__ int _block_k_579_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l579_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6889,9 +6100,8 @@ __device__ int _block_k_581_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l581_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6907,9 +6117,8 @@ __device__ int _block_k_583_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l583_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -6925,9 +6134,8 @@ __device__ int _block_k_585_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l585_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -6943,9 +6151,8 @@ __device__ int _block_k_587_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l587_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -6961,9 +6168,8 @@ __device__ int _block_k_589_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l589_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -6979,9 +6185,8 @@ __device__ int _block_k_591_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l591_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -6997,9 +6202,8 @@ __device__ int _block_k_593_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l593_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7015,9 +6219,8 @@ __device__ int _block_k_595_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l595_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7033,9 +6236,8 @@ __device__ int _block_k_597_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l597_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7051,9 +6253,8 @@ __device__ int _block_k_599_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l599_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7069,9 +6270,8 @@ __device__ int _block_k_601_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l601_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7087,9 +6287,8 @@ __device__ int _block_k_603_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l603_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7105,9 +6304,8 @@ __device__ int _block_k_605_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l605_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7123,9 +6321,8 @@ __device__ int _block_k_607_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l607_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7141,9 +6338,8 @@ __device__ int _block_k_609_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l609_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7159,9 +6355,8 @@ __device__ int _block_k_611_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l611_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7177,9 +6372,8 @@ __device__ int _block_k_613_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l613_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7195,9 +6389,8 @@ __device__ int _block_k_615_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l615_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7213,9 +6406,8 @@ __device__ int _block_k_617_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l617_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7231,9 +6423,8 @@ __device__ int _block_k_619_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l619_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7249,9 +6440,8 @@ __device__ int _block_k_621_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l621_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7267,9 +6457,8 @@ __device__ int _block_k_623_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l623_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7285,9 +6474,8 @@ __device__ int _block_k_625_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l625_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7303,9 +6491,8 @@ __device__ int _block_k_627_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l627_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7321,9 +6508,8 @@ __device__ int _block_k_629_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l629_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7339,9 +6525,8 @@ __device__ int _block_k_631_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l631_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7357,9 +6542,8 @@ __device__ int _block_k_633_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l633_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7375,9 +6559,8 @@ __device__ int _block_k_635_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l635_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7393,9 +6576,8 @@ __device__ int _block_k_637_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l637_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7411,9 +6593,8 @@ __device__ int _block_k_639_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l639_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7429,9 +6610,8 @@ __device__ int _block_k_641_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l641_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7447,9 +6627,8 @@ __device__ int _block_k_643_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l643_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7465,9 +6644,8 @@ __device__ int _block_k_645_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l645_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7483,9 +6661,8 @@ __device__ int _block_k_647_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l647_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7501,9 +6678,8 @@ __device__ int _block_k_649_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l649_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7519,9 +6695,8 @@ __device__ int _block_k_651_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l651_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7537,9 +6712,8 @@ __device__ int _block_k_653_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l653_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7555,9 +6729,8 @@ __device__ int _block_k_655_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l655_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7573,9 +6746,8 @@ __device__ int _block_k_657_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l657_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7591,9 +6763,8 @@ __device__ int _block_k_659_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l659_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7609,9 +6780,8 @@ __device__ int _block_k_661_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l661_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7627,9 +6797,8 @@ __device__ int _block_k_663_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l663_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7645,9 +6814,8 @@ __device__ int _block_k_665_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l665_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7663,9 +6831,8 @@ __device__ int _block_k_667_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l667_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7681,9 +6848,8 @@ __device__ int _block_k_669_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l669_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7699,9 +6865,8 @@ __device__ int _block_k_671_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l671_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7717,9 +6882,8 @@ __device__ int _block_k_673_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l673_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7735,9 +6899,8 @@ __device__ int _block_k_675_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l675_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7753,9 +6916,8 @@ __device__ int _block_k_677_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l677_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7771,9 +6933,8 @@ __device__ int _block_k_679_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l679_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7789,9 +6950,8 @@ __device__ int _block_k_681_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l681_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7807,9 +6967,8 @@ __device__ int _block_k_683_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l683_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7825,9 +6984,8 @@ __device__ int _block_k_685_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l685_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7843,9 +7001,8 @@ __device__ int _block_k_687_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l687_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7861,9 +7018,8 @@ __device__ int _block_k_689_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l689_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7879,9 +7035,8 @@ __device__ int _block_k_691_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l691_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7897,9 +7052,8 @@ __device__ int _block_k_693_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l693_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -7915,9 +7069,8 @@ __device__ int _block_k_695_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l695_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -7933,9 +7086,8 @@ __device__ int _block_k_697_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l697_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -7951,9 +7103,8 @@ __device__ int _block_k_699_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l699_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -7969,9 +7120,8 @@ __device__ int _block_k_701_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l701_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -7987,9 +7137,8 @@ __device__ int _block_k_703_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l703_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8005,9 +7154,8 @@ __device__ int _block_k_705_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l705_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8023,9 +7171,8 @@ __device__ int _block_k_707_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l707_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8041,9 +7188,8 @@ __device__ int _block_k_709_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l709_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8059,9 +7205,8 @@ __device__ int _block_k_711_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l711_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8077,9 +7222,8 @@ __device__ int _block_k_713_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l713_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8095,9 +7239,8 @@ __device__ int _block_k_715_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l715_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8113,9 +7256,8 @@ __device__ int _block_k_717_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l717_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8131,9 +7273,8 @@ __device__ int _block_k_719_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l719_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8149,9 +7290,8 @@ __device__ int _block_k_721_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l721_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8167,9 +7307,8 @@ __device__ int _block_k_723_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l723_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8185,9 +7324,8 @@ __device__ int _block_k_725_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l725_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8203,9 +7341,8 @@ __device__ int _block_k_727_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l727_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8221,9 +7358,8 @@ __device__ int _block_k_729_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l729_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8239,9 +7375,8 @@ __device__ int _block_k_731_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l731_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8257,9 +7392,8 @@ __device__ int _block_k_733_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l733_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8275,9 +7409,8 @@ __device__ int _block_k_735_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l735_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8293,9 +7426,8 @@ __device__ int _block_k_737_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l737_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8311,9 +7443,8 @@ __device__ int _block_k_739_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l739_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8329,9 +7460,8 @@ __device__ int _block_k_741_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l741_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8347,9 +7477,8 @@ __device__ int _block_k_743_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l743_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8365,9 +7494,8 @@ __device__ int _block_k_745_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l745_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8383,9 +7511,8 @@ __device__ int _block_k_747_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l747_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8401,9 +7528,8 @@ __device__ int _block_k_749_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l749_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8419,9 +7545,8 @@ __device__ int _block_k_751_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l751_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8437,9 +7562,8 @@ __device__ int _block_k_753_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l753_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8455,9 +7579,8 @@ __device__ int _block_k_755_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l755_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8473,9 +7596,8 @@ __device__ int _block_k_757_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l757_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8491,9 +7613,8 @@ __device__ int _block_k_759_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l759_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8509,9 +7630,8 @@ __device__ int _block_k_761_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l761_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8527,9 +7647,8 @@ __device__ int _block_k_763_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l763_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8545,9 +7664,8 @@ __device__ int _block_k_765_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l765_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8563,9 +7681,8 @@ __device__ int _block_k_767_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l767_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8581,9 +7698,8 @@ __device__ int _block_k_769_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l769_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8599,9 +7715,8 @@ __device__ int _block_k_771_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l771_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8617,9 +7732,8 @@ __device__ int _block_k_773_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l773_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8635,9 +7749,8 @@ __device__ int _block_k_775_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l775_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8653,9 +7766,8 @@ __device__ int _block_k_777_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l777_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8671,9 +7783,8 @@ __device__ int _block_k_779_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l779_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8689,9 +7800,8 @@ __device__ int _block_k_781_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l781_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8707,9 +7817,8 @@ __device__ int _block_k_783_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l783_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8725,9 +7834,8 @@ __device__ int _block_k_785_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l785_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8743,9 +7851,8 @@ __device__ int _block_k_787_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l787_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8761,9 +7868,8 @@ __device__ int _block_k_789_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l789_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8779,9 +7885,8 @@ __device__ int _block_k_791_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l791_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8797,9 +7902,8 @@ __device__ int _block_k_793_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l793_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8815,9 +7919,8 @@ __device__ int _block_k_795_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l795_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8833,9 +7936,8 @@ __device__ int _block_k_797_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l797_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8851,9 +7953,8 @@ __device__ int _block_k_799_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l799_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8869,9 +7970,8 @@ __device__ int _block_k_801_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l801_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8887,9 +7987,8 @@ __device__ int _block_k_803_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l803_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8905,9 +8004,8 @@ __device__ int _block_k_805_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l805_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -8923,9 +8021,8 @@ __device__ int _block_k_807_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l807_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -8941,9 +8038,8 @@ __device__ int _block_k_809_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l809_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -8959,9 +8055,8 @@ __device__ int _block_k_811_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l811_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -8977,9 +8072,8 @@ __device__ int _block_k_813_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l813_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -8995,9 +8089,8 @@ __device__ int _block_k_815_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l815_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9013,9 +8106,8 @@ __device__ int _block_k_817_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l817_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9031,9 +8123,8 @@ __device__ int _block_k_819_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l819_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9049,9 +8140,8 @@ __device__ int _block_k_821_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l821_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9067,9 +8157,8 @@ __device__ int _block_k_823_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l823_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9085,9 +8174,8 @@ __device__ int _block_k_825_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l825_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9103,9 +8191,8 @@ __device__ int _block_k_827_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l827_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9121,9 +8208,8 @@ __device__ int _block_k_829_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l829_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9139,9 +8225,8 @@ __device__ int _block_k_831_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l831_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9157,9 +8242,8 @@ __device__ int _block_k_833_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l833_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9175,9 +8259,8 @@ __device__ int _block_k_835_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l835_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9193,9 +8276,8 @@ __device__ int _block_k_837_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l837_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9211,9 +8293,8 @@ __device__ int _block_k_839_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l839_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9229,9 +8310,8 @@ __device__ int _block_k_841_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l841_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9247,9 +8327,8 @@ __device__ int _block_k_843_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l843_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9265,9 +8344,8 @@ __device__ int _block_k_845_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l845_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9283,9 +8361,8 @@ __device__ int _block_k_847_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l847_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9301,9 +8378,8 @@ __device__ int _block_k_849_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l849_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9319,9 +8395,8 @@ __device__ int _block_k_851_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l851_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9337,9 +8412,8 @@ __device__ int _block_k_853_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l853_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9355,9 +8429,8 @@ __device__ int _block_k_855_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l855_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9373,9 +8446,8 @@ __device__ int _block_k_857_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l857_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9391,9 +8463,8 @@ __device__ int _block_k_859_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l859_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9409,9 +8480,8 @@ __device__ int _block_k_861_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l861_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9427,9 +8497,8 @@ __device__ int _block_k_863_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l863_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9445,9 +8514,8 @@ __device__ int _block_k_865_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l865_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9463,9 +8531,8 @@ __device__ int _block_k_867_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l867_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9481,9 +8548,8 @@ __device__ int _block_k_869_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l869_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9499,9 +8565,8 @@ __device__ int _block_k_871_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l871_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9517,9 +8582,8 @@ __device__ int _block_k_873_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l873_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9535,9 +8599,8 @@ __device__ int _block_k_875_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l875_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9553,9 +8616,8 @@ __device__ int _block_k_877_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l877_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9571,9 +8633,8 @@ __device__ int _block_k_879_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l879_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9589,9 +8650,8 @@ __device__ int _block_k_881_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l881_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9607,9 +8667,8 @@ __device__ int _block_k_883_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l883_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9625,9 +8684,8 @@ __device__ int _block_k_885_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l885_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9643,9 +8701,8 @@ __device__ int _block_k_887_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l887_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9661,9 +8718,8 @@ __device__ int _block_k_889_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l889_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9679,9 +8735,8 @@ __device__ int _block_k_891_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l891_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9697,9 +8752,8 @@ __device__ int _block_k_893_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l893_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9715,9 +8769,8 @@ __device__ int _block_k_895_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l895_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9733,9 +8786,8 @@ __device__ int _block_k_897_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l897_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9751,9 +8803,8 @@ __device__ int _block_k_899_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l899_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9769,9 +8820,8 @@ __device__ int _block_k_901_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l901_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9787,9 +8837,8 @@ __device__ int _block_k_903_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l903_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9805,9 +8854,8 @@ __device__ int _block_k_905_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l905_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9823,9 +8871,8 @@ __device__ int _block_k_907_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l907_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9841,9 +8888,8 @@ __device__ int _block_k_909_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l909_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9859,9 +8905,8 @@ __device__ int _block_k_911_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l911_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9877,9 +8922,8 @@ __device__ int _block_k_913_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l913_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9895,9 +8939,8 @@ __device__ int _block_k_915_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l915_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -9913,9 +8956,8 @@ __device__ int _block_k_917_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l917_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -9931,9 +8973,8 @@ __device__ int _block_k_919_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l919_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -9949,9 +8990,8 @@ __device__ int _block_k_921_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l921_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -9967,9 +9007,8 @@ __device__ int _block_k_923_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l923_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -9985,9 +9024,8 @@ __device__ int _block_k_925_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l925_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10003,9 +9041,8 @@ __device__ int _block_k_927_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l927_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10021,9 +9058,8 @@ __device__ int _block_k_929_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l929_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10039,9 +9075,8 @@ __device__ int _block_k_931_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l931_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10057,9 +9092,8 @@ __device__ int _block_k_933_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l933_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10075,9 +9109,8 @@ __device__ int _block_k_935_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l935_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10093,9 +9126,8 @@ __device__ int _block_k_937_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l937_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10111,9 +9143,8 @@ __device__ int _block_k_939_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l939_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10129,9 +9160,8 @@ __device__ int _block_k_941_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l941_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10147,9 +9177,8 @@ __device__ int _block_k_943_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l943_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10165,9 +9194,8 @@ __device__ int _block_k_945_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l945_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10183,9 +9211,8 @@ __device__ int _block_k_947_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l947_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10201,9 +9228,8 @@ __device__ int _block_k_949_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l949_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10219,9 +9245,8 @@ __device__ int _block_k_951_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l951_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10237,9 +9262,8 @@ __device__ int _block_k_953_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l953_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10255,9 +9279,8 @@ __device__ int _block_k_955_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l955_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10273,9 +9296,8 @@ __device__ int _block_k_957_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l957_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10291,9 +9313,8 @@ __device__ int _block_k_959_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l959_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10309,9 +9330,8 @@ __device__ int _block_k_961_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l961_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10327,9 +9347,8 @@ __device__ int _block_k_963_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l963_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10345,9 +9364,8 @@ __device__ int _block_k_965_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l965_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10363,9 +9381,8 @@ __device__ int _block_k_967_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l967_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10381,9 +9398,8 @@ __device__ int _block_k_969_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l969_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10399,9 +9415,8 @@ __device__ int _block_k_971_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l971_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10417,9 +9432,8 @@ __device__ int _block_k_973_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l973_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10435,9 +9449,8 @@ __device__ int _block_k_975_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l975_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10453,9 +9466,8 @@ __device__ int _block_k_977_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l977_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10471,9 +9483,8 @@ __device__ int _block_k_979_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l979_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10489,9 +9500,8 @@ __device__ int _block_k_981_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l981_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10507,9 +9517,8 @@ __device__ int _block_k_983_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l983_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10525,9 +9534,8 @@ __device__ int _block_k_985_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l985_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10543,9 +9551,8 @@ __device__ int _block_k_987_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l987_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10561,9 +9568,8 @@ __device__ int _block_k_989_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l989_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10579,9 +9585,8 @@ __device__ int _block_k_991_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l991_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 
@@ -10597,9 +9602,8 @@ __device__ int _block_k_993_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l993_i;
     {
-        return (((lex_i + indices.field_2)) % 13377);
+        return (((i + indices.field_2)) % 13377);
     }
 }
 
@@ -10615,9 +9619,8 @@ __device__ int _block_k_995_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l995_i;
     {
-        return (((lex_i + indices.field_1)) % 13377);
+        return (((i + indices.field_1)) % 13377);
     }
 }
 
@@ -10633,9 +9636,8 @@ __device__ int _block_k_997_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l997_i;
     {
-        return (((lex_i + indices.field_3)) % 1337);
+        return (((i + indices.field_3)) % 1337);
     }
 }
 
@@ -10651,9 +9653,8 @@ __device__ int _block_k_999_(environment_t *_env_, int i, indexed_struct_4_lt_in
     
     
     
-    int lex_i = _env_->l999_i;
     {
-        return (((lex_i + indices.field_0)) % 13377);
+        return (((i + indices.field_0)) % 13377);
     }
 }
 
@@ -10669,9 +9670,8 @@ __device__ int _block_k_1001_(environment_t *_env_, int i, indexed_struct_4_lt_i
     
     
     
-    int lex_i = _env_->l1001_i;
     {
-        return (((lex_i + indices.field_1)) % 1377);
+        return (((i + indices.field_1)) % 1377);
     }
 }
 

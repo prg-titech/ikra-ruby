@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -452,7 +453,7 @@ __device__ int _block_k_21_(environment_t *_env_, int i, indexed_struct_4_lt_int
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -506,16 +507,18 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_2;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_2);
+            int * _kernel_result_10;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 10000000)));
+            program_result->device_allocations->push_back(_kernel_result_10);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+            kernel_9<<<39063, 256>>>(dev_env, 10000000, _kernel_result_10);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_2;
+                cmd->result = _kernel_result_10;
+        
+                
             }
         
             variable_size_array_t((void *) cmd->result, 10000000);
@@ -525,13 +528,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

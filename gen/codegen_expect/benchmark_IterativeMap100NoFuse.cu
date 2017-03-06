@@ -504,7 +504,7 @@ if (result_var->last_error = expr) \
 variable_size_array_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
 {
     array_command_2 * x = new array_command_2();
-    int i;
+    int r;
     union_t _ssa_var_old_data_2;
     array_command_4 * _ssa_var_y_4;
     union_t _ssa_var_old_data_3;
@@ -534,7 +534,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             variable_size_array_t((void *) cmd->result, 10000000);
         }))));
         _ssa_var_old_data_2 = _ssa_var_y_1;
-        for (i = 0; i <= (500 - 1); i++)
+        for (r = 0; r <= (500 - 1); r++)
         {
             _ssa_var_old_data_3 = _ssa_var_y_1;
             _ssa_var_y_4 = new array_command_4(NULL, new array_command_3(NULL, ({
@@ -654,7 +654,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             _ssa_var_y_1 = union_t(11, union_v_t::from_pointer((void *) _ssa_var_y_4));
             _ssa_var_old_data_2 = _ssa_var_old_data_3;
         }
-        i--;
+        r--;
         return ({
             variable_size_array_t _polytemp_result_25;
             {
@@ -716,13 +716,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

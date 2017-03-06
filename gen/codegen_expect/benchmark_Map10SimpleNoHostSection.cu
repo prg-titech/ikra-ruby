@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -367,7 +368,7 @@ __device__ int _block_k_21_(environment_t *_env_, int i, indexed_struct_4_lt_int
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -426,19 +427,19 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Launch all kernels */
         timeStartMeasure();
-    int * _kernel_result_2;
-    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-    program_result->device_allocations->push_back(_kernel_result_2);
+    int * _kernel_result_10;
+    checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 10000000)));
+    program_result->device_allocations->push_back(_kernel_result_10);
     timeReportMeasure(program_result, allocate_memory);
     timeStartMeasure();
-    kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+    kernel_9<<<39063, 256>>>(dev_env, 10000000, _kernel_result_10);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
     timeReportMeasure(program_result, kernel);
 
     /* Copy over result to the host */
     program_result->result = ({
-    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_2, 10000000);
+    variable_size_array_t device_array = variable_size_array_t((void *) _kernel_result_10, 10000000);
     int * tmp_result = (int *) malloc(sizeof(int) * device_array.size);
 
     timeStartMeasure();
@@ -450,7 +451,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
     /* Free device memory */
         timeStartMeasure();
-    checkErrorReturn(program_result, cudaFree(_kernel_result_2));
+    checkErrorReturn(program_result, cudaFree(_kernel_result_10));
     timeReportMeasure(program_result, free_memory);
 
 

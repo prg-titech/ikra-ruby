@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -174,15 +175,98 @@ struct array_command_4 {
     __host__ __device__ array_command_4(indexed_struct_4_lt_int_int_int_int_gt_t *result = NULL) : result(result) { }
 };
 struct array_command_3 {
-    // Ikra::Symbolic::ArrayStencilCommand
+    // Ikra::Symbolic::ArrayCombineCommand
     int *result;
     array_command_2 *input_0;
     array_command_4 *input_1;
     __host__ __device__ array_command_3(int *result = NULL, array_command_2 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
 };
+struct array_command_5 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_3 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_5(int *result = NULL, array_command_3 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_7 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_5 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_7(int *result = NULL, array_command_5 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_9 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_7 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_9(int *result = NULL, array_command_7 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_11 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_9 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_11(int *result = NULL, array_command_9 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_13 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_11 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_13(int *result = NULL, array_command_11 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_15 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_13 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_15(int *result = NULL, array_command_13 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_17 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_15 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_17(int *result = NULL, array_command_15 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_19 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_17 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_19(int *result = NULL, array_command_17 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
+struct array_command_21 {
+    // Ikra::Symbolic::ArrayCombineCommand
+    int *result;
+    array_command_19 *input_0;
+    array_command_4 *input_1;
+    __host__ __device__ array_command_21(int *result = NULL, array_command_19 *input_0 = NULL, array_command_4 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+};
 struct environment_struct
 {
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // TODO: There should be a better to check if _block_k_2_ is already defined
 #ifndef _block_k_2__func
@@ -192,75 +276,223 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
     
     
     {
-        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_1 = ((indices.field_1 % 4));
-        (_temp_var_1 == 0 ? indices.field_0 : (_temp_var_1 == 1 ? indices.field_1 : (_temp_var_1 == 2 ? indices.field_2 : (_temp_var_1 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
+        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_125 = ((indices.field_1 % 4));
+        (_temp_var_125 == 0 ? indices.field_0 : (_temp_var_125 == 1 ? indices.field_1 : (_temp_var_125 == 2 ? indices.field_2 : (_temp_var_125 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
     }
 }
 
 #endif
-
-
-__global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
-    }
-}
 
 
 
 // TODO: There should be a better to check if _block_k_3_ is already defined
 #ifndef _block_k_3__func
 #define _block_k_3__func
-__device__ int _block_k_3_(environment_t *_env_, int _values_0, int _values_1, int _values_2, int _values_3, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+__device__ int _block_k_3_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
-    // (Re)construct array from separately passed parameters
-    int values[] = { _values_0, _values_1, _values_2, _values_3 };
+    
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_2 = ((({ int _temp_var_3 = ((({ int _temp_var_4 = ((values[2] % 4));
-        (_temp_var_4 == 0 ? indices.field_0 : (_temp_var_4 == 1 ? indices.field_1 : (_temp_var_4 == 2 ? indices.field_2 : (_temp_var_4 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_3 == 0 ? indices.field_0 : (_temp_var_3 == 1 ? indices.field_1 : (_temp_var_3 == 2 ? indices.field_2 : (_temp_var_3 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_2 == 0 ? indices.field_0 : (_temp_var_2 == 1 ? indices.field_1 : (_temp_var_2 == 2 ? indices.field_2 : (_temp_var_2 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((i % 938)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_126 = ((({ int _temp_var_127 = ((({ int _temp_var_128 = ((i % 4));
+        (_temp_var_128 == 0 ? indices.field_0 : (_temp_var_128 == 1 ? indices.field_1 : (_temp_var_128 == 2 ? indices.field_2 : (_temp_var_128 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_127 == 0 ? indices.field_0 : (_temp_var_127 == 1 ? indices.field_1 : (_temp_var_127 == 2 ? indices.field_2 : (_temp_var_127 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_126 == 0 ? indices.field_0 : (_temp_var_126 == 1 ? indices.field_1 : (_temp_var_126 == 2 ? indices.field_2 : (_temp_var_126 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_4)
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 939)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_129 = ((({ int _temp_var_130 = ((({ int _temp_var_131 = ((i % 4));
+        (_temp_var_131 == 0 ? indices.field_0 : (_temp_var_131 == 1 ? indices.field_1 : (_temp_var_131 == 2 ? indices.field_2 : (_temp_var_131 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_130 == 0 ? indices.field_0 : (_temp_var_130 == 1 ? indices.field_1 : (_temp_var_130 == 2 ? indices.field_2 : (_temp_var_130 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_129 == 0 ? indices.field_0 : (_temp_var_129 == 1 ? indices.field_1 : (_temp_var_129 == 2 ? indices.field_2 : (_temp_var_129 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_7_ is already defined
+#ifndef _block_k_7__func
+#define _block_k_7__func
+__device__ int _block_k_7_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 940)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_132 = ((({ int _temp_var_133 = ((({ int _temp_var_134 = ((i % 4));
+        (_temp_var_134 == 0 ? indices.field_0 : (_temp_var_134 == 1 ? indices.field_1 : (_temp_var_134 == 2 ? indices.field_2 : (_temp_var_134 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_133 == 0 ? indices.field_0 : (_temp_var_133 == 1 ? indices.field_1 : (_temp_var_133 == 2 ? indices.field_2 : (_temp_var_133 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_132 == 0 ? indices.field_0 : (_temp_var_132 == 1 ? indices.field_1 : (_temp_var_132 == 2 ? indices.field_2 : (_temp_var_132 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_9_ is already defined
+#ifndef _block_k_9__func
+#define _block_k_9__func
+__device__ int _block_k_9_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 941)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_135 = ((({ int _temp_var_136 = ((({ int _temp_var_137 = ((i % 4));
+        (_temp_var_137 == 0 ? indices.field_0 : (_temp_var_137 == 1 ? indices.field_1 : (_temp_var_137 == 2 ? indices.field_2 : (_temp_var_137 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_136 == 0 ? indices.field_0 : (_temp_var_136 == 1 ? indices.field_1 : (_temp_var_136 == 2 ? indices.field_2 : (_temp_var_136 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_135 == 0 ? indices.field_0 : (_temp_var_135 == 1 ? indices.field_1 : (_temp_var_135 == 2 ? indices.field_2 : (_temp_var_135 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_11_ is already defined
+#ifndef _block_k_11__func
+#define _block_k_11__func
+__device__ int _block_k_11_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 942)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_138 = ((({ int _temp_var_139 = ((({ int _temp_var_140 = ((i % 4));
+        (_temp_var_140 == 0 ? indices.field_0 : (_temp_var_140 == 1 ? indices.field_1 : (_temp_var_140 == 2 ? indices.field_2 : (_temp_var_140 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_139 == 0 ? indices.field_0 : (_temp_var_139 == 1 ? indices.field_1 : (_temp_var_139 == 2 ? indices.field_2 : (_temp_var_139 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_138 == 0 ? indices.field_0 : (_temp_var_138 == 1 ? indices.field_1 : (_temp_var_138 == 2 ? indices.field_2 : (_temp_var_138 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_13_ is already defined
+#ifndef _block_k_13__func
+#define _block_k_13__func
+__device__ int _block_k_13_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 943)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_141 = ((({ int _temp_var_142 = ((({ int _temp_var_143 = ((i % 4));
+        (_temp_var_143 == 0 ? indices.field_0 : (_temp_var_143 == 1 ? indices.field_1 : (_temp_var_143 == 2 ? indices.field_2 : (_temp_var_143 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_142 == 0 ? indices.field_0 : (_temp_var_142 == 1 ? indices.field_1 : (_temp_var_142 == 2 ? indices.field_2 : (_temp_var_142 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_141 == 0 ? indices.field_0 : (_temp_var_141 == 1 ? indices.field_1 : (_temp_var_141 == 2 ? indices.field_2 : (_temp_var_141 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_15_ is already defined
+#ifndef _block_k_15__func
+#define _block_k_15__func
+__device__ int _block_k_15_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 944)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_144 = ((({ int _temp_var_145 = ((({ int _temp_var_146 = ((i % 4));
+        (_temp_var_146 == 0 ? indices.field_0 : (_temp_var_146 == 1 ? indices.field_1 : (_temp_var_146 == 2 ? indices.field_2 : (_temp_var_146 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_145 == 0 ? indices.field_0 : (_temp_var_145 == 1 ? indices.field_1 : (_temp_var_145 == 2 ? indices.field_2 : (_temp_var_145 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_144 == 0 ? indices.field_0 : (_temp_var_144 == 1 ? indices.field_1 : (_temp_var_144 == 2 ? indices.field_2 : (_temp_var_144 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_17_ is already defined
+#ifndef _block_k_17__func
+#define _block_k_17__func
+__device__ int _block_k_17_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 945)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_147 = ((({ int _temp_var_148 = ((({ int _temp_var_149 = ((i % 4));
+        (_temp_var_149 == 0 ? indices.field_0 : (_temp_var_149 == 1 ? indices.field_1 : (_temp_var_149 == 2 ? indices.field_2 : (_temp_var_149 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_148 == 0 ? indices.field_0 : (_temp_var_148 == 1 ? indices.field_1 : (_temp_var_148 == 2 ? indices.field_2 : (_temp_var_148 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_147 == 0 ? indices.field_0 : (_temp_var_147 == 1 ? indices.field_1 : (_temp_var_147 == 2 ? indices.field_2 : (_temp_var_147 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_19_ is already defined
+#ifndef _block_k_19__func
+#define _block_k_19__func
+__device__ int _block_k_19_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 946)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_150 = ((({ int _temp_var_151 = ((({ int _temp_var_152 = ((i % 4));
+        (_temp_var_152 == 0 ? indices.field_0 : (_temp_var_152 == 1 ? indices.field_1 : (_temp_var_152 == 2 ? indices.field_2 : (_temp_var_152 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_151 == 0 ? indices.field_0 : (_temp_var_151 == 1 ? indices.field_1 : (_temp_var_151 == 2 ? indices.field_2 : (_temp_var_151 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_150 == 0 ? indices.field_0 : (_temp_var_150 == 1 ? indices.field_1 : (_temp_var_150 == 2 ? indices.field_2 : (_temp_var_150 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+
+// TODO: There should be a better to check if _block_k_21_ is already defined
+#ifndef _block_k_21__func
+#define _block_k_21__func
+__device__ int _block_k_21_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((i % 947)) + ((i / 97)))) % 97717)) + ((((({ int _temp_var_153 = ((({ int _temp_var_154 = ((({ int _temp_var_155 = ((i % 4));
+        (_temp_var_155 == 0 ? indices.field_0 : (_temp_var_155 == 1 ? indices.field_1 : (_temp_var_155 == 2 ? indices.field_2 : (_temp_var_155 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_154 == 0 ? indices.field_0 : (_temp_var_154 == 1 ? indices.field_1 : (_temp_var_154 == 2 ? indices.field_2 : (_temp_var_154 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_153 == 0 ? indices.field_0 : (_temp_var_153 == 1 ? indices.field_1 : (_temp_var_153 == 2 ? indices.field_2 : (_temp_var_153 == 3 ? indices.field_3 : NULL)))); }) * ((i % 7)))) % 99)));
+    }
+}
+
+#endif
+
+
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_5;
 
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
-    {
-        // All value indices within bounds
         
-        temp_stencil_5 = _block_k_3_(_env_, _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_5 = 37;
-    }
-        
-        _result_[_tid_] = temp_stencil_5;
+        _result_[_tid_] = _block_k_21_(_env_, _block_k_19_(_env_, _block_k_17_(_env_, _block_k_15_(_env_, _block_k_13_(_env_, _block_k_11_(_env_, _block_k_9_(_env_, _block_k_7_(_env_, _block_k_5_(_env_, _block_k_3_(_env_, _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2})), ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -278,35 +510,46 @@ if (result_var->last_error = expr) \
 variable_size_array_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
 {
     array_command_2 * base = new array_command_2();
+    array_command_21 * _ssa_var_base_10;
+    array_command_19 * _ssa_var_base_9;
+    array_command_17 * _ssa_var_base_8;
+    array_command_15 * _ssa_var_base_7;
+    array_command_13 * _ssa_var_base_6;
+    array_command_11 * _ssa_var_base_5;
+    array_command_9 * _ssa_var_base_4;
+    array_command_7 * _ssa_var_base_3;
+    array_command_5 * _ssa_var_base_2;
     array_command_3 * _ssa_var_base_1;
     {
         _ssa_var_base_1 = new array_command_3(NULL, base);
+        _ssa_var_base_2 = new array_command_5(NULL, _ssa_var_base_1);
+        _ssa_var_base_3 = new array_command_7(NULL, _ssa_var_base_2);
+        _ssa_var_base_4 = new array_command_9(NULL, _ssa_var_base_3);
+        _ssa_var_base_5 = new array_command_11(NULL, _ssa_var_base_4);
+        _ssa_var_base_6 = new array_command_13(NULL, _ssa_var_base_5);
+        _ssa_var_base_7 = new array_command_15(NULL, _ssa_var_base_6);
+        _ssa_var_base_8 = new array_command_17(NULL, _ssa_var_base_7);
+        _ssa_var_base_9 = new array_command_19(NULL, _ssa_var_base_8);
+        _ssa_var_base_10 = new array_command_21(NULL, _ssa_var_base_9);
         return ({
-            // [Ikra::Symbolic::ArrayStencilCommand, size = 10000000]: [SendNode: [LVarReadNode: base].pstencil([ArrayNode: [[ArrayNode: [<-1>, <0>, <0>, <0>]], [ArrayNode: [<0>, <0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>, <0>]], [ArrayNode: [<-1>, <-1>, <0>, <0>]]]]; <37>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_9].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
         
-            array_command_3 * cmd = _ssa_var_base_1;
+            array_command_21 * cmd = _ssa_var_base_10;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_4;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_4);
+            int * _kernel_result_10;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 10000000)));
+            program_result->device_allocations->push_back(_kernel_result_10);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_3<<<39063, 256>>>(dev_env, 10000000, _kernel_result_4);
-            checkErrorReturn(program_result, cudaPeekAtLastError());
-            checkErrorReturn(program_result, cudaThreadSynchronize());
-            timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_2;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_2);
-            timeReportMeasure(program_result, allocate_memory);
-            timeStartMeasure();
-            kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2, _kernel_result_4);
+            kernel_9<<<39063, 256>>>(dev_env, 10000000, _kernel_result_10);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_2;
+                cmd->result = _kernel_result_10;
+        
+                
             }
         
             variable_size_array_t((void *) cmd->result, 10000000);
@@ -316,13 +559,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

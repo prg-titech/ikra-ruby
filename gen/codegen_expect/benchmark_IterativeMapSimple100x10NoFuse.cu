@@ -207,7 +207,7 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_329(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -236,7 +236,7 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
 #endif
 
 
-__global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_331(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -251,7 +251,7 @@ __global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
 
 
 
-__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_, int *_array_7_)
+__global__ void kernel_333(environment_t *_env_, int _num_threads_, int *_result_, int *_array_335_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -259,7 +259,7 @@ __global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_,
     {
 
         
-        _result_[_tid_] = _array_7_[_tid_];
+        _result_[_tid_] = _array_335_[_tid_];
     }
 }
 
@@ -281,7 +281,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_8(environment_t *_env_, int _num_threads_, int *_result_, int *_array_10_)
+__global__ void kernel_336(environment_t *_env_, int _num_threads_, int *_result_, int *_array_338_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -289,14 +289,14 @@ __global__ void kernel_8(environment_t *_env_, int _num_threads_, int *_result_,
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_10_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_338_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
 
 
 
-__global__ void kernel_11(environment_t *_env_, int _num_threads_, int *_result_, int *_array_13_)
+__global__ void kernel_339(environment_t *_env_, int _num_threads_, int *_result_, int *_array_341_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -304,7 +304,7 @@ __global__ void kernel_11(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_13_[_tid_];
+        _result_[_tid_] = _array_341_[_tid_];
     }
 }
 
@@ -326,7 +326,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_, int *_array_16_)
+__global__ void kernel_342(environment_t *_env_, int _num_threads_, int *_result_, int *_array_344_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -334,14 +334,14 @@ __global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_16_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_344_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
 
 
 
-__global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_, int *_array_19_)
+__global__ void kernel_345(environment_t *_env_, int _num_threads_, int *_result_, int *_array_347_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -349,7 +349,7 @@ __global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_19_[_tid_];
+        _result_[_tid_] = _array_347_[_tid_];
     }
 }
 
@@ -371,7 +371,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_20(environment_t *_env_, int _num_threads_, int *_result_, int *_array_22_)
+__global__ void kernel_348(environment_t *_env_, int _num_threads_, int *_result_, int *_array_350_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -379,14 +379,14 @@ __global__ void kernel_20(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_22_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_350_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
 
 
 
-__global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_, int *_array_25_)
+__global__ void kernel_351(environment_t *_env_, int _num_threads_, int *_result_, int *_array_353_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -394,7 +394,7 @@ __global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_25_[_tid_];
+        _result_[_tid_] = _array_353_[_tid_];
     }
 }
 
@@ -416,7 +416,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_26(environment_t *_env_, int _num_threads_, int *_result_, int *_array_28_)
+__global__ void kernel_354(environment_t *_env_, int _num_threads_, int *_result_, int *_array_356_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -424,7 +424,7 @@ __global__ void kernel_26(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_28_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_356_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -446,7 +446,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_29(environment_t *_env_, int _num_threads_, int *_result_, int *_array_31_)
+__global__ void kernel_357(environment_t *_env_, int _num_threads_, int *_result_, int *_array_359_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -454,7 +454,7 @@ __global__ void kernel_29(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_31_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_359_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -476,7 +476,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_32(environment_t *_env_, int _num_threads_, int *_result_, int *_array_34_)
+__global__ void kernel_360(environment_t *_env_, int _num_threads_, int *_result_, int *_array_362_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -484,7 +484,7 @@ __global__ void kernel_32(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_34_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_362_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -506,7 +506,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_35(environment_t *_env_, int _num_threads_, int *_result_, int *_array_37_)
+__global__ void kernel_363(environment_t *_env_, int _num_threads_, int *_result_, int *_array_365_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -514,7 +514,7 @@ __global__ void kernel_35(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_37_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_365_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -536,7 +536,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_38(environment_t *_env_, int _num_threads_, int *_result_, int *_array_40_)
+__global__ void kernel_366(environment_t *_env_, int _num_threads_, int *_result_, int *_array_368_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -544,7 +544,7 @@ __global__ void kernel_38(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_40_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_368_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -566,7 +566,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_41(environment_t *_env_, int _num_threads_, int *_result_, int *_array_43_)
+__global__ void kernel_369(environment_t *_env_, int _num_threads_, int *_result_, int *_array_371_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -574,7 +574,7 @@ __global__ void kernel_41(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_43_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_371_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -596,7 +596,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_44(environment_t *_env_, int _num_threads_, int *_result_, int *_array_46_)
+__global__ void kernel_372(environment_t *_env_, int _num_threads_, int *_result_, int *_array_374_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -604,7 +604,7 @@ __global__ void kernel_44(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_46_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_374_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -626,7 +626,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_47(environment_t *_env_, int _num_threads_, int *_result_, int *_array_49_)
+__global__ void kernel_375(environment_t *_env_, int _num_threads_, int *_result_, int *_array_377_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -634,7 +634,7 @@ __global__ void kernel_47(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_49_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_377_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -656,7 +656,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_50(environment_t *_env_, int _num_threads_, int *_result_, int *_array_52_)
+__global__ void kernel_378(environment_t *_env_, int _num_threads_, int *_result_, int *_array_380_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -664,7 +664,7 @@ __global__ void kernel_50(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_52_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_380_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -686,7 +686,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_53(environment_t *_env_, int _num_threads_, int *_result_, int *_array_55_)
+__global__ void kernel_381(environment_t *_env_, int _num_threads_, int *_result_, int *_array_383_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -694,7 +694,7 @@ __global__ void kernel_53(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_55_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_383_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -716,7 +716,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_56(environment_t *_env_, int _num_threads_, int *_result_, int *_array_58_)
+__global__ void kernel_384(environment_t *_env_, int _num_threads_, int *_result_, int *_array_386_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -724,7 +724,7 @@ __global__ void kernel_56(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_58_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_386_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -746,7 +746,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_59(environment_t *_env_, int _num_threads_, int *_result_, int *_array_61_)
+__global__ void kernel_387(environment_t *_env_, int _num_threads_, int *_result_, int *_array_389_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -754,7 +754,7 @@ __global__ void kernel_59(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_61_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_389_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -776,7 +776,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_62(environment_t *_env_, int _num_threads_, int *_result_, int *_array_64_)
+__global__ void kernel_390(environment_t *_env_, int _num_threads_, int *_result_, int *_array_392_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -784,7 +784,7 @@ __global__ void kernel_62(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_64_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_392_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -806,7 +806,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_65(environment_t *_env_, int _num_threads_, int *_result_, int *_array_67_)
+__global__ void kernel_393(environment_t *_env_, int _num_threads_, int *_result_, int *_array_395_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -814,7 +814,7 @@ __global__ void kernel_65(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_67_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_395_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -836,7 +836,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_68(environment_t *_env_, int _num_threads_, int *_result_, int *_array_70_)
+__global__ void kernel_396(environment_t *_env_, int _num_threads_, int *_result_, int *_array_398_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -844,7 +844,7 @@ __global__ void kernel_68(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_70_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_398_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -866,7 +866,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_71(environment_t *_env_, int _num_threads_, int *_result_, int *_array_73_)
+__global__ void kernel_399(environment_t *_env_, int _num_threads_, int *_result_, int *_array_401_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -874,7 +874,7 @@ __global__ void kernel_71(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_73_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_401_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -896,7 +896,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_74(environment_t *_env_, int _num_threads_, int *_result_, int *_array_76_)
+__global__ void kernel_402(environment_t *_env_, int _num_threads_, int *_result_, int *_array_404_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -904,14 +904,14 @@ __global__ void kernel_74(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_76_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_404_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
 
 
 
-__global__ void kernel_77(environment_t *_env_, int _num_threads_, int *_result_, int *_array_79_)
+__global__ void kernel_405(environment_t *_env_, int _num_threads_, int *_result_, int *_array_407_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -919,7 +919,7 @@ __global__ void kernel_77(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _array_79_[_tid_];
+        _result_[_tid_] = _array_407_[_tid_];
     }
 }
 
@@ -941,7 +941,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_80(environment_t *_env_, int _num_threads_, int *_result_, int *_array_82_)
+__global__ void kernel_408(environment_t *_env_, int _num_threads_, int *_result_, int *_array_410_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -949,7 +949,7 @@ __global__ void kernel_80(environment_t *_env_, int _num_threads_, int *_result_
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_82_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_4_(_env_, _array_410_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
     }
 }
 
@@ -988,71 +988,71 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_2;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_2);
+            int * _kernel_result_330;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_330, (sizeof(int) * 10000000)));
+            program_result->device_allocations->push_back(_kernel_result_330);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+            kernel_329<<<39063, 256>>>(dev_env, 10000000, _kernel_result_330);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_2;
+                cmd->result = _kernel_result_330;
         
                 
             }
         
             variable_size_array_t((void *) cmd->result, 10000000);
         }))));
-        _ssa_var_old_data_2 = union_t(11, union_v_t::from_pointer((void *) x));
+        _ssa_var_old_data_2 = union_t(19, union_v_t::from_pointer((void *) x));
         for (r = 0; r <= (100 - 1); r++)
         {
             _ssa_var_y_3 = new array_command_4(NULL, new array_command_3(NULL, ({
-                variable_size_array_t _polytemp_result_1;
+                variable_size_array_t _polytemp_result_49;
                 {
-                    union_t _polytemp_expr_2 = _ssa_var_y_1;
-                    switch (_polytemp_expr_2.class_id)
+                    union_t _polytemp_expr_50 = _ssa_var_y_1;
+                    switch (_polytemp_expr_50.class_id)
                     {
-                        case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                        case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_49 = ({
                             // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000]
                         
-                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_2.value.pointer;
+                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_50.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            int * _kernel_result_6;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 10000000)));
-                            program_result->device_allocations->push_back(_kernel_result_6);
+                            int * _kernel_result_334;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_334, (sizeof(int) * 10000000)));
+                            program_result->device_allocations->push_back(_kernel_result_334);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_5<<<39063, 256>>>(dev_env, 10000000, _kernel_result_6, ((int *) cmd->input_0.content));
+                            kernel_333<<<39063, 256>>>(dev_env, 10000000, _kernel_result_334, ((int *) cmd->input_0.content));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_6;
+                                cmd->result = _kernel_result_334;
                         
                                 
                             }
                         
                             variable_size_array_t((void *) cmd->result, 10000000);
                         }); break;
-                        case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
+                        case 20: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_49 = ({
                             // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                         
-                            array_command_4 * cmd = (array_command_4 *) _polytemp_expr_2.value.pointer;
+                            array_command_4 * cmd = (array_command_4 *) _polytemp_expr_50.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            int * _kernel_result_9;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_9, (sizeof(int) * 10000000)));
-                            program_result->device_allocations->push_back(_kernel_result_9);
+                            int * _kernel_result_337;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_337, (sizeof(int) * 10000000)));
+                            program_result->device_allocations->push_back(_kernel_result_337);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_8<<<39063, 256>>>(dev_env, 10000000, _kernel_result_9, ((int *) ((int *) cmd->input_0->input_0.content)));
+                            kernel_336<<<39063, 256>>>(dev_env, 10000000, _kernel_result_337, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_9;
+                                cmd->result = _kernel_result_337;
                         
                                 
                             }
@@ -1061,16 +1061,16 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         }); break;
                     }
                 }
-                _polytemp_result_1;
+                _polytemp_result_49;
             })));
             ({
-                bool _polytemp_result_9;
+                bool _polytemp_result_57;
                 {
-                    union_t _polytemp_expr_10 = _ssa_var_old_data_2;
-                    switch (_polytemp_expr_10.class_id)
+                    union_t _polytemp_expr_58 = _ssa_var_old_data_2;
+                    switch (_polytemp_expr_58.class_id)
                     {
-                        case 11: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                            array_command_2 * cmd_to_free = (array_command_2 *) _polytemp_expr_10.value.pointer;
+                        case 19: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_57 = ({
+                            array_command_2 * cmd_to_free = (array_command_2 *) _polytemp_expr_58.value.pointer;
                         
                             timeStartMeasure();
                             bool freed_memory = false;
@@ -1093,8 +1093,8 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             
                             freed_memory;
                         }); break;
-                        case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                            array_command_4 * cmd_to_free = (array_command_4 *) _polytemp_expr_10.value.pointer;
+                        case 20: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_57 = ({
+                            array_command_4 * cmd_to_free = (array_command_4 *) _polytemp_expr_58.value.pointer;
                         
                             timeStartMeasure();
                             bool freed_memory = false;
@@ -1119,7 +1119,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         }); break;
                     }
                 }
-                _polytemp_result_9;
+                _polytemp_result_57;
             });
             _ssa_var_old_data_4 = _ssa_var_y_3;
             _ssa_var_y_5 = new array_command_4(NULL, new array_command_3(NULL, ({
@@ -1129,16 +1129,16 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             
                 if (cmd->result == 0) {
                         timeStartMeasure();
-                int * _kernel_result_30;
-                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_30, (sizeof(int) * 10000000)));
-                program_result->device_allocations->push_back(_kernel_result_30);
+                int * _kernel_result_358;
+                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_358, (sizeof(int) * 10000000)));
+                program_result->device_allocations->push_back(_kernel_result_358);
                 timeReportMeasure(program_result, allocate_memory);
                 timeStartMeasure();
-                kernel_29<<<39063, 256>>>(dev_env, 10000000, _kernel_result_30, ((int *) ((int *) cmd->input_0->input_0.content)));
+                kernel_357<<<39063, 256>>>(dev_env, 10000000, _kernel_result_358, ((int *) ((int *) cmd->input_0->input_0.content)));
                 checkErrorReturn(program_result, cudaPeekAtLastError());
                 checkErrorReturn(program_result, cudaThreadSynchronize());
                 timeReportMeasure(program_result, kernel);
-                    cmd->result = _kernel_result_30;
+                    cmd->result = _kernel_result_358;
             
                     
                 }
@@ -1177,16 +1177,16 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             
                 if (cmd->result == 0) {
                         timeStartMeasure();
-                int * _kernel_result_42;
-                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_42, (sizeof(int) * 10000000)));
-                program_result->device_allocations->push_back(_kernel_result_42);
+                int * _kernel_result_370;
+                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_370, (sizeof(int) * 10000000)));
+                program_result->device_allocations->push_back(_kernel_result_370);
                 timeReportMeasure(program_result, allocate_memory);
                 timeStartMeasure();
-                kernel_41<<<39063, 256>>>(dev_env, 10000000, _kernel_result_42, ((int *) ((int *) cmd->input_0->input_0.content)));
+                kernel_369<<<39063, 256>>>(dev_env, 10000000, _kernel_result_370, ((int *) ((int *) cmd->input_0->input_0.content)));
                 checkErrorReturn(program_result, cudaPeekAtLastError());
                 checkErrorReturn(program_result, cudaThreadSynchronize());
                 timeReportMeasure(program_result, kernel);
-                    cmd->result = _kernel_result_42;
+                    cmd->result = _kernel_result_370;
             
                     
                 }
@@ -1225,16 +1225,16 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             
                 if (cmd->result == 0) {
                         timeStartMeasure();
-                int * _kernel_result_54;
-                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_54, (sizeof(int) * 10000000)));
-                program_result->device_allocations->push_back(_kernel_result_54);
+                int * _kernel_result_382;
+                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_382, (sizeof(int) * 10000000)));
+                program_result->device_allocations->push_back(_kernel_result_382);
                 timeReportMeasure(program_result, allocate_memory);
                 timeStartMeasure();
-                kernel_53<<<39063, 256>>>(dev_env, 10000000, _kernel_result_54, ((int *) ((int *) cmd->input_0->input_0.content)));
+                kernel_381<<<39063, 256>>>(dev_env, 10000000, _kernel_result_382, ((int *) ((int *) cmd->input_0->input_0.content)));
                 checkErrorReturn(program_result, cudaPeekAtLastError());
                 checkErrorReturn(program_result, cudaThreadSynchronize());
                 timeReportMeasure(program_result, kernel);
-                    cmd->result = _kernel_result_54;
+                    cmd->result = _kernel_result_382;
             
                     
                 }
@@ -1273,16 +1273,16 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             
                 if (cmd->result == 0) {
                         timeStartMeasure();
-                int * _kernel_result_66;
-                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_66, (sizeof(int) * 10000000)));
-                program_result->device_allocations->push_back(_kernel_result_66);
+                int * _kernel_result_394;
+                checkErrorReturn(program_result, cudaMalloc(&_kernel_result_394, (sizeof(int) * 10000000)));
+                program_result->device_allocations->push_back(_kernel_result_394);
                 timeReportMeasure(program_result, allocate_memory);
                 timeStartMeasure();
-                kernel_65<<<39063, 256>>>(dev_env, 10000000, _kernel_result_66, ((int *) ((int *) cmd->input_0->input_0.content)));
+                kernel_393<<<39063, 256>>>(dev_env, 10000000, _kernel_result_394, ((int *) ((int *) cmd->input_0->input_0.content)));
                 checkErrorReturn(program_result, cudaPeekAtLastError());
                 checkErrorReturn(program_result, cudaThreadSynchronize());
                 timeReportMeasure(program_result, kernel);
-                    cmd->result = _kernel_result_66;
+                    cmd->result = _kernel_result_394;
             
                     
                 }
@@ -1314,56 +1314,56 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                 freed_memory;
             });
             _ssa_var_old_data_12 = _ssa_var_y_11;
-            _ssa_var_y_1 = union_t(12, union_v_t::from_pointer((void *) _ssa_var_y_11));
-            _ssa_var_old_data_2 = union_t(12, union_v_t::from_pointer((void *) _ssa_var_old_data_12));
+            _ssa_var_y_1 = union_t(20, union_v_t::from_pointer((void *) _ssa_var_y_11));
+            _ssa_var_old_data_2 = union_t(20, union_v_t::from_pointer((void *) _ssa_var_old_data_12));
         }
         r--;
         return ({
-            variable_size_array_t _polytemp_result_11;
+            variable_size_array_t _polytemp_result_59;
             {
-                union_t _polytemp_expr_12 = _ssa_var_y_1;
-                switch (_polytemp_expr_12.class_id)
+                union_t _polytemp_expr_60 = _ssa_var_y_1;
+                switch (_polytemp_expr_60.class_id)
                 {
-                    case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_11 = ({
+                    case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_59 = ({
                         // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 10000000]
                     
-                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_12.value.pointer;
+                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_60.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        int * _kernel_result_78;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_78, (sizeof(int) * 10000000)));
-                        program_result->device_allocations->push_back(_kernel_result_78);
+                        int * _kernel_result_406;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_406, (sizeof(int) * 10000000)));
+                        program_result->device_allocations->push_back(_kernel_result_406);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_77<<<39063, 256>>>(dev_env, 10000000, _kernel_result_78, ((int *) cmd->input_0.content));
+                        kernel_405<<<39063, 256>>>(dev_env, 10000000, _kernel_result_406, ((int *) cmd->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_78;
+                            cmd->result = _kernel_result_406;
                     
                             
                         }
                     
                         variable_size_array_t((void *) cmd->result, 10000000);
                     }); break;
-                    case 12: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_11 = ({
+                    case 20: /* [Ikra::Symbolic::ArrayCombineCommand, size = 10000000] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_59 = ({
                         // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                     
-                        array_command_4 * cmd = (array_command_4 *) _polytemp_expr_12.value.pointer;
+                        array_command_4 * cmd = (array_command_4 *) _polytemp_expr_60.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        int * _kernel_result_81;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_81, (sizeof(int) * 10000000)));
-                        program_result->device_allocations->push_back(_kernel_result_81);
+                        int * _kernel_result_409;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_409, (sizeof(int) * 10000000)));
+                        program_result->device_allocations->push_back(_kernel_result_409);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_80<<<39063, 256>>>(dev_env, 10000000, _kernel_result_81, ((int *) ((int *) cmd->input_0->input_0.content)));
+                        kernel_408<<<39063, 256>>>(dev_env, 10000000, _kernel_result_409, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_81;
+                            cmd->result = _kernel_result_409;
                     
                             
                         }
@@ -1372,20 +1372,14 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                     }); break;
                 }
             }
-            _polytemp_result_11;
+            _polytemp_result_59;
         });
     }
 }
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

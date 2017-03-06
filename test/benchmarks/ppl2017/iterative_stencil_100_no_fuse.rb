@@ -23,7 +23,7 @@ class IterativeStencil100NoFuse < Test::Unit::TestCase
                 ((values[-1][0][0][0] % 938) + values[0][0][0][0] / 97) % 97717 + (indices[indices[indices[values[1][0][0][0] % 4] % 4] % 4] * (values[-1][-1][0][0] % 7) % 99)
                 end
 
-                if i > 1
+                if r > 1
                     old_old_data.free_memory
                 end
             end
