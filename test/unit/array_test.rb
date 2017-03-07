@@ -56,4 +56,24 @@ class ArrayTest < UnitTestCase
 
         assert_in_delta(416650.0, partial_sums.reduce(:+), 0.1)
     end
+
+    def test_lexical_array_in_host_section
+        a1 = Array.pnew(511) do |j|
+            j + 1
+        end
+
+        lex_array = (100...200).to_a
+
+        section_result = Ikra::Symbolic.host_section(a1) do |a1|
+            a1.pmap(with_index: true) do |k, i|
+                k + 1 + lex_array[i % 100]
+            end
+        end
+
+        result = Array.new(511) do |j|
+            j + 2 + lex_array[j % 100]
+        end
+
+        assert_equal(result, section_result.to_a)
+    end
 end

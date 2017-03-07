@@ -195,7 +195,8 @@ module Ikra
                 block_ast: nil, 
                 block_size: nil, 
                 keep: nil, 
-                generator_node: nil)
+                generator_node: nil,
+                command_binding: nil)
 
                 super()
 
@@ -205,6 +206,7 @@ module Ikra
                 @block_size = block_size
                 @keep = keep
                 @generator_node = generator_node
+                @command_binding = command_binding
 
                 if block != nil and block_ast == nil
                     @block = block
@@ -342,7 +344,7 @@ module Ikra
                         param[1]
                     end
 
-                    parser_local_vars = block.binding.local_variables + block_params
+                    parser_local_vars = command_binding.local_variables + block_params
                     source = Parsing.parse_block(block, parser_local_vars)
                     @ast = AST::BlockDefNode.new(
                         parameters: block_params,
@@ -356,19 +358,31 @@ module Ikra
                 return @ast
             end
 
+            # Returns the binding of this command. It is used to retrieve lexical variables that
+            # are used inside this parallel section.
+            def command_binding
+                if @command_binding != nil
+                    return @command_binding
+                elsif block != nil
+                    return block.binding
+                else
+                    return nil
+                end
+            end
+
             # Returns a collection of lexical variables that are accessed within a parallel 
             # section.
             # @return [Hash{Symbol => Object}]
             def lexical_externals
-                if block != nil
-                    all_lexical_vars = block.binding.local_variables
+                if block_def_node != nil && command_binding != nil
+                    all_lexical_vars = command_binding.local_variables
                     lexical_vars_enumerator = AST::LexicalVariablesEnumerator.new(all_lexical_vars)
                     block_def_node.accept(lexical_vars_enumerator)
                     accessed_variables = lexical_vars_enumerator.lexical_variables
 
                     result = Hash.new
                     for var_name in accessed_variables
-                        result[var_name] = block.binding.local_variable_get(var_name)
+                        result[var_name] = command_binding.local_variable_get(var_name)
                     end
 
                     return result
@@ -433,9 +447,10 @@ module Ikra
                 block_size: DEFAULT_BLOCK_SIZE, 
                 keep: false,
                 generator_node: nil,
-                with_index: false)
+                with_index: false,
+                command_binding: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node, command_binding: command_binding)
 
                 # Read array at position `tid`
                 @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
@@ -491,9 +506,10 @@ module Ikra
                 block, 
                 block_size: DEFAULT_BLOCK_SIZE, 
                 ast: nil,
-                generator_node: nil)
+                generator_node: nil,
+                command_binding: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node, command_binding: command_binding)
 
                 @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
             end
@@ -620,9 +636,10 @@ module Ikra
                 keep: false, 
                 use_parameter_array: true,
                 generator_node: nil,
-                with_index: false)
+                with_index: false,
+                command_binding: nil)
 
-                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node)
+                super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node, command_binding: command_binding)
 
                 if offsets.first == "G"
                     # A stencil will be generated

@@ -56,7 +56,12 @@ module Ikra
                 more_kw_args = AST::Interpreter.interpret(send_node.arguments.first)
             end
 
-            rcvr_type.pmap(ast: send_node.block_argument, generator_node: send_node, **more_kw_args).to_union_type
+            rcvr_type.pmap(
+                ast: send_node.block_argument, 
+                generator_node: send_node, 
+                # TODO: Fix binding
+                command_binding: send_node.find_behavior_node.binding,
+                **more_kw_args).to_union_type
         end
 
         PZIP_TYPE = proc do |rcvr_type, *args_types, send_node:|
@@ -90,7 +95,13 @@ module Ikra
 
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
 
-            rcvr_type.pstencil(*ruby_args, ast: send_node.block_argument, generator_node: send_node, **more_kw_args).to_union_type
+            rcvr_type.pstencil(
+                *ruby_args, 
+                ast: send_node.block_argument, 
+                generator_node: send_node, 
+                # TODO: Fix binding
+                command_binding: send_node.find_behavior_node.binding,
+                **more_kw_args).to_union_type
         end
 
         PREDUCE_TYPE = proc do |rcvr_type, *args_types, send_node:|

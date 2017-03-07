@@ -28,7 +28,7 @@ module Ikra
                         param[1]
                     end
 
-                    parser_local_vars = block.binding.local_variables + block_params
+                    parser_local_vars = command_binding.local_variables + block_params
                     source = Parsing.parse_block(block, parser_local_vars)
                     @ast = AST::BlockDefNode.new(
                         parameters: block_params,
@@ -41,6 +41,12 @@ module Ikra
 
             def command_translator_class
                 return Translator::HostSectionCommandTranslator
+            end
+
+            class Binding
+                def local_variables
+
+                end
             end
         end
 

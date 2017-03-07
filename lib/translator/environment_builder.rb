@@ -36,11 +36,14 @@ module Ikra
             # Adds an objects as a lexical variable.
             def add_object(command_id, identifier, object)
                 cuda_id = "l#{command_id}_#{identifier}"
-                objects[cuda_id] = object
-                
-                update_dev_struct_allocation(cuda_id, object)
 
-                cuda_id
+                if objects[cuda_id].object_id != object.object_id
+                    # Don't add the object multiple times
+                    objects[cuda_id] = object
+                    update_dev_struct_allocation(cuda_id, object)
+                end
+
+                return cuda_id
             end
 
             # Adds object to the ffi_struct which is of type unique_id => pointer in GPU

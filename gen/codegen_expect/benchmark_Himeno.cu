@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <chrono>
 #include <vector>
+#include <algorithm>
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
@@ -168,27 +169,31 @@ struct array_command_2 {
     __host__ __device__ array_command_2(float *result = NULL, array_command_1 *input_0 = NULL) : result(result), input_0(input_0) { }
 };
 struct array_command_3 {
-    // Ikra::Symbolic::ArrayStencilCommand
-    float *result;
-    array_command_2 *input_0;
-    __host__ __device__ array_command_3(float *result = NULL, array_command_2 *input_0 = NULL) : result(result), input_0(input_0) { }
-};
-struct array_command_5 {
     // Ikra::Symbolic::FixedSizeArrayInHostSectionCommand
     float *result;
     variable_size_array_t input_0;
-    __host__ __device__ array_command_5(float *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }
+    __host__ __device__ array_command_3(float *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }
     int size() { return input_0.size; }
 };
-struct array_command_6 {
+struct array_command_5 {
+    // Ikra::Symbolic::ArrayIndexCommand
+    indexed_struct_3_lt_int_int_int_gt_t *result;
+    __host__ __device__ array_command_5(indexed_struct_3_lt_int_int_int_gt_t *result = NULL) : result(result) { }
+};
+struct array_command_4 {
     // Ikra::Symbolic::ArrayStencilCommand
     float *result;
-    array_command_5 *input_0;
-    __host__ __device__ array_command_6(float *result = NULL, array_command_5 *input_0 = NULL) : result(result), input_0(input_0) { }
+    array_command_3 *input_0;
+    array_command_5 *input_1;
+    __host__ __device__ array_command_4(float *result = NULL, array_command_3 *input_0 = NULL, array_command_5 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
 };
 struct environment_struct
 {
-    int l2_k_max;
+    float * l4_param_a;
+    float * l4_param_b;
+    float * l4_param_c;
+    float * l4_param_wrk;
+    float * l4_param_bnd;
 };
 
 // TODO: There should be a better to check if _block_k_2_ is already defined
@@ -199,11 +204,10 @@ __device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_i
     
     
     int k;
-    int lex_k_max = _env_->l2_k_max;
     {
         k = indices.field_2;
         {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
+            return (((((float) ((k * k))) / ((65 - 1)))) / ((65 - 1)));
         }
     }
 }
@@ -211,7 +215,7 @@ __device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_i
 #endif
 
 
-__global__ void kernel_1(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_197(environment_t *_env_, int _num_threads_, float *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -233,11 +237,10 @@ __device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_i
     
     
     int k;
-    int lex_k_max = _env_->l2_k_max;
     {
         k = indices.field_2;
         {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
+            return (((((float) ((k * k))) / ((65 - 1)))) / ((65 - 1)));
         }
     }
 }
@@ -245,7 +248,7 @@ __device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_i
 #endif
 
 
-__global__ void kernel_5(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_199(environment_t *_env_, int _num_threads_, float *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -259,29 +262,65 @@ __global__ void kernel_5(environment_t *_env_, int _num_threads_, float *_result
 
 
 
-// TODO: There should be a better to check if _block_k_3_ is already defined
-#ifndef _block_k_3__func
-#define _block_k_3__func
-__device__ float _block_k_3_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
+
+__global__ void kernel_201(environment_t *_env_, int _num_threads_, float *_result_, float *_array_203_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_203_[_tid_];
+    }
+}
+
+
+
+
+__global__ void kernel_206(environment_t *_env_, int _num_threads_, float *_result_, float *_array_208_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_208_[_tid_];
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_4_ is already defined
+#ifndef _block_k_4__func
+#define _block_k_4__func
+__device__ float _block_k_4_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18, indexed_struct_3_lt_int_int_int_gt_t indices)
 {
     
     // (Re)construct array from separately passed parameters
     float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
+    
+    float * lex_param_bnd = _env_->l4_param_bnd;
+    float * lex_param_wrk = _env_->l4_param_wrk;
+    float * lex_param_c = _env_->l4_param_c;
+    float * lex_param_b = _env_->l4_param_b;
+    float * lex_param_a = _env_->l4_param_a;
     {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
+        return (values[0] + ((0.8 * ((((((((((((((((((((((((((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 0))] * values[1])) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 1))] * values[2])))) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 2))] * values[3])))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * values[16])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * values[17])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * values[18])))) + lex_param_wrk[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])) * lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 3))])) - values[0])) * lex_param_bnd[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])))));
     }
 }
 
 #endif
 
 
-__global__ void kernel_3(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_6)
+__global__ void kernel_204(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_207)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    float temp_stencil_7;
+    float temp_stencil_209;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 4225;
@@ -292,22 +331,22 @@ int temp_stencil_dim_2 = (_tid_ / 1) % 65;
     {
         // All value indices within bounds
         
-        temp_stencil_7 = _block_k_3_(_env_, _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_6[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_6[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
+        temp_stencil_209 = _block_k_4_(_env_, _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_207[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_207[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_7 = 0;
+        temp_stencil_209 = 0;
     }
         
-        _result_[_tid_] = temp_stencil_7;
+        _result_[_tid_] = temp_stencil_209;
     }
 }
 
 
 
 
-__global__ void kernel_10(environment_t *_env_, int _num_threads_, float *_result_, float *_array_12_)
+__global__ void kernel_210(environment_t *_env_, int _num_threads_, float *_result_, float *_array_212_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -315,35 +354,56 @@ __global__ void kernel_10(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _array_12_[_tid_];
+        _result_[_tid_] = _array_212_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_6_ is already defined
-#ifndef _block_k_6__func
-#define _block_k_6__func
-__device__ float _block_k_6_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
+
+__global__ void kernel_215(environment_t *_env_, int _num_threads_, float *_result_, float *_array_217_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_217_[_tid_];
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_4_ is already defined
+#ifndef _block_k_4__func
+#define _block_k_4__func
+__device__ float _block_k_4_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18, indexed_struct_3_lt_int_int_int_gt_t indices)
 {
     
     // (Re)construct array from separately passed parameters
     float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
+    
+    float * lex_param_bnd = _env_->l4_param_bnd;
+    float * lex_param_wrk = _env_->l4_param_wrk;
+    float * lex_param_c = _env_->l4_param_c;
+    float * lex_param_b = _env_->l4_param_b;
+    float * lex_param_a = _env_->l4_param_a;
     {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
+        return (values[0] + ((0.8 * ((((((((((((((((((((((((((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 0))] * values[1])) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 1))] * values[2])))) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 2))] * values[3])))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * values[16])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * values[17])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * values[18])))) + lex_param_wrk[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])) * lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 3))])) - values[0])) * lex_param_bnd[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])))));
     }
 }
 
 #endif
 
 
-__global__ void kernel_8(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_11)
+__global__ void kernel_213(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_216)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    float temp_stencil_13;
+    float temp_stencil_218;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 4225;
@@ -354,41 +414,22 @@ int temp_stencil_dim_2 = (_tid_ / 1) % 65;
     {
         // All value indices within bounds
         
-        temp_stencil_13 = _block_k_6_(_env_, _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_11[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_11[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
+        temp_stencil_218 = _block_k_4_(_env_, _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_216[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_216[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_13 = 0;
+        temp_stencil_218 = 0;
     }
         
-        _result_[_tid_] = temp_stencil_13;
+        _result_[_tid_] = temp_stencil_218;
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
 
-#endif
-
-
-__global__ void kernel_14(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_219(environment_t *_env_, int _num_threads_, float *_result_, float *_array_221_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -396,33 +437,14 @@ __global__ void kernel_14(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
+        _result_[_tid_] = _array_221_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
 
-#endif
-
-
-__global__ void kernel_18(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_224(environment_t *_env_, int _num_threads_, float *_result_, float *_array_226_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -430,35 +452,41 @@ __global__ void kernel_18(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
+        _result_[_tid_] = _array_226_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_3_ is already defined
-#ifndef _block_k_3__func
-#define _block_k_3__func
-__device__ float _block_k_3_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
+// TODO: There should be a better to check if _block_k_4_ is already defined
+#ifndef _block_k_4__func
+#define _block_k_4__func
+__device__ float _block_k_4_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18, indexed_struct_3_lt_int_int_int_gt_t indices)
 {
     
     // (Re)construct array from separately passed parameters
     float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
+    
+    float * lex_param_bnd = _env_->l4_param_bnd;
+    float * lex_param_wrk = _env_->l4_param_wrk;
+    float * lex_param_c = _env_->l4_param_c;
+    float * lex_param_b = _env_->l4_param_b;
+    float * lex_param_a = _env_->l4_param_a;
     {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
+        return (values[0] + ((0.8 * ((((((((((((((((((((((((((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 0))] * values[1])) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 1))] * values[2])))) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 2))] * values[3])))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * values[16])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * values[17])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * values[18])))) + lex_param_wrk[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])) * lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 3))])) - values[0])) * lex_param_bnd[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])))));
     }
 }
 
 #endif
 
 
-__global__ void kernel_16(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_19)
+__global__ void kernel_222(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_225)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    float temp_stencil_20;
+    float temp_stencil_227;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 4225;
@@ -469,22 +497,22 @@ int temp_stencil_dim_2 = (_tid_ / 1) % 65;
     {
         // All value indices within bounds
         
-        temp_stencil_20 = _block_k_3_(_env_, _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_19[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_19[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
+        temp_stencil_227 = _block_k_4_(_env_, _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_225[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_225[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_20 = 0;
+        temp_stencil_227 = 0;
     }
         
-        _result_[_tid_] = temp_stencil_20;
+        _result_[_tid_] = temp_stencil_227;
     }
 }
 
 
 
 
-__global__ void kernel_23(environment_t *_env_, int _num_threads_, float *_result_, float *_array_25_)
+__global__ void kernel_228(environment_t *_env_, int _num_threads_, float *_result_, float *_array_230_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -492,35 +520,56 @@ __global__ void kernel_23(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _array_25_[_tid_];
+        _result_[_tid_] = _array_230_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_6_ is already defined
-#ifndef _block_k_6__func
-#define _block_k_6__func
-__device__ float _block_k_6_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
+
+__global__ void kernel_233(environment_t *_env_, int _num_threads_, float *_result_, float *_array_235_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_235_[_tid_];
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_4_ is already defined
+#ifndef _block_k_4__func
+#define _block_k_4__func
+__device__ float _block_k_4_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18, indexed_struct_3_lt_int_int_int_gt_t indices)
 {
     
     // (Re)construct array from separately passed parameters
     float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
+    
+    float * lex_param_bnd = _env_->l4_param_bnd;
+    float * lex_param_wrk = _env_->l4_param_wrk;
+    float * lex_param_c = _env_->l4_param_c;
+    float * lex_param_b = _env_->l4_param_b;
+    float * lex_param_a = _env_->l4_param_a;
     {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
+        return (values[0] + ((0.8 * ((((((((((((((((((((((((((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 0))] * values[1])) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 1))] * values[2])))) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 2))] * values[3])))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * values[16])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * values[17])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * values[18])))) + lex_param_wrk[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])) * lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 3))])) - values[0])) * lex_param_bnd[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])))));
     }
 }
 
 #endif
 
 
-__global__ void kernel_21(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_24)
+__global__ void kernel_231(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_234)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    float temp_stencil_26;
+    float temp_stencil_236;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 4225;
@@ -531,41 +580,22 @@ int temp_stencil_dim_2 = (_tid_ / 1) % 65;
     {
         // All value indices within bounds
         
-        temp_stencil_26 = _block_k_6_(_env_, _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_24[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_24[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
+        temp_stencil_236 = _block_k_4_(_env_, _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_234[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_234[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_26 = 0;
+        temp_stencil_236 = 0;
     }
         
-        _result_[_tid_] = temp_stencil_26;
+        _result_[_tid_] = temp_stencil_236;
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
 
-#endif
-
-
-__global__ void kernel_27(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_237(environment_t *_env_, int _num_threads_, float *_result_, float *_array_239_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -573,33 +603,14 @@ __global__ void kernel_27(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
+        _result_[_tid_] = _array_239_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
 
-#endif
-
-
-__global__ void kernel_31(environment_t *_env_, int _num_threads_, float *_result_)
+__global__ void kernel_242(environment_t *_env_, int _num_threads_, float *_result_, float *_array_244_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -607,35 +618,41 @@ __global__ void kernel_31(environment_t *_env_, int _num_threads_, float *_resul
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
+        _result_[_tid_] = _array_244_[_tid_];
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_3_ is already defined
-#ifndef _block_k_3__func
-#define _block_k_3__func
-__device__ float _block_k_3_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
+// TODO: There should be a better to check if _block_k_4_ is already defined
+#ifndef _block_k_4__func
+#define _block_k_4__func
+__device__ float _block_k_4_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18, indexed_struct_3_lt_int_int_int_gt_t indices)
 {
     
     // (Re)construct array from separately passed parameters
     float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
+    
+    float * lex_param_bnd = _env_->l4_param_bnd;
+    float * lex_param_wrk = _env_->l4_param_wrk;
+    float * lex_param_c = _env_->l4_param_c;
+    float * lex_param_b = _env_->l4_param_b;
+    float * lex_param_a = _env_->l4_param_a;
     {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
+        return (values[0] + ((0.8 * ((((((((((((((((((((((((((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 0))] * values[1])) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 1))] * values[2])))) + ((lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 2))] * values[3])))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((lex_param_b[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 0))] * values[16])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 1))] * values[17])))) + ((lex_param_c[((((((((((((65 * 65)) * 3)) * indices.field_0)) + ((((65 * 3)) * indices.field_1)))) + ((3 * indices.field_2)))) + 2))] * values[18])))) + lex_param_wrk[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])) * lex_param_a[((((((((((((65 * 65)) * 4)) * indices.field_0)) + ((((65 * 4)) * indices.field_1)))) + ((4 * indices.field_2)))) + 3))])) - values[0])) * lex_param_bnd[((((((((65 * 65)) * indices.field_0)) + ((65 * indices.field_1)))) + indices.field_2))])))));
     }
 }
 
 #endif
 
 
-__global__ void kernel_29(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_32)
+__global__ void kernel_240(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_243)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    float temp_stencil_33;
+    float temp_stencil_245;
 
     // Indices for all dimensions
     int temp_stencil_dim_0 = _tid_ / 4225;
@@ -646,431 +663,15 @@ int temp_stencil_dim_2 = (_tid_ / 1) % 65;
     {
         // All value indices within bounds
         
-        temp_stencil_33 = _block_k_3_(_env_, _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_32[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_32[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
+        temp_stencil_245 = _block_k_4_(_env_, _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_243[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_243[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_33 = 0;
+        temp_stencil_245 = 0;
     }
         
-        _result_[_tid_] = temp_stencil_33;
-    }
-}
-
-
-
-
-__global__ void kernel_36(environment_t *_env_, int _num_threads_, float *_result_, float *_array_38_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _array_38_[_tid_];
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_6_ is already defined
-#ifndef _block_k_6__func
-#define _block_k_6__func
-__device__ float _block_k_6_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
-{
-    
-    // (Re)construct array from separately passed parameters
-    float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
-    {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
-    }
-}
-
-#endif
-
-
-__global__ void kernel_34(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_37)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-    float temp_stencil_39;
-
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 4225;
-int temp_stencil_dim_1 = (_tid_ / 65) % 65;
-int temp_stencil_dim_2 = (_tid_ / 1) % 65;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 129 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 1 < 65 && temp_stencil_dim_2 + -1 >= 0 && temp_stencil_dim_2 + 1 < 65)
-    {
-        // All value indices within bounds
-        
-        temp_stencil_39 = _block_k_6_(_env_, _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_37[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_37[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_39 = 0;
-    }
-        
-        _result_[_tid_] = temp_stencil_39;
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
-
-#endif
-
-
-__global__ void kernel_40(environment_t *_env_, int _num_threads_, float *_result_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
-
-#endif
-
-
-__global__ void kernel_44(environment_t *_env_, int _num_threads_, float *_result_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_3_ is already defined
-#ifndef _block_k_3__func
-#define _block_k_3__func
-__device__ float _block_k_3_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
-{
-    
-    // (Re)construct array from separately passed parameters
-    float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
-    {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
-    }
-}
-
-#endif
-
-
-__global__ void kernel_42(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_45)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-    float temp_stencil_46;
-
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 4225;
-int temp_stencil_dim_1 = (_tid_ / 65) % 65;
-int temp_stencil_dim_2 = (_tid_ / 1) % 65;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 129 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 1 < 65 && temp_stencil_dim_2 + -1 >= 0 && temp_stencil_dim_2 + 1 < 65)
-    {
-        // All value indices within bounds
-        
-        temp_stencil_46 = _block_k_3_(_env_, _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_45[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_45[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_46 = 0;
-    }
-        
-        _result_[_tid_] = temp_stencil_46;
-    }
-}
-
-
-
-
-__global__ void kernel_49(environment_t *_env_, int _num_threads_, float *_result_, float *_array_51_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _array_51_[_tid_];
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_6_ is already defined
-#ifndef _block_k_6__func
-#define _block_k_6__func
-__device__ float _block_k_6_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
-{
-    
-    // (Re)construct array from separately passed parameters
-    float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
-    {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
-    }
-}
-
-#endif
-
-
-__global__ void kernel_47(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_50)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-    float temp_stencil_52;
-
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 4225;
-int temp_stencil_dim_1 = (_tid_ / 65) % 65;
-int temp_stencil_dim_2 = (_tid_ / 1) % 65;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 129 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 1 < 65 && temp_stencil_dim_2 + -1 >= 0 && temp_stencil_dim_2 + 1 < 65)
-    {
-        // All value indices within bounds
-        
-        temp_stencil_52 = _block_k_6_(_env_, _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_50[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_50[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_52 = 0;
-    }
-        
-        _result_[_tid_] = temp_stencil_52;
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
-
-#endif
-
-
-__global__ void kernel_53(environment_t *_env_, int _num_threads_, float *_result_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_2_ is already defined
-#ifndef _block_k_2__func
-#define _block_k_2__func
-__device__ float _block_k_2_(environment_t *_env_, indexed_struct_3_lt_int_int_int_gt_t indices)
-{
-    
-    
-    int k;
-    int lex_k_max = _env_->l2_k_max;
-    {
-        k = indices.field_2;
-        {
-            return (((((float) ((k * k))) / ((lex_k_max - 1)))) / ((lex_k_max - 1)));
-        }
-    }
-}
-
-#endif
-
-
-__global__ void kernel_57(environment_t *_env_, int _num_threads_, float *_result_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_3_lt_int_int_int_gt_t) {_tid_ / 4225, (_tid_ / 65) % 65, (_tid_ / 1) % 65}));
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_3_ is already defined
-#ifndef _block_k_3__func
-#define _block_k_3__func
-__device__ float _block_k_3_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
-{
-    
-    // (Re)construct array from separately passed parameters
-    float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
-    {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
-    }
-}
-
-#endif
-
-
-__global__ void kernel_55(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_58)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-    float temp_stencil_59;
-
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 4225;
-int temp_stencil_dim_1 = (_tid_ / 65) % 65;
-int temp_stencil_dim_2 = (_tid_ / 1) % 65;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 129 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 1 < 65 && temp_stencil_dim_2 + -1 >= 0 && temp_stencil_dim_2 + 1 < 65)
-    {
-        // All value indices within bounds
-        
-        temp_stencil_59 = _block_k_3_(_env_, _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_58[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_58[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_59 = 0;
-    }
-        
-        _result_[_tid_] = temp_stencil_59;
-    }
-}
-
-
-
-
-__global__ void kernel_62(environment_t *_env_, int _num_threads_, float *_result_, float *_array_64_)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-
-        
-        _result_[_tid_] = _array_64_[_tid_];
-    }
-}
-
-
-
-// TODO: There should be a better to check if _block_k_6_ is already defined
-#ifndef _block_k_6__func
-#define _block_k_6__func
-__device__ float _block_k_6_(environment_t *_env_, float _values_0, float _values_1, float _values_2, float _values_3, float _values_4, float _values_5, float _values_6, float _values_7, float _values_8, float _values_9, float _values_10, float _values_11, float _values_12, float _values_13, float _values_14, float _values_15, float _values_16, float _values_17, float _values_18)
-{
-    
-    // (Re)construct array from separately passed parameters
-    float values[] = { _values_0, _values_1, _values_2, _values_3, _values_4, _values_5, _values_6, _values_7, _values_8, _values_9, _values_10, _values_11, _values_12, _values_13, _values_14, _values_15, _values_16, _values_17, _values_18 };
-    {
-        return (values[0] + ((((0.8 * ((((((((((((((((((((((((0.0 * values[1])) + ((0.0 * values[2])))) + ((0.0 * values[3])))) + ((0.0 * ((((((values[4] - values[5])) - values[6])) + values[7])))))) + ((0.0 * ((((((values[8] - values[9])) - values[10])) + values[11])))))) + ((0.0 * ((((((values[12] - values[13])) - values[14])) + values[15])))))) + ((1.0 * values[16])))) + ((1.0 * values[17])))) + ((1.0 * values[18])))) + 0.0)) * ((1.0 / 6.0)))) - values[0])))) * 1.0)));
-    }
-}
-
-#endif
-
-
-__global__ void kernel_60(environment_t *_env_, int _num_threads_, float *_result_, float *_kernel_result_63)
-{
-    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (_tid_ < _num_threads_)
-    {
-    float temp_stencil_65;
-
-    // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 4225;
-int temp_stencil_dim_1 = (_tid_ / 65) % 65;
-int temp_stencil_dim_2 = (_tid_ / 1) % 65;
-
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 129 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 1 < 65 && temp_stencil_dim_2 + -1 >= 0 && temp_stencil_dim_2 + 1 < 65)
-    {
-        // All value indices within bounds
-        
-        temp_stencil_65 = _block_k_6_(_env_, _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + -1) * 4225], _kernel_result_63[(temp_stencil_dim_2 + 0) * 1 + (temp_stencil_dim_1 + -1) * 65 + (temp_stencil_dim_0 + 0) * 4225], _kernel_result_63[(temp_stencil_dim_2 + -1) * 1 + (temp_stencil_dim_1 + 0) * 65 + (temp_stencil_dim_0 + 0) * 4225]);
-    }
-    else
-    {
-        // At least one index is out of bounds
-        temp_stencil_65 = 0;
-    }
-        
-        _result_[_tid_] = temp_stencil_65;
+        _result_[_tid_] = temp_stencil_245;
     }
 }
 
@@ -1087,211 +688,310 @@ if (result_var->last_error = expr) \
 
 variable_size_array_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
 {
-    array_command_2 * p = new array_command_2();
-    int i;
-    union_t _ssa_var_next_p_2;
+    array_command_2 * base = new array_command_2();
+    union_t _ssa_var_old_old_data_3;
+    array_command_4 * _ssa_var_next_p_6;
+    union_t _ssa_var_old_data_5;
+    union_t _ssa_var_old_old_data_4;
+    int r;
+    union_t _ssa_var_old_data_2;
     union_t _ssa_var_next_p_1;
     {
-        _ssa_var_next_p_1 = union_t(10, union_v_t::from_pointer((void *) p));
-        for (i = 0; i <= (200 - 1); i++)
+        _ssa_var_next_p_1 = union_t(10, union_v_t::from_pointer((void *) new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 545025]
+        
+            array_command_2 * cmd = base;
+        
+            if (cmd->result == 0) {
+                    timeStartMeasure();
+            float * _kernel_result_198;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_198, (sizeof(float) * 545025)));
+            program_result->device_allocations->push_back(_kernel_result_198);
+            timeReportMeasure(program_result, allocate_memory);
+            timeStartMeasure();
+            kernel_197<<<2130, 256>>>(dev_env, 545025, _kernel_result_198);
+            checkErrorReturn(program_result, cudaPeekAtLastError());
+            checkErrorReturn(program_result, cudaThreadSynchronize());
+            timeReportMeasure(program_result, kernel);
+                cmd->result = _kernel_result_198;
+        
+                
+            }
+        
+            variable_size_array_t((void *) cmd->result, 545025);
+        }))));
+        _ssa_var_old_data_2 = union_t(19, union_v_t::from_pointer((void *) base));
+        _ssa_var_old_old_data_3 = union_t(19, union_v_t::from_pointer((void *) base));
+        for (r = 0; r <= (1000 - 1); r++)
         {
-            _ssa_var_next_p_2 = union_t(12, union_v_t::from_pointer((void *) new array_command_6(NULL, new array_command_5(NULL, ({
-                variable_size_array_t _polytemp_result_1;
+            _ssa_var_old_old_data_4 = _ssa_var_old_data_2;
+            _ssa_var_old_data_5 = _ssa_var_next_p_1;
+            _ssa_var_next_p_6 = new array_command_4(NULL, new array_command_3(NULL, ({
+                variable_size_array_t _polytemp_result_49;
                 {
-                    union_t _polytemp_expr_2 = _ssa_var_next_p_1;
-                    switch (_polytemp_expr_2.class_id)
+                    union_t _polytemp_expr_50 = _ssa_var_next_p_1;
+                    switch (_polytemp_expr_50.class_id)
                     {
-                        case 10: /* [Ikra::Symbolic::ArrayCombineCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
-                            // [Ikra::Symbolic::ArrayCombineCommand, size = 545025]
+                        case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_49 = ({
+                            // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 545025]
                         
-                            array_command_2 * cmd = (array_command_2 *) _polytemp_expr_2.value.pointer;
+                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_50.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            float * _kernel_result_2;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(float) * 545025)));
-                            program_result->device_allocations->push_back(_kernel_result_2);
+                            float * _kernel_result_202;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_202, (sizeof(float) * 545025)));
+                            program_result->device_allocations->push_back(_kernel_result_202);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_1<<<2130, 256>>>(dev_env, 545025, _kernel_result_2);
+                            kernel_201<<<2130, 256>>>(dev_env, 545025, _kernel_result_202, ((float *) cmd->input_0.content));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_2;
+                                cmd->result = _kernel_result_202;
+                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 545025);
                         }); break;
-                        case 11: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
-                            // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>)]
+                        case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_49 = ({
+                            // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                         
-                            array_command_3 * cmd = (array_command_3 *) _polytemp_expr_2.value.pointer;
+                            array_command_4 * cmd = (array_command_4 *) _polytemp_expr_50.value.pointer;
                         
                             if (cmd->result == 0) {
                                     timeStartMeasure();
-                            float * _kernel_result_6;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(float) * 545025)));
-                            program_result->device_allocations->push_back(_kernel_result_6);
+                            float * _kernel_result_207;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_207, (sizeof(float) * 545025)));
+                            program_result->device_allocations->push_back(_kernel_result_207);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_5<<<2130, 256>>>(dev_env, 545025, _kernel_result_6);
+                            kernel_206<<<2130, 256>>>(dev_env, 545025, _kernel_result_207, ((float *) ((float *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                            float * _kernel_result_4;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (sizeof(float) * 545025)));
-                            program_result->device_allocations->push_back(_kernel_result_4);
+                            float * _kernel_result_205;
+                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_205, (sizeof(float) * 545025)));
+                            program_result->device_allocations->push_back(_kernel_result_205);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_3<<<2130, 256>>>(dev_env, 545025, _kernel_result_4, _kernel_result_6);
+                            kernel_204<<<2130, 256>>>(dev_env, 545025, _kernel_result_205, _kernel_result_207);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_4;
+                                cmd->result = _kernel_result_205;
+                        
+                                    timeStartMeasure();
+                        
+                            if (_kernel_result_207 != cmd->result) {
+                                // Don't free memory if it is the result. There is already a similar check in
+                                // program_builder (free all except for last). However, this check is not sufficient in
+                                // case the same array is reused!
+                        
+                                checkErrorReturn(program_result, cudaFree(_kernel_result_207));
+                                // Remove from list of allocations
+                                program_result->device_allocations->erase(
+                                    std::remove(
+                                        program_result->device_allocations->begin(),
+                                        program_result->device_allocations->end(),
+                                        _kernel_result_207),
+                                    program_result->device_allocations->end());
                             }
                         
-                            variable_size_array_t((void *) cmd->result, 545025);
-                        }); break;
-                        case 12: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_1 = ({
-                            // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>)]
+                            timeReportMeasure(program_result, free_memory);
                         
-                            array_command_6 * cmd = (array_command_6 *) _polytemp_expr_2.value.pointer;
-                        
-                            if (cmd->result == 0) {
-                                    timeStartMeasure();
-                            float * _kernel_result_11;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_11, (sizeof(float) * 545025)));
-                            program_result->device_allocations->push_back(_kernel_result_11);
-                            timeReportMeasure(program_result, allocate_memory);
-                            timeStartMeasure();
-                            kernel_10<<<2130, 256>>>(dev_env, 545025, _kernel_result_11, ((float *) cmd->input_0->input_0.content));
-                            checkErrorReturn(program_result, cudaPeekAtLastError());
-                            checkErrorReturn(program_result, cudaThreadSynchronize());
-                            timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                            float * _kernel_result_9;
-                            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_9, (sizeof(float) * 545025)));
-                            program_result->device_allocations->push_back(_kernel_result_9);
-                            timeReportMeasure(program_result, allocate_memory);
-                            timeStartMeasure();
-                            kernel_8<<<2130, 256>>>(dev_env, 545025, _kernel_result_9, _kernel_result_11);
-                            checkErrorReturn(program_result, cudaPeekAtLastError());
-                            checkErrorReturn(program_result, cudaThreadSynchronize());
-                            timeReportMeasure(program_result, kernel);
-                                cmd->result = _kernel_result_9;
                             }
                         
                             variable_size_array_t((void *) cmd->result, 545025);
                         }); break;
                     }
                 }
-                _polytemp_result_1;
-            })))));
-            _ssa_var_next_p_1 = _ssa_var_next_p_2;
-        }
-        i--;
-        return ({
-            variable_size_array_t _polytemp_result_9;
+                _polytemp_result_49;
+            })));
+            if (((r > 1)))
             {
-                union_t _polytemp_expr_10 = _ssa_var_next_p_1;
-                switch (_polytemp_expr_10.class_id)
+                ({
+                    bool _polytemp_result_57;
+                    {
+                        union_t _polytemp_expr_58 = _ssa_var_old_old_data_4;
+                        switch (_polytemp_expr_58.class_id)
+                        {
+                            case 19: /* [Ikra::Symbolic::ArrayCombineCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_57 = ({
+                                array_command_2 * cmd_to_free = (array_command_2 *) _polytemp_expr_58.value.pointer;
+                            
+                                timeStartMeasure();
+                                bool freed_memory = false;
+                            
+                                if (cmd_to_free->result != 0) {
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+                            
+                                    // Remove from list of allocations
+                                    program_result->device_allocations->erase(
+                                        std::remove(
+                                            program_result->device_allocations->begin(),
+                                            program_result->device_allocations->end(),
+                                            cmd_to_free->result),
+                                        program_result->device_allocations->end());
+                            
+                                    freed_memory = true;
+                                }
+                            
+                                timeReportMeasure(program_result, free_memory);
+                                
+                                freed_memory;
+                            }); break;
+                            case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_57 = ({
+                                array_command_3 * cmd_to_free = (array_command_3 *) _polytemp_expr_58.value.pointer;
+                            
+                                timeStartMeasure();
+                                bool freed_memory = false;
+                            
+                                if (cmd_to_free->result != 0) {
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+                            
+                                    // Remove from list of allocations
+                                    program_result->device_allocations->erase(
+                                        std::remove(
+                                            program_result->device_allocations->begin(),
+                                            program_result->device_allocations->end(),
+                                            cmd_to_free->result),
+                                        program_result->device_allocations->end());
+                            
+                                    freed_memory = true;
+                                }
+                            
+                                timeReportMeasure(program_result, free_memory);
+                                
+                                freed_memory;
+                            }); break;
+                            case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_57 = ({
+                                array_command_4 * cmd_to_free = (array_command_4 *) _polytemp_expr_58.value.pointer;
+                            
+                                timeStartMeasure();
+                                bool freed_memory = false;
+                            
+                                if (cmd_to_free->result != 0) {
+                                    checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+                            
+                                    // Remove from list of allocations
+                                    program_result->device_allocations->erase(
+                                        std::remove(
+                                            program_result->device_allocations->begin(),
+                                            program_result->device_allocations->end(),
+                                            cmd_to_free->result),
+                                        program_result->device_allocations->end());
+                            
+                                    freed_memory = true;
+                                }
+                            
+                                timeReportMeasure(program_result, free_memory);
+                                
+                                freed_memory;
+                            }); break;
+                        }
+                    }
+                    _polytemp_result_57;
+                });
+            }
+            else
+            {
+            
+            }
+            _ssa_var_next_p_1 = union_t(20, union_v_t::from_pointer((void *) _ssa_var_next_p_6));
+            _ssa_var_old_data_2 = _ssa_var_old_data_5;
+            _ssa_var_old_old_data_3 = _ssa_var_old_old_data_4;
+        }
+        r--;
+        return ({
+            variable_size_array_t _polytemp_result_59;
+            {
+                union_t _polytemp_expr_60 = _ssa_var_next_p_1;
+                switch (_polytemp_expr_60.class_id)
                 {
-                    case 10: /* [Ikra::Symbolic::ArrayCombineCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                        // [Ikra::Symbolic::ArrayCombineCommand, size = 545025]
+                    case 10: /* [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_59 = ({
+                        // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 545025]
                     
-                        array_command_2 * cmd = (array_command_2 *) _polytemp_expr_10.value.pointer;
+                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_60.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        float * _kernel_result_54;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_54, (sizeof(float) * 545025)));
-                        program_result->device_allocations->push_back(_kernel_result_54);
+                        float * _kernel_result_238;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_238, (sizeof(float) * 545025)));
+                        program_result->device_allocations->push_back(_kernel_result_238);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_53<<<2130, 256>>>(dev_env, 545025, _kernel_result_54);
+                        kernel_237<<<2130, 256>>>(dev_env, 545025, _kernel_result_238, ((float *) cmd->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_54;
+                            cmd->result = _kernel_result_238;
+                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 545025);
                     }); break;
-                    case 11: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                        // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>)]
+                    case 20: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_59 = ({
+                        // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
                     
-                        array_command_3 * cmd = (array_command_3 *) _polytemp_expr_10.value.pointer;
+                        array_command_4 * cmd = (array_command_4 *) _polytemp_expr_60.value.pointer;
                     
                         if (cmd->result == 0) {
                                 timeStartMeasure();
-                        float * _kernel_result_58;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_58, (sizeof(float) * 545025)));
-                        program_result->device_allocations->push_back(_kernel_result_58);
+                        float * _kernel_result_243;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_243, (sizeof(float) * 545025)));
+                        program_result->device_allocations->push_back(_kernel_result_243);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_57<<<2130, 256>>>(dev_env, 545025, _kernel_result_58);
+                        kernel_242<<<2130, 256>>>(dev_env, 545025, _kernel_result_243, ((float *) ((float *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        float * _kernel_result_56;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_56, (sizeof(float) * 545025)));
-                        program_result->device_allocations->push_back(_kernel_result_56);
+                        float * _kernel_result_241;
+                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_241, (sizeof(float) * 545025)));
+                        program_result->device_allocations->push_back(_kernel_result_241);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_55<<<2130, 256>>>(dev_env, 545025, _kernel_result_56, _kernel_result_58);
+                        kernel_240<<<2130, 256>>>(dev_env, 545025, _kernel_result_241, _kernel_result_243);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_56;
+                            cmd->result = _kernel_result_241;
+                    
+                                timeStartMeasure();
+                    
+                        if (_kernel_result_243 != cmd->result) {
+                            // Don't free memory if it is the result. There is already a similar check in
+                            // program_builder (free all except for last). However, this check is not sufficient in
+                            // case the same array is reused!
+                    
+                            checkErrorReturn(program_result, cudaFree(_kernel_result_243));
+                            // Remove from list of allocations
+                            program_result->device_allocations->erase(
+                                std::remove(
+                                    program_result->device_allocations->begin(),
+                                    program_result->device_allocations->end(),
+                                    _kernel_result_243),
+                                program_result->device_allocations->end());
                         }
                     
-                        variable_size_array_t((void *) cmd->result, 545025);
-                    }); break;
-                    case 12: /* [Ikra::Symbolic::ArrayStencilCommand, size = 545025] (Ikra::Symbolic::ArrayCommand) */ _polytemp_result_9 = ({
-                        // [Ikra::Symbolic::ArrayStencilCommand, size = 545025]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_next_p_1].__call__()].to_command()].pstencil([ArrayNode: [[ArrayNode: [<0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>]], [ArrayNode: [<0>, <1>, <0>]], [ArrayNode: [<0>, <0>, <1>]], [ArrayNode: [<1>, <1>, <0>]], [ArrayNode: [<1>, <-1>, <0>]], [ArrayNode: [<-1>, <1>, <0>]], [ArrayNode: [<-1>, <-1>, <0>]], [ArrayNode: [<0>, <1>, <1>]], [ArrayNode: [<0>, <-1>, <1>]], [ArrayNode: [<0>, <1>, <-1>]], [ArrayNode: [<0>, <-1>, <-1>]], [ArrayNode: [<1>, <0>, <1>]], [ArrayNode: [<-1>, <0>, <1>]], [ArrayNode: [<1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <-1>]], [ArrayNode: [<-1>, <0>, <0>]], [ArrayNode: [<0>, <-1>, <0>]], [ArrayNode: [<0>, <0>, <-1>]]]]; <0>)]
+                        timeReportMeasure(program_result, free_memory);
                     
-                        array_command_6 * cmd = (array_command_6 *) _polytemp_expr_10.value.pointer;
-                    
-                        if (cmd->result == 0) {
-                                timeStartMeasure();
-                        float * _kernel_result_63;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_63, (sizeof(float) * 545025)));
-                        program_result->device_allocations->push_back(_kernel_result_63);
-                        timeReportMeasure(program_result, allocate_memory);
-                        timeStartMeasure();
-                        kernel_62<<<2130, 256>>>(dev_env, 545025, _kernel_result_63, ((float *) cmd->input_0->input_0.content));
-                        checkErrorReturn(program_result, cudaPeekAtLastError());
-                        checkErrorReturn(program_result, cudaThreadSynchronize());
-                        timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        float * _kernel_result_61;
-                        checkErrorReturn(program_result, cudaMalloc(&_kernel_result_61, (sizeof(float) * 545025)));
-                        program_result->device_allocations->push_back(_kernel_result_61);
-                        timeReportMeasure(program_result, allocate_memory);
-                        timeStartMeasure();
-                        kernel_60<<<2130, 256>>>(dev_env, 545025, _kernel_result_61, _kernel_result_63);
-                        checkErrorReturn(program_result, cudaPeekAtLastError());
-                        checkErrorReturn(program_result, cudaThreadSynchronize());
-                        timeReportMeasure(program_result, kernel);
-                            cmd->result = _kernel_result_61;
                         }
                     
                         variable_size_array_t((void *) cmd->result, 545025);
                     }); break;
                 }
             }
-            _polytemp_result_9;
+            _polytemp_result_59;
         });
     }
 }
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-if (result_var->last_error = expr) \
-{\
-    cudaError_t error = cudaGetLastError();\
-    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
-    cudaDeviceReset();\
-    return result_var;\
-}
+expr
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {
@@ -1315,7 +1015,57 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 
 
     /* Prepare environment */
-        /* Allocate device environment and copy over struct */
+    
+    void * temp_ptr_l4_param_a = host_env->l4_param_a;
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l4_param_a, 8720400));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(host_env->l4_param_a, temp_ptr_l4_param_a, 8720400, cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+
+    void * temp_ptr_l4_param_b = host_env->l4_param_b;
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l4_param_b, 6540300));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(host_env->l4_param_b, temp_ptr_l4_param_b, 6540300, cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+
+    void * temp_ptr_l4_param_c = host_env->l4_param_c;
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l4_param_c, 6540300));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(host_env->l4_param_c, temp_ptr_l4_param_c, 6540300, cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+
+    void * temp_ptr_l4_param_wrk = host_env->l4_param_wrk;
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l4_param_wrk, 2180100));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(host_env->l4_param_wrk, temp_ptr_l4_param_wrk, 2180100, cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+
+    void * temp_ptr_l4_param_bnd = host_env->l4_param_bnd;
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMalloc((void **) &host_env->l4_param_bnd, 2180100));
+    timeReportMeasure(program_result, allocate_memory);
+
+    timeStartMeasure();
+    checkErrorReturn(program_result, cudaMemcpy(host_env->l4_param_bnd, temp_ptr_l4_param_bnd, 2180100, cudaMemcpyHostToDevice));
+    timeReportMeasure(program_result, transfer_memory);
+    /* Allocate device environment and copy over struct */
     environment_t *dev_env;
 
     timeStartMeasure();
