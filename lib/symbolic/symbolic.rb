@@ -803,16 +803,19 @@ module Ikra
 
             @@unique_id = 1
 
-            def initialize(target, block_size: DEFAULT_BLOCK_SIZE)
+            def initialize(target, block_size: DEFAULT_BLOCK_SIZE, dimensions: nil)
                 super(block_size: block_size)
 
                 # Ensure that base array cannot be modified
                 target.freeze
 
                 # One thread per array element
+                @target = target
                 @input = [SingleInput.new(command: target, pattern: :tid)]
+
+                @dimensions = dimensions
             end
-            
+
             def execute
                 return input.first.command
             end
@@ -822,8 +825,11 @@ module Ikra
             end
 
             def dimensions
-                # 1D by definition
-                return [size]
+                if @dimensions == nil
+                    return [size]
+                else
+                    return @dimensions
+                end
             end
 
             # Returns a collection of external objects that are accessed within a parallel
@@ -912,8 +918,8 @@ class Array
         end
     end
 
-    def to_command
-        return Ikra::Symbolic::ArrayIdentityCommand.new(self)
+    def to_command(dimensions: nil)
+        return Ikra::Symbolic::ArrayIdentityCommand.new(self, dimensions: dimensions)
     end
 end
 

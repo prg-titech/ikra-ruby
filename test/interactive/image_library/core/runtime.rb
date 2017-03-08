@@ -12,10 +12,7 @@ module ImageLibrary
                 width = image.width
                 height = image.height
 
-                return Array.pnew(dimensions: [height, width]) do |indices|
-                    one_d_index = indices[0] * width + indices[1]
-                    pixels[one_d_index]
-                end
+                return pixels.to_command(dimensions: [image.height, image.width])
             end
         end
     end
@@ -26,11 +23,6 @@ module Ikra
         module ArrayCommand
             def apply_filter(filter)
                 filter.apply_to(self)
-            end
-
-            def render
-                ImageLibrary::Core.show_image(
-                    self.dimensions[1], self.dimensions[0], to_a.pack("I!*"))
             end
         end
     end

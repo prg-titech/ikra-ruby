@@ -16,7 +16,7 @@ module ImageLibrary
 
         class << self
             def read_png(file_name)
-                image = ChunkyPNG::Image.from_file('input2.png')
+                image = ChunkyPNG::Image.from_file(file_name)
                 hx_res = image.width
                 hy_res = image.height
 

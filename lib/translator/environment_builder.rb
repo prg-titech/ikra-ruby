@@ -72,6 +72,17 @@ module Ikra
             # Adds an object as a base array
             def add_base_array(command_id, object)
                 cuda_id = "b#{command_id}_base"
+
+                if objects.include?(cuda_id)
+                    # Object already present
+
+                    if !objects[cuda_id].equal?(object)
+                        raise AssertionError.new("Adding different base array under different name")
+                    end
+
+                    return cuda_id
+                end
+
                 objects[cuda_id] = object
 
                 cuda_id_size = "b#{command_id}_size"
@@ -84,7 +95,7 @@ module Ikra
                 # Generate code for copying data to global memory
                 update_dev_struct_allocation(cuda_id, object)
 
-                cuda_id
+                return cuda_id
             end
 
             # Add an array for the Structure of Arrays object layout

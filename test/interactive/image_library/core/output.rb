@@ -37,3 +37,14 @@ module ImageLibrary
         end
     end
 end
+
+module Ikra
+    module Symbolic
+        module ArrayCommand
+            def render
+                ImageLibrary::Core.show_image(
+                    self.dimensions[1], self.dimensions[0], to_a.pack("I!*"))
+            end
+        end
+    end
+end
