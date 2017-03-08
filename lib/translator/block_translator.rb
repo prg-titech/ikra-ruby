@@ -121,6 +121,14 @@ module Ikra
                     ast_translator.translate_method(method)
                 end
 
+                # Generate method predeclarations
+                aux_methods_predecl = type_inference_visitor.all_methods.map do |method|
+                    ast_translator.translate_method_predecl(method)
+                end
+
+                # Start with predeclarations
+                aux_methods = aux_methods_predecl + aux_methods
+
                 # Classify variables (lexical or local)
                 block_def_node.accept(VariableClassifier.new(
                     lexical_variable_names: lexical_variables.keys))

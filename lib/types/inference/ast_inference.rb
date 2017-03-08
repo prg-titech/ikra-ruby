@@ -62,9 +62,10 @@ module Ikra
                     parameters_names_and_types:,
                     ruby_method:,
                     receiver_type:,
-                    return_type: Types::UnionType.new)
+                    return_type: Types::UnionType.new,
+                    method_binding: nil)
 
-                instance = new(name: name, body: body, ruby_method: ruby_method)
+                instance = new(name: name, body: body, ruby_method: ruby_method, method_binding: method_binding)
                 instance.initialize_types(receiver_type: receiver_type, return_type: return_type)
                 instance.parameters_names_and_types = parameters_names_and_types
                 return instance
@@ -330,7 +331,8 @@ module Ikra
                                 Types::UnionType.new
                             end).flatten],
                         ruby_method: nil,
-                        receiver_type: recv_singleton_type)
+                        receiver_type: recv_singleton_type,
+                        method_binding: recv_singleton_type.method_binding(selector))
                     @classes[recv_singleton_type].add_instance_method(method_def_node)
                     method_visited_before = false
                 else

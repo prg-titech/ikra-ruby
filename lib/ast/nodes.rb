@@ -145,10 +145,11 @@ module Ikra
             attr_reader :ruby_method
             attr_reader :body
 
-            def initialize(name:, body:, ruby_method:)
+            def initialize(name:, body:, ruby_method:, method_binding: nil)
                 @name = name
                 @body = body
                 @ruby_method = ruby_method
+                @binding = method_binding
 
                 body.parent = self
             end
@@ -161,7 +162,9 @@ module Ikra
             end
 
             def binding
-                if ruby_method == nil 
+                if @binding != nil
+                    return @binding
+                elsif ruby_method == nil 
                     return nil
                 else 
                     return ruby_method.send(:binding)

@@ -529,9 +529,7 @@ module Ikra
                 return self.new.translate_method(method_def_node)
             end
 
-            def translate_method(meth_def_node)
-                # TODO: merge with BlockTranslator
-                
+            def generate_method_signature(meth_def_node)
                 method_params = ([
                     "environment_t * #{Constants::ENV_IDENTIFIER}", 
                     "#{meth_def_node.parent.get_type.to_c_type} #{Constants::SELF_IDENTIFIER}"] + 
@@ -539,6 +537,17 @@ module Ikra
                             "#{type.singleton_type.to_c_type} #{name}"
                         end).join(", ")
 
+                signature = "__device__ #{meth_def_node.get_type.singleton_type.to_c_type} #{meth_def_node.parent.get_type.mangled_method_name(meth_def_node.name)}(#{method_params})"
+
+                return signature
+            end
+
+            def translate_method_predecl(meth_def_node)
+                return generate_method_signature(meth_def_node) + ";"
+            end
+
+            def translate_method(meth_def_node)
+                # TODO: merge with BlockTranslator
                 # TODO: load environment variables
 
                 # Declare local variables
@@ -547,10 +556,16 @@ module Ikra
                     local_variables_def += "#{type.to_c_type} #{name};\n"
                 end
 
-                signature = "__device__ #{meth_def_node.get_type.singleton_type.to_c_type} #{meth_def_node.parent.get_type.mangled_method_name(meth_def_node.name)}(#{method_params})"
-                return signature + 
+                # TODO: There should be a better way to ensure that we don't generate methods
+                # multiple times.
+                mangled_name = meth_def_node.parent.get_type.mangled_method_name(meth_def_node.name)
+                def_label = "def_label_#{mangled_name}"
+
+                return "#ifndef #{def_label}\n#define #{def_label}\n" +
+                    generate_method_signature(meth_def_node) + 
                     "\n" + 
-                    wrap_in_c_block(local_variables_def + meth_def_node.body.accept(statement_translator))
+                    wrap_in_c_block(local_variables_def + meth_def_node.body.accept(statement_translator)) +
+                    "#endif"
             end
         end
     end

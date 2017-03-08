@@ -98,7 +98,11 @@ def stencil_cpu(hx_res, hy_res, base)
 end
 
 def stencil_gpu(hx_res, hy_res, base)
-  # Coming soon
+    filtered = base.pstencil(rect_neighborhood(hx_res, 1), 0) do |p1, p2, p3, p4, p5, p6, p7, p8, p9|
+      p1[0] + 1
+    end
+
+    return filtered
 end
 
 # Program entry point
