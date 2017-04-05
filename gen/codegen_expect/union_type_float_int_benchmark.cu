@@ -156,6 +156,10 @@ struct environment_struct
 {
     int l2_hx_res;
 };
+__device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, obj_id_t _self_, float h, int s, float b);
+
+#ifndef def_label__method_singleton_Object_encodeHSBcolor_
+#define def_label__method_singleton_Object_encodeHSBcolor_
 __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, obj_id_t _self_, float h, int s, float b)
 {
     float c;
@@ -226,7 +230,7 @@ __device__ int _method_singleton_Object_encodeHSBcolor_(environment_t * _env_, o
         return (((((int) ((r * 255))) * 65536) + (((int) ((g * 255))) * 256)) + ((int) ((b * 255))));
     }
 }
-
+#endif
 // TODO: There should be a better to check if _block_k_2_ is already defined
 #ifndef _block_k_2__func
 #define _block_k_2__func

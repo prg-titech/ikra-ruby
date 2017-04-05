@@ -32,5 +32,21 @@ module ImageLibrary
                 build_pixel(255 - r, 255 - g, 255 - b)
             end
         end
+
+        def self.overlay(mask_generator, overlay)
+            mask = mask_generator.call(overlay.height, overlay.width)
+
+            return CombineFilter.new(mask, overlay) do |b, m, o|
+                # b, m, o: base, mask, overlay
+
+                
+                if m
+                    o
+                else
+                    b
+                end
+            end
+        end
+
     end
 end

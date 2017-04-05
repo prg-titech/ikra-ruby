@@ -22,7 +22,15 @@ module Ikra
     module Symbolic
         module ArrayCommand
             def apply_filter(filter)
-                filter.apply_to(self)
+                return filter.apply_to(self)
+            end
+
+            def height
+                return dimensions[0]
+            end
+
+            def width
+                return dimensions[1]
             end
         end
     end

@@ -13,6 +13,7 @@ end
 sunset = ImageLibrary::Core.load_image("sunset.png")
 combined = tokyo.apply_filter(ImageLibrary::Filters.blend(sunset, 0.3))
 
+
 forest = ImageLibrary::Core.load_image("forest.png")
 forest = forest.apply_filter(ImageLibrary::Filters.invert) 
 #combined = combined.apply_filter(ImageLibrary::Filters.blend(forest, 0.1))

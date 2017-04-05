@@ -2,7 +2,7 @@ require 'sdl'
 
 module ImageLibrary
     module Core
-        SCALE=1
+        SCALE = 1.5
 
         class << self
             def setup(w,h)
