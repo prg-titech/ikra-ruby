@@ -29,11 +29,58 @@ module Ikra
                     @kernels = Set.new([])
                     @environment_builder = environment_builder
                     @root_command = root_command
+                    @is_compiled = false
 
                     # The collection of structs is a [Set]. Struct types are unique, i.e., there
                     # are never two equal struct types with different object identity.  
                     @structs = Set.new
                     @array_command_structs = Set.new
+
+                    # Make sure we don't update old IDs in commands multiple times
+                    @already_updated_ids = false
+                end
+
+                # Reinitializes this builder so that it can be used with a different command that
+                # has the exact same source code.
+                def reinitialize(root_command:)
+                    # Another problem: The environment builder uses unique_id and now we have
+                    # different IDs because of new array commands.
+                    update_command_env(@root_command, root_command)
+                    @already_updated_ids = true
+
+                    # TODO: Update environment_builder. It may have different bindings now.
+                    @root_command = root_command
+                end
+
+                def update_command_env(old_cmd, new_cmd)
+                    if !@already_updated_ids
+                        new_cmd.old_unique_id = old_cmd.unique_id
+                    else
+                        new_cmd.old_unique_id = old_cmd.old_unique_id
+                    end
+
+                    if new_cmd.keep && new_cmd.has_previous_result?
+                        if !@already_updated_ids
+                            environment_builder.add_previous_result(
+                                old_cmd.unique_id, new_cmd.gpu_result_pointer)
+                        else
+                            environment_builder.add_previous_result(
+                                old_cmd.old_unique_id, new_cmd.gpu_result_pointer)
+                        end
+                    end
+
+                    for i in 0...(new_cmd.input.size)
+                        next_new_cmd = new_cmd.input[i].command
+                        next_old_cmd = old_cmd.input[i].command
+
+                        if next_new_cmd.is_a?(Symbolic::ArrayCommand)
+                            update_command_env(next_old_cmd, next_new_cmd)
+                        end
+                    end
+                end
+
+                def is_compiled?
+                    return @is_compiled
                 end
 
                 def add_array_command_struct(*structs)
@@ -51,14 +98,23 @@ module Ikra
                 def execute
                     source = build_program
 
-                    launcher = Launcher.new(
-                        source: source,
-                        environment_builder: environment_builder,
-                        result_type: result_type,
-                        root_command: root_command)
+                    if !is_compiled?
+                        @launcher = Launcher.new(
+                            source: source,
+                            environment_builder: environment_builder,
+                            result_type: result_type,
+                            root_command: root_command)
 
-                    launcher.compile
-                    return launcher.execute
+                        @launcher.compile
+                        @is_compiled = true
+                    else
+                        # TODO: Have to update the values in the environment builder!
+                        @launcher.reinitialize(
+                            environment_builder: environment_builder,
+                            root_command: root_command)
+                    end
+
+                    return @launcher.execute
                 end
 
                 # Build kernel invocations

@@ -74,6 +74,8 @@ module Ikra
                         attr_accessor :last_time_total_external
                         attr_accessor :last_time_compiler
                         attr_accessor :last_time_read_result_ffi
+                        attr_accessor :last_time_number_programs_launched
+                        attr_accessor :last_time_number_programs_compiled
 
                         def reset_time
                             @last_time_setup_cuda = 0
@@ -85,6 +87,8 @@ module Ikra
                             @last_time_total_external = 0
                             @last_time_compiler = 0
                             @last_time_read_result_ffi = 0
+                            @last_time_number_programs_launched = 0
+                            @last_time_number_programs_compiled = 0
                         end
                     end
 
@@ -92,6 +96,13 @@ module Ikra
                         @source = source
                         @environment_builder = environment_builder
                         @result_type = result_type
+                        @root_command = root_command
+                    end
+
+                    # Reinitializes this launcher for a new command which shares the exact same
+                    # source code. This allows us to avoid recompilation of the same code.
+                    def reinitialize(environment_builder:, root_command:)
+                        @environment_builder = environment_builder
                         @root_command = root_command
                     end
 
@@ -125,6 +136,7 @@ module Ikra
                         compile_status = %x(#{nvcc_command})
                         Log.info("Done, took #{Time.now - time_before} s")
                         self.class.last_time_compiler = Time.now - time_before
+                        self.class.last_time_number_programs_compiled += 1
 
                         if $? != 0
                             Log.fatal("nvcc failed: #{compile_status}")
@@ -174,6 +186,7 @@ module Ikra
                         self.class.last_time_transfer_memory += result_t_struct[:time_transfer_memory] * 0.000001
                         self.class.last_time_allocate_memory += result_t_struct[:time_allocate_memory] * 0.000001
                         self.class.last_time_total_external += total_time_external
+                        self.class.last_time_number_programs_launched += 1
 
                         if error_code != 0
                             # Kernel failed

@@ -180,6 +180,9 @@ module Ikra
             # host section).
             attr_reader :generator_node
 
+            # ID of old command for which code was generated.
+            attr_accessor :old_unique_id
+
             @@unique_id  = 1
 
             def self.reset_unique_id
@@ -224,15 +227,18 @@ module Ikra
             # commands for equality. This is necessary because every array command can also
             # act as a type. Types must be comparable for equality.
 
+            def has_same_code?(other)
+                return self.class == other.class &&
+                    block_size == other.block_size &&
+                    input.has_same_code?(other.input) &&
+                    keep == other.keep &&
+                    block_def_node == other.block_def_node
+            end
+
             def ==(other)
                 # Important: ArrayCommands may be created over and over during type inference.
                 # It is important that we compare values and not identities!
-                
-                return self.class == other.class &&
-                    block_size == other.block_size &&
-                    input == other.input &&
-                    keep == other.keep &&
-                    block_def_node == other.block_def_node
+                return has_same_code?(other) && gpu_result_pointer == other.gpu_result_pointer
             end
 
             def hash
@@ -294,10 +300,16 @@ module Ikra
                     # pointer to the result in global memory in an instance variable.
 
                     begin
-                        @gpu_result_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i
+                        if old_unique_id == nil
+                            @gpu_result_pointer = environment[("prev_" + unique_id.to_s).to_sym].to_i
+                        else
+                            @gpu_result_pointer = environment[("prev_" + old_unique_id.to_s).to_sym].to_i
+                        end
+
                         Log.info("Kept pointer for result of command #{unique_id.to_s}: #{@gpu_result_pointer}")
                         return true  
                     rescue ArgumentError
+                        puts "FAILED SETTING PREVIOUS RESULT POINTER"
                         # No pointer saved for this command. This can happen if the result of this
                         # command was already cached earlier and the cached result of a
                         # computation based on this command was used now. 
@@ -311,6 +323,22 @@ module Ikra
 
             def has_previous_result?
                 return !gpu_result_pointer.nil?
+            end
+
+            # Returns an [ArrayIdentityCommand] reading the result of this computation from the
+            # global memory. This is only allowed if the result was "kept", i.e., cached in the
+            # global memory.
+            def read_from_memory
+                if not has_previous_result?
+                    raise RuntimeError.new("Attempting to read a command result from memory but" +
+                        " data is not cached")
+                end
+
+                # TODO: Can we cache type inference results?
+                return GlobalMemoryArrayIdentityCommand.new(
+                    size, 
+                    TypeInference::CommandInference.process_command(self), 
+                    gpu_result_pointer)
             end
 
             # Returns a collection of the names of all block parameters.
@@ -431,7 +459,7 @@ module Ikra
                 @input = []
             end
 
-            def ==(other)
+            def has_same_code?(other)
                 return super(other) && dimensions == other.dimensions && size == other.size
             end
         end
@@ -468,7 +496,7 @@ module Ikra
                 return input.first.command.size
             end
 
-            def ==(other)
+            def has_same_code?(other)
                 return super(other) && size == other.size
             end
         end
@@ -493,7 +521,7 @@ module Ikra
                 return [:irrelevant] * @input.size
             end
 
-            def ==(other)
+            def has_same_code?(other)
                 return super(other) && size == other.size
             end
         end
@@ -533,7 +561,7 @@ module Ikra
                 return input.first.command.size
             end
 
-            def ==(other)
+            def has_same_code?(other)
                 return super(other) && size == other.size
             end
         end
@@ -743,7 +771,7 @@ module Ikra
                 end
             end
 
-            def ==(other)
+            def has_same_code?(other)
                 return super(other) && offsets == other.offsets && 
                     out_of_range_value == other.out_of_range_value &&
                     use_parameter_array == other.use_parameter_array
@@ -796,6 +824,34 @@ module Ikra
             # idea: two return values (actual value and boolean indicator as struct type)
         end
 
+        class GlobalMemoryArrayIdentityCommand < ArrayIdentityCommand
+            attr_reader :base_type
+            attr_reader :size
+
+            def initialize(size, base_type, gpu_result_pointer, **options)
+                super(nil, **options)
+
+                @size = size
+                @base_type = base_type
+                @gpu_result_pointer = gpu_result_pointer
+            end
+
+            # TODO: There should be different kinds of "equality"
+            # One for code generation --> GPU result pointer irrelevant
+            # One for instance creation --> GPU result pointer is important
+
+            def keep
+                return true
+            end
+
+            def execute
+                # TODO: This is a hack
+                @result = pmap do |i| 
+                    i + 0
+                end.to_a
+            end
+        end
+
         class ArrayIdentityCommand
             include ArrayCommand
             
@@ -806,8 +862,10 @@ module Ikra
             def initialize(target, block_size: DEFAULT_BLOCK_SIZE, dimensions: nil)
                 super(block_size: block_size)
 
-                # Ensure that base array cannot be modified
-                target.freeze
+                if target != nil
+                    # Ensure that base array cannot be modified
+                    target.freeze
+                end
 
                 # One thread per array element
                 @target = target
@@ -816,8 +874,16 @@ module Ikra
                 @dimensions = dimensions
             end
 
+            def has_same_code?(other)
+                return super && size == other.size && base_type == other.base_type
+            end
+
+            def ==(other)
+                return super && target == other.target
+            end
+
             def execute
-                return input.first.command
+                @result = input.first.command
             end
             
             def size
@@ -920,6 +986,32 @@ class Array
 
     def to_command(dimensions: nil)
         return Ikra::Symbolic::ArrayIdentityCommand.new(self, dimensions: dimensions)
+    end
+
+    # Comparator methods for checking equality of commands
+    def has_same_code?(other)
+        if self.class != other.class
+            return false
+        end
+
+        if self.size != other.size
+            return false
+        end
+
+        for i in 0...(self.size)
+            if !self[i].has_same_code?(other[i])
+                return false
+            end
+        end
+
+        return true
+    end
+end
+
+class Object
+    def has_same_code?(other)
+        # Equality if not overridden
+        return self == other
     end
 end
 

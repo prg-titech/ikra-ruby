@@ -5,6 +5,7 @@ require_relative "../../symbolic/symbolic"
 require_relative "../../symbolic/visitor"
 require_relative "../../types/types"
 require_relative "../input_translator"
+require_relative "../../custom_weak_cache"
 
 module Ikra
     module Translator
@@ -39,12 +40,21 @@ module Ikra
                 end
             end
 
+            # A cache mapping commands to program builders.
+            @@builder_cache = CustomWeakHash.new(comparator_selector: :has_same_code?)
+
             # Entry point for translator. Returns a [ProgramBuilder], which contains all
             # required information for compiling and executing the CUDA program.
             def self.translate_command(command)
-                command_translator = self.new(root_command: command)
-                command_translator.start_translation
-                return command_translator.program_builder
+                if !@@builder_cache.include?(command)
+                    command_translator = self.new(root_command: command)
+                    command_translator.start_translation
+                    @@builder_cache[command] = command_translator.program_builder
+                else
+                    @@builder_cache[command].reinitialize(root_command: command)
+                end
+
+                return @@builder_cache[command]
             end
 
             attr_reader :environment_builder

@@ -14,6 +14,12 @@ module Ikra
                 @pattern = pattern
             end
 
+            def has_same_code?(other)
+                return self.class == other.class &&
+                    self.pattern == other.pattern &&
+                    self.command.has_same_code?(other.command)
+            end
+
             def ==(other)
                 return self.class == other.class &&
                     self.pattern == other.pattern &&
@@ -56,6 +62,12 @@ module Ikra
                     offsets == other.offsets &&
                     out_of_bounds_value == other.out_of_bounds_value
             end
+
+            def has_same_code?(other)
+                return super(other) && 
+                    offsets == other.offsets &&
+                    out_of_bounds_value == other.out_of_bounds_value
+            end
         end
 
         class StencilSingleInput < Input
@@ -71,6 +83,12 @@ module Ikra
             end
 
             def ==(other)
+                return super(other) && 
+                    offsets == other.offsets &&
+                    out_of_bounds_value == other.out_of_bounds_value
+            end
+
+            def has_same_code?(other)
                 return super(other) && 
                     offsets == other.offsets &&
                     out_of_bounds_value == other.out_of_bounds_value

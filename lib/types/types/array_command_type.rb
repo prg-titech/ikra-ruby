@@ -1,4 +1,4 @@
-require "weakref"
+require_relative "../../custom_weak_cache"
 
 module Ikra
     module Symbolic
@@ -10,74 +10,11 @@ module Ikra
             end
 
             module ClassMethods
-                # TODO: Check what was wrong with the subclassed Hash...
-                class WeakCache
-                    def initialize
-                        @values = []
-                    end
-
-                    def get_value(value)
-                        @values.delete_if do |obj|
-                            begin
-                                if obj == value
-                                    return obj.__getobj__
-                                end
-                            rescue WeakRef::RefError
-                                true
-                            end
-                        end
-
-                        raise RuntimeError.new("Value not found")
-                    end
-
-                    def add_value(value)
-                        @values.push(WeakRef.new(value))
-                    end
-
-                    def include?(value)
-                        @values.delete_if do |obj|
-                            begin
-                                if obj == value
-                                    return true
-                                end
-                            rescue WeakRef::RefError
-                                true
-                            end
-                        end
-
-                        return false
-                    end
-                end
-
-                class NormalCache
-                    def initialize
-                        @values = []
-                    end
-
-                    def get_value(value)
-                        for el in @values
-                            if el == value
-                                return el
-                            end
-                        end
-
-                        raise RuntimeError.new("Value not found")
-                    end
-
-                    def add_value(value)
-                        @values.push(value)
-                    end
-
-                    def include?(value)
-                        return @values.include?(value)
-                    end
-                end
-
                 # Ensure that ArrayCommands are singletons. Otherwise, we have a problem, because
                 # two equal commands can have different class IDs.
                 def new(*args, **kwargs, &block)
                     if @cache == nil
-                        @cache = WeakCache.new
+                        @cache = CustomWeakCache.new
                     end
 
                     new_command = super

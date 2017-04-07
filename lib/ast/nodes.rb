@@ -233,7 +233,7 @@ module Ikra
                 return parent.find_behavior_node
             end
 
-            TYPE_INFO_VARS = [:@return_type_by_recv_type, :@type]
+            TYPE_INFO_VARS = [:@return_type_by_recv_type, :@type, :@variable_kind]
 
             def ==(other)
                 if self.class != other.class
@@ -242,7 +242,6 @@ module Ikra
 
                 # Ignore types
                 if (instance_variables - TYPE_INFO_VARS) != (other.instance_variables - TYPE_INFO_VARS)
-                    
                     return false
                 end
 
