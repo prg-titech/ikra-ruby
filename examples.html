@@ -1,0 +1,362 @@
+<html>
+    <head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Ikra</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="download.html">Download</a></li>
+            <li><a href="docs.html">Documentation</a></li>
+            <li><a href="pubs.html">Publications</a></li>
+            <li class="active"><a href="examples.html">Examples</a></li>
+            <li><a href="team.html">Team</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+</head>
+
+<body>
+<div class="container">
+    <h1>Examples</h1>
+
+    <div class="alert alert-warning" role="alert">
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      This page is still under construction!
+    </div>
+
+    <h2>Image Library Example</h2>
+    <p>
+    In this example, we design an image library with various simple effects and filters (e.g., blur filter). The library is built on top of Ikra and illustrates its basic usage. The entire source code is also <a href="https://github.com/prg-titech/ikra-ruby/tree/master/test/interactive/image_library">available on GitHub</a>. We first show how the library can be used.</p>
+
+    <pre><code>
+require "image_library"
+
+# Load Tokyo Tower image and blur it
+tt = ImgLib.load_png("tokyo_tower.png")
+for i in 0...3
+    tt = tt.apply_filter(ImgLib::Filters.blur)
+end
+
+# Blend with sunset
+sun = ImgLib.load_png("sunset.png")
+combined = tt.apply_filter(ImgLib::Filters.blend(sun, 0.3))
+
+# Load + overlay forest
+forest = ImgLib.load_png("forest.png")
+forest = forest.apply_filter(ImgLib::Filters.invert)
+combined = combined.apply_filter(
+    ImgLib::Filters.overlay(forest, ImgLib::Masks.circle(tt.height / 4)))
+
+# Draw pixels on screen
+ImgLib::Output.render(combined)
+    </code></pre>
+
+    <p>The above source code loads three images and mixes them together, after applying various filters. The result of the single steps and the final picture can be seen below.</p>
+
+    <p><img src="img/ex_img_lib_result.jpg" style="max-width:100%;"></p>
+    
+
+    <p>We now describe how the library is implemented. The library defines two kinds of filters: Filters that are based on a <i>combine</i> (e.g., blending two images) or <i>map</i> (e.g., inverting an image) operation and filters that are based on a <i>stencil</i> (e.g., blurring an image) operation. They correspond to the classes <code>CombineFilter</code> and <code>StencilFilter</code>. Both hold a reference to a code block (<code>Proc</code> in Ruby) which defines the operation that should be performed. In addition, <code>StencilFilter</code> has fields that are specific to stencil operations such as an array containing the relative indices of the neighborhood. Filters are applied in a double-dispatch fashion, i.e., every Ruby array and Ikra array (array command) gets an extension method <code>apply_filter</code> which calls <code>apply_to</code> on the filter object. The filter object knows how to apply itself to the array.</p>
+
+    <pre><code>
+module Ikra::ParallelOperations
+    def apply_filter(filter)
+        return filter.apply_to(self)
+    end
+end
+
+module ImgLib::Filters
+    class CombineFilter
+        def apply_to(cmd)
+            return cmd.pcombine(*args, &amp;block)
+        end
+    end
+
+    class StencilFilter
+        def apply_to(cmd)
+            return cmd.pstencil(out_of_bounds_value, neighborhood, &amp;block)
+        end
+    end
+end
+    </code></pre>
+
+    <p><img src="img/ex_img_filter.png" style="max-width:50%;"></p>
+
+    <p>Our image library already comes with same filters. Some of them are stencil-based filters. Since every pixel is currently represented as a 32-bit integer, we need to use helper functions such as <code>pixel_get_r</code> etc. to shift and bit-and the pixel value to retrieve color values for R, G and B. We could also rewrite the code such that every pixel is an array of 3 integers (or an instance of a class <code>Color</code> with 3 instance variables). However, that would waste a bit of space because Ikra does not support 8-bit integers (only 32-bit integers) at the moment.</p>
+
+    <pre><code class="ruby">
+module ImgLib
+    module Filters
+        def self.blur
+            return StencilFilter.new(
+                neighborhood: STENCIL_2,
+                out_of_bounds_value: 0) do |values|
+
+                factor = 1.0/9.0
+                r = pixel_get_r(values[-1][-1]) + pixel_get_r(values[-1][0]) + pixel_get_r(values[-1][1]) + pixel_get_r(values[0][-1]) + pixel_get_r(values[0][0]) + pixel_get_r(values[0][1]) + pixel_get_r(values[1][-1]) + pixel_get_r(values[1][0]) + pixel_get_r(values[1][1])
+                g = pixel_get_g(values[-1][-1]) + pixel_get_g(values[-1][0]) + pixel_get_g(values[-1][1]) + pixel_get_g(values[0][-1]) + pixel_get_g(values[0][0]) + pixel_get_g(values[0][1]) + pixel_get_g(values[1][-1]) + pixel_get_g(values[1][0]) + pixel_get_g(values[1][1])
+                b = pixel_get_b(values[-1][-1]) + pixel_get_b(values[-1][0]) + pixel_get_b(values[-1][1]) + pixel_get_b(values[0][-1]) + pixel_get_b(values[0][0]) + pixel_get_b(values[0][1]) + pixel_get_b(values[1][-1]) + pixel_get_b(values[1][0]) + pixel_get_b(values[1][1])
+
+                build_pixel((factor * r).to_i, (factor * g).to_i, (factor * b).to_i)
+            end
+        end
+
+        def self.sharpen
+            return StencilFilter.new(
+                neighborhood: STENCIL_2,
+                out_of_bounds_value: 0) do |values|
+
+                factor = 1.0
+                r = 0 - pixel_get_r(values[-1][0]) - pixel_get_r(values[0][-1]) + 5 * pixel_get_r(values[0][0]) - pixel_get_r(values[0][1]) - pixel_get_r(values[1][0])
+                g = 0 - pixel_get_g(values[-1][0]) - pixel_get_g(values[0][-1]) + 5 * pixel_get_g(values[0][0]) - pixel_get_g(values[0][1]) - pixel_get_g(values[1][0])
+                b = 0 - pixel_get_b(values[-1][0]) - pixel_get_b(values[0][-1]) + 5 * pixel_get_b(values[0][0]) - pixel_get_b(values[0][1]) - pixel_get_b(values[1][0])
+
+                build_pixel((factor * r).to_i, (factor * g).to_i, (factor * b).to_i)
+            end
+        end
+    end
+end
+        </code></pre>
+
+        <p>Some filters are combine-based filters. Again, we use helper functions either to retrieve color values or to make code more readable.</p>
+
+        <pre><code class="ruby">
+module ImgLib
+    module Filters
+        def self.blend(other, ratio)
+            return CombineFilter.new(other) do |p1, p2|
+                s1 = pixel_scale(p1, 1.0 - ratio)
+                s2 = pixel_scale(p2, ratio)
+
+                pixel_add(s1, s2)
+            end
+        end
+
+        def self.invert
+            return CombineFilter.new do |p|
+                r = pixel_get_r(p)
+                b = pixel_get_b(p)
+                g = pixel_get_g(p)
+
+                build_pixel(255 - r, 255 - g, 255 - b)
+            end
+        end
+    end
+end
+        </code></pre>
+
+        <p>The method which are called inside of the parallel sections are mostly top-level function. Ikra also supports calling methods on objects (instance methods). These methods are also compiled to CUDA code if they are used inside of a parallel section.</p>
+
+        <pre><code class="ruby">
+# Helper functions
+def pixel_get_r(value)
+    return (value &amp; 0x00ff0000) >> 16
+end
+
+def pixel_get_g(value)
+    return (value &amp; 0x0000ff00) >> 8
+end
+
+def pixel_get_b(value)
+    return value &amp; 0x000000ff
+end
+
+def build_pixel(r, g, b)
+    rr = r
+    gg = g
+    bb = b
+
+    if rr < 0
+        rr = 0
+    end
+    if rr > 255
+        rr = 255
+    end
+    
+    if gg < 0
+        gg = 0
+    end
+    if gg > 255
+        gg = 255
+    end
+
+    if bb < 0
+        bb = 0
+    end
+    if bb > 255
+        bb = 255
+    end
+
+    return (rr << 16) + (gg << 8) + bb
+end
+
+def pixel_scale(pixel, factor)
+    r = pixel_get_r(pixel)
+    g = pixel_get_g(pixel)
+    b = pixel_get_b(pixel)
+
+    return build_pixel((r * factor).to_i, (g * factor).to_i, (b * factor).to_i)
+end
+
+def pixel_add(p1, p2)
+    r1 = pixel_get_r(p1)
+    g1 = pixel_get_g(p1)
+    b1 = pixel_get_b(p1)
+
+    r2 = pixel_get_r(p2)
+    g2 = pixel_get_g(p2)
+    b2 = pixel_get_b(p2)
+
+    r = r1 + r2
+    g = g1 + g2
+    b = b1 + b2
+
+    return build_pixel(r, g, b)
+end
+</code></pre>
+
+        <p>Finally, our image library supports <i>masks</i>. A mask is a boolean array or matrix. It is used in the <i>overlay</i> filter to decide from which one of the two other arguments a pixel value should be taken.</p>
+
+        <pre><code class="ruby">
+module ImgLib
+    module Filters
+        def self.overlay(mask_generator, overlay)
+            mask = mask_generator.call(overlay.height, overlay.width)
+
+            return CombineFilter.new(mask, overlay) do |b, m, o|
+                # b, m, o: base, mask, overlay
+                if m
+                    o
+                else
+                    b
+                end
+            end
+        end
+    end
+
+    module Masks
+        # Rectangle mask
+        def self.rect(x1, y1, x2, y2)
+            return proc do |height, width|
+                Array.pnew(dimensions: [height, width]) do |indices|
+                    y = indices[0]
+                    x = indices[1]
+
+                    if x >= x1 &amp;&amp; y >= y1 &amp;&amp; x <=x2 &amp;&amp; y < y2
+                        # Inside
+                        true
+                    else
+                        # Outside
+                        false
+                    end
+                end
+            end
+        end
+
+        # Circle mask
+        def self.circle(radius)
+            return proc do |height, width|
+                Array.pnew(dimensions: [height, width]) do |indices|
+                    y = indices[0]
+                    x = indices[1]
+
+                    x_diff = width / 2 - x
+                    y_diff = height / 2 - y
+
+                    if x_diff * x_diff + y_diff * y_diff < radius * radius
+                        # Inside
+                        true
+                    else
+                        # Outside
+                        false
+                    end
+                end
+            end
+        end
+    end
+end
+        </code></pre>
+
+        <p>The last listing in this example shows how images are loaded from the file system. We use a library called <a href="http://chunkypng.com/">ChunkyPNG</a> for that process. The method <code>to_command</code> is used to convert a one-dimensional Ruby array into a two-dimensional Ikra array (array command).</p>
+
+        <pre><code class="ruby">
+require 'chunky_png'
+
+module ImageLibrary
+    module Core
+        class PNGImage
+            attr_reader :width
+            attr_reader :height
+            attr_reader :pixels
+
+            def initialize(width:, height:, pixels:)
+                @width = width
+                @height = height
+                @pixels = pixels
+            end
+        end
+
+        class << self
+            def read_png(file_name)
+                image = ChunkyPNG::Image.from_file(file_name)
+                hx_res = image.width
+                hy_res = image.height
+
+                pixels = image.pixels.map do |value|
+                  (value % 0xffffff00) >> 8
+                end
+
+                return PNGImage.new(
+                    width: hx_res,
+                    height: hy_res,
+                    pixels: pixels)
+            end
+
+            def load_image(file_name)
+                image = read_png(file_name)
+
+                pixels = image.pixels
+                width = image.width
+                height = image.height
+
+                return pixels.to_command(dimensions: [image.height, image.width])
+            end
+        end
+    end
+end
+        </code></pre>
+</div>
+</body>
+</html>

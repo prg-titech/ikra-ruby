@@ -31,9 +31,9 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="index.html">Overview</a></li>
+            <li><a href="index.html">Overview</a></li>
             <li><a href="download.html">Download</a></li>
-            <li><a href="docs.html">Documentation</a></li>
+            <li class="active"><a href="docs.html">Documentation</a></li>
             <li><a href="pubs.html">Publications</a></li>
             <li><a href="examples.html">Examples</a></li>
             <li><a href="team.html">Team</a></li>
@@ -45,22 +45,35 @@
 
 <body>
 <div class="container">
-    <h1><img src="img/ikra_logo.png" class="img-fluid" style="max-height: 40px;" alt="Ikra Logo">&nbsp;Ikra</h1>
-    <p>Ikra is an implementation of Ruby for GPGPU and other massively parallel processors. In Ikra, the programmers can write parallel programs by exploiting higher-order operations over an array compatible class in Ruby. The Ikra preprocessor then compiles those operations into backend languages (e.g., CUDA), and executes them on parallel processors such as GPUs. Our research focus is to provide a quick prototyping platform for highly-parallel programs and for experimenting various application and hardware-specific optimization techniques.</p>
+    <h1>Documentation</h1>
 
-    <p>Ikra is a Ruby extension (Gem) for array-based general purpose GPU computing. It provides parallel versions of commonly-used collection API methods, of which many are customizable with code. Its goal is to make GPU programming easier and more productive.</p>
+    <div class="alert alert-warning" role="alert">
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      This page is still under construction!
+    </div>
 
-    <p>Ikra supports object-oriented programming and simple dynamic programming (no metaprogramming) inside parallel sections. It applies a number of performance optimizations to reach performance that is close to hand-written CUDA code.</p>
+    <h2>Installation via GitHub</h2>
+    This guide describes how to install the current Ikra version from GitHub. First, make sure that the following prerequisites are installed.
     <ul>
-        <li><b>Kernel Fusion:</b> Multiple parallel sections are combined into a few GPU kernels.
-        <li><b>Job Reordering:</b> In case of polymorphic input data, Ikra rearranges data to avoid branch divergence.
-        <li><b>Structure-of-Arrays Data Layout:</b> Objects are allocated grouped by fields (similar to column databases) to take advantage of memory coalescing.
+        <li>Operating System: Linux (tested with Ubuntu 16.04.1 LTS x64)</li>
+        <li>Recent Ruby version (tested with MRI 2.3.1)</li>
+
     </ul>
 
     <p>
-        <img src="img/compilation_process.png" class="img-fluid" style="max-height: 200px;" alt="Overview of Compilation Process">&nbsp;&nbsp;&nbsp;<img src="img/ikra_food.jpg" class="img-fluid" style="max-height: 200px;" alt="Ikra">
+    Ikra should also work on Mac and Windows, but some modifications in the source code might be necessary. The generated C++/CUDA source code occasionally uses non-standard <a href="https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html">statement expressions</a> which are only supported by the GNU C compiler.
     </p>
-    <p><small>Ikra is a Russian word that means roe of the salmon, which is also known as “rubies of the sea” in Japan. (<a href="http://www.flickr.com/photos/mayoi/3147855022/">Picture</a> is by <a href="http://www.flickr.com/people/mayoi/">baron valium</a>, CC BY-SA 2.0)</small></p>
+
+    <p>
+    Follow the following steps.
+    <ol>
+        <li>Get Ruby source code: <code>git clone https://github.com/prg-titech/ikra-ruby.git</code></li>
+        <li>Download submodules: <code>git submodule init</code>, then <code>git submodule update</code></li>
+        <li>Install Bundler (Ruby dependency management): <code>gem install bundler</code></li>
+        <li>Install Ikra dependencies: <code>bundle install</code></li>
+        <li>(Optional) Run tests: <code>rake test</code></li>
+    </ol>
+    </p>
 </div>
 </body>
 </html>

@@ -31,12 +31,12 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="index.html">Overview</a></li>
+            <li><a href="index.html">Overview</a></li>
             <li><a href="download.html">Download</a></li>
             <li><a href="docs.html">Documentation</a></li>
             <li><a href="pubs.html">Publications</a></li>
             <li><a href="examples.html">Examples</a></li>
-            <li><a href="team.html">Team</a></li>
+            <li class="active"><a href="team.html">Team</a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
@@ -45,22 +45,14 @@
 
 <body>
 <div class="container">
-    <h1><img src="img/ikra_logo.png" class="img-fluid" style="max-height: 40px;" alt="Ikra Logo">&nbsp;Ikra</h1>
-    <p>Ikra is an implementation of Ruby for GPGPU and other massively parallel processors. In Ikra, the programmers can write parallel programs by exploiting higher-order operations over an array compatible class in Ruby. The Ikra preprocessor then compiles those operations into backend languages (e.g., CUDA), and executes them on parallel processors such as GPUs. Our research focus is to provide a quick prototyping platform for highly-parallel programs and for experimenting various application and hardware-specific optimization techniques.</p>
+    <h1>Team</h1>
 
-    <p>Ikra is a Ruby extension (Gem) for array-based general purpose GPU computing. It provides parallel versions of commonly-used collection API methods, of which many are customizable with code. Its goal is to make GPU programming easier and more productive.</p>
+    <p>The Ikra team consists of faculty members and undergraduate/graduate students at the <a href="http://prg.is.titech.ac.jp/">Programming Research Group</a> at Tokyo Institute of Technology. If you are interested in working on Ikra, you can contribute on GitHub or contact us directly.</p>
 
-    <p>Ikra supports object-oriented programming and simple dynamic programming (no metaprogramming) inside parallel sections. It applies a number of performance optimizations to reach performance that is close to hand-written CUDA code.</p>
     <ul>
-        <li><b>Kernel Fusion:</b> Multiple parallel sections are combined into a few GPU kernels.
-        <li><b>Job Reordering:</b> In case of polymorphic input data, Ikra rearranges data to avoid branch divergence.
-        <li><b>Structure-of-Arrays Data Layout:</b> Objects are allocated grouped by fields (similar to column databases) to take advantage of memory coalescing.
+        <li><b>Faculty: </b><a href="http://prg.is.titech.ac.jp/people/masuhara/">Hidehiko Masuhara</a>, <a href="https://taotani.wordpress.com/">Tomoyuki Aotani</a></li>
+        <li><b>Students: </b><a href="https://iasakura.github.io/">Izumi Asakura</a>, Yang Chen, Yusuke Nishiguchi, Toshifumi Okumura, <a href="http://m-sp.org/">Matthias Springer</a>, Atsushi Taya, Peter Wauligmann</li>
     </ul>
-
-    <p>
-        <img src="img/compilation_process.png" class="img-fluid" style="max-height: 200px;" alt="Overview of Compilation Process">&nbsp;&nbsp;&nbsp;<img src="img/ikra_food.jpg" class="img-fluid" style="max-height: 200px;" alt="Ikra">
-    </p>
-    <p><small>Ikra is a Russian word that means roe of the salmon, which is also known as “rubies of the sea” in Japan. (<a href="http://www.flickr.com/photos/mayoi/3147855022/">Picture</a> is by <a href="http://www.flickr.com/people/mayoi/">baron valium</a>, CC BY-SA 2.0)</small></p>
 </div>
 </body>
 </html>
