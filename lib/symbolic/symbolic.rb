@@ -8,8 +8,6 @@ require_relative "../ast/nodes"
 require_relative "../ast/lexical_variables_enumerator"
 require_relative "../config/os_configuration"
 
-Ikra::Configuration.check_software_configuration
-
 module Ikra
     module Symbolic
         DEFAULT_BLOCK_SIZE = 256
