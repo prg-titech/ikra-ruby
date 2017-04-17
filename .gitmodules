@@ -1,6 +1,3 @@
 [submodule "sourcify"]
 	path = lib/sourcify
 	url = git@github.com:matthias-springer/sourcify.git
-[submodule "ikra-ruby-design"]
-	path = ikra-ruby-design
-	url = git@github.com:prg-titech/ikra-ruby-design.git
