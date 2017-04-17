@@ -15,6 +15,10 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -38,6 +42,10 @@
             <li><a href="examples.html">Examples</a></li>
             <li><a href="team.html">Team</a></li>
           </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a class="navbar-brand" style="padding-top: 0px;" href="http://prg.is.titech.ac.jp/"><img src="img/titech_logo.png" style="max-height:50px;"></a></li>
+          </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
@@ -52,20 +60,47 @@
       This page is still under construction!
     </div>
 
-    <h2>Installation via GitHub</h2>
-    This guide describes how to install the current Ikra version from GitHub. First, make sure that the following prerequisites are installed.
+    <p>This page describes how to install Ikra as well as its basic usage.</p>
+
+    <h2>Prerequisites</h2>
+    <p>Before installing Ikra using one of the following two ways, make sure that the following prerequisites are installed on your system.</p>
+
     <ul>
         <li>Operating System: Linux (tested with Ubuntu 16.04.1 LTS x64)</li>
-        <li>Recent Ruby version (tested with MRI 2.3.1)</li>
-
+        <li>Recent Ruby version (tested with MRI 2.3.1 and MRI 2.3.0)<br/>We recommend using <a href="https://rvm.io/">rvm</a> if you need multiple Ruby versions. You can install Ruby 2.3.0 with <code>rvm install ruby-2.3.0</code>.</li>
+        <li><a href="https://developer.nvidia.com/cuda-toolkit">CUDA Toolkit</a> (tested with version 8.0)</li>
     </ul>
+
+    <p>Before proceeding with the installation, make sure that you have the <code>nvcc</code> and the include directories required by Ikra: <code>NVIDIA_CUDA-*.*_Samples/common/inc</code> and <code>cuda-*.*/extras/CUPTI/include</code>. Ikra will attempt to figure out the paths automatically, but you can also specify them manually later.</p>
+
+    <h2>Installation via RubyGems</h2>
+    <p>If you are interested in using Ikra, this is the easiest way to install it. Follow these steps.</p>
+
+    <p>
+    <ol>
+        <li>Install Ikra gem: <code>gem install ikra</code></li>
+        <li>Give it a try and see if it works. Run the following code in <code>irb</code>. <br/>
+        <pre><code class="ruby">
+require "ikra"
+
+test_array = Array.pnew(100) do |i|
+    i + 1000
+end
+
+puts test_array[0]
+        </code></pre>
+    </ol>
+    </p>
+
+    <h2>Installation via GitHub</h2>
+    <p>This guide describes how to install the current Ikra version from GitHub. First, make sure that the prerequisites are installed.</p>
 
     <p>
     Ikra should also work on Mac and Windows, but some modifications in the source code might be necessary. The generated C++/CUDA source code occasionally uses non-standard <a href="https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html">statement expressions</a> which are only supported by the GNU C compiler.
     </p>
 
     <p>
-    Follow the following steps.
+    Follow the these steps.
     <ol>
         <li>Get Ruby source code: <code>git clone https://github.com/prg-titech/ikra-ruby.git</code></li>
         <li>Download submodules: <code>git submodule init</code>, then <code>git submodule update</code></li>
@@ -74,6 +109,25 @@
         <li>(Optional) Run tests: <code>rake test</code></li>
     </ol>
     </p>
+
+    <h2>Manual Path Setup</h2>
+    <p>If Ikra's autoconfiguration fails, you can set up the nvcc and include paths manually.</p>
+    <pre><code class="ruby">
+require "ikra"
+
+# Set paths before using Ikra
+Ikra::Configuration.auto_config = false
+Ikra::Configuration.cuda_manual_nvcc = "/usr/local/cuda-8.0/bin/nvcc"
+Ikra::Configuration.cuda_manual_common_include = "/home/matthias/NVIDIA_CUDA-7.5_Samples/common/inc"
+Ikra::Configuration.cuda_manual_cupti_include = "/usr/local/cuda-7.5/extras/CUPTI/include"
+
+test_array = Array.pnew(100) do |i|
+    i + 1000
+end
+
+# If you want to change paths later, you have to call `Ikra::Configuration.reinitialize!`
+puts test_array[0]
+    </code></pre>
 </div>
 </body>
 </html>
