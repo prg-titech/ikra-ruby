@@ -157,7 +157,7 @@ module Ikra
 
             attr_reader :block_size
 
-            # [Fixnum] Returns a unique ID for this command. It is used during name mangling in
+            # [Integer] Returns a unique ID for this command. It is used during name mangling in
             # the code generator to determine the name of array identifiers (and do other stuff?).
             attr_reader :unique_id
 
@@ -319,7 +319,7 @@ module Ikra
 
             # Returns the size (number of elements) of the result, after executing the parallel 
             # section.
-            # @return [Fixnum] size
+            # @return [Integer] size
             def size
                 raise NotImplementedError.new
             end

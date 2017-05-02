@@ -16,7 +16,7 @@ module Ikra
                 @class_id = class_id
             end
             
-            Int = self.new("int", Fixnum, 4, :int, 1)
+            Int = self.new("int", Integer, 4, :int, 1)
             Float = self.new("float", Float, 4, :float, 2)
             Bool = self.new("bool", TrueClass, 1, :bool, 3)
             Void = self.new("void", nil, 0, :void, 4)
@@ -55,7 +55,7 @@ module Ikra
     end
 end
 
-class Fixnum
+class Integer
     def self.to_ikra_type
         Ikra::Types::PrimitiveType::Int
     end

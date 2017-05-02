@@ -1,7 +1,7 @@
 require "ikra"
 require_relative "unit_test_template"
 
-class FixnumTest < UnitTestCase
+class IntegerTest < UnitTestCase
     def test_abs
         array = Array.pnew(100) do |j|
             1.abs() + 1.abs() + 0
@@ -72,7 +72,7 @@ class FixnumTest < UnitTestCase
         end
 
         assert_equal(264, array.reduce(:+))
-        assert_equal(::Fixnum, array[0].class)
+        assert_equal(::Integer, array[0].class)
     end
 
     def test_size

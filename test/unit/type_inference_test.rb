@@ -91,7 +91,7 @@ class TypeInferenceTest < UnitTestCase
         assert_in_delta(150, array.reduce(:+), 0.001)
 
         for index in 0...100
-            assert_equal(array[index].class, ::Fixnum)
+            assert_equal(array[index].class, ::Integer)
         end
     end
 
@@ -278,7 +278,7 @@ class TypeInferenceTest < UnitTestCase
             if index % 2 == 0
                 expected_type = ::NilClass
             else
-                expected_type = ::Fixnum
+                expected_type = ::Integer
             end
 
             assert_equal(array[index].class, expected_type)
