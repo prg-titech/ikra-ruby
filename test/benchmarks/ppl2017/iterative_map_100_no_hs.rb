@@ -6,12 +6,12 @@ class IterativeMap100NoHostSection < Test::Unit::TestCase
     DIMS = [20, 500, 500, 2]
 
     def execute
-        base = Array.pnew(dimensions: DIMS) do |indices|
+        base = PArray.new(dimensions: DIMS) do |indices|
             (indices[0] + indices[1]) % (indices[3] + indices[indices[1] % 4] + 7)
         end
 
         for r in 0...500
-            base = base.pmap(with_index: true) do |i, indices|
+            base = base.map(with_index: true) do |i, indices|
                 ((i % 938) + i / 97) % 97717 + (indices[indices[indices[i % 4] % 4] % 4] * (i % 7) % 99)
             end
         end

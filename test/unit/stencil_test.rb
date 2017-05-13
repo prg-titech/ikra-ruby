@@ -16,15 +16,15 @@ class StencilTest < UnitTestCase
 
 
         # GPU computation
-        base_array_gpu = Array.pnew(100) do |j|
+        base_array_gpu = PArray.new(100) do |j|
             j + 100
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
+        stencil_result_gpu = base_array_gpu.stencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
             p0 + p1 + p2
         end 
 
-        aggregated_gpu = stencil_result_gpu.reduce(:+)
+        aggregated_gpu = stencil_result_gpu.to_a.reduce(:+)
 
 
         # Compare results
@@ -45,15 +45,15 @@ class StencilTest < UnitTestCase
 
 
         # GPU computation
-        base_array_gpu = Array.pnew(100) do |j|
+        base_array_gpu = PArray.new(100) do |j|
             j + 100
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000) do |values|
+        stencil_result_gpu = base_array_gpu.stencil([-1, 0, 1], 10000) do |values|
             values[-1] + values[0] + values[1]
         end 
 
-        aggregated_gpu = stencil_result_gpu.reduce(:+)
+        aggregated_gpu = stencil_result_gpu.to_a.reduce(:+)
 
 
         # Compare results
@@ -74,15 +74,15 @@ class StencilTest < UnitTestCase
 
 
         # GPU computation
-        base_array_gpu = Array.pnew(100) do |j|
+        base_array_gpu = PArray.new(100) do |j|
             j + 100
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil(Ikra::Symbolic.stencil(directions: 1, distance: 1), 10000) do |values|
+        stencil_result_gpu = base_array_gpu.stencil(Ikra::Symbolic.stencil(directions: 1, distance: 1), 10000) do |values|
             values[-1] + values[0] + values[1]
         end 
 
-        aggregated_gpu = stencil_result_gpu.reduce(:+)
+        aggregated_gpu = stencil_result_gpu.to_a.reduce(:+)
 
 
         # Compare results
@@ -91,11 +91,11 @@ class StencilTest < UnitTestCase
 
     def test_2d_stencil
         # GPU computation
-        base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|
+        base_array_gpu = PArray.new(dimensions: [7, 5]) do |index|
             10 * index[0] + index[1]
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
+        stencil_result_gpu = base_array_gpu.stencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
             values[-1][-1] + values[0][-1] + values[0][1] + values[0][0]
         end
 
@@ -105,12 +105,12 @@ class StencilTest < UnitTestCase
 
     def test_non_constant_stencil_2d
         # GPU computation
-        base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|
+        base_array_gpu = PArray.new(dimensions: [7, 5]) do |index|
             10 * index[0] + index[1]
         end
         x = 1
         y = -1
-        stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
+        stencil_result_gpu = base_array_gpu.stencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000) do |values|
 
             values[y][y] + values[0][-1] + values[0][x] + values[0][0]
         end
@@ -139,11 +139,11 @@ class StencilTest < UnitTestCase
 
 
         # GPU computation
-        base_array_gpu = Array.pnew(100) do |j|
+        base_array_gpu = PArray.new(100) do |j|
             j + 100
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil([-2, -1, 0, 1, 2], 10000) do |values|
+        stencil_result_gpu = base_array_gpu.stencil([-2, -1, 0, 1, 2], 10000) do |values|
             if values[0] % 2 == 0
                 x = 1
             else
@@ -153,7 +153,7 @@ class StencilTest < UnitTestCase
             values[2*x] + values[0]
         end
 
-        aggregated_gpu = stencil_result_gpu.reduce(:+)
+        aggregated_gpu = stencil_result_gpu.to_a.reduce(:+)
 
 
 

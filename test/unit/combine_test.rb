@@ -3,215 +3,215 @@ require_relative "unit_test_template"
 
 class CombineTest < UnitTestCase
     def test_combine
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
 
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             5
         end
 
-        arrayC = Array.pnew(101) do |j|
+        arrayC = PArray.new(101) do |j|
             j * 2
         end
         
-        arrayA = arrayA.pcombine(arrayB, arrayC) do |a,b,c|
+        arrayA = arrayA.combine(arrayB, arrayC) do |a,b,c|
             a + b + c
         end
 
-        assert_equal(15655, arrayA.reduce(:+))
+        assert_equal(15655, arrayA.to_a.reduce(:+))
     end
 
 
     def test_combine_no_arg
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
         
-        arrayA = arrayA.pcombine() do |a|
+        arrayA = arrayA.combine do |a|
             a
         end
 
-        assert_equal(5050, arrayA.reduce(:+))
+        assert_equal(5050, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_three_arg
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
-        arrayC = Array.pnew(101) do |j|
+        arrayC = PArray.new(101) do |j|
             j*3
         end
-        arrayD = Array.pnew(101) do |j|
+        arrayD = PArray.new(101) do |j|
             j*4
         end
         
-        arrayA = arrayA.pcombine(arrayB, arrayC, arrayD) do |a,b,c,d|
+        arrayA = arrayA.combine(arrayB, arrayC, arrayD) do |a,b,c,d|
             a+b+c+d
         end
 
-        assert_equal(50500, arrayA.reduce(:+))
+        assert_equal(50500, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_plus
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
         
         arrayA = arrayA + arrayB
 
-        assert_equal(15150, arrayA.reduce(:+))
+        assert_equal(15150, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_plus_plus
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
-        arrayC = Array.pnew(101) do |j|
+        arrayC = PArray.new(101) do |j|
             j*3
         end
         
         arrayA = arrayA + arrayB + arrayC
 
-        assert_equal(30300, arrayA.reduce(:+))
+        assert_equal(30300, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_minus
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             j
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
         
         arrayA = arrayA - arrayB
 
-        assert_equal(-5050, arrayA.reduce(:+))
+        assert_equal(-5050, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_mult
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             2
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
         
         arrayA = arrayA * arrayB
 
-        assert_equal(20200, arrayA.reduce(:+))
+        assert_equal(20200, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_div
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             2
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             j*2
         end
         
         arrayA = arrayB / arrayA
 
-        assert_equal(5050, arrayA.reduce(:+))
+        assert_equal(5050, arrayA.to_a.reduce(:+))
     end
 
     def test_combine_and
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             false
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             true
         end
         
         arrayA = arrayB & arrayA
 
-        assert_equal(false, arrayA.reduce(:&))
+        assert_equal(false, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_and2
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             true
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             true
         end
         
         arrayA = arrayB & arrayA
 
-        assert_equal(true, arrayA.reduce(:&))
+        assert_equal(true, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_or
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             false
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             true
         end
         
         arrayA = arrayB | arrayA
 
-        assert_equal(true, arrayA.reduce(:&))
+        assert_equal(true, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_or2
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             false
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             false
         end
         
         arrayA = arrayB | arrayA
 
-        assert_equal(false, arrayA.reduce(:&))
+        assert_equal(false, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_xor
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             true
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             true
         end
         
         arrayA = arrayB ^ arrayA
 
-        assert_equal(false, arrayA.reduce(:&))
+        assert_equal(false, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_xor2
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             false
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             false
         end
         
         arrayA = arrayB ^ arrayA
 
-        assert_equal(false, arrayA.reduce(:&))
+        assert_equal(false, arrayA.to_a.reduce(:&))
     end
 
     def test_combine_xor3
-        arrayA = Array.pnew(101) do |j|
+        arrayA = PArray.new(101) do |j|
             true
         end
-        arrayB = Array.pnew(101) do |j|
+        arrayB = PArray.new(101) do |j|
             false
         end
         
         arrayA = arrayB ^ arrayA
 
-        assert_equal(true, arrayA.reduce(:&))
+        assert_equal(true, arrayA.to_a.reduce(:&))
     end
 end

@@ -31,7 +31,7 @@ def matrix_multiplication_cpu(a, b, size)
 end
 
 def matrix_multiplication_gpu(a, b, size)
-    return Array.pnew(size * size, block_size: 512) do |index|
+    return PArray.new(size * size, block_size: 512) do |index|
         x = index % size
         y = index / size
         result = 0

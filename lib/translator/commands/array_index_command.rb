@@ -1,7 +1,7 @@
 module Ikra
     module Translator
         class CommandTranslator < Symbolic::Visitor
-            # Translate the block of an `Array.pnew` section.
+            # Translate the block of an `PArray.new` section.
             def visit_array_index_command(command)
                 Log.info("Translating ArrayIndexCommand [#{command.unique_id}]")
 

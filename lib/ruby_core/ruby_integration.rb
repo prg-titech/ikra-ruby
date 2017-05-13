@@ -17,7 +17,7 @@ module Ikra
             attr_reader :return_type
 
             # If set to true, all argument should have a singleton type. This is required for
-            # operations on ArrayCommands (e.g., pzip).
+            # operations on ArrayCommands (e.g., zip).
             attr_reader :expect_singleton_args
 
             def initialize(

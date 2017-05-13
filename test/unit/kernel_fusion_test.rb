@@ -3,11 +3,11 @@ require_relative "unit_test_template"
 
 class KernelFusionTest < UnitTestCase
     def test_fusion_2
-        base_array = Array.pnew(100) do |j|
+        base_array = PArray.new(100) do |j|
             j + 1
         end
 
-        mapped_array = base_array.pmap do |j|
+        mapped_array = base_array.map do |j|
             j * j
         end
 
@@ -17,15 +17,15 @@ class KernelFusionTest < UnitTestCase
     end
 
     def test_fusion_3
-        base_array = Array.pnew(100) do |j|
+        base_array = PArray.new(100) do |j|
             j + 1
         end
 
-        mapped_array = base_array.pmap do |j|
+        mapped_array = base_array.map do |j|
             j * j
         end
 
-        mapped_array = mapped_array.pmap do |j|
+        mapped_array = mapped_array.map do |j|
             j * j
         end
 
@@ -36,42 +36,42 @@ class KernelFusionTest < UnitTestCase
 
     def test_reuse_computation
         # keep, cached, keep_previous, cache_previous, preserve_input
-        # base_array.keep.pmap
+        # base_array.keep.map
         # Ikra.require(mapped_array1, mapped_array2)
         
-        base_array = Array.pnew(100, keep: true) do |j|
+        base_array = PArray.new(100, keep: true) do |j|
             j + 1
         end
 
-        mapped_array1 = base_array.pmap do |j|
+        mapped_array1 = base_array.map do |j|
             j * j
         end
 
-        mapped_array2 = base_array.pmap do |j|
+        mapped_array2 = base_array.map do |j|
             j * j
         end
 
-        assert_equal(mapped_array1.reduce(:+), mapped_array2.reduce(:+))
+        assert_equal(mapped_array1.to_a.reduce(:+), mapped_array2.to_a.reduce(:+))
     end
 
     def test_reuse_computation_2
         # keep, cached, keep_previous, cache_previous, preserve_input
-        # base_array.keep.pmap
+        # base_array.keep.map
         # Ikra.require(mapped_array1, mapped_array2)
         
-        base_array = Array.pnew(100, keep: true) do |j|
+        base_array = PArray.new(100, keep: true) do |j|
             j + 1
         end
 
-        mapped_array1 = base_array.pmap(keep: true) do |j|
+        mapped_array1 = base_array.map(keep: true) do |j|
             j * j
         end
 
-        mapped_array2 = mapped_array1.pmap(keep: false) do |j|
+        mapped_array2 = mapped_array1.map(keep: false) do |j|
             j + 9
         end
         
-        mapped_array3 = mapped_array1.pmap(keep: false) do |j|
+        mapped_array3 = mapped_array1.map(keep: false) do |j|
             j + 9
         end
 
@@ -81,23 +81,23 @@ class KernelFusionTest < UnitTestCase
 
     def test_stencil
         # GPU computation
-        base_array_gpu = Array.pnew(100, keep: true) do |j|
+        base_array_gpu = PArray.new(100, keep: true) do |j|
             j + 100
         end
 
 
-        stencil_result_gpu = base_array_gpu.pstencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
+        stencil_result_gpu = base_array_gpu.stencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
             p0 + p1 + p2
         end 
 
-        aggregated_gpu = stencil_result_gpu.reduce(:+)
+        aggregated_gpu = stencil_result_gpu.to_a.reduce(:+)
 
 
-        stencil_result_gpu2 = base_array_gpu.pstencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
+        stencil_result_gpu2 = base_array_gpu.stencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
             p0 + p1 + p2
         end 
 
-        aggregated_gpu2 = stencil_result_gpu2.reduce(:+)
+        aggregated_gpu2 = stencil_result_gpu2.to_a.reduce(:+)
 
 
         # Compare results
@@ -106,17 +106,17 @@ class KernelFusionTest < UnitTestCase
 
    def test_iterative_stencil
         # GPU computation
-        p = Array.pnew(100) do |j|
+        p = PArray.new(100) do |j|
             j
         end
 
         for i in 0...10
-            p = p.pstencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
+            p = p.stencil([-1, 0, 1], 10000, use_parameter_array: false) do |p0, p1, p2|
                 p0 - p1 + p2
             end 
         end
 
-        aggregated_gpu = p.reduce(:+)
+        aggregated_gpu = p.to_a.reduce(:+)
 
 
         q = Array.new(100) do |j|
@@ -138,12 +138,12 @@ class KernelFusionTest < UnitTestCase
 
    def test_iterative_map_with_reduce
         # GPU computation
-        p = Array.pnew(100) do |j|
+        p = PArray.new(100) do |j|
             j
         end
 
-        while p.preduce(:+)[0] < 5400
-            p = p.pmap do |i| i + 1 end
+        while p.to_a.reduce(:+) < 5400
+            p = p.map do |i| i + 1 end
         end
 
 
@@ -163,12 +163,12 @@ class KernelFusionTest < UnitTestCase
 
    def test_iterative_map_with_reduce_and_keep
         # GPU computation
-        p = Array.pnew(100) do |j|
+        p = PArray.new(100) do |j|
             j
         end
 
-        while p.preduce(:+)[0] < 5400
-            p = p.pmap(keep: true) do |i| i + 1 end
+        while p.to_a.reduce(:+) < 5400
+            p = p.map(keep: true) do |i| i + 1 end
         end
 
 

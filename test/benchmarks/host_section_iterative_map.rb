@@ -4,7 +4,7 @@ class HostSectionIterativeMap < Test::Unit::TestCase
     include BenchmarkBase
 
     def execute
-        array_gpu = Array.pnew(511) do |j|
+        array_gpu = PArray.new(511) do |j|
             j + 1
         end
 
@@ -13,7 +13,7 @@ class HostSectionIterativeMap < Test::Unit::TestCase
             a = input
 
             for i in 1...100000
-                a = a.pmap do |k|
+                a = a.map do |k|
                     k + 1
                 end
             end

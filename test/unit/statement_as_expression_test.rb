@@ -3,17 +3,17 @@ require_relative "unit_test_template"
 
 class StatementAsExpressionTest < UnitTestCase
     def test_if_assignment
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x = 0
             x = if j % 2 == 0; x + 1 else 1 end
             x + 1
         end
 
-        assert_equal(100 + 100, array.reduce(:+))
+        assert_equal(100 + 100, array.to_a.reduce(:+))
     end
 
     def test_nested_begin
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x = 0
             x = begin 
                     begin 
@@ -25,11 +25,11 @@ class StatementAsExpressionTest < UnitTestCase
             x + 1
         end
 
-        assert_equal(3 * 100, array.reduce(:+))
+        assert_equal(3 * 100, array.to_a.reduce(:+))
     end
 
     def test_begin_with_statements
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x = 0
             y = 0
             x = begin 
@@ -39,11 +39,11 @@ class StatementAsExpressionTest < UnitTestCase
             x + y + 1       # 2 + 4 + 1 = 7
         end
 
-        assert_equal(7 * 100, array.reduce(:+))
+        assert_equal(7 * 100, array.to_a.reduce(:+))
     end
 
     def test_nested_begin_with_statements
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x = 0
             y = 0
             x = begin 
@@ -56,6 +56,6 @@ class StatementAsExpressionTest < UnitTestCase
             x + y + 1       # 2 + 4 + 1 = 7
         end
 
-        assert_equal(7 * 100, array.reduce(:+))
+        assert_equal(7 * 100, array.to_a.reduce(:+))
     end
 end

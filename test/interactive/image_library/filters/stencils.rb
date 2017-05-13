@@ -12,7 +12,7 @@ module ImageLibrary
             end
 
             def apply_to(command)
-                return command.pstencil(neighborhood, out_of_bounds_value, &block)
+                return command.stencil(neighborhood, out_of_bounds_value, &block)
             end
         end
 

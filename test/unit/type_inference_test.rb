@@ -4,7 +4,7 @@ require_relative "unit_test_template"
 class TypeInferenceTest < UnitTestCase
     def test_simple_type_inference
         # Only one (linear) pass required
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j * 2
             x2 = x1 % 2 == 0
 
@@ -15,12 +15,12 @@ class TypeInferenceTest < UnitTestCase
             end
         end
 
-        assert_equal(9900, array.reduce(:+))
+        assert_equal(9900, array.to_a.reduce(:+))
     end
 
     def test_type_inference_assign_int_float
         # Only one (linear) pass required
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
 
             if j%2 == 0
@@ -30,7 +30,7 @@ class TypeInferenceTest < UnitTestCase
             x1
         end
 
-        assert_in_delta(4950, array.reduce(:+), 0.001)
+        assert_in_delta(4950, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Float)
@@ -38,7 +38,7 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_coerce_type_primitive_invocation
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
 
             if j%2 == 0
@@ -48,7 +48,7 @@ class TypeInferenceTest < UnitTestCase
             x1 * 2
         end
 
-        assert_in_delta(14810.0, array.reduce(:+), 0.001)
+        assert_in_delta(14810.0, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Float)
@@ -56,7 +56,7 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_coerce_type_primitive_invocation_2
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
 
             if j%2 == 0
@@ -67,7 +67,7 @@ class TypeInferenceTest < UnitTestCase
             2 * x1
         end
 
-        assert_in_delta(7400 * 2, array.reduce(:+), 0.001)
+        assert_in_delta(7400 * 2, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Float)
@@ -75,7 +75,7 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_int_method_gg
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = 0
 
             if j%2 == 0
@@ -88,7 +88,7 @@ class TypeInferenceTest < UnitTestCase
             2 >> x1
         end
 
-        assert_in_delta(150, array.reduce(:+), 0.001)
+        assert_in_delta(150, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Integer)
@@ -96,7 +96,7 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_coerce_type_primitive_invocation_4
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
 
             if j%2 == 0
@@ -107,7 +107,7 @@ class TypeInferenceTest < UnitTestCase
             2.1 * x1
         end
 
-        assert_in_delta(15540.0, array.reduce(:+), 0.001)
+        assert_in_delta(15540.0, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Float)
@@ -115,7 +115,7 @@ class TypeInferenceTest < UnitTestCase
     end
 
     def test_coerce_type_primitive_invocation_5
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = 2 * j
 
             if j%2 == 0
@@ -130,11 +130,11 @@ class TypeInferenceTest < UnitTestCase
             result
         end
 
-        assert_equal(100, array.reduce(:+))
+        assert_equal(100, array.to_a.reduce(:+))
     end
 
     def test_coerce_type_primitive_invocation_6
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = 2 * j
 
             if j%2 == 0
@@ -149,11 +149,11 @@ class TypeInferenceTest < UnitTestCase
             result
         end
 
-        assert_equal(100, array.reduce(:+))
+        assert_equal(100, array.to_a.reduce(:+))
     end
 
     def test_coerce_type_primitive_invocation_7
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = 2 * j
 
             if j%2 == 0
@@ -168,11 +168,11 @@ class TypeInferenceTest < UnitTestCase
             result
         end
 
-        assert_equal(100, array.reduce(:+))
+        assert_equal(100, array.to_a.reduce(:+))
     end
 
     def test_coerce_type_primitive_invocation_8
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
             x2 = j
 
@@ -191,7 +191,7 @@ class TypeInferenceTest < UnitTestCase
             x1 * x2
         end
 
-        assert_in_delta(329618.0, array.reduce(:+), 0.001)
+        assert_in_delta(329618.0, array.to_a.reduce(:+), 0.001)
 
         for index in 0...100
             assert_equal(array[index].class, ::Float)
@@ -201,7 +201,7 @@ class TypeInferenceTest < UnitTestCase
     def test_coerce_type_primitive_invocation_9
         # Invoke method
 
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = 3
 
             if j%2 == 0
@@ -211,13 +211,13 @@ class TypeInferenceTest < UnitTestCase
             Math.ldexp(x1, 4.5)
         end
 
-        assert_in_delta(48.0 * 100, array.reduce(:+), 0.001)
+        assert_in_delta(48.0 * 100, array.to_a.reduce(:+), 0.001)
     end
 
     def test_coerce_type_primitive_invocation_10
         # Invoke method
 
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
             x2 = 4.5
 
@@ -229,11 +229,11 @@ class TypeInferenceTest < UnitTestCase
             Math.ldexp(x1, x2)
         end
 
-        assert_in_delta(79280.0, array.reduce(:+), 0.001)
+        assert_in_delta(79280.0, array.to_a.reduce(:+), 0.001)
     end
 
     def test_type_inference_multiple_passes
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x = 0
 
             for i in 0..10
@@ -249,12 +249,12 @@ class TypeInferenceTest < UnitTestCase
             x
         end
 
-        assert_in_delta(2205, array.reduce(:+), 0.001)
+        assert_in_delta(2205, array.to_a.reduce(:+), 0.001)
     end
 
 
     def test_nil
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             nil
         end
 
@@ -264,7 +264,7 @@ class TypeInferenceTest < UnitTestCase
 
     def test_type_inference_assign_int_nil
         # Only one (linear) pass required
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = j
 
             if j%2 == 0
@@ -288,7 +288,7 @@ class TypeInferenceTest < UnitTestCase
     def test_union_type_method_invocation
         # Returns union type
 
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = true
             x2 = true
 
@@ -317,7 +317,7 @@ class TypeInferenceTest < UnitTestCase
         Ikra::RubyIntegration.implement(Ikra::RubyIntegration::INT_S, :dummy_method, Ikra::RubyIntegration::INT, 0, "(100)")
         Ikra::RubyIntegration.implement(Ikra::RubyIntegration::BOOL_S, :dummy_method, Ikra::RubyIntegration::INT, 0, "(200)")
 
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             x1 = true
             
             if j % 2 == 0

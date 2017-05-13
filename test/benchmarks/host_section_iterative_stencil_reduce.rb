@@ -4,7 +4,7 @@ class HostSectionIterativeStencil < Test::Unit::TestCase
     include BenchmarkBase
 
     def execute
-        array_gpu = Array.pnew(90210) do |j|
+        array_gpu = PArray.new(90210) do |j|
             j % 2
         end
 
@@ -12,8 +12,8 @@ class HostSectionIterativeStencil < Test::Unit::TestCase
         return Ikra::Symbolic.host_section(array_gpu) do |input|
             a = input
 
-            while (a.preduce do |a, b| a + b end).__call__.__to_host_array__[0] < 10000000
-                a = a.pstencil([-1, 0, 1], 1) do |values|
+            while (a.reduce do |a, b| a + b end).__call__.__to_host_array__[0] < 10000000
+                a = a.stencil([-1, 0, 1], 1) do |values|
                     (values[-1] - values[0] - values[1] + 7)
                 end
             end

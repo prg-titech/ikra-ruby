@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class MemoryManagementTest < UnitTestCase
     def test_manual_memory_free
-        array_gpu = Array.pnew(51100) do |j|
+        array_gpu = PArray.new(51100) do |j|
             j + 1
         end
 
@@ -18,7 +18,7 @@ class MemoryManagementTest < UnitTestCase
 
             for i in 1...1000
                 old_val = a
-                a = a.pmap do |k|
+                a = a.map do |k|
                     k + 1
                 end
 
@@ -28,6 +28,6 @@ class MemoryManagementTest < UnitTestCase
             a
         end
 
-        assert_equal(array_cpu.reduce(:+) , section_result.reduce(:+))
+        assert_equal(array_cpu.reduce(:+) , section_result.to_a.reduce(:+))
     end
 end

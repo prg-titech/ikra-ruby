@@ -37,7 +37,7 @@ module Ikra
             type.is_a?(Symbolic::ArrayCommand)
         end
 
-        PMAP_TYPE = proc do |rcvr_type, *args_types, send_node:|
+        MAP_TYPE = proc do |rcvr_type, *args_types, send_node:|
             # TODO: Handle keyword arguments
             
             # Ensure that there is no cycle here. "Cycle" means that the same AST send node
@@ -56,7 +56,7 @@ module Ikra
                 more_kw_args = AST::Interpreter.interpret(send_node.arguments.first)
             end
 
-            rcvr_type.pmap(
+            rcvr_type.map(
                 ast: send_node.block_argument, 
                 generator_node: send_node, 
                 # TODO: Fix binding
@@ -64,11 +64,11 @@ module Ikra
                 **more_kw_args).to_union_type
         end
 
-        PZIP_TYPE = proc do |rcvr_type, *args_types, send_node:|
-            # TODO: Support multiple arguments for `pzip`
+        ZIP_TYPE = proc do |rcvr_type, *args_types, send_node:|
+            # TODO: Support multiple arguments for `zip`
             types = args_types[0].map do |sing_type|
                 raise AssertionError.new("Singleton type expected") if sing_type.is_union_type?
-                rcvr_type.pzip(sing_type, generator_node: send_node).to_union_type
+                rcvr_type.zip(sing_type, generator_node: send_node).to_union_type
             end
 
             types.reduce(Types::UnionType.new) do |acc, type|
@@ -76,7 +76,7 @@ module Ikra
             end
         end
 
-        PSTENCIL_TYPE = proc do |rcvr_type, *args_types, send_node:|
+        STENCIL_TYPE = proc do |rcvr_type, *args_types, send_node:|
             # TODO: Handle keyword arguments
             ruby_args = send_node.arguments.map do |node|
                 AST::Interpreter.interpret(node)
@@ -95,7 +95,7 @@ module Ikra
 
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
 
-            rcvr_type.pstencil(
+            rcvr_type.stencil(
                 *ruby_args, 
                 ast: send_node.block_argument, 
                 generator_node: send_node, 
@@ -104,12 +104,12 @@ module Ikra
                 **more_kw_args).to_union_type
         end
 
-        PREDUCE_TYPE = proc do |rcvr_type, *args_types, send_node:|
+        REDUCE_TYPE = proc do |rcvr_type, *args_types, send_node:|
             # TODO: Handle keyword arguments
             
             SymbolicCycleFinder.raise_on_cycle(rcvr_type, send_node)
 
-            rcvr_type.preduce(ast: send_node.block_argument, generator_node: send_node).to_union_type
+            rcvr_type.reduce(ast: send_node.block_argument, generator_node: send_node).to_union_type
         end
 
         LAUNCH_KERNEL = proc do |receiver, method_name, arguments, translator, result_type|
@@ -232,8 +232,8 @@ module Ikra
             end
         end
 
-        ARRAY_TYPE_TO_COMMAND_TYPE = proc do |rcvr_type, *args_types, send_node:|
-            rcvr_type.to_command.to_union_type
+        ARRAY_TYPE_TO_PA_TYPE = proc do |rcvr_type, *args_types, send_node:|
+            rcvr_type.to_pa.to_union_type
         end
 
         FREE_MEMORY_FOR_ARRAY_COMMAND = proc do |receiver, method_name, args, translator, result_type|
@@ -255,37 +255,37 @@ module Ikra
         # Implement all parallel operations
         implement(
             ALL_ARRAY_COMMAND_TYPES,
-            :pmap,
-            PMAP_TYPE,
+            :map,
+            MAP_TYPE,
             0..1,
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(
             ALL_LOCATION_AWARE_ARRAY_TYPES,
-            :to_command,
-            ARRAY_TYPE_TO_COMMAND_TYPE,
+            :to_pa,
+            ARRAY_TYPE_TO_PA_TYPE,
             0,
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(
             ALL_ARRAY_COMMAND_TYPES,
-            :pzip,
-            PZIP_TYPE,
+            :zip,
+            ZIP_TYPE,
             1,
             SYMBOLICALLY_EXECUTE_KERNEL,
             expect_singleton_args: true)
 
         implement(
             ALL_ARRAY_COMMAND_TYPES,
-            :pstencil,
-            PSTENCIL_TYPE,
+            :stencil,
+            STENCIL_TYPE,
             2..3,      # neighborhood and default value, maybe hash
             SYMBOLICALLY_EXECUTE_KERNEL)
 
         implement(
             ALL_ARRAY_COMMAND_TYPES,
-            :preduce,
-            PREDUCE_TYPE,
+            :reduce,
+            REDUCE_TYPE,
             0,
             SYMBOLICALLY_EXECUTE_KERNEL)
 

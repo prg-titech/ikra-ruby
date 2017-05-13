@@ -17,7 +17,7 @@ for i in 1..10000
     base.push(MyObject.new(i))
 end
 
-squared = base.pmap do |el|
+squared = base.to_pa.map do |el|
     el.squared
 end
 

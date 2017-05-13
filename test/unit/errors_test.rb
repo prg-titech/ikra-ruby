@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class ErrorsTest < UnitTestCase
     def test_top_level_method_not_found
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             this_method_does_not_exist(1, 2)
         end
 
@@ -13,7 +13,7 @@ class ErrorsTest < UnitTestCase
     end
 
     def test_primitive_instance_method_not_found
-        array = Array.pnew(100) do |j|
+        array = PArray.new(100) do |j|
             5.method_does_not_exist
         end
 

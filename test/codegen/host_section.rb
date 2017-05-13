@@ -1,7 +1,7 @@
 require "ikra"
 
 def test_host_section_iterative_map
-    array_gpu = Array.pnew(511) do |j|
+    array_gpu = PArray.new(511) do |j|
         j + 1
     end
 
@@ -14,7 +14,7 @@ def test_host_section_iterative_map
         a = input
 
         for i in 1...10
-            a = a.pmap do |k|
+            a = a.map do |k|
                 k + 1
             end
         end
@@ -22,7 +22,7 @@ def test_host_section_iterative_map
         a
     end
 
-    if array_cpu.reduce(:+) == section_result.reduce(:+)
+    if array_cpu.reduce(:+) == section_result.to_a.reduce(:+)
         Ikra::Log.info("Test passed!")
     else
         # Use unit test for debugging

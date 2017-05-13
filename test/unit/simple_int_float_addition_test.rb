@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class SimpleIntFloatAdditionTest < UnitTestCase
     def test_kernel_float_plus_int
-        all_floats = Array.pnew(100) do |j|
+        all_floats = PArray.new(100) do |j|
             1.12 + j
         end
 
@@ -13,7 +13,7 @@ class SimpleIntFloatAdditionTest < UnitTestCase
     end
 
     def test_kernel_int_plus_float
-        all_floats = Array.pnew(100) do |j|
+        all_floats = PArray.new(100) do |j|
             j + 1.12
         end
 

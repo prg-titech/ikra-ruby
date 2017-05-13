@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class BoolTest < UnitTestCase
     def test_bool
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true
         end
 
@@ -13,7 +13,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_union_bool
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             if j % 2 == 0
                 x = true
             else
@@ -28,7 +28,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_and1
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true and false
         end
 
@@ -38,7 +38,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_and2
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true && true
         end
 
@@ -48,7 +48,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_and3
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true & false
         end
 
@@ -58,7 +58,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_and4
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true & true
         end
 
@@ -68,7 +68,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_xor1
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true ^ false
         end
 
@@ -78,7 +78,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_xor2
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true ^ true
         end
 
@@ -88,7 +88,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_or1
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true | false
         end
 
@@ -98,7 +98,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_or2
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             false | false
         end
 
@@ -108,7 +108,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_or3
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true || true
         end
 
@@ -118,7 +118,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_or4
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             false || false
         end
 
@@ -128,7 +128,7 @@ class BoolTest < UnitTestCase
     end
 
     def test_or5
-        all_zeroes = Array.pnew(100) do |j|
+        all_zeroes = PArray.new(100) do |j|
             true || false
         end
 
@@ -138,11 +138,11 @@ class BoolTest < UnitTestCase
     end
 
     def test_smaller
-        arr1 = Array.pnew(100) do |j|
+        arr1 = PArray.new(100) do |j|
             j
         end
 
-        arr2 = Array.pnew(100) do |j|
+        arr2 = PArray.new(100) do |j|
             100 - j
         end
 
@@ -154,11 +154,11 @@ class BoolTest < UnitTestCase
     end
 
     def test_smaller_float
-        arr1 = Array.pnew(100) do |j|
+        arr1 = PArray.new(100) do |j|
             j.to_f
         end
 
-        arr2 = Array.pnew(100) do |j|
+        arr2 = PArray.new(100) do |j|
             100 - j.to_f
         end
 

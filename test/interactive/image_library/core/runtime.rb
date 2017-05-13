@@ -12,7 +12,7 @@ module ImageLibrary
                 width = image.width
                 height = image.height
 
-                return pixels.to_command(dimensions: [image.height, image.width])
+                return pixels.to_pa(dimensions: [image.height, image.width])
             end
         end
     end

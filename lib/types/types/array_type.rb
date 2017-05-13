@@ -84,7 +84,7 @@ module Ikra
                 end
             end
 
-            def to_command
+            def to_pa
                 # No fusion possible here. The first parameter (target) is a reference to the
                 # array command struct representing the [ArrayInHostSectionCommand].
                 # TODO: The code depends on the template (variable name `cmd` and `input_0`).
@@ -113,7 +113,7 @@ module Ikra
                 @dimensions = dimensions
             end
 
-            def to_command
+            def to_pa
                 # No fusion possible here. The first parameter (target) is a reference to the
                 # array command struct representing the [ArrayInHostSectionCommand].
                 # TODO: The code depends on the template (variable name `cmd` and `input_0`).

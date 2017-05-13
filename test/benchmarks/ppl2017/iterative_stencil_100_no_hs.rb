@@ -8,7 +8,7 @@ class IterativeStencil100NoHostSection < Test::Unit::TestCase
     def execute
         Ikra::Translator::CommandTranslator::KernelLauncher.debug_free_previous_input_immediately = true
 
-        base = Array.pnew(dimensions: DIMS) do |indices|
+        base = PArray.new(dimensions: DIMS) do |indices|
             (indices[0] + indices[1]) % (indices[3] + indices[indices[1] % 4] + 7)
         end
 
@@ -16,7 +16,7 @@ class IterativeStencil100NoHostSection < Test::Unit::TestCase
 
 
         for r in 0...200
-            y = y.pstencil([[-1, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0], [-1, -1, 0, 0]], 37, with_index: true) do |values, indices|
+            y = y.stencil([[-1, 0, 0, 0], [0, 0, 0, 0], [1, 0, 0, 0], [-1, -1, 0, 0]], 37, with_index: true) do |values, indices|
             ((values[-1][0][0][0] % 938) + values[0][0][0][0] / 97) % 97717 + (indices[indices[indices[values[1][0][0][0] % 4] % 4] % 4] * (values[-1][-1][0][0] % 7) % 99)
             end
         end
