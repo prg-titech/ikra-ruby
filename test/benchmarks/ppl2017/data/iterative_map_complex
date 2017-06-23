@@ -1,0 +1,99 @@
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    IterativeMapComplex
+--------------------------------------------------------------------------------
+NVCC Time:                         2.5447
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.1960
+Kernel(s) Time:                    6.4316
+Allocate Memory Time:              0.0600
+Transfer Memory Time:              0.0816
+Free Memory Time:                  0.0303
+Rest Host Section:                 0.0006
+
+Total External Execution Time:     6.8002
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.5925
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.4808
+--------------------------------------------------------------------------------
+Total Execution Time:              10.4181
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 10.419180432 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.10 tests/s, 0.00 assertions/s
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    IterativeMapComplex
+--------------------------------------------------------------------------------
+NVCC Time:                         2.5395
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.0830
+Kernel(s) Time:                    6.3949
+Allocate Memory Time:              0.0605
+Transfer Memory Time:              0.0755
+Free Memory Time:                  0.0248
+Rest Host Section:                 0.0006
+
+Total External Execution Time:     6.6394
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.6179
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.4716
+--------------------------------------------------------------------------------
+Total Execution Time:              10.2684
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 10.269616 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.10 tests/s, 0.00 assertions/s
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    IterativeMapComplex
+--------------------------------------------------------------------------------
+NVCC Time:                         2.5157
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.0830
+Kernel(s) Time:                    6.3852
+Allocate Memory Time:              0.0601
+Transfer Memory Time:              0.0755
+Free Memory Time:                  0.0245
+Rest Host Section:                 0.0006
+
+Total External Execution Time:     6.6289
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.6067
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.4684
+--------------------------------------------------------------------------------
+Total Execution Time:              10.2198
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 10.220828674 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.10 tests/s, 0.00 assertions/s

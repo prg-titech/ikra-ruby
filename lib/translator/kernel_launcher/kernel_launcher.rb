@@ -114,9 +114,10 @@ module Ikra
                 end
 
                 # Configures grid size and block size. Also sets number of threads.
-                def configure_grid(size, block_size: 256)
+                def configure_grid(size, block_size: 1024)
                     if block_size == nil
-                        block_size = 256
+                        # TODO: How can this ever be nil? Should be set in symbolic.rb
+                        block_size = 1024
                     end
                     
                     if size.is_a?(Fixnum)

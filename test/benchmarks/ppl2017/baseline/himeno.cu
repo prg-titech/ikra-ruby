@@ -1,8 +1,8 @@
 #include <chrono>
 #include <stdio.h>
 
-#define GRID_DIM 2130   
-#define BLOCK_DIM 256
+#define GRID_DIM 533   
+#define BLOCK_DIM 1024
 
 using namespace std;
 
@@ -62,11 +62,6 @@ __global__ void kernel_stencil(float *new_data, float *data, float *param_a, flo
 int main()
 {
 
-    auto start_entire = chrono::high_resolution_clock::now();
-
-    // Init
-    cudaThreadSynchronize();
-
     long time_kernel = 0;
     long time_alloc = 0;
     long time_free = 0;
@@ -108,11 +103,19 @@ int main()
         wrk_host[i] = 0.0;
     }
 
+    // Init
+    auto start_time = chrono::high_resolution_clock::now();
+    cudaThreadSynchronize();
+    cudaFree(0);
+    auto end_time = chrono::high_resolution_clock::now();;
+    long time_setup = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
+
     printf("START\n");
+    auto start_entire = chrono::high_resolution_clock::now();
 
     // Measure kernel invocation
-    auto start_time = chrono::high_resolution_clock::now();
-    auto end_time = chrono::high_resolution_clock::now();
+    start_time = chrono::high_resolution_clock::now();
+    end_time = chrono::high_resolution_clock::now();
     long loop_time_elapsed;
 
     // Allocate memory

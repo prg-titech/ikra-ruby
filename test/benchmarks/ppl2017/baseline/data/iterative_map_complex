@@ -1,7 +1,7 @@
 START
-alloc: 39.016000
-kernel: 2691.575000
-transfer: 12.621000
-free: 21.466999
-rest: 107.415001
+alloc: 148.387000
+kernel: 16059.559000
+transfer: 75.910004
+free: 67.235001
+rest: 0.915000
 END

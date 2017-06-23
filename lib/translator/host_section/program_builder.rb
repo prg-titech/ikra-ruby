@@ -62,7 +62,11 @@ module Ikra
 
                     for launcher in kernel_launchers[0...-1]
                         if !launcher.reuse_memory?
-                            result = result + launcher.build_device_memory_free_in_host_section
+                            if KernelLauncher.debug_free_previous_input_immediately == false
+                                # Do not free memory if debug flag is set: In that case, the memory
+                                # was already freed earlier!
+                                result = result + launcher.build_device_memory_free_in_host_section
+                            end
                         end
                     end
 

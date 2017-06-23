@@ -10,7 +10,7 @@ require_relative "../config/os_configuration"
 
 module Ikra
     module Symbolic
-        DEFAULT_BLOCK_SIZE = 256
+        DEFAULT_BLOCK_SIZE = 1024
 
         def self.stencil(directions:, distance:)
             return ["G", directions, distance]
@@ -252,12 +252,8 @@ module Ikra
             end
 
             def each(&block)
-                next_index = 0
-
-                while next_index < size
-                    yield(self[next_index])
-                    next_index += 1
-                end
+                execute
+                return @result.each(&block)
             end
 
             def pack(fmt)

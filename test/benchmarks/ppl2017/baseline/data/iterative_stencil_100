@@ -1,0 +1,8 @@
+START
+setup: 108.195999
+alloc: 61.321000
+kernel: 12097.071000
+transfer: 75.834000
+free: 26.656000
+rest: 0.354000
+END

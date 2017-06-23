@@ -2,6 +2,18 @@ require "ikra"
 require_relative "unit_test_template"
 
 class NewTest < UnitTestCase
+    def test_new_large
+        array_gpu = Array.pnew(511000) do |j|
+            j + 1
+        end
+
+        array_cpu = Array.new(511000) do |j|
+            j + 1
+        end
+
+        assert_equal(array_cpu , array_gpu.to_a)
+    end
+
     def test_new
         array_gpu = Array.pnew(511) do |j|
             j + 1

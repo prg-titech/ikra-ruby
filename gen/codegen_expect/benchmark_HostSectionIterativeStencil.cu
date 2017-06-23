@@ -258,14 +258,14 @@ __global__ void kernel_40(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -280,7 +280,7 @@ __global__ void kernel_40(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -448,14 +448,14 @@ __global__ void kernel_45(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -470,7 +470,7 @@ __global__ void kernel_45(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -624,14 +624,14 @@ __global__ void kernel_53(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -646,7 +646,7 @@ __global__ void kernel_53(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -769,14 +769,14 @@ __global__ void kernel_62(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -791,7 +791,7 @@ __global__ void kernel_62(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -959,14 +959,14 @@ __global__ void kernel_67(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -981,7 +981,7 @@ __global__ void kernel_67(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1135,14 +1135,14 @@ __global__ void kernel_75(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -1157,7 +1157,7 @@ __global__ void kernel_75(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1280,14 +1280,14 @@ __global__ void kernel_84(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -1302,7 +1302,7 @@ __global__ void kernel_84(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1470,14 +1470,14 @@ __global__ void kernel_89(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -1492,7 +1492,7 @@ __global__ void kernel_89(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1646,14 +1646,14 @@ __global__ void kernel_97(environment_t *_env_, int _num_threads_, int *_result_
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -1668,7 +1668,7 @@ __global__ void kernel_97(environment_t *_env_, int _num_threads_, int *_result_
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1791,14 +1791,14 @@ __global__ void kernel_106(environment_t *_env_, int _num_threads_, int *_result
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -1813,7 +1813,7 @@ __global__ void kernel_106(environment_t *_env_, int _num_threads_, int *_result
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -1981,14 +1981,14 @@ __global__ void kernel_111(environment_t *_env_, int _num_threads_, int *_result
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -2003,7 +2003,7 @@ __global__ void kernel_111(environment_t *_env_, int _num_threads_, int *_result
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -2157,14 +2157,14 @@ __global__ void kernel_119(environment_t *_env_, int _num_threads_, int *_result
         // Single result of this block
         int _temp_result_;
 
-        int num_args = 2 * 256;
+        int num_args = 2 * 1024;
         if (blockIdx.x == gridDim.x - 1)
         {
             // Processing the last block, which might be odd (number of elements to reduce).
             // Other blocks cannot be "odd", because every block reduces 2*block_size many elements.
 
             // Number of elements to reduce in the last block
-            num_args = ((2 * _num_threads_ - 1) % (2 * 256)) + (_odd_ ? 0 : 1);
+            num_args = ((2 * _num_threads_ - 1) % (2 * 1024)) + (_odd_ ? 0 : 1);
         }
 
         if (num_args == 1)
@@ -2179,7 +2179,7 @@ __global__ void kernel_119(environment_t *_env_, int _num_threads_, int *_result
         {
             // Allocate block_size many slots to contain the result of up to block_size many reductions, i.e.,
             // this array contains the reduction of (up to) 2*block_size many elements.
-            __shared__ int sdata[256];
+            __shared__ int sdata[1024];
 
             _odd_ = num_args % 2 == 1;
 
@@ -3109,7 +3109,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_43);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_42<<<353, 256>>>(dev_env, 90210, _kernel_result_43);
+                        kernel_42<<<89, 1024>>>(dev_env, 90210, _kernel_result_43);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3118,53 +3118,17 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_44);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_40<<<177, 256>>>(dev_env, 45105, _kernel_result_44, _kernel_result_43, false);
+                        kernel_40<<<45, 1024>>>(dev_env, 45105, _kernel_result_44, _kernel_result_43, false);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        kernel_40<<<1, 89>>>(dev_env, 89, _kernel_result_44, _kernel_result_44, true);
+                        kernel_40<<<1, 23>>>(dev_env, 23, _kernel_result_44, _kernel_result_44, true);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_44;
                     
-                                timeStartMeasure();
-                    
-                        if (_kernel_result_43 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_43));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_43),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                        timeStartMeasure();
-                    
-                        if (_kernel_result_44 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_44));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_44),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3181,7 +3145,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_50);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_49<<<353, 256>>>(dev_env, 90210, _kernel_result_50);
+                        kernel_49<<<89, 1024>>>(dev_env, 90210, _kernel_result_50);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3190,7 +3154,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_48);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_47<<<353, 256>>>(dev_env, 90210, _kernel_result_48, _kernel_result_50);
+                        kernel_47<<<89, 1024>>>(dev_env, 90210, _kernel_result_48, _kernel_result_50);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3199,71 +3163,17 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_52);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_45<<<177, 256>>>(dev_env, 45105, _kernel_result_52, _kernel_result_48, false);
+                        kernel_45<<<45, 1024>>>(dev_env, 45105, _kernel_result_52, _kernel_result_48, false);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        kernel_45<<<1, 89>>>(dev_env, 89, _kernel_result_52, _kernel_result_52, true);
+                        kernel_45<<<1, 23>>>(dev_env, 23, _kernel_result_52, _kernel_result_52, true);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_52;
                     
-                                timeStartMeasure();
-                    
-                        if (_kernel_result_50 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_50));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_50),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                        timeStartMeasure();
-                    
-                        if (_kernel_result_48 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_48));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_48),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                        timeStartMeasure();
-                    
-                        if (_kernel_result_52 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_52));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_52),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3280,7 +3190,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_58);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_57<<<353, 256>>>(dev_env, 90210, _kernel_result_58, ((int *) ((int *) ((int *) cmd->input_0->input_0->input_0.content))));
+                        kernel_57<<<89, 1024>>>(dev_env, 90210, _kernel_result_58, ((int *) ((int *) ((int *) cmd->input_0->input_0->input_0.content))));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3289,7 +3199,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_56);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_55<<<353, 256>>>(dev_env, 90210, _kernel_result_56, _kernel_result_58);
+                        kernel_55<<<89, 1024>>>(dev_env, 90210, _kernel_result_56, _kernel_result_58);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3298,71 +3208,17 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_61);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_53<<<177, 256>>>(dev_env, 45105, _kernel_result_61, _kernel_result_56, false);
+                        kernel_53<<<45, 1024>>>(dev_env, 45105, _kernel_result_61, _kernel_result_56, false);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
-                        kernel_53<<<1, 89>>>(dev_env, 89, _kernel_result_61, _kernel_result_61, true);
+                        kernel_53<<<1, 23>>>(dev_env, 23, _kernel_result_61, _kernel_result_61, true);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_61;
                     
-                                timeStartMeasure();
-                    
-                        if (_kernel_result_58 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_58));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_58),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                        timeStartMeasure();
-                    
-                        if (_kernel_result_56 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_56));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_56),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                        timeStartMeasure();
-                    
-                        if (_kernel_result_61 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_61));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_61),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 1);
@@ -3398,7 +3254,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_129);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_128<<<353, 256>>>(dev_env, 90210, _kernel_result_129);
+                            kernel_128<<<89, 1024>>>(dev_env, 90210, _kernel_result_129);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -3421,7 +3277,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_133);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_132<<<353, 256>>>(dev_env, 90210, _kernel_result_133);
+                            kernel_132<<<89, 1024>>>(dev_env, 90210, _kernel_result_133);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3430,31 +3286,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_131);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_130<<<353, 256>>>(dev_env, 90210, _kernel_result_131, _kernel_result_133);
+                            kernel_130<<<89, 1024>>>(dev_env, 90210, _kernel_result_131, _kernel_result_133);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_131;
                         
-                                    timeStartMeasure();
-                        
-                            if (_kernel_result_133 != cmd->result) {
-                                // Don't free memory if it is the result. There is already a similar check in
-                                // program_builder (free all except for last). However, this check is not sufficient in
-                                // case the same array is reused!
-                        
-                                checkErrorReturn(program_result, cudaFree(_kernel_result_133));
-                                // Remove from list of allocations
-                                program_result->device_allocations->erase(
-                                    std::remove(
-                                        program_result->device_allocations->begin(),
-                                        program_result->device_allocations->end(),
-                                        _kernel_result_133),
-                                    program_result->device_allocations->end());
-                            }
-                        
-                            timeReportMeasure(program_result, free_memory);
-                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 90210);
@@ -3471,7 +3309,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_138);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_137<<<353, 256>>>(dev_env, 90210, _kernel_result_138, ((int *) ((int *) cmd->input_0->input_0.content)));
+                            kernel_137<<<89, 1024>>>(dev_env, 90210, _kernel_result_138, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3480,31 +3318,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_136);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_135<<<353, 256>>>(dev_env, 90210, _kernel_result_136, _kernel_result_138);
+                            kernel_135<<<89, 1024>>>(dev_env, 90210, _kernel_result_136, _kernel_result_138);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
                                 cmd->result = _kernel_result_136;
                         
-                                    timeStartMeasure();
-                        
-                            if (_kernel_result_138 != cmd->result) {
-                                // Don't free memory if it is the result. There is already a similar check in
-                                // program_builder (free all except for last). However, this check is not sufficient in
-                                // case the same array is reused!
-                        
-                                checkErrorReturn(program_result, cudaFree(_kernel_result_138));
-                                // Remove from list of allocations
-                                program_result->device_allocations->erase(
-                                    std::remove(
-                                        program_result->device_allocations->begin(),
-                                        program_result->device_allocations->end(),
-                                        _kernel_result_138),
-                                    program_result->device_allocations->end());
-                            }
-                        
-                            timeReportMeasure(program_result, free_memory);
-                        
+                                
                             }
                         
                             variable_size_array_t((void *) cmd->result, 90210);
@@ -3533,7 +3353,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_181);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_180<<<353, 256>>>(dev_env, 90210, _kernel_result_181);
+                        kernel_180<<<89, 1024>>>(dev_env, 90210, _kernel_result_181);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
@@ -3556,7 +3376,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_185);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_184<<<353, 256>>>(dev_env, 90210, _kernel_result_185);
+                        kernel_184<<<89, 1024>>>(dev_env, 90210, _kernel_result_185);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3565,31 +3385,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_183);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_182<<<353, 256>>>(dev_env, 90210, _kernel_result_183, _kernel_result_185);
+                        kernel_182<<<89, 1024>>>(dev_env, 90210, _kernel_result_183, _kernel_result_185);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_183;
                     
-                                timeStartMeasure();
-                    
-                        if (_kernel_result_185 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_185));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_185),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 90210);
@@ -3606,7 +3408,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_190);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_189<<<353, 256>>>(dev_env, 90210, _kernel_result_190, ((int *) ((int *) cmd->input_0->input_0.content)));
+                        kernel_189<<<89, 1024>>>(dev_env, 90210, _kernel_result_190, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);    timeStartMeasure();
@@ -3615,31 +3417,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_188);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_187<<<353, 256>>>(dev_env, 90210, _kernel_result_188, _kernel_result_190);
+                        kernel_187<<<89, 1024>>>(dev_env, 90210, _kernel_result_188, _kernel_result_190);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
                             cmd->result = _kernel_result_188;
                     
-                                timeStartMeasure();
-                    
-                        if (_kernel_result_190 != cmd->result) {
-                            // Don't free memory if it is the result. There is already a similar check in
-                            // program_builder (free all except for last). However, this check is not sufficient in
-                            // case the same array is reused!
-                    
-                            checkErrorReturn(program_result, cudaFree(_kernel_result_190));
-                            // Remove from list of allocations
-                            program_result->device_allocations->erase(
-                                std::remove(
-                                    program_result->device_allocations->begin(),
-                                    program_result->device_allocations->end(),
-                                    _kernel_result_190),
-                                program_result->device_allocations->end());
-                        }
-                    
-                        timeReportMeasure(program_result, free_memory);
-                    
+                            
                         }
                     
                         variable_size_array_t((void *) cmd->result, 90210);

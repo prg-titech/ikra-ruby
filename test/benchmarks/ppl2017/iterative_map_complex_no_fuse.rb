@@ -3,7 +3,7 @@ require_relative "../benchmark_base"
 class IterativeMapComplexNoFuse < Test::Unit::TestCase
     include BenchmarkBase
 
-    DIMS = [20, 500, 500, 2]
+    DIMS = [20, 500, 500, 12]
 
     def execute
         base = Array.pnew(dimensions: DIMS) do |indices|

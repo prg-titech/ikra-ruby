@@ -4,7 +4,7 @@ class IterativeMapSimple100NoFuse < Test::Unit::TestCase
     include BenchmarkBase
 
     def execute
-        base = Array.pnew(dimensions: [20, 500, 500, 2]) do |indices|
+        base = Array.pnew(dimensions: [20, 500, 500, 12]) do |indices|
             (indices[2]) % 133777
         end
 

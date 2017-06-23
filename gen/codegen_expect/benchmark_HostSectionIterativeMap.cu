@@ -747,7 +747,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_6);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_5<<<2, 256>>>(dev_env, 511, _kernel_result_6);
+                            kernel_5<<<1, 511>>>(dev_env, 511, _kernel_result_6);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -770,7 +770,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_8);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_7<<<2, 256>>>(dev_env, 511, _kernel_result_8);
+                            kernel_7<<<1, 511>>>(dev_env, 511, _kernel_result_8);
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -793,7 +793,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_10);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_9<<<2, 256>>>(dev_env, 511, _kernel_result_10, ((int *) ((int *) cmd->input_0->input_0.content)));
+                            kernel_9<<<1, 511>>>(dev_env, 511, _kernel_result_10, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -829,7 +829,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_34);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_33<<<2, 256>>>(dev_env, 511, _kernel_result_34);
+                        kernel_33<<<1, 511>>>(dev_env, 511, _kernel_result_34);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
@@ -852,7 +852,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_36);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_35<<<2, 256>>>(dev_env, 511, _kernel_result_36);
+                        kernel_35<<<1, 511>>>(dev_env, 511, _kernel_result_36);
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
@@ -875,7 +875,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_38);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_37<<<2, 256>>>(dev_env, 511, _kernel_result_38, ((int *) ((int *) cmd->input_0->input_0.content)));
+                        kernel_37<<<1, 511>>>(dev_env, 511, _kernel_result_38, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);

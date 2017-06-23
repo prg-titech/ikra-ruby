@@ -1,5 +1,19 @@
 require_relative "../benchmark_base"
 
+# Disable Array tracing
+class Array
+    def ikra_type
+        inner_type = Ikra::Types::UnionType.new
+
+        inner_type.add(self.first.ikra_type)
+        #self.each do |element|
+        #    inner_type.add(element.ikra_type)
+        #end
+
+        return Ikra::Types::ArrayType.new(inner_type)
+    end
+end
+
 class Himeno < Test::Unit::TestCase
     include BenchmarkBase
 
@@ -67,6 +81,8 @@ class Himeno < Test::Unit::TestCase
     end
 
     def execute
+        Ikra::Translator::CommandTranslator::KernelLauncher.debug_free_previous_input_immediately = true
+
         i_max = 129
         j_max = 65
         k_max = 65  

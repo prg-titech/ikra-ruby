@@ -4,7 +4,9 @@ class Stencil10 < Test::Unit::TestCase
     include BenchmarkBase
 
     def execute
-        base = Array.pnew(dimensions: [20, 500, 500, 2]) do |indices|
+        Ikra::Translator::CommandTranslator::KernelLauncher.debug_free_previous_input_immediately = true
+
+        base = Array.pnew(dimensions: [20, 500, 500, 12]) do |indices|
             (indices[0] + indices[1]) % (indices[3] + indices[indices[1] % 4] + 7)
         end
 

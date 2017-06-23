@@ -301,7 +301,7 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     program_result->device_allocations->push_back(_kernel_result_37);
     timeReportMeasure(program_result, allocate_memory);
     timeStartMeasure();
-    kernel_36<<<157, 256>>>(dev_env, 40000, _kernel_result_37);
+    kernel_36<<<40, 1024>>>(dev_env, 40000, _kernel_result_37);
     checkErrorReturn(program_result, cudaPeekAtLastError());
     checkErrorReturn(program_result, cudaThreadSynchronize());
     timeReportMeasure(program_result, kernel);
@@ -321,6 +321,12 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     /* Free device memory */
         timeStartMeasure();
     checkErrorReturn(program_result, cudaFree(_kernel_result_37));
+    program_result->device_allocations->erase(
+        std::remove(
+            program_result->device_allocations->begin(),
+            program_result->device_allocations->end(),
+            _kernel_result_37),
+        program_result->device_allocations->end());
     timeReportMeasure(program_result, free_memory);
 
 

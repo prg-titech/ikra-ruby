@@ -256,15 +256,15 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
     
     
     {
-        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_125 = ((indices.field_1 % 4));
-        (_temp_var_125 == 0 ? indices.field_0 : (_temp_var_125 == 1 ? indices.field_1 : (_temp_var_125 == 2 ? indices.field_2 : (_temp_var_125 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
+        return (((indices.field_0 + indices.field_1)) % ((((indices.field_3 + ({ int _temp_var_1 = ((indices.field_1 % 4));
+        (_temp_var_1 == 0 ? indices.field_0 : (_temp_var_1 == 1 ? indices.field_1 : (_temp_var_1 == 2 ? indices.field_2 : (_temp_var_1 == 3 ? indices.field_3 : NULL)))); }))) + 7)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_149(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_21(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -272,7 +272,7 @@ __global__ void kernel_149(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
@@ -288,43 +288,43 @@ __device__ int _block_k_3_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_126 = ((({ int _temp_var_127 = ((({ int _temp_var_128 = ((values[2] % 4));
-        (_temp_var_128 == 0 ? indices.field_0 : (_temp_var_128 == 1 ? indices.field_1 : (_temp_var_128 == 2 ? indices.field_2 : (_temp_var_128 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_127 == 0 ? indices.field_0 : (_temp_var_127 == 1 ? indices.field_1 : (_temp_var_127 == 2 ? indices.field_2 : (_temp_var_127 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_126 == 0 ? indices.field_0 : (_temp_var_126 == 1 ? indices.field_1 : (_temp_var_126 == 2 ? indices.field_2 : (_temp_var_126 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_2 = ((({ int _temp_var_3 = ((({ int _temp_var_4 = ((values[2] % 4));
+        (_temp_var_4 == 0 ? indices.field_0 : (_temp_var_4 == 1 ? indices.field_1 : (_temp_var_4 == 2 ? indices.field_2 : (_temp_var_4 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_3 == 0 ? indices.field_0 : (_temp_var_3 == 1 ? indices.field_1 : (_temp_var_3 == 2 ? indices.field_2 : (_temp_var_3 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_2 == 0 ? indices.field_0 : (_temp_var_2 == 1 ? indices.field_1 : (_temp_var_2 == 2 ? indices.field_2 : (_temp_var_2 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_147(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_150)
+__global__ void kernel_19(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_22)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_151;
+    int temp_stencil_23;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_151 = _block_k_3_(_env_, _kernel_result_150[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_150[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_150[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_150[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_23 = _block_k_3_(_env_, _kernel_result_22[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_22[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_22[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_22[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_151 = 37;
+        temp_stencil_23 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_151;
+        _result_[_tid_] = temp_stencil_23;
     }
 }
 
@@ -340,43 +340,43 @@ __device__ int _block_k_5_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_129 = ((({ int _temp_var_130 = ((({ int _temp_var_131 = ((values[2] % 4));
-        (_temp_var_131 == 0 ? indices.field_0 : (_temp_var_131 == 1 ? indices.field_1 : (_temp_var_131 == 2 ? indices.field_2 : (_temp_var_131 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_130 == 0 ? indices.field_0 : (_temp_var_130 == 1 ? indices.field_1 : (_temp_var_130 == 2 ? indices.field_2 : (_temp_var_130 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_129 == 0 ? indices.field_0 : (_temp_var_129 == 1 ? indices.field_1 : (_temp_var_129 == 2 ? indices.field_2 : (_temp_var_129 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_5 = ((({ int _temp_var_6 = ((({ int _temp_var_7 = ((values[2] % 4));
+        (_temp_var_7 == 0 ? indices.field_0 : (_temp_var_7 == 1 ? indices.field_1 : (_temp_var_7 == 2 ? indices.field_2 : (_temp_var_7 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_6 == 0 ? indices.field_0 : (_temp_var_6 == 1 ? indices.field_1 : (_temp_var_6 == 2 ? indices.field_2 : (_temp_var_6 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_5 == 0 ? indices.field_0 : (_temp_var_5 == 1 ? indices.field_1 : (_temp_var_5 == 2 ? indices.field_2 : (_temp_var_5 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_145(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_148)
+__global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_20)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_152;
+    int temp_stencil_24;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_152 = _block_k_5_(_env_, _kernel_result_148[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_148[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_148[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_148[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_24 = _block_k_5_(_env_, _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_20[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_152 = 37;
+        temp_stencil_24 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_152;
+        _result_[_tid_] = temp_stencil_24;
     }
 }
 
@@ -392,43 +392,43 @@ __device__ int _block_k_7_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_132 = ((({ int _temp_var_133 = ((({ int _temp_var_134 = ((values[2] % 4));
-        (_temp_var_134 == 0 ? indices.field_0 : (_temp_var_134 == 1 ? indices.field_1 : (_temp_var_134 == 2 ? indices.field_2 : (_temp_var_134 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_133 == 0 ? indices.field_0 : (_temp_var_133 == 1 ? indices.field_1 : (_temp_var_133 == 2 ? indices.field_2 : (_temp_var_133 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_132 == 0 ? indices.field_0 : (_temp_var_132 == 1 ? indices.field_1 : (_temp_var_132 == 2 ? indices.field_2 : (_temp_var_132 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_8 = ((({ int _temp_var_9 = ((({ int _temp_var_10 = ((values[2] % 4));
+        (_temp_var_10 == 0 ? indices.field_0 : (_temp_var_10 == 1 ? indices.field_1 : (_temp_var_10 == 2 ? indices.field_2 : (_temp_var_10 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_9 == 0 ? indices.field_0 : (_temp_var_9 == 1 ? indices.field_1 : (_temp_var_9 == 2 ? indices.field_2 : (_temp_var_9 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_8 == 0 ? indices.field_0 : (_temp_var_8 == 1 ? indices.field_1 : (_temp_var_8 == 2 ? indices.field_2 : (_temp_var_8 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_143(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_146)
+__global__ void kernel_15(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_18)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_153;
+    int temp_stencil_25;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_153 = _block_k_7_(_env_, _kernel_result_146[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_146[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_146[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_146[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_25 = _block_k_7_(_env_, _kernel_result_18[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_18[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_18[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_18[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_153 = 37;
+        temp_stencil_25 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_153;
+        _result_[_tid_] = temp_stencil_25;
     }
 }
 
@@ -444,43 +444,43 @@ __device__ int _block_k_9_(environment_t *_env_, int _values_0, int _values_1, i
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_135 = ((({ int _temp_var_136 = ((({ int _temp_var_137 = ((values[2] % 4));
-        (_temp_var_137 == 0 ? indices.field_0 : (_temp_var_137 == 1 ? indices.field_1 : (_temp_var_137 == 2 ? indices.field_2 : (_temp_var_137 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_136 == 0 ? indices.field_0 : (_temp_var_136 == 1 ? indices.field_1 : (_temp_var_136 == 2 ? indices.field_2 : (_temp_var_136 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_135 == 0 ? indices.field_0 : (_temp_var_135 == 1 ? indices.field_1 : (_temp_var_135 == 2 ? indices.field_2 : (_temp_var_135 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_11 = ((({ int _temp_var_12 = ((({ int _temp_var_13 = ((values[2] % 4));
+        (_temp_var_13 == 0 ? indices.field_0 : (_temp_var_13 == 1 ? indices.field_1 : (_temp_var_13 == 2 ? indices.field_2 : (_temp_var_13 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_12 == 0 ? indices.field_0 : (_temp_var_12 == 1 ? indices.field_1 : (_temp_var_12 == 2 ? indices.field_2 : (_temp_var_12 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_11 == 0 ? indices.field_0 : (_temp_var_11 == 1 ? indices.field_1 : (_temp_var_11 == 2 ? indices.field_2 : (_temp_var_11 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_141(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_144)
+__global__ void kernel_13(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_16)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_154;
+    int temp_stencil_26;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_154 = _block_k_9_(_env_, _kernel_result_144[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_144[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_144[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_144[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_26 = _block_k_9_(_env_, _kernel_result_16[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_16[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_16[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_16[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_154 = 37;
+        temp_stencil_26 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_154;
+        _result_[_tid_] = temp_stencil_26;
     }
 }
 
@@ -496,43 +496,43 @@ __device__ int _block_k_11_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_138 = ((({ int _temp_var_139 = ((({ int _temp_var_140 = ((values[2] % 4));
-        (_temp_var_140 == 0 ? indices.field_0 : (_temp_var_140 == 1 ? indices.field_1 : (_temp_var_140 == 2 ? indices.field_2 : (_temp_var_140 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_139 == 0 ? indices.field_0 : (_temp_var_139 == 1 ? indices.field_1 : (_temp_var_139 == 2 ? indices.field_2 : (_temp_var_139 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_138 == 0 ? indices.field_0 : (_temp_var_138 == 1 ? indices.field_1 : (_temp_var_138 == 2 ? indices.field_2 : (_temp_var_138 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_14 = ((({ int _temp_var_15 = ((({ int _temp_var_16 = ((values[2] % 4));
+        (_temp_var_16 == 0 ? indices.field_0 : (_temp_var_16 == 1 ? indices.field_1 : (_temp_var_16 == 2 ? indices.field_2 : (_temp_var_16 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_15 == 0 ? indices.field_0 : (_temp_var_15 == 1 ? indices.field_1 : (_temp_var_15 == 2 ? indices.field_2 : (_temp_var_15 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_14 == 0 ? indices.field_0 : (_temp_var_14 == 1 ? indices.field_1 : (_temp_var_14 == 2 ? indices.field_2 : (_temp_var_14 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_139(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_142)
+__global__ void kernel_11(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_14)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_155;
+    int temp_stencil_27;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_155 = _block_k_11_(_env_, _kernel_result_142[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_142[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_142[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_142[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_27 = _block_k_11_(_env_, _kernel_result_14[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_14[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_14[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_14[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_155 = 37;
+        temp_stencil_27 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_155;
+        _result_[_tid_] = temp_stencil_27;
     }
 }
 
@@ -548,43 +548,43 @@ __device__ int _block_k_13_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_141 = ((({ int _temp_var_142 = ((({ int _temp_var_143 = ((values[2] % 4));
-        (_temp_var_143 == 0 ? indices.field_0 : (_temp_var_143 == 1 ? indices.field_1 : (_temp_var_143 == 2 ? indices.field_2 : (_temp_var_143 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_142 == 0 ? indices.field_0 : (_temp_var_142 == 1 ? indices.field_1 : (_temp_var_142 == 2 ? indices.field_2 : (_temp_var_142 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_141 == 0 ? indices.field_0 : (_temp_var_141 == 1 ? indices.field_1 : (_temp_var_141 == 2 ? indices.field_2 : (_temp_var_141 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_17 = ((({ int _temp_var_18 = ((({ int _temp_var_19 = ((values[2] % 4));
+        (_temp_var_19 == 0 ? indices.field_0 : (_temp_var_19 == 1 ? indices.field_1 : (_temp_var_19 == 2 ? indices.field_2 : (_temp_var_19 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_18 == 0 ? indices.field_0 : (_temp_var_18 == 1 ? indices.field_1 : (_temp_var_18 == 2 ? indices.field_2 : (_temp_var_18 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_17 == 0 ? indices.field_0 : (_temp_var_17 == 1 ? indices.field_1 : (_temp_var_17 == 2 ? indices.field_2 : (_temp_var_17 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_137(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_140)
+__global__ void kernel_9(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_12)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_156;
+    int temp_stencil_28;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_156 = _block_k_13_(_env_, _kernel_result_140[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_140[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_140[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_140[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_28 = _block_k_13_(_env_, _kernel_result_12[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_12[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_12[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_12[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_156 = 37;
+        temp_stencil_28 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_156;
+        _result_[_tid_] = temp_stencil_28;
     }
 }
 
@@ -600,43 +600,43 @@ __device__ int _block_k_15_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_144 = ((({ int _temp_var_145 = ((({ int _temp_var_146 = ((values[2] % 4));
-        (_temp_var_146 == 0 ? indices.field_0 : (_temp_var_146 == 1 ? indices.field_1 : (_temp_var_146 == 2 ? indices.field_2 : (_temp_var_146 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_145 == 0 ? indices.field_0 : (_temp_var_145 == 1 ? indices.field_1 : (_temp_var_145 == 2 ? indices.field_2 : (_temp_var_145 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_144 == 0 ? indices.field_0 : (_temp_var_144 == 1 ? indices.field_1 : (_temp_var_144 == 2 ? indices.field_2 : (_temp_var_144 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_20 = ((({ int _temp_var_21 = ((({ int _temp_var_22 = ((values[2] % 4));
+        (_temp_var_22 == 0 ? indices.field_0 : (_temp_var_22 == 1 ? indices.field_1 : (_temp_var_22 == 2 ? indices.field_2 : (_temp_var_22 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_21 == 0 ? indices.field_0 : (_temp_var_21 == 1 ? indices.field_1 : (_temp_var_21 == 2 ? indices.field_2 : (_temp_var_21 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_20 == 0 ? indices.field_0 : (_temp_var_20 == 1 ? indices.field_1 : (_temp_var_20 == 2 ? indices.field_2 : (_temp_var_20 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_135(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_138)
+__global__ void kernel_7(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_10)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_157;
+    int temp_stencil_29;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_157 = _block_k_15_(_env_, _kernel_result_138[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_138[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_138[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_138[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_29 = _block_k_15_(_env_, _kernel_result_10[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_10[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_10[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_10[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_157 = 37;
+        temp_stencil_29 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_157;
+        _result_[_tid_] = temp_stencil_29;
     }
 }
 
@@ -652,43 +652,43 @@ __device__ int _block_k_17_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_147 = ((({ int _temp_var_148 = ((({ int _temp_var_149 = ((values[2] % 4));
-        (_temp_var_149 == 0 ? indices.field_0 : (_temp_var_149 == 1 ? indices.field_1 : (_temp_var_149 == 2 ? indices.field_2 : (_temp_var_149 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_148 == 0 ? indices.field_0 : (_temp_var_148 == 1 ? indices.field_1 : (_temp_var_148 == 2 ? indices.field_2 : (_temp_var_148 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_147 == 0 ? indices.field_0 : (_temp_var_147 == 1 ? indices.field_1 : (_temp_var_147 == 2 ? indices.field_2 : (_temp_var_147 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_23 = ((({ int _temp_var_24 = ((({ int _temp_var_25 = ((values[2] % 4));
+        (_temp_var_25 == 0 ? indices.field_0 : (_temp_var_25 == 1 ? indices.field_1 : (_temp_var_25 == 2 ? indices.field_2 : (_temp_var_25 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_24 == 0 ? indices.field_0 : (_temp_var_24 == 1 ? indices.field_1 : (_temp_var_24 == 2 ? indices.field_2 : (_temp_var_24 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_23 == 0 ? indices.field_0 : (_temp_var_23 == 1 ? indices.field_1 : (_temp_var_23 == 2 ? indices.field_2 : (_temp_var_23 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_133(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_136)
+__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_8)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_158;
+    int temp_stencil_30;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_158 = _block_k_17_(_env_, _kernel_result_136[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_136[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_136[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_136[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_30 = _block_k_17_(_env_, _kernel_result_8[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_8[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_8[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_8[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_158 = 37;
+        temp_stencil_30 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_158;
+        _result_[_tid_] = temp_stencil_30;
     }
 }
 
@@ -704,43 +704,43 @@ __device__ int _block_k_19_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_150 = ((({ int _temp_var_151 = ((({ int _temp_var_152 = ((values[2] % 4));
-        (_temp_var_152 == 0 ? indices.field_0 : (_temp_var_152 == 1 ? indices.field_1 : (_temp_var_152 == 2 ? indices.field_2 : (_temp_var_152 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_151 == 0 ? indices.field_0 : (_temp_var_151 == 1 ? indices.field_1 : (_temp_var_151 == 2 ? indices.field_2 : (_temp_var_151 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_150 == 0 ? indices.field_0 : (_temp_var_150 == 1 ? indices.field_1 : (_temp_var_150 == 2 ? indices.field_2 : (_temp_var_150 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_26 = ((({ int _temp_var_27 = ((({ int _temp_var_28 = ((values[2] % 4));
+        (_temp_var_28 == 0 ? indices.field_0 : (_temp_var_28 == 1 ? indices.field_1 : (_temp_var_28 == 2 ? indices.field_2 : (_temp_var_28 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_27 == 0 ? indices.field_0 : (_temp_var_27 == 1 ? indices.field_1 : (_temp_var_27 == 2 ? indices.field_2 : (_temp_var_27 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_26 == 0 ? indices.field_0 : (_temp_var_26 == 1 ? indices.field_1 : (_temp_var_26 == 2 ? indices.field_2 : (_temp_var_26 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_131(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_134)
+__global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_6)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_159;
+    int temp_stencil_31;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_159 = _block_k_19_(_env_, _kernel_result_134[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_134[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_134[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_134[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_31 = _block_k_19_(_env_, _kernel_result_6[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_6[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_6[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_6[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_159 = 37;
+        temp_stencil_31 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_159;
+        _result_[_tid_] = temp_stencil_31;
     }
 }
 
@@ -756,43 +756,43 @@ __device__ int _block_k_21_(environment_t *_env_, int _values_0, int _values_1, 
     int values[] = { _values_0, _values_1, _values_2, _values_3 };
     
     {
-        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_153 = ((({ int _temp_var_154 = ((({ int _temp_var_155 = ((values[2] % 4));
-        (_temp_var_155 == 0 ? indices.field_0 : (_temp_var_155 == 1 ? indices.field_1 : (_temp_var_155 == 2 ? indices.field_2 : (_temp_var_155 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_154 == 0 ? indices.field_0 : (_temp_var_154 == 1 ? indices.field_1 : (_temp_var_154 == 2 ? indices.field_2 : (_temp_var_154 == 3 ? indices.field_3 : NULL)))); }) % 4));
-        (_temp_var_153 == 0 ? indices.field_0 : (_temp_var_153 == 1 ? indices.field_1 : (_temp_var_153 == 2 ? indices.field_2 : (_temp_var_153 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
+        return (((((((values[0] % 938)) + ((values[1] / 97)))) % 97717)) + ((((({ int _temp_var_29 = ((({ int _temp_var_30 = ((({ int _temp_var_31 = ((values[2] % 4));
+        (_temp_var_31 == 0 ? indices.field_0 : (_temp_var_31 == 1 ? indices.field_1 : (_temp_var_31 == 2 ? indices.field_2 : (_temp_var_31 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_30 == 0 ? indices.field_0 : (_temp_var_30 == 1 ? indices.field_1 : (_temp_var_30 == 2 ? indices.field_2 : (_temp_var_30 == 3 ? indices.field_3 : NULL)))); }) % 4));
+        (_temp_var_29 == 0 ? indices.field_0 : (_temp_var_29 == 1 ? indices.field_1 : (_temp_var_29 == 2 ? indices.field_2 : (_temp_var_29 == 3 ? indices.field_3 : NULL)))); }) * ((values[3] % 7)))) % 99)));
     }
 }
 
 #endif
 
 
-__global__ void kernel_129(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_132)
+__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_, int *_kernel_result_4)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (_tid_ < _num_threads_)
     {
-    int temp_stencil_160;
+    int temp_stencil_32;
 
     // Indices for all dimensions
-    int temp_stencil_dim_0 = _tid_ / 500000;
-int temp_stencil_dim_1 = (_tid_ / 1000) % 500;
-int temp_stencil_dim_2 = (_tid_ / 2) % 500;
-int temp_stencil_dim_3 = (_tid_ / 1) % 2;
+    int temp_stencil_dim_0 = _tid_ / 3000000;
+int temp_stencil_dim_1 = (_tid_ / 6000) % 500;
+int temp_stencil_dim_2 = (_tid_ / 12) % 500;
+int temp_stencil_dim_3 = (_tid_ / 1) % 12;
 
-    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 2)
+    if (temp_stencil_dim_0 + -1 >= 0 && temp_stencil_dim_0 + 1 < 20 && temp_stencil_dim_1 + -1 >= 0 && temp_stencil_dim_1 + 0 < 500 && temp_stencil_dim_2 + 0 >= 0 && temp_stencil_dim_2 + 0 < 500 && temp_stencil_dim_3 + 0 >= 0 && temp_stencil_dim_3 + 0 < 12)
     {
         // All value indices within bounds
         
-        temp_stencil_160 = _block_k_21_(_env_, _kernel_result_132[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + -1) * 500000], _kernel_result_132[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 0) * 500000], _kernel_result_132[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + 0) * 1000 + (temp_stencil_dim_0 + 1) * 500000], _kernel_result_132[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 2 + (temp_stencil_dim_1 + -1) * 1000 + (temp_stencil_dim_0 + -1) * 500000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        temp_stencil_32 = _block_k_21_(_env_, _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 0) * 3000000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + 0) * 6000 + (temp_stencil_dim_0 + 1) * 3000000], _kernel_result_4[(temp_stencil_dim_3 + 0) * 1 + (temp_stencil_dim_2 + 0) * 12 + (temp_stencil_dim_1 + -1) * 6000 + (temp_stencil_dim_0 + -1) * 3000000], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
     else
     {
         // At least one index is out of bounds
-        temp_stencil_160 = 37;
+        temp_stencil_32 = 37;
     }
         
-        _result_[_tid_] = temp_stencil_160;
+        _result_[_tid_] = temp_stencil_32;
     }
 }
 
@@ -832,304 +832,220 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
         _ssa_var_base_9 = new array_command_19(NULL, _ssa_var_base_8);
         _ssa_var_base_10 = new array_command_21(NULL, _ssa_var_base_9);
         return ({
-            // [Ikra::Symbolic::ArrayStencilCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_9].pstencil([ArrayNode: [[ArrayNode: [<-1>, <0>, <0>, <0>]], [ArrayNode: [<0>, <0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>, <0>]], [ArrayNode: [<-1>, <-1>, <0>, <0>]]]]; <37>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            // [Ikra::Symbolic::ArrayStencilCommand, size = 60000000]: [SendNode: [LVarReadNode: _ssa_var_base_9].pstencil([ArrayNode: [[ArrayNode: [<-1>, <0>, <0>, <0>]], [ArrayNode: [<0>, <0>, <0>, <0>]], [ArrayNode: [<1>, <0>, <0>, <0>]], [ArrayNode: [<-1>, <-1>, <0>, <0>]]]]; <37>; [HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
         
             array_command_21 * cmd = _ssa_var_base_10;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_150;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_150, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_150);
+            int * _kernel_result_22;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_22, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_22);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_149<<<39063, 256>>>(dev_env, 10000000, _kernel_result_150);
+            kernel_21<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_22);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_148;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_148, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_148);
+            int * _kernel_result_20;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_20, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_20);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_147<<<39063, 256>>>(dev_env, 10000000, _kernel_result_148, _kernel_result_150);
+            kernel_19<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_20, _kernel_result_22);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_146;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_146, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_146);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_22));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_22),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_18;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_18, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_18);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_145<<<39063, 256>>>(dev_env, 10000000, _kernel_result_146, _kernel_result_148);
+            kernel_17<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_18, _kernel_result_20);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_144;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_144, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_144);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_20));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_20),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_16;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_16, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_16);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_143<<<39063, 256>>>(dev_env, 10000000, _kernel_result_144, _kernel_result_146);
+            kernel_15<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_16, _kernel_result_18);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_142;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_142, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_142);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_18));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_18),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_14;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_14, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_14);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_141<<<39063, 256>>>(dev_env, 10000000, _kernel_result_142, _kernel_result_144);
+            kernel_13<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_14, _kernel_result_16);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_140;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_140, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_140);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_16));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_16),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_12;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_12, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_12);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_139<<<39063, 256>>>(dev_env, 10000000, _kernel_result_140, _kernel_result_142);
+            kernel_11<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_12, _kernel_result_14);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_138;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_138, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_138);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_14));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_14),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_10;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_10, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_10);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_137<<<39063, 256>>>(dev_env, 10000000, _kernel_result_138, _kernel_result_140);
+            kernel_9<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_10, _kernel_result_12);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_136;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_136, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_136);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_12));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_12),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_8;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_8, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_8);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_135<<<39063, 256>>>(dev_env, 10000000, _kernel_result_136, _kernel_result_138);
+            kernel_7<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_8, _kernel_result_10);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_134;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_134, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_134);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_10));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_10),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_6;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_6);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_133<<<39063, 256>>>(dev_env, 10000000, _kernel_result_134, _kernel_result_136);
+            kernel_5<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_6, _kernel_result_8);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_132;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_132, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_132);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_8));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_8),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_4;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_4, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_4);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_131<<<39063, 256>>>(dev_env, 10000000, _kernel_result_132, _kernel_result_134);
+            kernel_3<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_4, _kernel_result_6);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);    timeStartMeasure();
-            int * _kernel_result_130;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_130, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_130);
+            checkErrorReturn(program_result, cudaFree(_kernel_result_6));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_6),
+                program_result->device_allocations->end());
+            timeReportMeasure(program_result, free_memory);
+            timeStartMeasure();
+            int * _kernel_result_2;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_2);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_129<<<39063, 256>>>(dev_env, 10000000, _kernel_result_130, _kernel_result_132);
+            kernel_1<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_2, _kernel_result_4);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
-            timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_130;
-        
-                    timeStartMeasure();
-        
-            if (_kernel_result_150 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_150));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_150),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_148 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_148));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_148),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_146 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_146));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_146),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_144 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_144));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_144),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_142 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_142));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_142),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_140 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_140));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_140),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_138 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_138));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_138),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_136 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_136));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_136),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_134 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_134));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_134),
-                    program_result->device_allocations->end());
-            }
-        
-            timeReportMeasure(program_result, free_memory);
-            timeStartMeasure();
-        
-            if (_kernel_result_132 != cmd->result) {
-                // Don't free memory if it is the result. There is already a similar check in
-                // program_builder (free all except for last). However, this check is not sufficient in
-                // case the same array is reused!
-        
-                checkErrorReturn(program_result, cudaFree(_kernel_result_132));
-                // Remove from list of allocations
-                program_result->device_allocations->erase(
-                    std::remove(
-                        program_result->device_allocations->begin(),
-                        program_result->device_allocations->end(),
-                        _kernel_result_132),
-                    program_result->device_allocations->end());
-            }
-        
+            timeReportMeasure(program_result, kernel);    timeStartMeasure();
+            checkErrorReturn(program_result, cudaFree(_kernel_result_4));
+            program_result->device_allocations->erase(
+                std::remove(
+                    program_result->device_allocations->begin(),
+                    program_result->device_allocations->end(),
+                    _kernel_result_4),
+                program_result->device_allocations->end());
             timeReportMeasure(program_result, free_memory);
         
+                cmd->result = _kernel_result_2;
+        
+                
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
+            variable_size_array_t((void *) cmd->result, 60000000);
         });
     }
 }
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-expr
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

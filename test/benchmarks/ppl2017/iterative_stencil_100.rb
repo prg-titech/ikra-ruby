@@ -3,9 +3,11 @@ require_relative "../benchmark_base"
 class IterativeStencil100 < Test::Unit::TestCase
     include BenchmarkBase
 
-    DIMS = [20, 500, 500, 2]
+    DIMS = [20, 500, 500, 12]
 
     def execute
+        Ikra::Translator::CommandTranslator::KernelLauncher.debug_free_previous_input_immediately = true
+
         base = Array.pnew(dimensions: DIMS) do |indices|
             (indices[0] + indices[1]) % (indices[3] + indices[indices[1] % 4] + 7)
         end

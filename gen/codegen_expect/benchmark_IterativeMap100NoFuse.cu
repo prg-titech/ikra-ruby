@@ -522,7 +522,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
             program_result->device_allocations->push_back(_kernel_result_2);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_1<<<39063, 256>>>(dev_env, 10000000, _kernel_result_2);
+            kernel_1<<<9766, 1024>>>(dev_env, 10000000, _kernel_result_2);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
@@ -555,7 +555,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_6);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_5<<<39063, 256>>>(dev_env, 10000000, _kernel_result_6, ((int *) cmd->input_0.content));
+                            kernel_5<<<9766, 1024>>>(dev_env, 10000000, _kernel_result_6, ((int *) cmd->input_0.content));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -578,7 +578,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                             program_result->device_allocations->push_back(_kernel_result_9);
                             timeReportMeasure(program_result, allocate_memory);
                             timeStartMeasure();
-                            kernel_8<<<39063, 256>>>(dev_env, 10000000, _kernel_result_9, ((int *) ((int *) cmd->input_0->input_0.content)));
+                            kernel_8<<<9766, 1024>>>(dev_env, 10000000, _kernel_result_9, ((int *) ((int *) cmd->input_0->input_0.content)));
                             checkErrorReturn(program_result, cudaPeekAtLastError());
                             checkErrorReturn(program_result, cudaThreadSynchronize());
                             timeReportMeasure(program_result, kernel);
@@ -673,7 +673,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_30);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_29<<<39063, 256>>>(dev_env, 10000000, _kernel_result_30, ((int *) cmd->input_0.content));
+                        kernel_29<<<9766, 1024>>>(dev_env, 10000000, _kernel_result_30, ((int *) cmd->input_0.content));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
@@ -696,7 +696,7 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
                         program_result->device_allocations->push_back(_kernel_result_33);
                         timeReportMeasure(program_result, allocate_memory);
                         timeStartMeasure();
-                        kernel_32<<<39063, 256>>>(dev_env, 10000000, _kernel_result_33, ((int *) ((int *) cmd->input_0->input_0.content)));
+                        kernel_32<<<9766, 1024>>>(dev_env, 10000000, _kernel_result_33, ((int *) ((int *) cmd->input_0->input_0.content)));
                         checkErrorReturn(program_result, cudaPeekAtLastError());
                         checkErrorReturn(program_result, cudaThreadSynchronize());
                         timeReportMeasure(program_result, kernel);
@@ -716,7 +716,13 @@ variable_size_array_t _host_section__(environment_t *host_env, environment_t *de
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-expr
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

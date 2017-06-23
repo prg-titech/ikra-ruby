@@ -176,17 +176,17 @@ struct array_command_3 {
     __host__ __device__ array_command_3(int *result = NULL, variable_size_array_t input_0 = variable_size_array_t::error_return_value) : result(result), input_0(input_0) { }
     int size() { return input_0.size; }
 };
-struct array_command_5 {
+struct array_command_6 {
     // Ikra::Symbolic::ArrayIndexCommand
     indexed_struct_4_lt_int_int_int_int_gt_t *result;
-    __host__ __device__ array_command_5(indexed_struct_4_lt_int_int_int_int_gt_t *result = NULL) : result(result) { }
+    __host__ __device__ array_command_6(indexed_struct_4_lt_int_int_int_int_gt_t *result = NULL) : result(result) { }
 };
-struct array_command_4 {
+struct array_command_5 {
     // Ikra::Symbolic::ArrayCombineCommand
     int *result;
     array_command_3 *input_0;
-    array_command_5 *input_1;
-    __host__ __device__ array_command_4(int *result = NULL, array_command_3 *input_0 = NULL, array_command_5 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
+    array_command_6 *input_1;
+    __host__ __device__ array_command_5(int *result = NULL, array_command_3 *input_0 = NULL, array_command_6 *input_1 = NULL) : result(result), input_0(input_0), input_1(input_1) { }
 };
 struct environment_struct
 {
@@ -207,7 +207,7 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
 #endif
 
 
-__global__ void kernel_245(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_1(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -215,7 +215,7 @@ __global__ void kernel_245(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
@@ -236,7 +236,7 @@ __device__ int _block_k_2_(environment_t *_env_, indexed_struct_4_lt_int_int_int
 #endif
 
 
-__global__ void kernel_247(environment_t *_env_, int _num_threads_, int *_result_)
+__global__ void kernel_3(environment_t *_env_, int _num_threads_, int *_result_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -244,16 +244,76 @@ __global__ void kernel_247(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_2_(_env_, ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+
+__global__ void kernel_5(environment_t *_env_, int _num_threads_, int *_result_, int *_array_7_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_7_[_tid_];
+    }
+}
+
+
+
+
+__global__ void kernel_8(environment_t *_env_, int _num_threads_, int *_result_, int *_array_10_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_10_[_tid_];
+    }
+}
+
+
+
+
+__global__ void kernel_11(environment_t *_env_, int _num_threads_, int *_result_, int *_array_13_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_13_[_tid_];
+    }
+}
+
+
+
+
+__global__ void kernel_14(environment_t *_env_, int _num_threads_, int *_result_, int *_array_16_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _array_16_[_tid_];
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -266,7 +326,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_249(environment_t *_env_, int _num_threads_, int *_result_, int *_array_251_)
+__global__ void kernel_17(environment_t *_env_, int _num_threads_, int *_result_, int *_array_19_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -274,16 +334,16 @@ __global__ void kernel_249(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_251_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_19_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -296,7 +356,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_252(environment_t *_env_, int _num_threads_, int *_result_, int *_array_254_)
+__global__ void kernel_20(environment_t *_env_, int _num_threads_, int *_result_, int *_array_22_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -304,16 +364,16 @@ __global__ void kernel_252(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_254_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_22_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -326,7 +386,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_255(environment_t *_env_, int _num_threads_, int *_result_, int *_array_257_)
+__global__ void kernel_23(environment_t *_env_, int _num_threads_, int *_result_, int *_array_25_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -334,16 +394,16 @@ __global__ void kernel_255(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_257_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_25_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -356,7 +416,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_258(environment_t *_env_, int _num_threads_, int *_result_, int *_array_260_)
+__global__ void kernel_26(environment_t *_env_, int _num_threads_, int *_result_, int *_array_28_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -364,16 +424,16 @@ __global__ void kernel_258(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_260_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_28_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -386,7 +446,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_261(environment_t *_env_, int _num_threads_, int *_result_, int *_array_263_)
+__global__ void kernel_29(environment_t *_env_, int _num_threads_, int *_result_, int *_array_31_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -394,16 +454,16 @@ __global__ void kernel_261(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_263_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_31_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -416,7 +476,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_264(environment_t *_env_, int _num_threads_, int *_result_, int *_array_266_)
+__global__ void kernel_32(environment_t *_env_, int _num_threads_, int *_result_, int *_array_34_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -424,16 +484,16 @@ __global__ void kernel_264(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_266_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_34_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -446,7 +506,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_267(environment_t *_env_, int _num_threads_, int *_result_, int *_array_269_)
+__global__ void kernel_35(environment_t *_env_, int _num_threads_, int *_result_, int *_array_37_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -454,16 +514,16 @@ __global__ void kernel_267(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_269_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_37_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -476,7 +536,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_270(environment_t *_env_, int _num_threads_, int *_result_, int *_array_272_)
+__global__ void kernel_38(environment_t *_env_, int _num_threads_, int *_result_, int *_array_40_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -484,16 +544,16 @@ __global__ void kernel_270(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_272_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_40_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -506,7 +566,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_273(environment_t *_env_, int _num_threads_, int *_result_, int *_array_275_)
+__global__ void kernel_41(environment_t *_env_, int _num_threads_, int *_result_, int *_array_43_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -514,16 +574,16 @@ __global__ void kernel_273(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_275_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_43_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -536,7 +596,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_276(environment_t *_env_, int _num_threads_, int *_result_, int *_array_278_)
+__global__ void kernel_44(environment_t *_env_, int _num_threads_, int *_result_, int *_array_46_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -544,16 +604,16 @@ __global__ void kernel_276(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_278_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_46_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -566,7 +626,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_279(environment_t *_env_, int _num_threads_, int *_result_, int *_array_281_)
+__global__ void kernel_47(environment_t *_env_, int _num_threads_, int *_result_, int *_array_49_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -574,16 +634,16 @@ __global__ void kernel_279(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_281_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_49_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -596,7 +656,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_282(environment_t *_env_, int _num_threads_, int *_result_, int *_array_284_)
+__global__ void kernel_50(environment_t *_env_, int _num_threads_, int *_result_, int *_array_52_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -604,16 +664,16 @@ __global__ void kernel_282(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_284_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_52_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -626,7 +686,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_285(environment_t *_env_, int _num_threads_, int *_result_, int *_array_287_)
+__global__ void kernel_53(environment_t *_env_, int _num_threads_, int *_result_, int *_array_55_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -634,16 +694,16 @@ __global__ void kernel_285(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_287_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_55_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -656,7 +716,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_288(environment_t *_env_, int _num_threads_, int *_result_, int *_array_290_)
+__global__ void kernel_56(environment_t *_env_, int _num_threads_, int *_result_, int *_array_58_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -664,16 +724,16 @@ __global__ void kernel_288(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_290_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_58_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -686,7 +746,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_291(environment_t *_env_, int _num_threads_, int *_result_, int *_array_293_)
+__global__ void kernel_59(environment_t *_env_, int _num_threads_, int *_result_, int *_array_61_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -694,16 +754,16 @@ __global__ void kernel_291(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_293_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_61_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -716,7 +776,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_294(environment_t *_env_, int _num_threads_, int *_result_, int *_array_296_)
+__global__ void kernel_62(environment_t *_env_, int _num_threads_, int *_result_, int *_array_64_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -724,16 +784,16 @@ __global__ void kernel_294(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_296_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_64_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -746,7 +806,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_297(environment_t *_env_, int _num_threads_, int *_result_, int *_array_299_)
+__global__ void kernel_65(environment_t *_env_, int _num_threads_, int *_result_, int *_array_67_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -754,16 +814,16 @@ __global__ void kernel_297(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_299_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_67_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -776,7 +836,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_300(environment_t *_env_, int _num_threads_, int *_result_, int *_array_302_)
+__global__ void kernel_68(environment_t *_env_, int _num_threads_, int *_result_, int *_array_70_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -784,16 +844,16 @@ __global__ void kernel_300(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_302_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_70_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
 
 
-// TODO: There should be a better to check if _block_k_4_ is already defined
-#ifndef _block_k_4__func
-#define _block_k_4__func
-__device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
 {
     
     
@@ -806,7 +866,7 @@ __device__ int _block_k_4_(environment_t *_env_, int i, indexed_struct_4_lt_int_
 #endif
 
 
-__global__ void kernel_303(environment_t *_env_, int _num_threads_, int *_result_, int *_array_305_)
+__global__ void kernel_71(environment_t *_env_, int _num_threads_, int *_result_, int *_array_73_)
 {
     int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -814,7 +874,547 @@ __global__ void kernel_303(environment_t *_env_, int _num_threads_, int *_result
     {
 
         
-        _result_[_tid_] = _block_k_4_(_env_, _array_305_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 500000, (_tid_ / 1000) % 500, (_tid_ / 2) % 500, (_tid_ / 1) % 2}));
+        _result_[_tid_] = _block_k_5_(_env_, _array_73_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_74(environment_t *_env_, int _num_threads_, int *_result_, int *_array_76_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_76_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_77(environment_t *_env_, int _num_threads_, int *_result_, int *_array_79_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_79_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_80(environment_t *_env_, int _num_threads_, int *_result_, int *_array_82_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_82_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_83(environment_t *_env_, int _num_threads_, int *_result_, int *_array_85_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_85_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_86(environment_t *_env_, int _num_threads_, int *_result_, int *_array_88_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_88_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_89(environment_t *_env_, int _num_threads_, int *_result_, int *_array_91_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_91_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_92(environment_t *_env_, int _num_threads_, int *_result_, int *_array_94_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_94_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_95(environment_t *_env_, int _num_threads_, int *_result_, int *_array_97_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_97_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_98(environment_t *_env_, int _num_threads_, int *_result_, int *_array_100_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_100_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_101(environment_t *_env_, int _num_threads_, int *_result_, int *_array_103_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_103_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_104(environment_t *_env_, int _num_threads_, int *_result_, int *_array_106_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_106_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_107(environment_t *_env_, int _num_threads_, int *_result_, int *_array_109_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_109_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_110(environment_t *_env_, int _num_threads_, int *_result_, int *_array_112_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_112_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_113(environment_t *_env_, int _num_threads_, int *_result_, int *_array_115_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_115_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_116(environment_t *_env_, int _num_threads_, int *_result_, int *_array_118_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_118_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_119(environment_t *_env_, int _num_threads_, int *_result_, int *_array_121_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_121_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_122(environment_t *_env_, int _num_threads_, int *_result_, int *_array_124_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_124_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
+    }
+}
+
+
+
+// TODO: There should be a better to check if _block_k_5_ is already defined
+#ifndef _block_k_5__func
+#define _block_k_5__func
+__device__ int _block_k_5_(environment_t *_env_, int i, indexed_struct_4_lt_int_int_int_int_gt_t indices)
+{
+    
+    
+    
+    {
+        return (((((((((i + indices.field_0)) + indices.field_1)) + indices.field_2)) + indices.field_3)) % 1337);
+    }
+}
+
+#endif
+
+
+__global__ void kernel_125(environment_t *_env_, int _num_threads_, int *_result_, int *_array_127_)
+{
+    int _tid_ = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (_tid_ < _num_threads_)
+    {
+
+        
+        _result_[_tid_] = _block_k_5_(_env_, _array_127_[_tid_], ((indexed_struct_4_lt_int_int_int_int_gt_t) {_tid_ / 3000000, (_tid_ / 6000) % 500, (_tid_ / 12) % 500, (_tid_ / 1) % 12}));
     }
 }
 
@@ -832,278 +1432,568 @@ if (result_var->last_error = expr) \
 variable_size_array_t _host_section__(environment_t *host_env, environment_t *dev_env, result_t *program_result)
 {
     array_command_2 * base = new array_command_2();
-    array_command_4 * _ssa_var_base_11;
-    array_command_3 * _ssa_var_base_10;
-    array_command_3 * _ssa_var_base_9;
-    array_command_3 * _ssa_var_base_8;
-    array_command_3 * _ssa_var_base_7;
-    array_command_3 * _ssa_var_base_6;
-    array_command_3 * _ssa_var_base_5;
-    array_command_3 * _ssa_var_base_4;
-    array_command_3 * _ssa_var_base_3;
-    array_command_3 * _ssa_var_base_2;
-    array_command_3 * _ssa_var_base_1;
+    array_command_5 * _ssa_var_old_data_22;
+    array_command_5 * _ssa_var_y_21;
+    array_command_5 * _ssa_var_old_data_20;
+    array_command_5 * _ssa_var_y_19;
+    array_command_5 * _ssa_var_old_data_18;
+    array_command_5 * _ssa_var_y_17;
+    array_command_5 * _ssa_var_old_data_16;
+    array_command_5 * _ssa_var_y_15;
+    array_command_5 * _ssa_var_old_data_14;
+    array_command_5 * _ssa_var_y_13;
+    array_command_5 * _ssa_var_old_data_12;
+    array_command_5 * _ssa_var_y_11;
+    array_command_5 * _ssa_var_old_data_10;
+    array_command_5 * _ssa_var_y_9;
+    array_command_5 * _ssa_var_old_data_8;
+    array_command_5 * _ssa_var_y_7;
+    array_command_5 * _ssa_var_old_data_6;
+    array_command_5 * _ssa_var_y_5;
+    array_command_5 * _ssa_var_old_data_4;
+    array_command_5 * _ssa_var_y_3;
+    array_command_2 * _ssa_var_old_data_2;
+    array_command_3 * _ssa_var_y_1;
     {
-        _ssa_var_base_1 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]
+        _ssa_var_y_1 = new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]
         
             array_command_2 * cmd = base;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_246;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_246, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_246);
+            int * _kernel_result_2;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_2, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_2);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_245<<<39063, 256>>>(dev_env, 10000000, _kernel_result_246);
+            kernel_1<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_2);
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_246;
+                cmd->result = _kernel_result_2;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
+            variable_size_array_t((void *) cmd->result, 60000000);
         }));
-        _ssa_var_base_2 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        _ssa_var_old_data_2 = base;
+        _ssa_var_y_3 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::FixedSizeArrayInHostSectionCommand, size = 60000000]
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_1);
+            array_command_3 * cmd = _ssa_var_y_1;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_250;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_250, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_250);
+            int * _kernel_result_6;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_6, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_6);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_249<<<39063, 256>>>(dev_env, 10000000, _kernel_result_250, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_5<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_6, ((int *) cmd->input_0.content));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_250;
+                cmd->result = _kernel_result_6;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_3 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_2 * cmd_to_free = _ssa_var_old_data_2;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_2);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_4 = _ssa_var_y_3;
+        _ssa_var_y_5 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_3;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_256;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_256, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_256);
+            int * _kernel_result_18;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_18, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_18);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_255<<<39063, 256>>>(dev_env, 10000000, _kernel_result_256, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_17<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_18, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_256;
+                cmd->result = _kernel_result_18;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_4 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_4;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_3);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_6 = _ssa_var_y_5;
+        _ssa_var_y_7 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_5;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_262;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_262, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_262);
+            int * _kernel_result_30;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_30, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_30);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_261<<<39063, 256>>>(dev_env, 10000000, _kernel_result_262, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_29<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_30, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_262;
+                cmd->result = _kernel_result_30;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_5 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_6;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_4);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_8 = _ssa_var_y_7;
+        _ssa_var_y_9 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_7;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_268;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_268, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_268);
+            int * _kernel_result_42;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_42, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_42);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_267<<<39063, 256>>>(dev_env, 10000000, _kernel_result_268, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_41<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_42, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_268;
+                cmd->result = _kernel_result_42;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_6 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_8;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_5);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_10 = _ssa_var_y_9;
+        _ssa_var_y_11 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_9;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_274;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_274, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_274);
+            int * _kernel_result_54;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_54, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_54);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_273<<<39063, 256>>>(dev_env, 10000000, _kernel_result_274, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_53<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_54, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_274;
+                cmd->result = _kernel_result_54;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_7 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_10;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_6);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_12 = _ssa_var_y_11;
+        _ssa_var_y_13 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_11;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_280;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_280, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_280);
+            int * _kernel_result_66;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_66, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_66);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_279<<<39063, 256>>>(dev_env, 10000000, _kernel_result_280, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_65<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_66, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_280;
+                cmd->result = _kernel_result_66;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_8 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_12;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_7);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_14 = _ssa_var_y_13;
+        _ssa_var_y_15 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_13;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_286;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_286, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_286);
+            int * _kernel_result_78;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_78, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_78);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_285<<<39063, 256>>>(dev_env, 10000000, _kernel_result_286, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_77<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_78, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_286;
+                cmd->result = _kernel_result_78;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_9 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_14;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_8);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_16 = _ssa_var_y_15;
+        _ssa_var_y_17 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_15;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_292;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_292, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_292);
+            int * _kernel_result_90;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_90, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_90);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_291<<<39063, 256>>>(dev_env, 10000000, _kernel_result_292, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_89<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_90, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_292;
+                cmd->result = _kernel_result_90;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_10 = new array_command_3(NULL, ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_16;
         
-            array_command_4 * cmd = new array_command_4(NULL, _ssa_var_base_9);
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_18 = _ssa_var_y_17;
+        _ssa_var_y_19 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_17;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_298;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_298, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_298);
+            int * _kernel_result_102;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_102, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_102);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_297<<<39063, 256>>>(dev_env, 10000000, _kernel_result_298, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_101<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_102, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_298;
+                cmd->result = _kernel_result_102;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
-        }));
-        _ssa_var_base_11 = new array_command_4(NULL, _ssa_var_base_10);
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_18;
+        
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_20 = _ssa_var_y_19;
+        _ssa_var_y_21 = new array_command_5(NULL, new array_command_3(NULL, ({
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+        
+            array_command_5 * cmd = _ssa_var_y_19;
+        
+            if (cmd->result == 0) {
+                    timeStartMeasure();
+            int * _kernel_result_114;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_114, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_114);
+            timeReportMeasure(program_result, allocate_memory);
+            timeStartMeasure();
+            kernel_113<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_114, ((int *) ((int *) cmd->input_0->input_0.content)));
+            checkErrorReturn(program_result, cudaPeekAtLastError());
+            checkErrorReturn(program_result, cudaThreadSynchronize());
+            timeReportMeasure(program_result, kernel);
+                cmd->result = _kernel_result_114;
+        
+                
+            }
+        
+            variable_size_array_t((void *) cmd->result, 60000000);
+        })));
+        ({
+            array_command_5 * cmd_to_free = _ssa_var_old_data_20;
+        
+            timeStartMeasure();
+            bool freed_memory = false;
+        
+            if (cmd_to_free->result != 0) {
+                checkErrorReturn(program_result, cudaFree(cmd_to_free->result));;
+        
+                // Remove from list of allocations
+                program_result->device_allocations->erase(
+                    std::remove(
+                        program_result->device_allocations->begin(),
+                        program_result->device_allocations->end(),
+                        cmd_to_free->result),
+                    program_result->device_allocations->end());
+        
+                freed_memory = true;
+            }
+        
+            timeReportMeasure(program_result, free_memory);
+            
+            freed_memory;
+        });
+        _ssa_var_old_data_22 = _ssa_var_y_21;
         return ({
-            // [Ikra::Symbolic::ArrayCombineCommand, size = 10000000]: [SendNode: [LVarReadNode: _ssa_var_base_1].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
+            // [Ikra::Symbolic::ArrayCombineCommand, size = 60000000]: [SendNode: [SendNode: [SendNode: [LVarReadNode: _ssa_var_y_1].__call__()].to_command()].pmap([HashNode: {<:with_index> => [BeginNode: {<true>}]}])]
         
-            array_command_4 * cmd = _ssa_var_base_11;
+            array_command_5 * cmd = _ssa_var_y_21;
         
             if (cmd->result == 0) {
                     timeStartMeasure();
-            int * _kernel_result_304;
-            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_304, (sizeof(int) * 10000000)));
-            program_result->device_allocations->push_back(_kernel_result_304);
+            int * _kernel_result_126;
+            checkErrorReturn(program_result, cudaMalloc(&_kernel_result_126, (sizeof(int) * 60000000)));
+            program_result->device_allocations->push_back(_kernel_result_126);
             timeReportMeasure(program_result, allocate_memory);
             timeStartMeasure();
-            kernel_303<<<39063, 256>>>(dev_env, 10000000, _kernel_result_304, ((int *) ((int *) cmd->input_0->input_0.content)));
+            kernel_125<<<58594, 1024>>>(dev_env, 60000000, _kernel_result_126, ((int *) ((int *) cmd->input_0->input_0.content)));
             checkErrorReturn(program_result, cudaPeekAtLastError());
             checkErrorReturn(program_result, cudaThreadSynchronize());
             timeReportMeasure(program_result, kernel);
-                cmd->result = _kernel_result_304;
+                cmd->result = _kernel_result_126;
         
                 
             }
         
-            variable_size_array_t((void *) cmd->result, 10000000);
+            variable_size_array_t((void *) cmd->result, 60000000);
         });
     }
 }
 
 #undef checkErrorReturn
 #define checkErrorReturn(result_var, expr) \
-expr
+if (result_var->last_error = expr) \
+{\
+    cudaError_t error = cudaGetLastError();\
+    printf("!!! Cuda Failure %s:%d (%i): '%s'\n", __FILE__, __LINE__, expr, cudaGetErrorString(error));\
+    cudaDeviceReset();\
+    return result_var;\
+}
 
 extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
 {

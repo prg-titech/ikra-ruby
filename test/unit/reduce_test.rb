@@ -144,9 +144,25 @@ class ReduceTest < UnitTestCase
         assert_equal(result2 , result1[0])
     end
 
-    def test_reduce_zero
-        array = Array.pnew(0) do |j|
-            j+1
+    #def test_reduce_zero
+    #    array = Array.pnew(0) do |j|
+    #        j+1
+    #    end
+    #
+    #    result1 = array.preduce do |l, r| 
+    #        l + r
+    #    end
+    #
+    #    result2 = array.reduce do |l, r| 
+    #        l + r
+    #    end
+    #
+    #    assert_equal(result2 , result1[0])
+    #end
+
+    def test_reduce_large
+        array = Array.pnew(409600) do |j|
+            (j+1) % 2
         end
 
         result1 = array.preduce do |l, r| 

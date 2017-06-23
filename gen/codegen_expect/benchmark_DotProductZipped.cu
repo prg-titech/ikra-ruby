@@ -296,6 +296,12 @@ extern "C" EXPORT result_t *launch_kernel(environment_t *host_env)
     /* Free device memory */
         timeStartMeasure();
     checkErrorReturn(program_result, cudaFree(_kernel_result_4));
+    program_result->device_allocations->erase(
+        std::remove(
+            program_result->device_allocations->begin(),
+            program_result->device_allocations->end(),
+            _kernel_result_4),
+        program_result->device_allocations->end());
     timeReportMeasure(program_result, free_memory);
 
 

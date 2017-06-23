@@ -1,0 +1,99 @@
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    Stencil10
+--------------------------------------------------------------------------------
+NVCC Time:                         2.1293
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.0809
+Kernel(s) Time:                    0.6154
+Allocate Memory Time:              0.0036
+Transfer Memory Time:              0.0772
+Free Memory Time:                  0.0015
+Rest Host Section:                 0.0001
+
+Total External Execution Time:     0.7788
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.6018
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.2150
+--------------------------------------------------------------------------------
+Total Execution Time:              3.7249
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 3.725772136 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.27 tests/s, 0.00 assertions/s
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    Stencil10
+--------------------------------------------------------------------------------
+NVCC Time:                         2.1068
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.0802
+Kernel(s) Time:                    0.6157
+Allocate Memory Time:              0.0036
+Transfer Memory Time:              0.0756
+Free Memory Time:                  0.0014
+Rest Host Section:                 0.0001
+
+Total External Execution Time:     0.7765
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.6377
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.2181
+--------------------------------------------------------------------------------
+Total Execution Time:              3.7392
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 3.740630233 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.27 tests/s, 0.00 assertions/s
+Loaded suite /home/matthias/.rvm/gems/ruby-2.3.1/gems/rake-11.2.2/lib/rake/rake_test_loader
+Started
+
+--------------------------------------------------------------------------------
+Benchmark (#0):                    Stencil10
+--------------------------------------------------------------------------------
+NVCC Time:                         2.1133
+--------------------------------------------------------------------------------
+CUDA Setup Time:                   0.0813
+Kernel(s) Time:                    0.6107
+Allocate Memory Time:              0.0040
+Transfer Memory Time:              0.0758
+Free Memory Time:                  0.0017
+Rest Host Section:                 0.0001
+
+Total External Execution Time:     0.7736
+--------------------------------------------------------------------------------
+Read Result (FFI) Time:            0.6247
+--------------------------------------------------------------------------------
+Rest Ruby Interpreter:             0.2185
+--------------------------------------------------------------------------------
+Total Execution Time:              3.7301
+--------------------------------------------------------------------------------
+
+
+.
+
+Finished in 3.731522782 seconds.
+------
+1 tests, 0 assertions, 0 failures, 0 errors, 0 pendings, 0 omissions, 0 notifications
+100% passed
+------
+0.27 tests/s, 0.00 assertions/s
