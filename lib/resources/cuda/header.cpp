@@ -6,6 +6,7 @@
 
 #include <helper_cuda.h>
 #include <helper_cuda_gl.h>
+#include <curand_kernel.h>
 
 using namespace std;
 

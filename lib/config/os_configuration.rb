@@ -72,7 +72,7 @@ module Ikra
                     reinitialize!
                 end
 
-                return "#{@cuda_nvcc} -o #{out_file} -I#{@cuda_common_include} -I#{@cuda_cupti_include} --shared -Xcompiler -fPIC -std=c++11 #{in_file} 2>&1"
+                return "#{@cuda_nvcc} -o #{out_file} -I#{@cuda_common_include} -I#{@cuda_cupti_include} -lcurand --shared -Xcompiler -fPIC -std=c++11 #{in_file} 2>&1"
             end
 
             def so_suffix

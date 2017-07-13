@@ -242,6 +242,12 @@ module Ikra
                     end
                 end
 
+                # TODO: Check superclass hierarchy
+                # Check for methods defined in Object
+                if @@impls[OBJECT_S].include?(method_name)
+                    return @@impls[OBJECT_S][method_name]
+                end
+
                 # No implementation found
                 return nil
             end
@@ -254,3 +260,4 @@ require_relative "math"
 require_relative "array"
 require_relative "array_command"
 require_relative "interpreter"
+require_relative "object"

@@ -125,7 +125,7 @@ module Ikra
                             "field" => field, 
                             "host_env" => Constants::ENV_HOST_IDENTIFIER,
                             "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
-                            "size_bytes" => object.size.to_s})   
+                            "size_bytes" => object.size.to_s})
                 else
                     # Nothing to do, this case is handled by mem-copying the struct
                 end
@@ -137,11 +137,19 @@ module Ikra
             end
 
             def build_environment_variable
+                # Allocate cuRAND states
+                result = Translator.read_file(
+                   file_name: "allocate_curand_states.cpp",
+                   replacements: {
+                       "host_env" => Constants::ENV_HOST_IDENTIFIER,
+                       # FIXME: number of threads
+                       "num_threads" => "100000"})
+
                 # Copy arrays to device side
-                result = @device_struct_allocation
+                result += @device_struct_allocation
 
                 # Allocate and copy over environment to device
-                result = result + Translator.read_file(
+                result += Translator.read_file(
                     file_name: "allocate_memcpy_environment_to_device.cpp",
                     replacements: {
                         "dev_env" => Constants::ENV_DEVICE_IDENTIFIER,
@@ -167,7 +175,7 @@ module Ikra
                     struct_def += "    #{value.to_c_type} *#{key};\n"
                 end
 
-                struct_def += "};\n"
+                struct_def += "\n    curandState_t *states;\n};\n"
 
                 return struct_def
             end

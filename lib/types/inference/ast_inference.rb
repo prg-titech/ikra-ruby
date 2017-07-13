@@ -564,14 +564,7 @@ module Ikra
 
             def visit_send_node(node)
                 # TODO: handle self sends
-                receiver_type = nil
-
-                if node.receiver == nil
-                    Logger.warn("No receiver given for node #{node.to_s}")
-                    receiver_type = Types::UnionType.create_int
-                else
-                    receiver_type = node.receiver.accept(self)
-                end
+                receiver_type =  node.receiver.accept(self)
 
                 node.arguments.each do |arg|
                     arg.accept(self)
