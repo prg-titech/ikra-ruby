@@ -24,7 +24,7 @@ def gradient(size)
     hx_res = size
     hy_res = size
 
-    command = Array.pnew(hx_res * hy_res) do |j|
+    command = PArray.new(hx_res * hy_res) do |j|
         hx = j % hx_res
         hy = j / hx_res
         

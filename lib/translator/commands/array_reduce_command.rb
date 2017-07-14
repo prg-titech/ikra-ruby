@@ -35,7 +35,7 @@ module Ikra
                 # Number of elements that will be reduced
                 num_threads = command.input_size
 
-                if num_threads.is_a?(Fixnum)
+                if num_threads.is_a?(Integer)
                     # Easy case: Number of required reductions known statically
 
                     odd = (num_threads % 2 == 1).to_s

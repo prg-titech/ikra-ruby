@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class SimpleFloatKernelTest < UnitTestCase
     def test_kernel
-        all_floats = Array.pnew(100) do |j|
+        all_floats = PArray.new(100) do |j|
             1.12
         end
 

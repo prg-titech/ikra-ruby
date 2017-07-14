@@ -53,7 +53,7 @@ for i in 1..100000
     end
 end
 
-squared = base.pmap do |el|
+squared = base.to_pa.map do |el|
     el.squared
 end
 

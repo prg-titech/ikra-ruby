@@ -3,15 +3,15 @@ require_relative "unit_test_template"
 
 class ReduceTest < UnitTestCase
     def test_reduce
-        array = Array.pnew(511) do |j|
+        array = PArray.new(511) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -19,13 +19,13 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_shortcut
-        array = Array.pnew(511) do |j|
+        array = PArray.new(511) do |j|
             j+1
         end
 
-        result1 = array.preduce(:+)
+        result1 = array.reduce(:+)
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -33,15 +33,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce2
-        array = Array.pnew(4096) do |j|
+        array = PArray.new(4096) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -49,15 +49,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce3
-        array = Array.pnew(513) do |j|
+        array = PArray.new(513) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -65,15 +65,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce4
-        array = Array.pnew(514) do |j|
+        array = PArray.new(514) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -81,15 +81,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce5
-        array = Array.pnew(517) do |j|
+        array = PArray.new(517) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -97,15 +97,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_single
-        array = Array.pnew(1) do |j|
+        array = PArray.new(1) do |j|
             j+123
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -113,15 +113,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_high
-        array = Array.pnew(25477) do |j|
+        array = PArray.new(25477) do |j|
             (j+1)%200
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -129,15 +129,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_two_pow_twelve
-        array = Array.pnew(4096) do |j|
+        array = PArray.new(4096) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -145,15 +145,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_zero
-        array = Array.pnew(0) do |j|
+        array = PArray.new(0) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -161,15 +161,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_two
-        array = Array.pnew(2) do |j|
+        array = PArray.new(2) do |j|
             j+1
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -177,15 +177,15 @@ class ReduceTest < UnitTestCase
     end
 
     def test_reduce_thousand_floats
-        array = Array.pnew(1024) do |j|
+        array = PArray.new(1024) do |j|
             j.fdiv(3)
         end
 
-        result1 = array.preduce do |l, r| 
+        result1 = array.reduce do |l, r|
             l + r
         end
 
-        result2 = array.reduce do |l, r| 
+        result2 = array.to_a.reduce do |l, r|
             l + r
         end
 
@@ -194,19 +194,19 @@ class ReduceTest < UnitTestCase
 
 
     def test_reduce_after_combine
-        array1 = Array.pnew(2577) do |j|
+        array1 = PArray.new(2577) do |j|
             (j+1)%200
         end
 
-        array2 = Array.pnew(2577) do |j|
+        array2 = PArray.new(2577) do |j|
             (j+1)%200
         end
 
-        temp_combine = array1.pcombine(array2) do |a, b|
+        temp_combine = array1.combine(array2) do |a, b|
             a + b
         end
 
-        result = temp_combine.preduce do |l, r| 
+        result = temp_combine.reduce do |l, r|
             l + r
         end
 

@@ -119,14 +119,14 @@ module Ikra
                         block_size = 256
                     end
                     
-                    if size.is_a?(Fixnum)
+                    if size.is_a?(Integer)
                         # Precompute constants
                         @grid_dim = [size.fdiv(block_size).ceil, 1].max.to_s
                         @block_dim = (size >= block_size ? block_size : size).to_s
                         @num_threads = size
                     else
                         if !size.is_a?(String)
-                            raise AssertionError.new("Fixnum or String expected")
+                            raise AssertionError.new("Integer or String expected")
                         end
 
                         # Source code string determines the size

@@ -2,7 +2,7 @@ require "ikra"
 
 def run_square
     array = (1..10000).to_a
-    squared = array.pmap do |value|
+    squared = array.to_pa.map do |value|
         value * value
     end
 

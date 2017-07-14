@@ -5,7 +5,7 @@ class SquareBenchmark < Test::Unit::TestCase
 
     def execute
         array = (1..10000).to_a
-        return array.pmap do |value|
+        return array.to_pa.map do |value|
             value * value
         end
     end

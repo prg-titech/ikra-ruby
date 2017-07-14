@@ -7,7 +7,7 @@ def run_mandel
     hy_res = 200
     iter_max = 256
 
-    mandel_basic = Array.pnew(hx_res * hy_res) do |j|
+    mandel_basic = PArray.new(hx_res * hy_res) do |j|
         hx = j % hx_res
         hy = j / hx_res
         
@@ -31,7 +31,7 @@ def run_mandel
     end
 
     inverted = 1
-    mandel_filtered = mandel_basic.pmap do |color|
+    mandel_filtered = mandel_basic.map do |color|
         if inverted == 1
             255 - color
         else

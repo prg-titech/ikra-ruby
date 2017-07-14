@@ -43,3 +43,9 @@ gen/codegen_expect/last_generated.cu
 gen/log
 
 test/unit/debug_test.rb
+
+# JetBrains
+.idea/
+
+# macOS
+.DS_Store

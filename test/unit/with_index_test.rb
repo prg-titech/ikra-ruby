@@ -3,11 +3,11 @@ require_relative "unit_test_template"
 
 class WithIndexTest < UnitTestCase
     def test_map
-        array_gpu = Array.pnew(511) do |j|
+        array_gpu = PArray.new(511) do |j|
             j + 1
         end
 
-        result_gpu = array_gpu.pmap.with_index do |value, index|
+        result_gpu = array_gpu.map.with_index do |value, index|
             value + (index % 10)
         end
 
@@ -24,11 +24,11 @@ class WithIndexTest < UnitTestCase
 
 
     def test_map_2d
-        array_gpu = Array.pnew(dimensions: [2, 3]) do |index|
+        array_gpu = PArray.new(dimensions: [2, 3]) do |index|
             index[0] * 10 + index[1]
         end
 
-        result_gpu = array_gpu.pmap.with_index do |value, index|
+        result_gpu = array_gpu.map.with_index do |value, index|
             value + 1000 * index[0] + 100 * index[1]
         end
 
@@ -37,11 +37,11 @@ class WithIndexTest < UnitTestCase
 
     def test_stencil_2d
         # GPU computation
-        base_array_gpu = Array.pnew(dimensions: [7, 5]) do |index|
+        base_array_gpu = PArray.new(dimensions: [7, 5]) do |index|
             10 * index[0] + index[1]
         end
 
-        stencil_result_gpu = base_array_gpu.pstencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000).with_index do |values, index|
+        stencil_result_gpu = base_array_gpu.stencil([[-1, -1], [0, -1], [0, 1], [0, 0]], 10000).with_index do |values, index|
             # values[-1, -1] + values[0, -1]
             values[-1][-1] + values[0][-1] + values[0][1] + values[0][0] + 1000 * index[0] + 100 * index[1]
         end

@@ -17,7 +17,7 @@ module Ikra
             attr_reader :return_type
 
             # If set to true, all argument should have a singleton type. This is required for
-            # operations on ArrayCommands (e.g., pzip).
+            # operations on ArrayCommands (e.g., zip).
             attr_reader :expect_singleton_args
 
             def initialize(
@@ -173,7 +173,7 @@ module Ikra
 
             if return_type.is_a?(Proc)
                 # Return type depends on argument types
-                if num_params.is_a?(Fixnum) && num_params != arg_types.size
+                if num_params.is_a?(Integer) && num_params != arg_types.size
                     raise ArgumentError.new(
                         "#{num_params} arguments expected but #{arg_types.size} given")
                 elsif num_params.is_a?(Range) && !num_params.include?(arg_types.size)

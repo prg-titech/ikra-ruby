@@ -10,7 +10,7 @@ module ImageLibrary
             end
 
             def apply_to(command)
-                return command.pcombine(*args, &block)
+                return command.combine(*args, &block)
             end
         end
 

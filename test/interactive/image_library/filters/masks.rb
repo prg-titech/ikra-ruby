@@ -6,7 +6,7 @@ module ImageLibrary
         # Rectangle mask
         def self.rect(x1, y1, x2, y2)
             return proc do |height, width|
-                Array.pnew(dimensions: [height, width]) do |indices|
+                PArray.new(dimensions: [height, width]) do |indices|
                     y = indices[0]
                     x = indices[1]
 
@@ -24,7 +24,7 @@ module ImageLibrary
         # Circle mask
         def self.circle(radius)
             return proc do |height, width|
-                Array.pnew(dimensions: [height, width]) do |indices|
+                PArray.new(dimensions: [height, width]) do |indices|
                     y = indices[0]
                     x = indices[1]
 
@@ -50,7 +50,7 @@ module ImageLibrary
                 hy_res = height
                 iter_max = 256
 
-                mandel_basic = Array.pnew(hx_res * hy_res) do |j|
+                mandel_basic = PArray.new(hx_res * hy_res) do |j|
                     hx = j % hx_res
                     hy = j / hx_res
                     

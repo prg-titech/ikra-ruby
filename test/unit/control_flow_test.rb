@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class ControlFlowTest < UnitTestCase
     def test_if
-        half_ones = Array.pnew(100) do |j|
+        half_ones = PArray.new(100) do |j|
             if j % 2 == 0
                 return 1
             else
@@ -11,11 +11,11 @@ class ControlFlowTest < UnitTestCase
             end
         end
 
-        assert_equal(50, half_ones.reduce(:+))
+        assert_equal(50, half_ones.to_a.reduce(:+))
     end
 
     def test_for
-        sum = Array.pnew(100) do |j|
+        sum = PArray.new(100) do |j|
             result = 0
             for i in 1..j
                 result += i
@@ -30,7 +30,7 @@ class ControlFlowTest < UnitTestCase
     end
 
     def test_for_excluding
-        sum = Array.pnew(100) do |j|
+        sum = PArray.new(100) do |j|
             result = 0
             for i in 1...j
                 result += i
@@ -45,7 +45,7 @@ class ControlFlowTest < UnitTestCase
     end
 
     def test_while
-        sum = Array.pnew(100) do |j|
+        sum = PArray.new(100) do |j|
             result = 0
             i = 1
 

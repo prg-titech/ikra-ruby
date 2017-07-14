@@ -43,7 +43,7 @@ module Ikra
             # to the block
             # @param [Hash{Symbol => Object}] lexical_variables all lexical variables that are 
             # accessed within the block
-            # @param [Fixnum] command_id a unique identifier of the block
+            # @param [Integer] command_id a unique identifier of the block
             # @param [String] pre_execution source code that should be run before executing the
             # block
             # @param [Array{Variable}] override_block_parameters overrides the the declaration of

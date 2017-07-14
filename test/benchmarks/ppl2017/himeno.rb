@@ -82,14 +82,14 @@ class Himeno < Test::Unit::TestCase
         param_bnd = @param_bnd
         param_wrk = @param_wrk
 
-        base_p = Array.pnew(dimensions: [i_max, j_max, k_max]) do |indices|
+        base_p = PArray.new(dimensions: [i_max, j_max, k_max]) do |indices|
             k = indices[2]
             #(k * k).to_f / (k_max - 1) / (k_max - 1)
             (k * k).to_f / (65 - 1) / (65 - 1)
         end
 
         section_result = Ikra::Symbolic.host_section(base_p) do |base|
-            next_p = base.__call__.to_command
+            next_p = base.__call__.to_pa
             old_data = base
             old_old_data = base
 
@@ -97,7 +97,7 @@ class Himeno < Test::Unit::TestCase
                 old_old_data = old_data
                 old_data = next_p
 
-                next_p = next_p.pstencil([
+                next_p = next_p.stencil([
                     [0, 0, 0],
                     [1, 0, 0], 
                     [0, 1, 0], 

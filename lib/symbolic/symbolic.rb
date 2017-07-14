@@ -15,12 +15,12 @@ module Ikra
         def self.stencil(directions:, distance:)
             return ["G", directions, distance]
         end
-    
+
         module ParallelOperations
-            def preduce(symbol = nil, **options, &block)
+            def reduce(symbol = nil, **options, &block)
                 if symbol == nil && (block != nil || options[:ast] != nil)
                     return ArrayReduceCommand.new(
-                        to_command, 
+                        to_pa,
                         block, 
                         **options)
                 elsif symbol != nil && block == nil
@@ -34,7 +34,7 @@ module Ikra
                                 arguments: [AST::LVarReadNode.new(identifier: :b)])))
 
                     return ArrayReduceCommand.new(
-                        to_command,
+                        to_pa,
                         nil,
                         ast: ast,
                         **options)
@@ -43,98 +43,98 @@ module Ikra
                 end
             end
 
-            def pstencil(offsets, out_of_range_value, **options, &block)
+            def stencil(offsets, out_of_range_value, **options, &block)
                 return ArrayStencilCommand.new(
-                    to_command, 
+                    to_pa,
                     offsets, 
                     out_of_range_value, 
                     block, 
                     **options)
             end
 
-            def pmap(**options, &block)
-                return pcombine(
+            def map(**options, &block)
+                return combine(
                     **options,
                     &block)
             end
 
-            def pcombine(*others, **options, &block)
+            def combine(*others, **options, &block)
                 return ArrayCombineCommand.new(
-                    to_command, 
+                    to_pa,
                     wrap_in_command(*others), 
                     block, 
                     **options)
             end
 
-            def pzip(*others, **options)
+            def zip(*others, **options)
                 return ArrayZipCommand.new(
-                    to_command, 
+                    to_pa,
                     wrap_in_command(*others),
                     **options)
             end
 
             def +(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a + b
                 end
             end
 
             def -(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a - b
                 end
             end
 
             def *(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a * b
                 end
             end
 
             def /(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a / b
                 end
             end
 
             def |(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a | b
                 end
             end
 
             def &(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a & b
                 end
             end
 
             def ^(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a ^ b
                 end
             end
 
             def <(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a < b
                 end
             end
 
             def <=(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a <= b
                 end
             end
 
             def >(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a > b
                 end
             end
 
             def >=(other)
-                return pcombine(other) do |a, b|
+                return combine(other) do |a, b|
                     a >= b
                 end
             end
@@ -146,7 +146,7 @@ module Ikra
 
             def wrap_in_command(*others)
                 return others.map do |other|
-                    other.to_command
+                    other.to_pa
                 end
             end
         end
@@ -157,7 +157,7 @@ module Ikra
 
             attr_reader :block_size
 
-            # [Fixnum] Returns a unique ID for this command. It is used during name mangling in
+            # [Integer] Returns a unique ID for this command. It is used during name mangling in
             # the code generator to determine the name of array identifiers (and do other stuff?).
             attr_reader :unique_id
 
@@ -280,7 +280,7 @@ module Ikra
                 end
             end
             
-            def to_command
+            def to_pa
                 return self
             end
 
@@ -319,7 +319,7 @@ module Ikra
 
             # Returns the size (number of elements) of the result, after executing the parallel 
             # section.
-            # @return [Fixnum] size
+            # @return [Integer] size
             def size
                 raise NotImplementedError.new
             end
@@ -451,8 +451,8 @@ module Ikra
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node, command_binding: command_binding)
 
                 # Read array at position `tid`
-                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
-                    SingleInput.new(command: other.to_command, pattern: :tid)
+                @input = [SingleInput.new(command: target.to_pa, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_pa, pattern: :tid)
                 end
 
                 if with_index
@@ -477,8 +477,8 @@ module Ikra
             def initialize(target, others, **options)
                 super(**options)
 
-                @input = [SingleInput.new(command: target.to_command, pattern: :tid)] + others.map do |other|
-                    SingleInput.new(command: other.to_command, pattern: :tid)
+                @input = [SingleInput.new(command: target.to_pa, pattern: :tid)] + others.map do |other|
+                    SingleInput.new(command: other.to_pa, pattern: :tid)
                 end
             end
 
@@ -509,7 +509,7 @@ module Ikra
 
                 super(block: block, block_ast: ast, block_size: block_size, keep: keep, generator_node: generator_node, command_binding: command_binding)
 
-                @input = [ReduceInput.new(command: target.to_command, pattern: :entire)]
+                @input = [ReduceInput.new(command: target.to_pa, pattern: :entire)]
             end
 
             def execute
@@ -641,7 +641,7 @@ module Ikra
 
                 if offsets.first == "G"
                     # A stencil will be generated
-                    dims = target.to_command.dimensions.size
+                    dims = target.to_pa.dimensions.size
 
                     directions = offsets[1]
                     # Directions says how many of the dimensions can be used in the stencil. E.g.: in 2D directions = 1 would relate in a stencil that only has up, down, left, right offsets, but no diagonals  
@@ -694,13 +694,13 @@ module Ikra
 
                 if use_parameter_array
                     @input = [StencilArrayInput.new(
-                        command: target.to_command,
+                        command: target.to_pa,
                         pattern: :entire,
                         offsets: offsets,
                         out_of_bounds_value: out_of_range_value)]
                 else
                     @input = [StencilSingleInput.new(
-                        command: target.to_command,
+                        command: target.to_pa,
                         pattern: :entire,
                         offsets: offsets,
                         out_of_bounds_value: out_of_range_value)]
@@ -787,7 +787,7 @@ module Ikra
                 @block = block
 
                 # One element per thread
-                @input = [SingleInput.new(command: target.to_command, pattern: :tid)]
+                @input = [SingleInput.new(command: target.to_pa, pattern: :tid)]
             end
             
             # how to implement SELECT?
@@ -850,25 +850,23 @@ module Ikra
     end
 end
 
-class Array
-    include Ikra::Symbolic::ParallelOperations
-
-    class << self
-        def pnew(size = nil, **options, &block)
-            if size != nil
-                dimensions = [size]
-            else
-                dimensions = options[:dimensions]
-            end
-
-            map_options = options.dup
-            map_options.delete(:dimensions)
-
-            return Ikra::Symbolic::ArrayIndexCommand.new(
-                dimensions: dimensions, block_size: options[:block_size]).pmap(**map_options, &block)
+class PArray
+    def self.new(size = nil, **options, &block)
+        if size != nil
+            dimensions = [size]
+        else
+            dimensions = options[:dimensions]
         end
+
+        map_options = options.dup
+        map_options.delete(:dimensions)
+
+        return Ikra::Symbolic::ArrayIndexCommand.new(
+            dimensions: dimensions, block_size: options[:block_size]).map(**map_options, &block)
     end
-    
+end
+
+class Array
     # Have to keep the old methods around because sometimes we want to have the original code
     alias_method :old_plus, :+
     alias_method :old_minus, :-
@@ -877,46 +875,46 @@ class Array
     alias_method :old_and, :&
 
     def +(other)
-        if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            super(other)
+        if other.is_a? Ikra::Symbolic::ArrayCommand
+            return to_pa + other
         else
-            return self.old_plus(other)
+            return old_plus(other)
         end
     end
 
     def -(other)
-        if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            super(other)
+        if other.is_a? Ikra::Symbolic::ArrayCommand
+            return to_pa - other
         else
-            return self.old_minus(other)
+            return old_minus(other)
         end
     end
-    
+
     def *(other)
-        if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            super(other)
+        if other.is_a? Ikra::Symbolic::ArrayCommand
+            return to_pa * other
         else
-            return self.old_mul(other)
+            return old_mul(other)
         end
     end
 
     def |(other)
-        if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            super(other)
+        if other.is_a? Ikra::Symbolic::ArrayCommand
+            return to_pa | other
         else
-            return self.old_or(other)
+            return old_or(other)
         end
     end
 
     def &(other)
-        if other.is_a?(Ikra::Symbolic::ArrayCommand)
-            super(other)
+        if other.is_a? Ikra::Symbolic::ArrayCommand
+            return to_pa & other
         else
-            return self.old_and(other)
+            return old_and(other)
         end
     end
 
-    def to_command(dimensions: nil)
+    def to_pa(dimensions: nil)
         return Ikra::Symbolic::ArrayIdentityCommand.new(self, dimensions: dimensions)
     end
 end

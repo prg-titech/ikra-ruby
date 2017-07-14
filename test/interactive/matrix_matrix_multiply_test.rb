@@ -48,8 +48,8 @@ end
 
 # GPU-based implementation
 def matrix_multiplication_gpu(a, b, size)
-    # Same as: (0...(size*size)).to_a.pmap do |index|
-    return Array.pnew(size * size) do |index|
+    # Same as: (0...(size*size)).to_a.to_pa.map do |index|
+    return PArray.new(size * size) do |index|
         x = index % size
         y = index / size
 
@@ -76,7 +76,7 @@ def matrix_multiplication_gpu_blocked(a, b, size)
 
     # TODO (Step 6.1): Generate block indices
 
-    unordered_result = indices.pmap do |index|
+    unordered_result = indices.to_pa.map do |index|
         x = index % size
         y = index / size
 
@@ -96,7 +96,7 @@ end
 def matrix_multiplication_gpu_transposed_b(a, b, size)
     # Matrix B is transposed
 
-    return Array.pnew(size * size) do |index|
+    return PArray.new(size * size) do |index|
         x = index % size
         y = index / size
 
@@ -112,7 +112,7 @@ end
 def matrix_multiplication_gpu_transposed_a(a, b, size)
     # Matrix A is transposed
 
-    return Array.pnew(size * size) do |index|
+    return PArray.new(size * size) do |index|
         x = index % size
         y = index / size
 

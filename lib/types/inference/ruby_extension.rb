@@ -2,7 +2,7 @@
 
 require "set"
 
-class Fixnum
+class Integer
     class << self
         def to_ikra_type
             Ikra::Types::PrimitiveType::Int

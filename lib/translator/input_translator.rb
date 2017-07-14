@@ -150,31 +150,31 @@ module Ikra
             end
 
             def block_parameters(index = 0..-1)
-                if index.is_a?(Fixnum)
+                if index.is_a?(Integer)
                     return @input[index].parameters
                 elsif index.is_a?(Range)
                     return @input[index].reduce([]) do |acc, n|
                         acc + n.parameters
                     end
                 else
-                    raise ArgumentError.new("Expected Fixnum or Range")
+                    raise ArgumentError.new("Expected Integer or Range")
                 end
             end
 
             def pre_execution(index = 0..-1)
-                if index.is_a?(Fixnum)
+                if index.is_a?(Integer)
                     return @input[index].pre_execution
                 elsif index.is_a?(Range)
                     return @input[index].reduce("") do |acc, n|
                         acc + "\n" + n.pre_execution
                     end
                 else
-                    raise ArgumentError.new("Expected Fixnum or Range")
+                    raise ArgumentError.new("Expected Integer or Range")
                 end
             end
 
             def override_block_parameters(index = 0..-1)
-                if index.is_a?(Fixnum)
+                if index.is_a?(Integer)
                     if @input[index].override_block_parameters == nil
                         # No override specified
                         return @input[index].parameters
@@ -190,31 +190,31 @@ module Ikra
                         end
                     end
                 else
-                    raise ArgumentError.new("Expected Fixnum or Range")
+                    raise ArgumentError.new("Expected Integer or Range")
                 end
             end
 
             def execution(index = 0..-1)
-                if index.is_a?(Fixnum)
+                if index.is_a?(Integer)
                      return @input[index].command_translation_result.execution
                 elsif index.is_a?(Range)
                     return @input[index].reduce("") do |acc, n|
                         acc + n.command_translation_result.execution
                     end
                 else
-                    raise ArgumentError.new("Expected Fixnum or Range")
+                    raise ArgumentError.new("Expected Integer or Range")
                 end
             end
 
             def result(index = 0..-1)
-                if index.is_a?(Fixnum)
+                if index.is_a?(Integer)
                      return @input[index].command_translation_result.result
                 elsif index.is_a?(Range)
                     return @input[index].map do |n|
                         n.command_translation_result.result
                     end
                 else
-                    raise ArgumentError.new("Expected Fixnum or Range")
+                    raise ArgumentError.new("Expected Integer or Range")
                 end
             end
 

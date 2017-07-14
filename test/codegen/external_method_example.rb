@@ -22,7 +22,7 @@ end
 
 a = A.new
 
-result = Array.pnew(10) do |i|
+result = PArray.new(10) do |i|
 	x1 = i * i
 	x2 = 2 * i
 

@@ -528,13 +528,13 @@ module Ikra
                         # Cannot do further symbolic execution, i.e., kernel fusion here,
                         # because we are in a loop.
 
-                        # Invoke parallel section: change to `RECV` to `RECV.__call__.to_command`
+                        # Invoke parallel section: change to `RECV` to `RECV.__call__.to_pa`
                         node.replace_child(
                             node.receiver, 
                             AST::SendNode.new(
                                 receiver: AST::SendNode.new(
                                     receiver: node.receiver, selector: :__call__),
-                                selector: :to_command))
+                                selector: :to_pa))
 
                         # Start fresh
                         raise RestartTypeInferenceError.new

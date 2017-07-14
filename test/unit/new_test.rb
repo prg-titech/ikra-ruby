@@ -3,7 +3,7 @@ require_relative "unit_test_template"
 
 class NewTest < UnitTestCase
     def test_new
-        array_gpu = Array.pnew(511) do |j|
+        array_gpu = PArray.new(511) do |j|
             j + 1
         end
 
@@ -11,11 +11,11 @@ class NewTest < UnitTestCase
             j + 1
         end
 
-        assert_equal(array_cpu.reduce(:+) , array_gpu.reduce(:+))
+        assert_equal(array_cpu.reduce(:+) , array_gpu.to_a.reduce(:+))
     end
 
     def test_new_2d
-        array_gpu = Array.pnew(dimensions: [2, 3]) do |index|
+        array_gpu = PArray.new(dimensions: [2, 3]) do |index|
             index[0] * 100 + index[1]
         end
 
@@ -23,7 +23,7 @@ class NewTest < UnitTestCase
     end
 
     def test_new_3d
-        array_gpu = Array.pnew(dimensions: [2, 3, 4]) do |index|
+        array_gpu = PArray.new(dimensions: [2, 3, 4]) do |index|
             index[0] * 100 + index[1] * 10 + index[2]
         end
 
