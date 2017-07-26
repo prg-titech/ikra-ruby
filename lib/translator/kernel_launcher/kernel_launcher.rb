@@ -237,7 +237,9 @@ module Ikra
                     end
 
                     return Translator.read_file(file_name: "free_device_memory.cpp", replacements: {
-                        "name" => kernel_result_var_name})
+                        "name" => kernel_result_var_name}) +
+                    Translator.read_file(file_name: "free_curand_states.cpp", replacements: {
+                        "host_env" => Constants::ENV_HOST_IDENTIFIER})
                 end
 
                 # Same as above, but also removes item from the list of allocated memory chunks.

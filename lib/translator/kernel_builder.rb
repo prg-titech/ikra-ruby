@@ -129,7 +129,8 @@ module Ikra
                         "execution" => execution,
                         "kernel_name" => kernel_name,
                         "parameters" => parameters,
-                        "num_threads" => Constants::NUM_THREADS_IDENTIFIER})
+                        "num_threads" => Constants::NUM_THREADS_IDENTIFIER,
+                        "curand_seed" => Constants::CURAND_SEED})
                 end
             end
         end

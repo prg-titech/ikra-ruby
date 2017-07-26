@@ -28,6 +28,8 @@ module Ikra
             PROGRAM_RESULT_TYPE = "result_t"
             PROGRAM_RESULT_IDENTIFIER = "program_result"
             SELF_IDENTIFIER = "_self_"
+            MAX_NUM_THREADS = "20000"
+            CURAND_SEED = "0"
 
             # Make sure that these constants keep in sync with header declaration CPP file
             UNION_TYPE_SIZE = 24

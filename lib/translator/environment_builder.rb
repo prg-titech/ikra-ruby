@@ -142,8 +142,7 @@ module Ikra
                    file_name: "allocate_curand_states.cpp",
                    replacements: {
                        "host_env" => Constants::ENV_HOST_IDENTIFIER,
-                       # FIXME: number of threads
-                       "num_threads" => "100000"})
+                       "num_threads" => Constants::MAX_NUM_THREADS})
 
                 # Copy arrays to device side
                 result += @device_struct_allocation
@@ -161,7 +160,8 @@ module Ikra
             def build_environment_struct
                 @objects.freeze
 
-                struct_def = "struct environment_struct\n{\n"
+                struct_def = ""
+
                 @objects.each do |key, value|
                     if value.class == FFI::MemoryPointer
                         # TODO: can this be an extension method of FFI::MemoryPointer?
@@ -175,9 +175,10 @@ module Ikra
                     struct_def += "    #{value.to_c_type} *#{key};\n"
                 end
 
-                struct_def += "\n    curandState_t *states;\n};\n"
-
-                return struct_def
+                return Translator.read_file(
+                    file_name: "environment_struct.cpp",
+                    replacements: {
+                        "struct_def" => struct_def})
             end
 
             def build_ffi_type
