@@ -7,6 +7,12 @@ module Ikra
         JOB_REORDERING = true
         @@expect_file_name = "last_generated"
 
+        class << self
+            # For debug purposes only: provide different CUDA source code file for compilation
+            attr_accessor :override_cuda_file
+            attr_accessor :kernel_iterations
+        end
+
         def self.resource_file_name(file_name)
             File.expand_path("resources/cuda/#{file_name}", File.dirname(File.dirname(File.expand_path(__FILE__))))
         end

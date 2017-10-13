@@ -72,6 +72,10 @@ module Ikra
                     reinitialize!
                 end
 
+                if Configuration.override_cuda_file != nil
+                    in_file = Configuration.override_cuda_file
+                end
+
                 return "#{@cuda_nvcc} -o #{out_file} -I#{@cuda_common_include} -I#{@cuda_cupti_include} --shared -Xcompiler -fPIC -std=c++11 #{in_file} 2>&1"
             end
 
